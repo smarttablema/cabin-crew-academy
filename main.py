@@ -5,20 +5,18 @@ from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-from typing import Optional
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQdjcq6@ep-cold-lake-b1djlrzp-pooler.c-5.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Elite Academy", version="11.3.0")
+app = FastAPI(title="Aero Crew Elite Academy", version="11.4.0")
 
 @app.on_event("startup")
 def startup_db():
     conn = get_db_connection()
     cur = conn.cursor()
-    
     cur.execute("""
         CREATE TABLE IF NOT EXISTS aero_users_v11 (
             id SERIAL PRIMARY KEY,
@@ -119,7 +117,7 @@ def startup_db():
     cur.execute("""
         INSERT INTO aero_curriculum_v11 (year_level, node_order, category, theme_icon, title_en, title_ar, title_fr, content_en, content_ar, content_fr)
         VALUES 
-        (1, 1, 'SEP', '✈️', 'Step 1: EASA Regulatory Framework', 'Step 1: EASA Framework', 'Étape 1 : Cadre EASA', 'Introduction to EASA regulations governing cabin crew operational safety duties.', 'Introduction to EASA regulations.', 'Introduction aux réglementations de l Agence.'),
+        (1, 1, 'SEP', '✈️', 'Step 1: EASA Framework', 'Step 1: EASA Framework', 'Étape 1 : Cadre EASA', 'Introduction to EASA regulations governing cabin crew operational safety duties.', 'Introduction to EASA regulations.', 'Introduction aux réglementations.'),
         (1, 2, 'SEP', '🚪', 'Step 2: Emergency Exits & Door Arming', 'Step 2: Exits', 'Étape 2 : Portes', 'Mandatory pre-flight checks and slide arming procedures.', 'Pre-flight checks.', 'Vérifications pré-vol.'),
         (2, 1, 'CRM', '🤝', 'Step 1: Advanced CRM', 'Step 1: CRM', 'Étape 1 : CRM', 'Multicultural flight deck and cabin crew communication dynamics.', 'Communication dynamics.', 'Dynamique de communication.')
         ON CONFLICT DO NOTHING;
@@ -231,7 +229,6 @@ def change_password(data: PasswordChangeModel):
         cur.close()
         conn.close()
         raise HTTPException(status_code=404, detail="User not found.")
-    
     if user["recovery_pin"] != data.recovery_pin:
         cur.close()
         conn.close()
@@ -349,7 +346,6 @@ def buy_skin(data: BuySkinModel):
         cur.close()
         conn.close()
         raise HTTPException(status_code=404, detail="User not found.")
-    
     if user["xp_points"] < data.cost:
         cur.close()
         conn.close()
@@ -371,14 +367,12 @@ def verify_exercise(data: DrillAttemptModel):
     ex = cur.fetchone()
     cur.execute("SELECT * FROM aero_users_v11 WHERE phone_number = %s;", (data.phone_number,))
     user = cur.fetchone()
-    
     if not ex or not user:
         cur.close()
         conn.close()
         raise HTTPException(status_code=404, detail="Record not found.")
     
     correct = data.user_answer.strip().lower() == ex["correct_answer"].strip().lower()
-    
     if correct:
         cur.execute("UPDATE aero_users_v11 SET xp_points = xp_points + 30 WHERE phone_number = %s RETURNING xp_points, hearts, streak;", (data.phone_number,))
         res = cur.fetchone()
@@ -422,12 +416,12 @@ def serve_frontend():
             --border: #1e293b;
             --border-glow: #334155;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; pointer-events: auto !important; }
         [dir="rtl"] * { font-family: 'Tajawal', sans-serif !important; }
         
         body { background: var(--bg-deep); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; }
         
-        .app-shell { width: 100%; max-width: 600px; background: var(--surface); border-radius: 36px; padding: 2rem; border: 1px solid var(--border-glow); box-shadow: 0 45px 90px rgba(0, 0, 0, 0.95), 0 0 40px rgba(56, 189, 248, 0.08); position: relative; overflow: hidden; }
+        .app-shell { width: 100%; max-width: 600px; background: var(--surface); border-radius: 36px; padding: 2rem; border: 1px solid var(--border-glow); box-shadow: 0 45px 90px rgba(0, 0, 0, 0.95), 0 0 40px rgba(56, 189, 248, 0.08); position: relative; z-index: 10; }
         
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.4rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
         .brand-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem; color: var(--accent); letter-spacing: -0.5px; }
@@ -441,14 +435,14 @@ def serve_frontend():
         p.sub-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.4rem; line-height: 1.5; }
         
         label { display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.35rem; letter-spacing: 0.8px; }
-        input, select, textarea { width: 100%; padding: 0.9rem 1.1rem; border-radius: 16px; border: 1px solid var(--border-glow); background: var(--bg-deep); color: white; font-size: 0.92rem; margin-bottom: 1rem; outline: none; transition: all 0.2s; }
+        input, select, textarea { width: 100%; padding: 0.9rem 1.1rem; border-radius: 16px; border: 1px solid var(--border-glow); background: var(--bg-deep); color: white; font-size: 0.92rem; margin-bottom: 1rem; outline: none; transition: all 0.2s; position: relative; z-index: 20; }
         input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
         
-        .btn-action { width: 100%; padding: 1rem; border-radius: 16px; border: none; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); font-weight: 800; font-size: 0.98rem; cursor: pointer; transition: transform 0.1s, opacity 0.2s, box-shadow 0.2s; box-shadow: 0 6px 20px var(--accent-glow); }
+        .btn-action { width: 100%; padding: 1rem; border-radius: 16px; border: none; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); font-weight: 800; font-size: 0.98rem; cursor: pointer; transition: transform 0.1s, opacity 0.2s, box-shadow 0.2s; box-shadow: 0 6px 20px var(--accent-glow); position: relative; z-index: 20; }
         .btn-action:active { transform: scale(0.98); }
         .btn-action:hover { opacity: 0.95; box-shadow: 0 8px 25px var(--accent-glow); }
 
-        .footer-nav { display: flex; justify-content: space-between; margin-top: 1.2rem; font-size: 0.82rem; }
+        .footer-nav { display: flex; justify-content: space-between; margin-top: 1.2rem; font-size: 0.82rem; position: relative; z-index: 20; }
         .footer-nav a { color: var(--accent); text-decoration: none; font-weight: 700; cursor: pointer; }
         .footer-nav a:hover { text-decoration: underline; }
 
@@ -463,19 +457,15 @@ def serve_frontend():
         .stat-item { font-weight: 800; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; }
         
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.1rem; }
-        .mode-tile { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .mode-tile { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; z-index: 20; }
         .mode-tile:hover { border-color: var(--accent); background: var(--surface-card-hover); transform: translateY(-3px); box-shadow: 0 10px 25px rgba(56,189,248,0.15); }
         .mode-tile h4 { font-size: 0.85rem; font-weight: 800; margin-top: 6px; color: white; }
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; position: relative; min-height: 270px; }
         
         .roadmap-path { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 15px 0; max-height: 280px; overflow-y: auto; }
-        .roadmap-node { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 25px var(--accent-glow); transition: transform 0.2s; position: relative; border: 3px solid #bae6fd; }
+        .roadmap-node { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 25px var(--accent-glow); transition: transform 0.2s; position: relative; border: 3px solid #bae6fd; z-index: 25; }
         .roadmap-node:hover { transform: scale(1.12); box-shadow: 0 0 35px var(--accent); }
-        .roadmap-node:nth-child(4n+1) { transform: translateX(0px); }
-        .roadmap-node:nth-child(4n+2) { transform: translateX(45px); }
-        .roadmap-node:nth-child(4n+3) { transform: translateX(0px); }
-        .roadmap-node:nth-child(4n+4) { transform: translateX(-45px); }
 
         .chat-container { display: flex; flex-direction: column; height: 320px; background: var(--bg-deep); border-radius: 16px; border: 1px solid var(--border-glow); overflow: hidden; }
         .chat-messages { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
@@ -484,7 +474,7 @@ def serve_frontend():
         .chat-bubble.outgoing { background: #0284c7; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         .chat-input-bar { display: flex; gap: 6px; padding: 10px; background: var(--surface-card); border-top: 1px solid var(--border); align-items: center; }
 
-        .toast-popup { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 14px 28px; border-radius: 35px; font-weight: 800; font-size: 0.9rem; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 4000; box-shadow: 0 15px 35px rgba(0,0,0,0.7); }
+        .toast-popup { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 14px 28px; border-radius: 35px; font-weight: 800; font-size: 0.9rem; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 6000; box-shadow: 0 15px 35px rgba(0,0,0,0.7); }
         .toast-popup.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
@@ -494,7 +484,7 @@ def serve_frontend():
     <div id="settings-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.9); backdrop-filter:blur(8px); display:flex; justify-content:center; align-items:center; z-index:5000; opacity:0; pointer-events:none; transition:opacity 0.25s;">
         <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:420px; max-height:85vh; overflow-y:auto; box-shadow:0 30px 60px rgba(0,0,0,0.9);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
-                <h3 style="font-size:1.2rem; font-weight:900; color:white;">⚙️ Profile & Academy Settings</h3>
+                <h3 style="font-size:1.2rem; font-weight:900; color:white;">⚙️️ Profile & Academy Settings</h3>
                 <button onclick="closeSettingsModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
             </div>
 
@@ -775,14 +765,20 @@ def serve_frontend():
         }
 
         function navigateTo(id) {
-            ['screen-login', 'screen-register', 'screen-reset', 'screen-dashboard'].forEach(s => document.getElementById(s).classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
+            ['screen-login', 'screen-register', 'screen-reset', 'screen-dashboard'].forEach(s => {
+                const el = document.getElementById(s);
+                if(el) el.classList.add('hidden');
+            });
+            const target = document.getElementById(id);
+            if(target) target.classList.remove('hidden');
             
             const headerIcons = document.getElementById('dash-header-icons');
-            if(id === 'screen-dashboard') {
-                headerIcons.classList.remove('hidden');
-            } else {
-                headerIcons.classList.add('hidden');
+            if(headerIcons) {
+                if(id === 'screen-dashboard') {
+                    headerIcons.classList.remove('hidden');
+                } else {
+                    headerIcons.classList.add('hidden');
+                }
             }
         }
 
@@ -1039,13 +1035,13 @@ def serve_frontend():
             let optionsHtml = '';
             if(ex.options && ex.options.length > 0) {
                 optionsHtml = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin: 1rem 0;">' +
-                    ex.options.map(opt => `<button class="btn-action" onclick="verifyExerciseAnswer(${yearNum}, ${ex.id}, '${opt}')" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:10px; font-size:0.85rem;">${opt}</button>`).join('') +
+                    ex.options.map(opt => `<button class="btn-action" onclick="verifyExerciseAnswer(${yearNum}, ${ex.id}, '${opt}')" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:10px; font-size:0.85rem; position:relative; z-index:20;">${opt}</button>`).join('') +
                 '</div>';
             }
 
             let voiceHtml = '';
             if(ex.exercise_type === 'voice') {
-                voiceHtml = '<div style="text-align:center; margin:1rem 0;"><button onclick="simulateVoiceRecord(\'' + ex.correct_answer + '\', ' + yearNum + ', ' + ex.id + ')" class="btn-action" style="width:70px; height:70px; border-radius:50%; background:linear-gradient(135deg, #ef4444 0%, #991b1b 100%); font-size:1.8rem; margin:0 auto; display:flex; justify-content:center; align-items:center;">🎙️</button><div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">Tap microphone & repeat aloud</div></div>';
+                voiceHtml = '<div style="text-align:center; margin:1rem 0;"><button onclick="simulateVoiceRecord(\'' + ex.correct_answer + '\', ' + yearNum + ', ' + ex.id + ')" class="btn-action" style="width:70px; height:70px; border-radius:50%; background:linear-gradient(135deg, #ef4444 0%, #991b1b 100%); font-size:1.8rem; margin:0 auto; display:flex; justify-content:center; align-items:center; position:relative; z-index:20;">🎙️</button><div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">Tap microphone & repeat aloud</div></div>';
             }
 
             box.innerHTML = `
@@ -1117,8 +1113,8 @@ def serve_frontend():
                         <button onclick="sendQuickAttachment('audio')" title="Voice Note" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">🎤</button>
                         <button onclick="sendQuickAttachment('image')" title="Image / Photo" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">📷</button>
                         <button onclick="sendQuickAttachment('pdf')" title="PDF File" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">📎</button>
-                        <input type="text" id="chat-text-input" placeholder="Type message..." style="margin-bottom:0; flex:1; padding:7px 10px; font-size:0.82rem;" />
-                        <button onclick="sendChatMessage('text')" class="btn-action" style="width:50px; padding:7px; font-size:0.82rem;">Send</button>
+                        <input type="text" id="chat-text-input" placeholder="Type message..." style="margin-bottom:0; flex:1; padding:7px 10px; font-size:0.82rem; position:relative; z-index:20;" />
+                        <button onclick="sendChatMessage('text')" class="btn-action" style="width:50px; padding:7px; font-size:0.82rem; position:relative; z-index:20;">Send</button>
                     </div>
                 </div>
             `;
@@ -1159,8 +1155,8 @@ def serve_frontend():
                     <span style="font-size: 0.8rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
                 </div>
                 <div style="display: flex; gap: 8px; margin-bottom: 0.8rem;">
-                    <button onclick="playAudio('click'); openShop('male')" style="flex:1; padding:8px; border-radius:10px; border:1px solid ${category==='male'?'var(--accent)':'var(--border)'}; background:${category==='male'?'var(--accent-glow)':'var(--bg-deep)'}; color:white; font-weight:800; font-size:0.8rem; cursor:pointer;">👔 Steward Collection</button>
-                    <button onclick="playAudio('click'); openShop('female')" style="flex:1; padding:8px; border-radius:10px; border:1px solid ${category==='female'?'var(--accent)':'var(--border)'}; background:${category==='female'?'var(--accent-glow)':'var(--bg-deep)'}; color:white; font-weight:800; font-size:0.8rem; cursor:pointer;">👗 Hostess Collection</button>
+                    <button onclick="playAudio('click'); openShop('male')" style="flex:1; padding:8px; border-radius:10px; border:1px solid ${category==='male'?'var(--accent)':'var(--border)'}; background:${category==='male'?'var(--accent-glow)':'var(--bg-deep)'}; color:white; font-weight:800; font-size:0.8rem; cursor:pointer; position:relative; z-index:20;">👔 Steward Collection</button>
+                    <button onclick="playAudio('click'); openShop('female')" style="flex:1; padding:8px; border-radius:10px; border:1px solid ${category==='female'?'var(--accent)':'var(--border)'}; background:${category==='female'?'var(--accent-glow)':'var(--bg-deep)'}; color:white; font-weight:800; font-size:0.8rem; cursor:pointer; position:relative; z-index:20;">👗 Hostess Collection</button>
                 </div>
                 <div style="max-height: 190px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
                     ${filteredSkins.map(skin => `
@@ -1175,7 +1171,7 @@ def serve_frontend():
                                     <div style="color: var(--text-muted); font-size: 0.7rem;">${skin.desc_en}</div>
                                 </div>
                             </div>
-                            <button onclick="playAudio('click'); buySkin('${skin.skin_name}',${skin.cost}, '${category}')" style="background: #8b5cf6; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 0.75rem; cursor: pointer;">${skin.cost === 0 ? 'Equipped' : skin.cost + ' ⭐'}</button>
+                            <button onclick="playAudio('click'); buySkin('${skin.skin_name}',${skin.cost}, '${category}')" style="background: #8b5cf6; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 0.75rem; cursor: pointer; position:relative; z-index:20;">${skin.cost === 0 ? 'Equipped' : skin.cost + ' ⭐'}</button>
                         </div>
                     `).join('')}
                 </div>
