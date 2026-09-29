@@ -50,9 +50,9 @@ def startup_db():
             hint_en TEXT
         );
     """)
-    # Seed official accredited EASA / ICAO cabin crew curriculum
+    # Seed official accredited EASA / ICAO cabin crew curriculum with fixed column names
     cur.execute("""
-        INSERT INTO official_modules_v4 (title_en, title_ar, title_ar, category, content_en)
+        INSERT INTO official_modules_v4 (title_en, title_ar, title_fr, category, content_en)
         VALUES 
         ('SEP: Emergency Evacuation & Brace Positions', 'إجراءات الإخلاء الطارئ ووضعيات الاستعداد', 'Procédures d évacuation d urgence', 'SEP', 'During an emergency water or land landing, cabin crew must immediately yell commanding brace commands, assess exit conditions for fire or water hazards, and deploy slides within 90 seconds.'),
         ('Dangerous Goods (Hazmat) Handling', 'التعامل مع البضائع الخطرة', 'Gestion des marchandises dangereuses', 'Cargo/DG', 'Lithium battery thermal runaways in cabin overhead bins require immediate cooling with water or specialized fire extinguishers following strict airline dangerous goods protocols.'),
@@ -170,7 +170,6 @@ def verify_drill(data: DrillAttemptModel):
     correct_term = drill["term_en"].strip().lower()
     user_input = data.user_answer.strip().lower()
     
-    # Fuzzy matching ratio calculation for typo tolerance (0.80 = 80% similarity threshold)
     similarity = difflib.SequenceMatcher(None, user_input, correct_term).ratio()
     
     if user_input == correct_term:
@@ -181,7 +180,6 @@ def verify_drill(data: DrillAttemptModel):
         conn.close()
         return {"correct": True, "typo_detected": False, "message": "Perfect execution! +25 XP", "xp": res["xp_points"], "hearts": res["hearts"], "streak": res["streak"]}
     elif similarity >= 0.78:
-        # Soft typo correction match
         cur.execute("UPDATE crew_students_v4 SET xp_points = xp_points + 15 WHERE phone_number = %s RETURNING xp_points, hearts, streak;", (data.phone_number,))
         res = cur.fetchone()
         conn.commit()
@@ -252,7 +250,6 @@ def serve_frontend():
 
         .hidden { display: none !important; }
 
-        /* Dashboard & Gamified Hub */
         .stats-dashboard { display: flex; justify-content: space-between; align-items: center; background: var(--surface-card); padding: 0.9rem 1.2rem; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 1.2rem; }
         .stat-item { font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; }
         
@@ -275,7 +272,6 @@ def serve_frontend():
     <div id="toast" class="toast-popup">Notification</div>
 
     <div class="app-shell">
-        <!-- TOP HEADER -->
         <div class="top-header">
             <div class="brand-title">
                 <img src="https://img.icons8.com/color/48/airplane-take-off.png" alt="Icon">
@@ -288,7 +284,6 @@ def serve_frontend():
             </div>
         </div>
 
-        <!-- 1. SIGN IN SCREEN -->
         <div id="screen-login">
             <h2 id="ui-login-title">Cabin Crew Portal</h2>
             <p class="sub-desc" id="ui-login-sub">Access accredited EASA/ICAO simulation modules.</p>
@@ -307,7 +302,6 @@ def serve_frontend():
             </div>
         </div>
 
-        <!-- 2. REGISTER SCREEN -->
         <div id="screen-register" class="hidden">
             <h2>Cadet Enrollment</h2>
             <p class="sub-desc">Register your official student training profile.</p>
@@ -331,7 +325,6 @@ def serve_frontend():
             </div>
         </div>
 
-        <!-- 3. RESET PASSWORD SCREEN -->
         <div id="screen-reset" class="hidden">
             <h2>Recovery PIN Reset</h2>
             <p class="sub-desc">Enter your phone and secret recovery PIN.</p>
@@ -352,7 +345,6 @@ def serve_frontend():
             </div>
         </div>
 
-        <!-- 4. GAMIFIED DASHBOARD -->
         <div id="screen-dashboard" class="hidden">
             <div class="stats-dashboard">
                 <div>
@@ -366,7 +358,6 @@ def serve_frontend():
                 </div>
             </div>
 
-            <!-- Mode Grid -->
             <div class="mode-grid">
                 <div class="mode-tile" onclick="launchMode('modules')">
                     <span style="font-size: 1.4rem;">📖</span>
@@ -386,7 +377,6 @@ def serve_frontend():
                 </div>
             </div>
 
-            <!-- Interactive Content Container -->
             <div id="simulation-box" class="card-container"></div>
             
             <button class="btn-action" onclick="resetToMenu()" style="background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border); margin-top: 0.5rem;">← Return to Command Hub</button>
