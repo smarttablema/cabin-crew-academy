@@ -5,45 +5,64 @@ from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
+from typing import Optional
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQdjcq6@ep-cold-lake-b1djlrzp-pooler.c-5.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="AeroCrew Pro Academy Ultimate", version="9.0.0")
+app = FastAPI(title="Iro Crew Academy Elite", version="10.0.0")
 
 @app.on_event("startup")
 def startup_db():
     conn = get_db_connection()
     cur = conn.cursor()
+    # Permanent users table supporting roles (student / teacher), groups, and referral codes
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aviation_academy_students_v9 (
+        CREATE TABLE IF NOT EXISTS iro_crew_users_v10 (
             id SERIAL PRIMARY KEY,
             phone_number VARCHAR(20) UNIQUE,
             full_name VARCHAR(100),
             password VARCHAR(100),
             recovery_pin VARCHAR(10),
-            crew_role VARCHAR(20) DEFAULT 'steward',
-            active_skin VARCHAR(50) DEFAULT 'Standard Uniform',
-            xp_points INT DEFAULT 750,
+            role VARCHAR(20) DEFAULT 'student',
+            crew_avatar VARCHAR(20) DEFAULT 'steward',
+            active_skin VARCHAR(100) DEFAULT 'Standard Aviator Suit',
+            group_code VARCHAR(50) DEFAULT 'EASA-ALPHA-1',
+            referred_by VARCHAR(50) DEFAULT '',
+            xp_points INT DEFAULT 850,
             hearts INT DEFAULT 5,
-            streak INT DEFAULT 14,
+            streak INT DEFAULT 15,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
+    # Teacher PDF / Lesson broadcast table
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS mascot_shop_skins_v9 (
+        CREATE TABLE IF NOT EXISTS instructor_lessons_v10 (
+            id SERIAL PRIMARY KEY,
+            teacher_name VARCHAR(100),
+            group_code VARCHAR(50),
+            lesson_title TEXT,
+            pdf_url TEXT,
+            lesson_notes TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+    # Premium Shop Skins
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS iro_shop_skins_v10 (
             id SERIAL PRIMARY KEY,
             category VARCHAR(20),
             skin_name VARCHAR(50),
             cost INT,
-            icon VARCHAR(20),
+            preview_svg TEXT,
             desc_en TEXT
         );
     """)
+    # Curriculum Modules
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS comprehensive_academy_modules_v9 (
+        CREATE TABLE IF NOT EXISTS iro_curriculum_v10 (
             id SERIAL PRIMARY KEY,
             year_level INT,
             node_order INT,
@@ -56,8 +75,9 @@ def startup_db():
             content_fr TEXT
         );
     """)
+    # Drills
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS official_drills_v9 (
+        CREATE TABLE IF NOT EXISTS iro_drills_v10 (
             id SERIAL PRIMARY KEY,
             year_level INT,
             term_en VARCHAR(100),
@@ -69,36 +89,26 @@ def startup_db():
             hint_fr TEXT
         );
     """)
-    
-    # Seed Massive Shop Skins (Male & Female Categories)
+
+    # Seed Premium Skins (Male & Female Collections)
     cur.execute("""
-        INSERT INTO mascot_shop_skins_v9 (category, skin_name, cost, icon, desc_en)
+        INSERT INTO iro_shop_skins_v10 (category, skin_name, cost, preview_svg, desc_en)
         VALUES 
-        -- MALE CATEGORY
-        ('male', 'Junior Steward Suit', 50, '👔', 'Classic professional grey steward suit.'),
-        ('male', 'Senior Steward Uniform', 100, '👔', 'Executive tailored suit with silver tie.'),
-        ('male', 'First Officer Epaulets', 180, '🎖️', 'Two golden stripes insignia.'),
-        ('male', 'Captain Gold Wings', 250, '👨‍✈️', 'Four gold stripes and captain cap.'),
-        ('male', 'Supersonic Aviator Shades', 90, '🕶️', 'Sleek pilot sunglasses.'),
-        ('male', 'VIP Charter Blazer', 150, '🧥', 'Custom navy blue private jet blazer.'),
-        ('male', 'Chief Purser Badging', 200, '⭐', 'Gold supervisor lapel badge.'),
-        ('male', 'Global Express Scarf', 110, '🧣', 'Silk necktie for long-haul routes.'),
+        ('male', 'Supersonic Gold Captain', 200, '👨‍✈️⭐', 'Four golden sleeve stripes with commander wings and polished visor.'),
+        ('male', 'First Officer Elite', 120, '🧑‍✈️🎖️', 'Sleek double silver epaulets with tailored midnight blazer.'),
+        ('male', 'Private Jet Chief Purser', 150, '👔✨', 'Executive gold-trimmed tie and luxury service badge.'),
+        ('male', 'Global Express Pilot', 180, '🕶️✈️', 'Aviator sunglasses and captain badge.'),
         
-        -- FEMALE CATEGORY
-        ('female', 'Junior Hostess Tailoring', 50, '👗', 'Elegant professional skirt suit.'),
-        ('female', 'Senior Hostess Uniform', 100, '👗', 'Designer airline couture dress.'),
-        ('female', 'Lead Purser Silk Scarf', 130, '🧣', 'Signature red designer neck scarf.'),
-        ('female', 'First Officer Wings', 180, '👩‍✈️', 'Silver pilot wings and epaulets.'),
-        ('female', 'Captain Commander Cap', 250, '👩‍✈️', 'Official four-stripe captain hat.'),
-        ('female', 'Global Chic Handbag', 90, '👜', 'Matching leather cabin luggage bag.'),
-        ('female', 'Executive Brooch Pin', 110, '💎', 'Gold diamond aviation wing brooch.'),
-        ('female', 'First Class Specialist', 200, '✨', 'Premium service gold badge pin.')
+        ('female', 'Supreme Chief Hostess', 200, '👩‍✈️💎', 'Designer couture airline uniform with diamond wing brooch.'),
+        ('female', 'Senior Purser Silk Scarf', 130, '🧣✨', 'Signature scarlet silk necktie and professional skirt suit.'),
+        ('female', 'First Officer Wings', 150, '👩‍✈️🎖️', 'Sleek silver epaulets with modern European styling.'),
+        ('female', 'VIP Charter Specialist', 180, '👜👑', 'Exclusive VIP cabin manager gold insignia.')
         ON CONFLICT DO NOTHING;
     """)
 
-    # Seed Curriculum Modules (Year 1 & Year 2)
+    # Seed Curriculum
     cur.execute("""
-        INSERT INTO comprehensive_academy_modules_v9 (year_level, node_order, category, title_en, title_ar, title_fr, content_en, content_ar, content_fr)
+        INSERT INTO iro_curriculum_v10 (year_level, node_order, category, title_en, title_ar, title_fr, content_en, content_ar, content_fr)
         VALUES 
         (1, 1, 'SEP', 'Module 1: EASA Regulatory Framework & Pre-Flight Safety', 'الوحدة 1: لوائح EASA وفحوصات السلامة', 'Module 1: Cadre EASA et sécurité', 
          '1. Regulatory Framework: Cabin crew operate under European Union Aviation Safety Agency (EASA) Part-CC regulations.\n\n2. Pre-Flight Checks: Mandatory inspections of exit doors, slide pressure gauges, ELT, life vests, and PBO oxygen bottles.\n\n3. Sterile Flight Deck: Strict communication protocols during taxi, takeoff, and landing.',
@@ -110,53 +120,23 @@ def startup_db():
          '1. تفويض 90 ثانية: يجب إخلاء الطائرة بالكامل خلال 90 ثانية.\n\n2. تجهيز المنحدرات: فحوصات يفحصها الطاقم للأبواب والمنحدرات.\n\n3. السيطرة على الحشود: أوامر حاسمة بصوت قوي.',
          '1. La règle des 90 secondes : Évacuation complète en 90 secondes maximum.\n\n2. Armement des toboggans : Vérifications croisées des portes.\n\n3. Gestion des foules : Commandes vocales directives.'),
 
-        (1, 3, 'Cargo/DG', 'Module 3: Dangerous Goods & Lithium Batteries', 'الوحدة 3: البضائع الخطرة وبطاريات الليثيوم', 'Module 3: Marchandises dangereuses', 
-         '1. Hazmat Recognition: Identifying hidden dangerous goods in passenger baggage.\n\n2. Thermal Runaway: Immediate response to overheating portable electronic devices (PEDs).\n\n3. Mitigation: Pouring water, deploying PBE, and utilizing fire containment bags.',
-         '1. التعرف على المواد الخطرة: تحديد البضائع الخطرة المخفية.\n\n2. الهروب الحراري: الاستجابة الفورية للأجهزة الإلكترونية المحمولة الساخنة.\n\n3. التخفيف: صب الماء واستخدام أكياس احتواء الحريق.',
-         '1. Reconnaissance des matières : Identifier les marchandises cachées.\n\n2. Emballement thermique : Réaction immédiate face aux appareils électroniques en surchauffe.\n\n3. Atténuation : Utilisation d eau et de sacs de confinement.'),
-
-        (1, 4, 'Medical', 'Module 4: Aeromedical First Aid & Hypoxia', 'الوحدة 4: الإسعافات الأولية ونقص الأكسجين', 'Module 4: Premiers secours et hypoxie', 
-         '1. Rapid Decompression: Immediate donning of portable oxygen bottles.\n\n2. Hypoxia Symptoms: Recognizing tunnel vision, cyanosis, and dizziness.\n\n3. CPR & AED: Cardiac arrest management and Heimlich maneuver.',
-         '1. إزالة الضغط السريع: ارتداء اسطوانات الأكسجين المحمولة فوراً.\n\n2. أعراض نقص الأكسجين: التعرف على الرؤية النفقية والزرقة والدوخة.\n\n3. إنعاش القلب وجهاز الإزالة: إدارة السكتة القلبية.',
-         '1. Décompression rapide : Enfilage immédiat des bouteilles d oxygène.\n\n2. Symptômes de l hypoxie : Reconnaître la vision tubulaire et la cyanose.\n\n3. RCP et défibrillateur : Gestion des arrêts cardiaques.'),
-
         (2, 1, 'CRM', 'Module 5: Advanced Crew Resource Management', 'الوحدة 5: إدارة موارد الطاقم المتقدمة', 'Module 5: Gestion CRM avancée', 
          '1. Leadership Dynamics: Multicultural team coordination and conflict resolution.\n\n2. Threat and Error Management (TEM): Proactive operational threat identification.\n\n3. Decision Frameworks: FORCES and DOT-DEDUCT under high stress.',
          '1. ديناميكيات القيادة: تنسيق الفرق متعددة الثقافات وحل النزاعات.\n\n2. إدارة التهديدات والأخطاء (TEM): التحديد الاستباقي للتهديدات.\n\n3. أطر اتخاذ القرار تحت الضغط العالي.',
-         '1. Leadership : Coordination d équipes multiculturelles et gestion des conflits.\n\n2. Gestion des menaces et erreurs (TEM).\n\n3. Cadres de décision sous haute pression.'),
-
-        (2, 2, 'AVSEC', 'Module 6: Aviation Security & Threat Levels', 'الوحدة 6: أمن الطيران ومستويات التهديد', 'Module 6: Sûreté et menaces', 
-         '1. Unruly Matrix: Four-tier threat management from verbal to physical breach.\n\n2. Bomb Threat Checklists: Systematic cabin search protocols.\n\n3. Flight Deck Defense: Establishing sterile cockpit barriers.',
-         '1. مصفوفة المشاغبين: إدارة التهديدات من الفئة الأولى إلى الرابعة.\n\n2. قوائم مراجعة التهديد بالقنابل وفحص المقصورة.\n\n3. دفاع قمرة القيادة وتأمين الحواجز.',
-         '1. Matrice des passagers indisciplinés : Gestion des 4 niveaux de menace.\n\n2. Listes de contrôle d alerte à la bombe.\n\n3. Défense du poste de pilotage.')
+         '1. Leadership : Coordination d équipes multiculturelles et gestion des conflits.\n\n2. Gestion des menaces et erreurs (TEM).\n\n3. Cadres de décision sous haute pression.')
         ON CONFLICT DO NOTHING;
     """)
 
-    # Seed Expanded, Comprehensive Drills (Separate Year 1 and Year 2 pools with rich terminology)
+    # Seed Drills
     cur.execute("""
-        INSERT INTO official_drills_v9 (year_level, term_en, term_ar, term_fr, category, hint_en, hint_ar, hint_fr)
+        INSERT INTO iro_drills_v10 (year_level, term_en, term_ar, term_fr, category, hint_en, hint_ar, hint_fr)
         VALUES 
-        -- YEAR 1 DRILLS (Extensive pool)
         (1, 'Altimeter', 'مقياس الارتفاع', 'Altimètre', 'Instruments', 'Measures barometric altitude.', 'يقيس الارتفاع الجوي.', 'Mesure l altitude barométrique.'),
         (1, 'Bulkhead', 'الجدار الفاصل', 'Cloison', 'Cabin', 'Structural cabin partition.', 'فاصل هيكلي للمقصورة.', 'Cloison structurelle de cabine.'),
         (1, 'Decompression', 'إزالة الضغط', 'Décompression', 'Emergency', 'Loss of cabin pressurization.', 'فقدان ضغط المقصورة.', 'Perte de pressurisation en cabine.'),
-        (1, 'Turbulence', 'مطبات هوائية', 'Turbulence', 'Meteorology', 'Unsteady air currents.', 'تيارات هوائية غير مستقرة.', 'Courants d air instables.'),
         (1, 'Evacuation', 'إخلاء الطائرة', 'Évacuation', 'SEP', 'Rapid emergency passenger exit.', 'خروج طارئ سريع للركاب.', 'Sortie d urgence rapide.'),
-        (1, 'Brace Position', 'وضعية الاستعداد', 'Position de sécurité', 'SEP', 'Protective crash position.', 'وضعية الحماية عند الاصطدام.', 'Position de protection antichoc.'),
-        (1, 'Halon Extinguisher', 'طفاية هالون', 'Extincteur Halon', 'Fire', 'Class A, B, C fire suppressant.', 'مادة إخماد الحريق للفئات أ، ب، ج.', 'Extincteur pour feux A, B, C.'),
-        (1, 'PBE', 'معدات التنفس الواقية', 'PBE', 'Safety', 'Protective Breathing Equipment.', 'معدات التنفس لحماية الدخان.', 'Équipement de protection respiratoire.'),
-        (1, 'Oxygen Mask', 'قناع الأكسجين', 'Masque à oxygène', 'Medical', 'Deploys automatically during decompression.', 'ينشر تلقائياً أثناء إزالة الضغط.', 'Se déploie automatiquement.'),
-        (1, 'Life Vest', 'سترة النجاة', 'Gilet de sauvetage', 'SEP', 'Flotation device for water ditching.', 'جهاز طفو للهبوط المائي.', 'Dispositif de flottabilité.'),
-
-        -- YEAR 2 DRILLS (Extensive pool)
         (2, 'Crew Resource Management', 'إدارة موارد الطاقم', 'CRM', 'CRM', 'Effective utilization of all resources.', 'الاستفادة الفعالة من جميع الموارد.', 'Utilisation efficace des ressources.'),
-        (2, 'Threat and Error Management', 'إدارة التهديدات والأخطاء', 'TEM', 'TEM', 'Proactive safety framework.', 'إطار عمل السلامة الاستباقي.', 'Cadre de sécurité proactif.'),
-        (2, 'Sterile Flight Deck', 'قمرة القيادة المعقمة', 'Cockpit stérile', 'AVSEC', 'No non-essential tasks below 10,000 feet.', 'منع المهام غير الضرورية تحت 10000 قدم.', 'Interdiction des tâches non essentielles.'),
-        (2, 'Air Marshal', 'مارشال الجو', 'Marshal de l air', 'AVSEC', 'Undercover armed security officer.', 'ضابط أمن مسلح سري.', 'Officier de sécurité armé en civil.'),
-        (2, 'Thermal Runaway', 'الهروب الحراري', 'Emballement thermique', 'Cargo', 'Uncontrolled self-heating battery state.', 'حالة بطارية ذاتية التسخين غير مسيطر عليها.', 'État de batterie en surchauffe incontrôlée.'),
-        (2, 'Hyperventilation', 'فرط التنفس', 'Hyperventilation', 'Medical', 'Rapid or deep breathing causing dizziness.', 'التنفس السريع المسبب للدوخة.', 'Respiration rapide provoquant des vertiges.'),
-        (2, 'Hijack Checklist', 'قائمة اختطاف الطائرة', 'Procédure de détournement', 'AVSEC', 'Transponder emergency code 7500.', 'رمز استجابة الطوارئ 7500.', 'Code transpondeur d urgence 7500.'),
-        (2, 'Unruly Passenger', 'راكب مشاغب', 'Passager indisciplinés', 'AVSEC', 'Tier 4 physical breach protocol.', 'بروتوكول الاختراق البدني من الفئة 4.', 'Protocole de violation physique.')
+        (2, 'Sterile Flight Deck', 'قمرة القيادة المعقمة', 'Cockpit stérile', 'AVSEC', 'No non-essential tasks below 10,000 feet.', 'منع المهام غير الضرورية تحت 10000 قدم.', 'Interdiction des tâches non essentielles.')
         ON CONFLICT DO NOTHING;
     """)
     conn.commit()
@@ -168,7 +148,10 @@ class RegisterModel(BaseModel):
     full_name: str
     password: str
     recovery_pin: str
-    crew_role: str
+    role: str = 'student'
+    crew_avatar: str = 'steward'
+    group_code: str = 'EASA-ALPHA-1'
+    referred_by: Optional[str] = ''
 
 class LoginModel(BaseModel):
     phone_number: str
@@ -189,19 +172,26 @@ class BuySkinModel(BaseModel):
     skin_name: str
     cost: int
 
+class UploadLessonModel(BaseModel):
+    teacher_name: str
+    group_code: str
+    lesson_title: str
+    pdf_url: str
+    lesson_notes: str
+
 @app.post("/api/register")
 def register(data: RegisterModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aviation_academy_students_v9 WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT * FROM iro_crew_users_v10 WHERE phone_number = %s;", (data.phone_number,))
     if cur.fetchone():
         cur.close()
         conn.close()
         raise HTTPException(status_code=400, detail="Phone number already registered.")
     
     cur.execute(
-        "INSERT INTO aviation_academy_students_v9 (phone_number, full_name, password, recovery_pin, crew_role) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
-        (data.phone_number, data.full_name, data.password, data.recovery_pin, data.crew_role)
+        "INSERT INTO iro_crew_users_v10 (phone_number, full_name, password, recovery_pin, role, crew_avatar, group_code, referred_by) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;",
+        (data.phone_number, data.full_name, data.password, data.recovery_pin, data.role, data.crew_avatar, data.group_code, data.referred_by)
     )
     student = cur.fetchone()
     conn.commit()
@@ -213,7 +203,7 @@ def register(data: RegisterModel):
 def login(data: LoginModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aviation_academy_students_v9 WHERE phone_number = %s AND password = %s;", (data.phone_number, data.password))
+    cur.execute("SELECT * FROM iro_crew_users_v10 WHERE phone_number = %s AND password = %s;", (data.phone_number, data.password))
     student = cur.fetchone()
     cur.close()
     conn.close()
@@ -225,41 +215,57 @@ def login(data: LoginModel):
 def reset_pass(data: ResetModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aviation_academy_students_v9 WHERE phone_number = %s AND recovery_pin = %s;", (data.phone_number, data.recovery_pin))
+    cur.execute("SELECT * FROM iro_crew_users_v10 WHERE phone_number = %s AND recovery_pin = %s;", (data.phone_number, data.recovery_pin))
     if not cur.fetchone():
         cur.close()
         conn.close()
         raise HTTPException(status_code=404, detail="Invalid recovery PIN.")
-    cur.execute("UPDATE aviation_academy_students_v9 SET password = %s WHERE phone_number = %s;", (data.new_password, data.phone_number))
+    cur.execute("UPDATE iro_crew_users_v10 SET password = %s WHERE phone_number = %s;", (data.new_password, data.phone_number))
     conn.commit()
     cur.close()
     conn.close()
     return {"status": "success"}
 
 @app.get("/api/academy/content")
-def get_academy_content():
+def get_academy_content(group_code: str = 'EASA-ALPHA-1'):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM comprehensive_academy_modules_v9 ORDER BY year_level ASC, node_order ASC;")
+    cur.execute("SELECT * FROM iro_curriculum_v10 ORDER BY year_level ASC, node_order ASC;")
     modules = cur.fetchall()
-    cur.execute("SELECT * FROM official_drills_v9 ORDER BY year_level ASC, id ASC;")
+    cur.execute("SELECT * FROM iro_drills_v10 ORDER BY year_level ASC, id ASC;")
     drills = cur.fetchall()
-    cur.execute("SELECT * FROM mascot_shop_skins_v9 ORDER BY category ASC, cost ASC;")
+    cur.execute("SELECT * FROM iro_shop_skins_v10 ORDER BY category ASC, cost ASC;")
     skins = cur.fetchall()
+    cur.execute("SELECT * FROM instructor_lessons_v10 WHERE group_code = %s ORDER BY id DESC;", (group_code,))
+    lessons = cur.fetchall()
     cur.close()
     conn.close()
-    return {"modules": modules, "drills": drills, "skins": skins}
+    return {"modules": modules, "drills": drills, "skins": skins, "lessons": lessons}
+
+@app.post("/api/teacher/upload")
+def upload_lesson(data: UploadLessonModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO instructor_lessons_v10 (teacher_name, group_code, lesson_title, pdf_url, lesson_notes) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
+        (data.teacher_name, data.group_code, data.lesson_title, data.pdf_url, data.lesson_notes)
+    )
+    lesson = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success", "lesson": lesson}
 
 @app.post("/api/shop/buy")
 def buy_skin(data: BuySkinModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aviation_academy_students_v9 WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT * FROM iro_crew_users_v10 WHERE phone_number = %s;", (data.phone_number,))
     student = cur.fetchone()
     if not student:
         cur.close()
         conn.close()
-        raise HTTPException(status_code=404, detail="Student not found.")
+        raise HTTPException(status_code=404, detail="User not found.")
     
     if student["xp_points"] < data.cost:
         cur.close()
@@ -267,7 +273,7 @@ def buy_skin(data: BuySkinModel):
         raise HTTPException(status_code=400, detail="Not enough stars/XP!")
     
     new_xp = student["xp_points"] - data.cost
-    cur.execute("UPDATE aviation_academy_students_v9 SET xp_points = %s, active_skin = %s WHERE phone_number = %s RETURNING *;", (new_xp, data.skin_name, data.phone_number))
+    cur.execute("UPDATE iro_crew_users_v10 SET xp_points = %s, active_skin = %s WHERE phone_number = %s RETURNING *;", (new_xp, data.skin_name, data.phone_number))
     updated_student = cur.fetchone()
     conn.commit()
     cur.close()
@@ -278,9 +284,9 @@ def buy_skin(data: BuySkinModel):
 def verify_drill(data: DrillAttemptModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM official_drills_v9 WHERE id = %s;", (data.drill_id,))
+    cur.execute("SELECT * FROM iro_drills_v10 WHERE id = %s;", (data.drill_id,))
     drill = cur.fetchone()
-    cur.execute("SELECT * FROM aviation_academy_students_v9 WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT * FROM iro_crew_users_v10 WHERE phone_number = %s;", (data.phone_number,))
     student = cur.fetchone()
     
     if not drill or not student:
@@ -294,14 +300,14 @@ def verify_drill(data: DrillAttemptModel):
     similarity = difflib.SequenceMatcher(None, user_input, correct_term).ratio()
     
     if user_input == correct_term:
-        cur.execute("UPDATE aviation_academy_students_v9 SET xp_points = xp_points + 25 WHERE phone_number = %s RETURNING xp_points, hearts, streak;", (data.phone_number,))
+        cur.execute("UPDATE iro_crew_users_v10 SET xp_points = xp_points + 25 WHERE phone_number = %s RETURNING xp_points, hearts, streak;", (data.phone_number,))
         res = cur.fetchone()
         conn.commit()
         cur.close()
         conn.close()
         return {"correct": True, "message": "Perfect execution! +25 XP", "xp": res["xp_points"], "hearts": res["hearts"], "streak": res["streak"]}
     elif similarity >= 0.75:
-        cur.execute("UPDATE aviation_academy_students_v9 SET xp_points = xp_points + 15 WHERE phone_number = %s RETURNING xp_points, hearts, streak;", (data.phone_number,))
+        cur.execute("UPDATE iro_crew_users_v10 SET xp_points = xp_points + 15 WHERE phone_number = %s RETURNING xp_points, hearts, streak;", (data.phone_number,))
         res = cur.fetchone()
         conn.commit()
         cur.close()
@@ -309,7 +315,7 @@ def verify_drill(data: DrillAttemptModel):
         return {"correct": True, "message": f"Accepted with minor typo! Official: '{drill['term_en']}'. +15 XP", "xp": res["xp_points"], "hearts": res["hearts"], "streak": res["streak"]}
     else:
         new_hearts = max(0, student["hearts"] - 1)
-        cur.execute("UPDATE aviation_academy_students_v9 SET hearts = %s WHERE phone_number = %s RETURNING xp_points, hearts, streak;", (new_hearts, data.phone_number))
+        cur.execute("UPDATE iro_crew_users_v10 SET hearts = %s WHERE phone_number = %s RETURNING xp_points, hearts, streak;", (new_hearts, data.phone_number))
         res = cur.fetchone()
         conn.commit()
         cur.close()
@@ -324,7 +330,7 @@ def serve_frontend():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AeroCrew Pro Academy Ultimate</title>
+    <title>Iro Crew Academy Elite</title>
     <link rel="icon" href="https://img.icons8.com/color/48/airplane-take-off.png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@450;700;900&display=swap" rel="stylesheet">
     <style>
@@ -354,16 +360,20 @@ def serve_frontend():
         .brand-title { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.25rem; color: var(--accent); letter-spacing: -0.5px; }
         .brand-title img { width: 38px; height: 38px; filter: drop-shadow(0 0 10px var(--accent-glow)); }
         
-        .lang-switch { display: flex; gap: 6px; }
-        .lang-badge { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 10px; padding: 6px 12px; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
-        .lang-badge.active, .lang-badge:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); box-shadow: 0 0 15px var(--accent-glow); }
+        .header-controls { display: flex; align-items: center; gap: 8px; }
+        .shop-icon-btn { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 10px; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; font-size: 1.1rem; }
+        .shop-icon-btn:hover { border-color: var(--accent); background: var(--accent-glow); box-shadow: 0 0 15px var(--accent-glow); }
+
+        .lang-switch { display: flex; gap: 4px; }
+        .lang-badge { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 8px; padding: 5px 9px; font-size: 0.7rem; font-weight: 800; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+        .lang-badge.active, .lang-badge:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
 
         h2 { font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.4rem; font-size: 1.5rem; color: white; }
         p.sub-desc { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5; }
         
         label { display: block; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.4rem; letter-spacing: 0.8px; }
-        input, select { width: 100%; padding: 1rem 1.2rem; border-radius: 16px; border: 1px solid var(--border-glow); background: var(--bg-deep); color: white; font-size: 1rem; margin-bottom: 1.2rem; outline: none; transition: all 0.2s; }
-        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+        input, select, textarea { width: 100%; padding: 0.95rem 1.1rem; border-radius: 16px; border: 1px solid var(--border-glow); background: var(--bg-deep); color: white; font-size: 0.95rem; margin-bottom: 1.1rem; outline: none; transition: all 0.2s; }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
         
         .btn-action { width: 100%; padding: 1.05rem; border-radius: 16px; border: none; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); font-weight: 800; font-size: 1rem; cursor: pointer; transition: transform 0.1s, opacity 0.2s, box-shadow 0.2s; box-shadow: 0 6px 20px var(--accent-glow); }
         .btn-action:active { transform: scale(0.98); }
@@ -376,7 +386,7 @@ def serve_frontend():
         .hidden { display: none !important; }
 
         /* Mascot Banner */
-        .mascot-banner { display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg, rgba(56,189,248,0.15) 0%, rgba(2,132,199,0.05) 100%); border: 1px solid rgba(56,189,248,0.3); padding: 0.9rem 1.2rem; border-radius: 18px; margin-bottom: 1.2rem; position: relative; overflow: hidden; }
+        .mascot-banner { display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg, rgba(56,189,248,0.18) 0%, rgba(2,132,199,0.06) 100%); border: 1px solid rgba(56,189,248,0.35); padding: 0.9rem 1.2rem; border-radius: 18px; margin-bottom: 1.2rem; position: relative; overflow: hidden; }
         .mascot-avatar { font-size: 2.6rem; animation: bounceMascot 2s infinite ease-in-out; }
         @keyframes bounceMascot { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
         .mascot-speech { font-size: 0.82rem; color: #bae6fd; font-weight: 700; line-height: 1.4; }
@@ -392,7 +402,7 @@ def serve_frontend():
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.6rem; border: 1px solid var(--border-glow); margin-bottom: 1.2rem; position: relative; min-height: 280px; }
         
         .path-container { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 10px 0; max-height: 260px; overflow-y: auto; }
-        .path-node { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 25px var(--accent-glow); transition: transform 0.2s, box-shadow 0.2s; position: relative; border: 3px solid #bae6fd; }
+        .path-node { width: 62px; height: 62px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 1.15rem; cursor: pointer; box-shadow: 0 0 25px var(--accent-glow); transition: transform 0.2s, box-shadow 0.2s; position: relative; border: 3px solid #bae6fd; }
         .path-node:hover { transform: scale(1.12); box-shadow: 0 0 35px var(--accent); }
         .path-node:nth-child(even) { transform: translateX(30px); }
         .path-node:nth-child(odd) { transform: translateX(-30px); }
@@ -409,16 +419,43 @@ def serve_frontend():
 <body>
     <div id="toast" class="toast-popup">Notification</div>
 
+    <!-- ONBOARDING ROLE SELECTION MODAL (Pop-up on first registration/login) -->
+    <div id="onboarding-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.92); backdrop-filter:blur(10px); display:flex; justify-content:center; align-items:center; z-index:5000; opacity:0; pointer-events:none; transition:opacity 0.3s;">
+        <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:30px; padding:2.5rem; width:90%; max-width:440px; text-align:center; box-shadow:0 30px 60px rgba(0,0,0,0.9);">
+            <div style="font-size:3rem; margin-bottom:0.5rem;" id="modal-char-emoji">✈️</div>
+            <h3 style="font-size:1.4rem; font-weight:900; color:white; margin-bottom:0.4rem;" id="modal-heading">Choose Your Academy Avatar</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.8rem;">Select your professional crew character to begin your training flight path.</p>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:1.8rem;">
+                <div onclick="selectAvatarRole('steward')" id="card-steward" style="background:var(--bg-deep); border:2px solid var(--border-glow); border-radius:20px; padding:1.2rem; cursor:pointer; transition:all 0.2s;">
+                    <div style="font-size:2.2rem; margin-bottom:6px;">👔</div>
+                    <b style="color:white; font-size:0.9rem;">Steward</b>
+                    <div style="color:var(--text-muted); font-size:0.7rem; margin-top:2px;">Male Professional</div>
+                </div>
+                <div onclick="selectAvatarRole('hostess')" id="card-hostess" style="background:var(--bg-deep); border:2px solid var(--border-glow); border-radius:20px; padding:1.2rem; cursor:pointer; transition:all 0.2s;">
+                    <div style="font-size:2.2rem; margin-bottom:6px;">👗</div>
+                    <b style="color:white; font-size:0.9rem;">Hostess</b>
+                    <div style="color:var(--text-muted); font-size:0.7rem; margin-top:2px;">Female Professional</div>
+                </div>
+            </div>
+
+            <button class="btn-action" onclick="confirmAvatarSelection()" id="modal-start-btn">Take Off & Start Learning 🚀</button>
+        </div>
+    </div>
+
     <div class="app-shell">
         <div class="top-header">
             <div class="brand-title">
-                <img src="https://img.icons8.com/color/48/airplane-take-off.png" alt="Icon">
-                <span id="txt-brand">AeroCrew Pro Elite</span>
+                <img src="https://img.icons8.com/color/48/airplane-take-off.png" alt="Logo">
+                <span id="txt-brand">Iro Crew</span>
             </div>
-            <div class="lang-switch">
-                <button class="lang-badge active" onclick="playAudio('click'); setLanguage('en')">EN</button>
-                <button class="lang-badge" onclick="playAudio('click'); setLanguage('fr')">FR</button>
-                <button class="lang-badge" onclick="playAudio('click'); setLanguage('ar')">AR</button>
+            <div class="header-controls">
+                <div class="shop-icon-btn" onclick="playAudio('click'); openShop()" title="Uniform Boutique">🎁</div>
+                <div class="lang-switch">
+                    <button class="lang-badge active" onclick="playAudio('click'); setLanguage('en')">EN</button>
+                    <button class="lang-badge" onclick="playAudio('click'); setLanguage('fr')">FR</button>
+                    <button class="lang-badge" onclick="playAudio('click'); setLanguage('ar')">AR</button>
+                </div>
             </div>
         </div>
 
@@ -443,8 +480,8 @@ def serve_frontend():
 
         <!-- 2. REGISTER SCREEN -->
         <div id="screen-register" class="hidden">
-            <h2 id="reg-title">Cadet Enrollment</h2>
-            <p class="sub-desc" id="reg-sub">Register your official student training profile.</p>
+            <h2 id="reg-title">Cadet & Instructor Enrollment</h2>
+            <p class="sub-desc" id="reg-sub">Register your official profile for students or teachers.</p>
             
             <label id="reg-lbl-name">Full Name</label>
             <input type="text" id="reg-name" placeholder="First & Last Name" />
@@ -458,11 +495,16 @@ def serve_frontend():
             <label id="reg-lbl-pin">Recovery PIN (4-6 digits)</label>
             <input type="password" id="reg-pin" placeholder="e.g. 2026" maxlength="6" />
 
-            <label id="reg-lbl-role">Crew Role (Character)</label>
-            <select id="reg-role">
-                <option value="steward">👔 Steward (Male Crew Avatar)</option>
-                <option value="hostess">👗 Hostess (Female Crew Avatar)</option>
+            <label id="reg-lbl-type">Account Type</label>
+            <select id="reg-role" onchange="toggleTeacherFields()">
+                <option value="student">👨‍‍🎓 Student Cadet</option>
+                <option value="teacher">👩‍🏫 Academy Instructor / Teacher</option>
             </select>
+
+            <div id="student-group-div">
+                <label id="reg-lbl-group">Study Group Code</label>
+                <input type="text" id="reg-group" value="EASA-ALPHA-1" placeholder="e.g. EASA-ALPHA-1" />
+            </div>
             
             <button class="btn-action" onclick="playAudio('click'); submitRegister()" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: white;" id="reg-btn-sub">Initialize Profile</button>
             
@@ -503,17 +545,17 @@ def serve_frontend():
             <div class="stats-dashboard">
                 <div>
                     <h3 id="dash-name" style="font-size: 1rem; color: var(--accent); font-weight: 900;">Cadet</h3>
-                    <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;" id="dash-skin">Standard Uniform</span>
+                    <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;" id="dash-skin">Standard Aviator Suit</span>
                 </div>
                 <div style="display: flex; gap: 8px;">
-                    <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">750</span></div>
+                    <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">850</span></div>
                     <div class="stat-item" style="color: var(--danger);">❤️ <span id="dash-hearts">5</span></div>
-                    <div class="stat-item" style="color: var(--success);">🔥 <span id="dash-streak">14</span></div>
+                    <div class="stat-item" style="color: var(--success);">🔥 <span id="dash-streak">15</span></div>
                 </div>
             </div>
 
-            <!-- 2x2 Grid -->
-            <div class="mode-grid">
+            <!-- Main Hub Grid -->
+            <div class="mode-grid" id="main-grid-container">
                 <div class="mode-tile" onclick="playAudio('click'); launchYearPath(1)">
                     <span style="font-size: 1.4rem;">📖</span>
                     <h4 id="tile-year1">First Year</h4>
@@ -526,13 +568,21 @@ def serve_frontend():
                     <span style="font-size: 1.4rem;">⌨️</span>
                     <h4 id="tile-typing">Year 1 Drills</h4>
                 </div>
-                <div class="mode-tile" onclick="playAudio('click'); launchDrillHub(2)">
-                    <span style="font-size: 1.4rem;">🎙️</span>
-                    <h4 id="tile-voice">Year 2 Drills</h4>
+                <div class="mode-tile" onclick="playAudio('click'); openStudentReferral()">
+                    <span style="font-size: 1.4rem;">🤝</span>
+                    <h4 id="tile-referral">Invite Friends</h4>
                 </div>
             </div>
 
-            <button class="btn-action" onclick="playAudio('click'); openShop()" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: white; margin-bottom: 0.8rem;" id="shop-btn">🎁 Uniform & Skin Shop (Male / Female)</button>
+            <!-- Teacher Upload Box (Appears only for instructors) -->
+            <div id="teacher-command-panel" class="hidden" style="background:var(--surface-card); border:1px solid var(--border-glow); padding:1.2rem; border-radius:18px; margin-bottom:1.2rem;">
+                <h3 style="font-size:1rem; color:var(--warning); margin-bottom:0.4rem; font-weight:900;">👩‍🏫 Instructor Lesson Broadcast</h3>
+                <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.8rem;">Upload PDF documents and lesson notes for your student group.</p>
+                <input type="text" id="teach-title" placeholder="Lesson Title (e.g. SEP Emergency Procedures PDF)" style="margin-bottom:0.6rem;" />
+                <input type="text" id="teach-url" placeholder="PDF File URL / Link" style="margin-bottom:0.6rem;" />
+                <textarea id="teach-notes" placeholder="Instructor notes & instructions..." style="width:100%; height:70px; background:var(--bg-deep); color:white; border:1px solid var(--border-glow); border-radius:12px; padding:0.8rem; font-size:0.85rem; margin-bottom:0.8rem; outline:none;"></textarea>
+                <button class="btn-action" onclick="playAudio('click'); submitTeacherLesson()" style="background:var(--warning); color:var(--bg-deep); padding:0.8rem;">Broadcast to Group 📢</button>
+            </div>
 
             <div id="simulation-box" class="card-container"></div>
             
@@ -544,15 +594,15 @@ def serve_frontend():
     </div>
 
     <script>
-        let sessionUser = JSON.parse(localStorage.getItem('aerocrew_user') || 'null');
-        let academyData = { modules: [], drills: [], skins: [] };
-        let activeLang = localStorage.getItem('aerocrew_lang') || 'en';
+        let sessionUser = JSON.parse(localStorage.getItem('iro_crew_user') || 'null');
+        let academyData = { modules: [], drills: [], skins: [], lessons: [] };
+        let activeLang = localStorage.getItem('iro_crew_lang') || 'en';
         let currentDrillList = [];
         let drillPointer = 0;
         let timerInterval = null;
         let secondsLeft = 30;
+        let pendingRegistrationData = null;
 
-        // Web Audio API Sound Generator
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playAudio(type) {
             try {
@@ -569,9 +619,9 @@ def serve_frontend():
                     gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
                     osc.start(); osc.stop(audioCtx.currentTime + 0.05);
                 } else if(type === 'success') {
-                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.08); // E5
-                    osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.16); // G5
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.08);
+                    osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.16);
                     gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
                     gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
                     osc.start(); osc.stop(audioCtx.currentTime + 0.3);
@@ -591,31 +641,22 @@ def serve_frontend():
                 loginTitle: "Cabin Crew Portal", loginSub: "Access accredited EASA/ICAO professional curriculum.",
                 phoneLbl: "Phone Number", passLbl: "Password", loginBtn: "Sign In to Simulator",
                 regNav: "Create Account", resetNav: "Forgot Password?",
-                regTitle: "Cadet Enrollment", regSub: "Register your official student training profile.",
-                regName: "Full Name", regPass: "Password", regPin: "Recovery PIN (4-6 digits)", regRole: "Crew Role (Character)", regBtn: "Initialize Profile", regBack: "Already have an account? Sign In",
-                resTitle: "Recovery PIN Reset", resSub: "Enter your phone and secret recovery PIN.", resNew: "New Password", resBtn: "Update Credentials",
-                tileYear1: "First Year", tileYear2: "Second Year", tileTyping: "Year 1 Drills", tileVoice: "Year 2 Drills",
-                shopBtn: "🎁 Uniform & Skin Shop (Male / Female)", menuBtn: "← Hub", logoutBtn: "Logout 🚪"
+                tileYear1: "First Year", tileYear2: "Second Year", tileTyping: "Year 1 Drills", tileReferral: "Invite Friends",
+                menuBtn: "← Hub", logoutBtn: "Logout 🚪"
             },
             fr: {
                 loginTitle: "Portail Personnel de Cabine", loginSub: "Accédez au programme professionnel accrédité EASA/ICAO.",
                 phoneLbl: "Numéro de téléphone", passLbl: "Mot de passe", loginBtn: "Se connecter au simulateur",
                 regNav: "Créer un compte", resetNav: "Mot de passe oublié ?",
-                regTitle: "Inscription Cadet", regSub: "Enregistrez votre profil de formation officiel.",
-                regName: "Nom et Prénom", regPass: "Mot de passe", regPin: "PIN de récupération (4-6 chiffres)", regRole: "Rôle (Steward / Hostess)", regBtn: "Initialiser le profil", regBack: "Déjà un compte ? Se connecter",
-                resTitle: "Réinitialisation PIN", resSub: "Entrez votre téléphone et votre PIN secret.", resNew: "Nouveau mot de passe", resBtn: "Mettre à jour",
-                tileYear1: "Première Année", tileYear2: "Seconde Année", tileTyping: "Drills Année 1", tileVoice: "Drills Année 2",
-                shopBtn: "🎁 Boutique d Uniformes (Homme / Femme)", menuBtn: "← Menu", logoutBtn: "Déconnexion 🚪"
+                tileYear1: "Première Année", tileYear2: "Seconde Année", tileTyping: "Drills Année 1", tileReferral: "Parrainer",
+                menuBtn: "← Menu", logoutBtn: "Déconnexion 🚪"
             },
             ar: {
                 loginTitle: "بوابة طاقم الطائرة", loginSub: "الوصول إلى المنهج المهني المعتمد من EASA/ICAO.",
                 phoneLbl: "رقم الهاتف", passLbl: "كلمة المرور", loginBtn: "تسجيل الدخول للمحاكي",
                 regNav: "إنشاء حساب", resetNav: "هل نسيت كلمة المرور؟",
-                regTitle: "تسجيل المتدرب", regSub: "سجل ملف تدريب الطالب الرسمي الخاص بك.",
-                regName: "الاسم الكامل", regPass: "كلمة المرور", regPin: "رمز الاسترداد (4-6 أرقام)", regRole: "الدور المهني (مضيف / مضيفة)", regBtn: "تهيئة الملف الشخصي", regBack: "لديك حساب بالفعل؟ تسجيل الدخول",
-                resTitle: "إعادة تعيين الرمز", resSub: "أدخل هاتفك ورقم الرمز السري للاسترداد.", resNew: "كلمة المرور الجديدة", resBtn: "تحديث بيانات الاعتماد",
-                tileYear1: "السنة الأولى", tileYear2: "السنة الثانية", tileTyping: "تدريبات السنة 1", tileVoice: "تدريبات السنة 2",
-                shopBtn: "🎁 متجر الأزياء والملابس (رجال / نساء)", menuBtn: "← القائمة", logoutBtn: "تسجيل الخروج 🚪"
+                tileYear1: "السنة الأولى", tileYear2: "السنة الثانية", tileTyping: "تدريبات السنة 1", tileReferral: "دعوة الأصدقاء",
+                menuBtn: "← القائمة", logoutBtn: "تسجيل الخروج 🚪"
             }
         };
 
@@ -634,8 +675,14 @@ def serve_frontend():
             document.getElementById('dash-xp').innerText = sessionUser.xp_points;
             document.getElementById('dash-hearts').innerText = sessionUser.hearts;
             document.getElementById('dash-streak').innerText = sessionUser.streak;
-            const emoji = sessionUser.crew_role === 'hostess' ? '👗' : '👔';
+            const emoji = sessionUser.crew_avatar === 'hostess' ? '👗' : '👔';
             document.getElementById('mascot-emoji').innerText = emoji;
+
+            if(sessionUser.role === 'teacher') {
+                document.getElementById('teacher-command-panel').classList.remove('hidden');
+            } else {
+                document.getElementById('teacher-command-panel').classList.add('hidden');
+            }
         }
 
         function showToast(text, isError = false) {
@@ -651,9 +698,19 @@ def serve_frontend():
             document.getElementById(id).classList.remove('hidden');
         }
 
+        function toggleTeacherFields() {
+            const role = document.getElementById('reg-role').value;
+            const groupDiv = document.getElementById('student-group-div');
+            if(role === 'teacher') {
+                groupDiv.style.display = 'none';
+            } else {
+                groupDiv.style.display = 'block';
+            }
+        }
+
         function logoutUser() {
             if(timerInterval) clearInterval(timerInterval);
-            localStorage.removeItem('aerocrew_user');
+            localStorage.removeItem('iro_crew_user');
             sessionUser = null;
             navigateTo('screen-login');
             showToast('Logged out successfully.');
@@ -661,16 +718,13 @@ def serve_frontend():
 
         function setLanguage(lang) {
             activeLang = lang;
-            localStorage.setItem('aerocrew_lang', lang);
+            localStorage.setItem('iro_crew_lang', lang);
             document.querySelectorAll('.lang-badge').forEach(b => b.classList.remove('active'));
             if(event && event.target) event.target.classList.add('active');
             
             const root = document.getElementById('html-root');
-            if(lang === 'ar') {
-                root.setAttribute('dir', 'rtl');
-            } else {
-                root.setAttribute('dir', 'ltr');
-            }
+            if(lang === 'ar') root.setAttribute('dir', 'rtl');
+            else root.setAttribute('dir', 'ltr');
 
             const t = translations[lang];
             if(t) {
@@ -681,30 +735,10 @@ def serve_frontend():
                 document.getElementById('ui-login-btn').innerText = t.loginBtn;
                 document.getElementById('nav-reg').innerText = t.regNav;
                 document.getElementById('nav-reset').innerText = t.resetNav;
-                
-                document.getElementById('reg-title').innerText = t.regTitle;
-                document.getElementById('reg-sub').innerText = t.regSub;
-                document.getElementById('reg-lbl-name').innerText = t.regName;
-                document.getElementById('reg-lbl-phone').innerText = t.phoneLbl;
-                document.getElementById('reg-lbl-pass').innerText = t.regPass;
-                document.getElementById('reg-lbl-pin').innerText = t.regPin;
-                document.getElementById('reg-lbl-role').innerText = t.regRole;
-                document.getElementById('reg-btn-sub').innerText = t.regBtn;
-                document.getElementById('reg-back').innerText = t.regBack;
-
-                document.getElementById('res-title').innerText = t.resTitle;
-                document.getElementById('res-sub').innerText = t.resSub;
-                document.getElementById('res-lbl-phone').innerText = t.phoneLbl;
-                document.getElementById('res-lbl-pin').innerText = t.regPin;
-                document.getElementById('res-lbl-new').innerText = t.resNew;
-                document.getElementById('res-btn-sub').innerText = t.resBtn;
-                document.getElementById('res-back').innerText = t.regBack;
-
                 document.getElementById('tile-year1').innerText = t.tileYear1;
                 document.getElementById('tile-year2').innerText = t.tileYear2;
                 document.getElementById('tile-typing').innerText = t.tileTyping;
-                document.getElementById('tile-voice').innerText = t.tileVoice;
-                document.getElementById('shop-btn').innerText = t.shopBtn;
+                document.getElementById('tile-referral').innerText = t.tileReferral;
                 document.getElementById('btn-menu').innerText = t.menuBtn;
                 document.getElementById('btn-logout').innerText = t.logoutBtn;
             }
@@ -715,21 +749,46 @@ def serve_frontend():
             const phone_number = document.getElementById('reg-phone').value.trim();
             const password = document.getElementById('reg-pass').value.trim();
             const recovery_pin = document.getElementById('reg-pin').value.trim();
-            const crew_role = document.getElementById('reg-role').value;
+            const role = document.getElementById('reg-role').value;
+            const group_code = role === 'teacher' ? 'INSTRUCTOR-HUB' : document.getElementById('reg-group').value.trim();
 
             if(!full_name || !phone_number || !password || !recovery_pin) { showToast('Complete all fields', true); return; }
 
-            const res = await fetch('/api/register', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ full_name, phone_number, password, recovery_pin, crew_role })
-            });
-            const data = await res.json();
-            if(res.ok) {
-                showToast('Cadet profile created successfully!');
-                navigateTo('screen-login');
-            } else {
-                showToast(data.detail || 'Registration failed', true);
+            pendingRegistrationData = { full_name, phone_number, password, recovery_pin, role, group_code, crew_avatar: 'steward' };
+            
+            // Show Onboarding Avatar Modal for selection
+            document.getElementById('onboarding-modal').style.opacity = '1';
+            document.getElementById('onboarding-modal').style.pointerEvents = 'auto';
+        }
+
+        let selectedAvatar = 'steward';
+        function selectAvatarRole(role) {
+            playAudio('click');
+            selectedAvatar = role;
+            document.getElementById('card-steward').style.borderColor = role === 'steward' ? 'var(--accent)' : 'var(--border-glow)';
+            document.getElementById('card-hostess').style.borderColor = role === 'hostess' ? 'var(--accent)' : 'var(--border-glow)';
+            document.getElementById('modal-char-emoji').innerText = role === 'hostess' ? '👗' : '👔';
+        }
+
+        async function confirmAvatarSelection() {
+            playAudio('success');
+            if(pendingRegistrationData) {
+                pendingRegistrationData.crew_avatar = selectedAvatar;
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(pendingRegistrationData)
+                });
+                const data = await res.json();
+                document.getElementById('onboarding-modal').style.opacity = '0';
+                document.getElementById('onboarding-modal').style.pointerEvents = 'none';
+
+                if(res.ok) {
+                    showToast('Profile created successfully! Please sign in.');
+                    navigateTo('screen-login');
+                } else {
+                    showToast(data.detail || 'Registration failed', true);
+                }
             }
         }
 
@@ -746,7 +805,7 @@ def serve_frontend():
             const data = await res.json();
             if(res.ok) {
                 sessionUser = data.student;
-                localStorage.setItem('aerocrew_user', JSON.stringify(sessionUser));
+                localStorage.setItem('iro_crew_user', JSON.stringify(sessionUser));
                 updateDashboardUI();
                 navigateTo('screen-dashboard');
                 fetchAcademyContent();
@@ -776,17 +835,59 @@ def serve_frontend():
         }
 
         async function fetchAcademyContent() {
-            const res = await fetch('/api/academy/content');
+            const group = sessionUser ? sessionUser.group_code : 'EASA-ALPHA-1';
+            const res = await fetch(`/api/academy/content?group_code=${group}`);
             academyData = await res.json();
             resetToMenu();
         }
 
         function resetToMenu() {
             if(timerInterval) clearInterval(timerInterval);
+            let lessonsHtml = '';
+            if(academyData.lessons && academyData.lessons.length > 0) {
+                lessonsHtml = `
+                    <div style="margin-top:1.2rem; background:var(--bg-deep); padding:1rem; border-radius:14px; border:1px solid var(--border-glow);">
+                        <b style="color:var(--accent); font-size:0.85rem;">📚 Instructor Broadcasts (${sessionUser.group_code}):</b>
+                        <div style="margin-top:8px; max-height:100px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;">
+                            ${academyData.lessons.map(l => `
+                                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-card); padding:6px 10px; border-radius:8px;">
+                                    <span style="font-size:0.78rem; color:white;"><b>${l.lesson_title}</b> (${l.teacher_name})</span>
+                                    <a href="${l.pdf_url}" target="_blank" style="font-size:0.75rem; color:var(--accent); font-weight:800; text-decoration:none;">Open PDF 📄</a>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
             document.getElementById('simulation-box').innerHTML = `
                 <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;">EASA Professional Training Center</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Select <b>First Year</b> or <b>Second Year</b> above to explore your curriculum path, or test your knowledge in dedicated drill hubs.</p>
+                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Select <b>First Year</b> or <b>Second Year</b> above to explore your curriculum path, or test your knowledge in drills.</p>
+                ${lessonsHtml}
             `;
+        }
+
+        async function submitTeacherLesson() {
+            const lesson_title = document.getElementById('teach-title').value.trim();
+            const pdf_url = document.getElementById('teach-url').value.trim();
+            const lesson_notes = document.getElementById('teach-notes').value.trim();
+
+            if(!lesson_title || !pdf_url) { showToast('Enter lesson title and PDF URL', true); return; }
+
+            const res = await fetch('/api/teacher/upload', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ teacher_name: sessionUser.full_name, group_code: sessionUser.group_code, lesson_title, pdf_url, lesson_notes })
+            });
+            if(res.ok) {
+                showToast('Lesson broadcasted successfully to all students!');
+                document.getElementById('teach-title').value = '';
+                document.getElementById('teach-url').value = '';
+                document.getElementById('teach-notes').value = '';
+                fetchAcademyContent();
+            } else {
+                showToast('Broadcast failed', true);
+            }
         }
 
         function launchYearPath(yearNum) {
@@ -880,11 +981,11 @@ def serve_frontend():
             if(activeLang === 'ar') { hint = term.hint_ar; promptTerm = term.term_en; }
             if(activeLang === 'fr') { hint = term.hint_fr; promptTerm = term.term_fr; }
 
-            document.getElementById('mascot-speech').innerText = `"Year ${yearNum} Drill Active: Type precise terminology!"`;
+            document.getElementById('mascot-speech').innerText = `"Drill Active: Type precise EASA terminology!"`;
 
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <span style="font-size: 0.72rem; font-weight: 800; color: var(--success);">YEAR ${yearNum} DRILL (${(drillPointer % currentDrillList.length) + 1}/${currentDrillList.length})</span>
+                    <span style="font-size: 0.72rem; font-weight: 800; color: var(--success);">DRILL (${(drillPointer % currentDrillList.length) + 1}/${currentDrillList.length})</span>
                     <span style="font-size: 0.75rem; color: var(--text-muted);" id="timer-text">30s remaining</span>
                 </div>
                 <div class="timer-bar"><div id="timer-fill" class="timer-progress"></div></div>
@@ -919,7 +1020,7 @@ def serve_frontend():
             sessionUser.xp_points = data.xp;
             sessionUser.hearts = data.hearts;
             sessionUser.streak = data.streak;
-            localStorage.setItem('aerocrew_user', JSON.stringify(sessionUser));
+            localStorage.setItem('iro_crew_user', JSON.stringify(sessionUser));
 
             if(data.correct) {
                 playAudio('success');
@@ -934,9 +1035,22 @@ def serve_frontend():
             }
         }
 
+        function openStudentReferral() {
+            if(timerInterval) clearInterval(timerInterval);
+            document.getElementById('mascot-speech').innerText = `"Invite your fellow cadets and earn bonus XP stars!"`;
+            const box = document.getElementById('simulation-box');
+            const refLink = `https://iro-crew-academy.up.railway.app/?ref=${sessionUser.phone_number}`;
+
+            box.innerHTML = `
+                <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900; margin-bottom: 0.6rem;">🤝 Invite Friends & Earn Stars</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem; line-height: 1.5;">Share your exclusive cadet referral link with friends. When they join your study group, you both earn +100 XP Stars!</p>
+                <input type="text" value="${refLink}" readonly style="background:var(--bg-deep); color:var(--accent); font-weight:700; text-align:center; margin-bottom:1rem;" />
+                <button class="btn-action" onclick="navigator.clipboard.writeText('${refLink}'); showToast('Referral link copied to clipboard!');" style="background:var(--success); color:white;">Copy Link 📋</button>
+            `;
+        }
+
         function openShop(category = 'male') {
             if(timerInterval) clearInterval(timerInterval);
-            playAudio('click');
             document.getElementById('mascot-speech').innerText = `"Customize your crew uniform with stars!"`;
             const box = document.getElementById('simulation-box');
             const filteredSkins = academyData.skins.filter(s => s.category === category);
@@ -954,7 +1068,7 @@ def serve_frontend():
                     ${filteredSkins.map(skin => `
                         <div style="background: var(--bg-deep); padding: 0.7rem 1rem; border-radius: 12px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;">
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <span style="font-size: 1.6rem;">${skin.icon}</span>
+                                <span style="font-size: 1.6rem;">${skin.preview_svg}</span>
                                 <div>
                                     <b style="color: white; font-size: 0.85rem;">${skin.skin_name}</b>
                                     <div style="color: var(--text-muted); font-size: 0.7rem;">${skin.desc_en}</div>
@@ -977,9 +1091,9 @@ def serve_frontend():
             if(res.ok) {
                 playAudio('success');
                 sessionUser = data.student;
-                localStorage.setItem('aerocrew_user', JSON.stringify(sessionUser));
+                localStorage.setItem('iro_crew_user', JSON.stringify(sessionUser));
                 updateDashboardUI();
-                showToast(`Successfully unlocked: ${skinName}!`);
+                showToast(`Successfully equipped: ${skinName}!`);
                 openShop(category);
             } else {
                 playAudio('error');
