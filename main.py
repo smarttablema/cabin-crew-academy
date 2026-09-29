@@ -12,7 +12,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Elite Academy", version="11.2.0")
+app = FastAPI(title="Aero Crew Elite Academy", version="11.3.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -119,28 +119,18 @@ def startup_db():
     cur.execute("""
         INSERT INTO aero_curriculum_v11 (year_level, node_order, category, theme_icon, title_en, title_ar, title_fr, content_en, content_ar, content_fr)
         VALUES 
-        (1, 1, 'SEP', '✈️', 'Step 1: EASA Regulatory Framework & Part-CC', 'الخطوة 1: لوائح EASA التنظيمية', 'Étape 1 : Cadre réglementaire EASA', 'Introduction to European Union Aviation Safety Agency regulations governing cabin crew operational safety duties.', 'مقدمة لوائح سلامة طاقم المقصورة لوكالة سلامة الطيران الأوروبية.', 'Introduction aux réglementations de l Agence européenne de la sécurité aérienne.'),
-        (1, 2, 'SEP', '🚪', 'Step 2: Emergency Exits & Door Arming', 'الخطوة 2: مخارج الطوارئ وتجهيز الأبواب', 'Étape 2 : Portes et armement des toboggans', 'Mandatory pre-flight checks, slide arming procedures, and cross-checking protocols across all aircraft door types.', 'فحوصات ما قبل الرحلة الإلزامية وإجراءات تجهيز المنحدرات.', 'Vérifications pré-vol obligatoires et procédures d armement des toboggans.'),
-        (1, 3, 'SEP', '🛟', 'Step 3: Slide Rafts & Ditching Protocols', 'الخطوة 3: قوارب النجاة وبروتوكولات الهبوط المائي', 'Étape 3 : Protocoles d amerrissage', 'Deploying slide rafts, emergency water evacuation commands, and survival equipment operation.', 'نشر قوارب النجاة وأوامر الإخلاء المائي الطارئ.', 'Déploiement des radeaux de sauvetage et évacuation sur l eau.'),
-        (1, 4, 'Fire', '🧯', 'Step 4: Cabin Firefighting & Halon Extinguishers', 'الخطوة 4: مكافحة الحرائق وإطفاء هالون', 'Étape 4 : Lutte contre les feux de cabine', 'Class A, B, and C fire classification, PBE donning, and Halon 1211/1301 fire suppression tactics.', 'تصنيف الحريق أ وب وج وارتداء معدات التنفس وحراسات هالون.', 'Classification des feux et tactiques d extinction au Halon.'),
-        (1, 5, 'Medical', '🩺', 'Step 5: Rapid Decompression & Oxygen Systems', 'الخطوة 5: إزالة الضغط السريع ونظم الأكسجين', 'Étape 5 : Décompression rapide et oxygène', 'Physiological effects of hypoxia, donning portable PBO bottles, and passenger oxygen mask deployment.', 'الآثار الفسيولوجية لنقص الأكسجين وارتداء زجاجات PBO.', 'Effets physiologiques de l hypoxie et masques à oxygène.'),
-        (1, 6, 'Medical', '❤️', 'Step 6: First Aid, CPR & AED Operation', 'الخطوة 6: الإسعافات الأولية وإنعاش القلب', 'Étape 6 : Premiers secours et défibrillateur', 'Cardiac arrest emergency management, Automated External Defibrillator (AED), and Heimlich maneuver.', 'إدارة طوارئ السكتة القلبية وجهاز الإزالة والمناورة.', 'Gestion des arrêts cardiaques et défibrillateur automatisé.'),
-        
-        (2, 1, 'CRM', '🤝', 'Step 1: Advanced Crew Resource Management', 'الخطوة 1: إدارة موارد الطاقم المتقدمة', 'Étape 1 : Gestion CRM avancée', 'Multicultural flight deck and cabin crew communication dynamics, leadership, and error mitigation.', 'ديناميكيات التواصل والقيادة وتخفيف الأخطاء بين الطاقم.', 'Dynamique de communication et leadership au sein de l équipage.'),
-        (2, 2, 'TEM', '🛡️', 'Step 2: Threat and Error Management (TEM)', 'الخطوة 2: إدارة التهديدات والأخطاء', 'Étape 2 : Gestion des menaces (TEM)', 'Proactive operational threat recognition, error trapping, and undesirable aircraft state management.', 'التعرف الاستباقي على التهديدات التشغيلية واكتشاف الأخطاء.', 'Reconnaissance proactive des menaces opérationnelles.'),
-        (2, 3, 'AVSEC', '🔒', 'Step 3: Aviation Security & Unruly Passengers', 'الخطوة 3: أمن الطيران والركاب المشاغبين', 'Étape 3 : Sûreté aérienne et passagers indisciplinés', 'Four-tier unruly passenger threat management matrix, physical restraint techniques, and cockpit defense.', 'مصفوفة إدارة تهديدات الركاب المشاغبين من 4 مستويات.', 'Matrice de gestion des menaces des passagers indisciplinés.'),
-        (2, 4, 'Cargo', '📦', 'Step 4: Dangerous Goods & Lithium Batteries', 'الخطوة 4: البضائع الخطرة وبطاريات الليثيوم', 'Étape 4 : Marchandises dangereuses et lithium', 'Recognizing hidden hazmat items, thermal runaway mitigation for PEDs, and fire containment bags.', 'التعرف على المواد الخطرة المخفية والتخفيف من الهروب الحراري.', 'Reconnaissance des matières dangereuses et emballement thermique.')
+        (1, 1, 'SEP', '✈️', 'Step 1: EASA Regulatory Framework', 'Step 1: EASA Framework', 'Étape 1 : Cadre EASA', 'Introduction to EASA regulations governing cabin crew operational safety duties.', 'Introduction to EASA regulations.', 'Introduction aux réglementations de l Agence.'),
+        (1, 2, 'SEP', '🚪', 'Step 2: Emergency Exits & Door Arming', 'Step 2: Exits', 'Étape 2 : Portes', 'Mandatory pre-flight checks and slide arming procedures.', 'Pre-flight checks.', 'Vérifications pré-vol.'),
+        (2, 1, 'CRM', '🤝', 'Step 1: Advanced CRM', 'Step 1: CRM', 'Étape 1 : CRM', 'Multicultural flight deck and cabin crew communication dynamics.', 'Communication dynamics.', 'Dynamique de communication.')
         ON CONFLICT DO NOTHING;
     """)
 
     cur.execute("""
         INSERT INTO aero_exercises_v11 (year_level, node_order, exercise_type, prompt_en, prompt_ar, prompt_fr, options, correct_answer, hint_en)
         VALUES 
-        (1, 1, 'mcq', 'What regulatory agency governs European Union commercial cabin crew operations?', 'ما هي الوكالة التنظيمية التي تحكم عمليات طاقم المقصورة التجاري في الاتحاد الأوروبي؟', 'Quelle agence réglemente les opérations des équipages en UE ?', ARRAY['FAA', 'EASA', 'ICAO', 'CAA'], 'EASA', 'European Union Aviation Safety Agency.'),
-        (1, 1, 'translate', 'Translate "Pre-flight Check" to Arabic:', 'ترجم "فحص ما قبل الرحلة" إلى العربية :', 'Traduisez "Pre-flight Check" en arabe :', ARRAY['فحص ما قبل الرحلة', 'إخلاء الطوارئ', 'مقياس الارتفاع', 'قمرة القيادة'], 'فحص ما قبل الرحلة', 'Mandatory inspection before departure.'),
-        (1, 1, 'voice', 'Repeat aloud the official cabin crew safety authority term:', 'كرر بصوت عالٍ مصطلح سلطة سلامة طاقم المقصورة الرسمي:', 'Répétez à haute voix le terme officiel :', ARRAY['EASA Part-CC', 'FAA Part-91', 'ICAO Annex 6', 'JAA Ops'], 'EASA Part-CC', 'European safety regulation standard.'),
-        (1, 4, 'photo_card', 'In case of an electrical cabin fire, which specialized fire suppressant equipment must be deployed?', 'في حال حدوث حريق كهربائي بالمقصورة، ما هي معدات إخماد الحريق المتخصصة التي يجب نشرها؟', 'En cas d incendie électrique en cabine, quel équipement spécialisé devez-vous utiliser ?', ARRAY['Halon Extinguisher', 'Water Jug', 'Coffee Pot', 'Oxygen Bottle'], 'Halon Extinguisher', 'Class A, B, C fire suppressant.'),
-        (1, 4, 'mcq', 'What does PBE stand for during emergency cabin firefighting?', 'ماذا تعني اختصار PBE أثناء مكافحة حرائق المقصورة الطارئة؟', 'Que signifie PBE lors de la lutte contre les incendies ?', ARRAY['Portable Breathing Equipment', 'Passenger Boarding Entry', 'Pressure Balance Emergency', 'Pilot Barrier Electronics'], 'Portable Breathing Equipment', 'Protective smoke breathing hood.')
+        (1, 1, 'mcq', 'What regulatory agency governs European Union commercial cabin crew operations?', 'What agency governs EU operations?', 'Quelle agence réglemente les opérations en UE ?', ARRAY['FAA', 'EASA', 'ICAO', 'CAA'], 'EASA', 'European Union Aviation Safety Agency.'),
+        (1, 1, 'translate', 'Translate "Pre-flight Check" to Arabic:', 'Translate Pre-flight Check:', 'Traduisez Pre-flight Check :', ARRAY['فحص ما قبل الرحلة', 'إخلاء الطوارئ', 'مقياس الارتفاع', 'قمرة القيادة'], 'فحص ما قبل الرحلة', 'Mandatory inspection before departure.'),
+        (1, 1, 'voice', 'Repeat aloud the official cabin crew safety authority term:', 'Repeat term:', 'Répétez le terme :', ARRAY['EASA Part-CC', 'FAA Part-91', 'ICAO Annex 6', 'JAA Ops'], 'EASA Part-CC', 'European safety regulation standard.')
         ON CONFLICT DO NOTHING;
     """)
     conn.commit()
@@ -464,7 +454,6 @@ def serve_frontend():
 
         .hidden { display: none !important; }
 
-        /* Mascot Banner */
         .mascot-banner { display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg, rgba(56,189,248,0.18) 0%, rgba(2,132,199,0.06) 100%); border: 1px solid rgba(56,189,248,0.35); padding: 0.85rem 1.1rem; border-radius: 18px; margin-bottom: 1.1rem; }
         .mascot-avatar { font-size: 2.6rem; animation: bounceMascot 2s infinite ease-in-out; }
         @keyframes bounceMascot { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
@@ -502,7 +491,6 @@ def serve_frontend():
 <body>
     <div id="toast" class="toast-popup">Notification</div>
 
-    <!-- SETTINGS & PROFILE MODAL -->
     <div id="settings-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.9); backdrop-filter:blur(8px); display:flex; justify-content:center; align-items:center; z-index:5000; opacity:0; pointer-events:none; transition:opacity 0.25s;">
         <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:420px; max-height:85vh; overflow-y:auto; box-shadow:0 30px 60px rgba(0,0,0,0.9);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
@@ -543,7 +531,6 @@ def serve_frontend():
         </div>
     </div>
 
-    <!-- FRIEND INVITATION & SEARCH MODAL -->
     <div id="friends-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.9); backdrop-filter:blur(8px); display:flex; justify-content:center; align-items:center; z-index:5000; opacity:0; pointer-events:none; transition:opacity 0.25s;">
         <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:420px; max-height:85vh; overflow-y:auto; box-shadow:0 30px 60px rgba(0,0,0,0.9);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
@@ -558,9 +545,7 @@ def serve_frontend():
             </div>
 
             <h4 style="font-size:0.85rem; font-weight:800; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase;">Connected Friends Online</h4>
-            <div id="friends-list-container" style="display:flex; flex-direction:column; gap:8px; max-height:180px; overflow-y:auto; margin-bottom:1.2rem;">
-                <!-- Populated dynamically -->
-            </div>
+            <div id="friends-list-container" style="display:flex; flex-direction:column; gap:8px; max-height:180px; overflow-y:auto; margin-bottom:1.2rem;"></div>
 
             <button class="btn-action" onclick="playAudio('click'); openGroupChat()" style="background:var(--success); color:white;">Open Study Group Chat 💬</button>
         </div>
@@ -572,7 +557,6 @@ def serve_frontend():
                 <img src="https://img.icons8.com/color/48/airplane-take-off.png" alt="Logo">
                 <span id="txt-brand">Aero Crew</span>
             </div>
-            <!-- Top Right Icons ONLY appear in dashboard -->
             <div class="header-controls hidden" id="dash-header-icons">
                 <div class="header-icon-btn" onclick="playAudio('click'); openFriendsModal()" title="Friend Invitations">🤝</div>
                 <div class="header-icon-btn" onclick="playAudio('click'); openShop()" title="Uniform Boutique">🎁</div>
@@ -580,7 +564,6 @@ def serve_frontend():
             </div>
         </div>
 
-        <!-- 1. SIGN IN SCREEN -->
         <div id="screen-login">
             <h2 id="ui-login-title">Cabin Crew Portal</h2>
             <p class="sub-desc" id="ui-login-sub">Access accredited EASA/ICAO professional curriculum.</p>
@@ -599,7 +582,6 @@ def serve_frontend():
             </div>
         </div>
 
-        <!-- 2. REGISTER SCREEN -->
         <div id="screen-register" class="hidden">
             <h2 id="reg-title">Cadet Enrollment</h2>
             <p class="sub-desc" id="reg-sub">Register your official profile and unique username.</p>
@@ -632,7 +614,6 @@ def serve_frontend():
             </div>
         </div>
 
-        <!-- 3. RESET PASSWORD SCREEN -->
         <div id="screen-reset" class="hidden">
             <h2 id="res-title">Recovery PIN Reset</h2>
             <p class="sub-desc" id="res-sub">Enter your phone and secret recovery PIN.</p>
@@ -653,11 +634,10 @@ def serve_frontend():
             </div>
         </div>
 
-        <!-- 4. GAMIFIED DASHBOARD -->
         <div id="screen-dashboard" class="hidden">
             <div class="mascot-banner">
                 <div class="mascot-avatar" id="mascot-emoji">👔</div>
-                <div class="mascot-speech" id="mascot-speech">"Reading professional manuals guarantees cadet excellence!"</div>
+                <div class="mascot-speech" id="mascot-speech">Reading professional manuals guarantees cadet excellence!</div>
             </div>
 
             <div class="stats-dashboard">
@@ -708,7 +688,6 @@ def serve_frontend():
         let exercisePointer = 0;
         let selectedAvatarSetting = 'steward';
 
-        // Global Audio Handler
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playAudio(type) {
             try {
@@ -907,16 +886,13 @@ def serve_frontend():
         }
 
         async function fetchAcademyContent() {
-            const res = await fetch(`/api/academy/content?group_code=${sessionUser.group_code}`);
+            const res = await fetch('/api/academy/content?group_code=' + sessionUser.group_code);
             academyData = await res.json();
             resetToMenu();
         }
 
         function resetToMenu() {
-            document.getElementById('simulation-box').innerHTML = `
-                <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;">EASA Professional Training Center</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Select <b>First Year Path</b> or <b>Second Year Path</b> above to jump into interactive Duolingo-style roadmap exercises.</p>
-            `;
+            document.getElementById('simulation-box').innerHTML = '<h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;">EASA Professional Training Center</h3><p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Select <b>First Year Path</b> or <b>Second Year Path</b> above to jump into interactive Duolingo-style roadmap exercises.</p>';
         }
 
         function openSettingsModal() {
@@ -974,11 +950,11 @@ def serve_frontend():
         async function openFriendsModal() {
             document.getElementById('friends-modal').style.opacity = '1';
             document.getElementById('friends-modal').style.pointerEvents = 'auto';
-            const res = await fetch(`/api/friends/list?username=${sessionUser.username}`);
+            const res = await fetch('/api/friends/list?username=' + sessionUser.username);
             const data = await res.json();
             const container = document.getElementById('friends-list-container');
             if(data.friends.length === 0) {
-                container.innerHTML = `<div style="color:var(--text-muted); font-size:0.8rem; text-align:center; padding:10px;">No friends added yet. Search by username above!</div>`;
+                container.innerHTML = '<div style="color:var(--text-muted); font-size:0.8rem; text-align:center; padding:10px;">No friends added yet. Search by username above!</div>';
                 return;
             }
             container.innerHTML = data.friends.map(f => `
@@ -1015,14 +991,14 @@ def serve_frontend():
             }
         }
         async function reportFriend(username) {
-            if(!confirm(`Are you sure you want to report ${username}? (40 reports results in a permanent ban)`)) return;
+            if(!confirm('Are you sure you want to report ' + username + '?')) return;
             const res = await fetch('/api/user/report', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ reported_username: username })
             });
             const data = await res.json();
-            showToast(`User reported! Total community reports: ${data.reports}`);
+            showToast('User reported! Total community reports: ' + data.reports);
         }
 
         function launchLongRoadmap(yearNum) {
@@ -1049,8 +1025,7 @@ def serve_frontend():
             currentExerciseList = academyData.exercises.filter(e => e.year_level === yearNum && e.node_order === nodeOrder);
             if(currentExerciseList.length === 0) {
                 currentExerciseList = [
-                    { id: 999, exercise_type: 'mcq', prompt_en: 'What is the standard emergency evacuation time mandate?', prompt_ar: 'ما هو تفويض وقت الإخلاء الطارئ القياسي؟', prompt_en_fr: 'Délai d évacuation ?', options: ['90 Seconds', '5 Minutes', '10 Minutes', '30 Seconds'], correct_answer: '90 Seconds', hint_en: 'Complete evacuation using 50% exits.' },
-                    { id: 998, exercise_type: 'translate', prompt_en: 'Translate "Decompression" to Arabic:', 'prompt_ar: 'ترجم "إزالة الضغط" إلى العربية:', options: ['إزالة الضغط', 'مطبات هوائية', 'مقياس الارتفاع', 'طفاية'], correct_answer: 'إزالة الضغط', hint_en: 'Loss of cabin pressurization.' }
+                    { id: 999, exercise_type: 'mcq', prompt_en: 'What is the standard emergency evacuation time mandate?', options: ['90 Seconds', '5 Minutes', '10 Minutes', '30 Seconds'], correct_answer: '90 Seconds', hint_en: 'Complete evacuation using 50% exits.' }
                 ];
             }
             exercisePointer = 0;
@@ -1061,27 +1036,16 @@ def serve_frontend():
             const box = document.getElementById('simulation-box');
             const ex = currentExerciseList[exercisePointer % currentExerciseList.length];
 
-            let prompt = ex.prompt_en;
-            if(activeLang === 'ar') prompt = ex.prompt_ar;
-            if(activeLang === 'fr') prompt = ex.prompt_fr || ex.prompt_en;
-
             let optionsHtml = '';
             if(ex.options && ex.options.length > 0) {
-                optionsHtml = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin: 1rem 0;">
-                    ${ex.options.map(opt => `
-                        <button class="btn-action" onclick="verifyExerciseAnswer(${yearNum}, ${ex.id}, '${opt}')" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:10px; font-size:0.85rem;">${opt}</button>
-                    `).join('')}
-                </div>`;
+                optionsHtml = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin: 1rem 0;">' +
+                    ex.options.map(opt => `<button class="btn-action" onclick="verifyExerciseAnswer(${yearNum}, ${ex.id}, '${opt}')" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:10px; font-size:0.85rem;">${opt}</button>`).join('') +
+                '</div>';
             }
 
             let voiceHtml = '';
             if(ex.exercise_type === 'voice') {
-                voiceHtml = `
-                    <div style="text-align:center; margin:1rem 0;">
-                        <button onclick="simulateVoiceRecord('${ex.correct_answer}', ${yearNum}, ${ex.id})" class="btn-action" style="width:70px; height:70px; border-radius:50%; background:linear-gradient(135deg, #ef4444 0%, #991b1b 100%); font-size:1.8rem; margin:0 auto; display:flex; justify-content:center; align-items:center;">🎙️</button>
-                        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">Tap microphone & repeat aloud</div>
-                    </div>
-                `;
+                voiceHtml = '<div style="text-align:center; margin:1rem 0;"><button onclick="simulateVoiceRecord(\'' + ex.correct_answer + '\', ' + yearNum + ', ' + ex.id + ')" class="btn-action" style="width:70px; height:70px; border-radius:50%; background:linear-gradient(135deg, #ef4444 0%, #991b1b 100%); font-size:1.8rem; margin:0 auto; display:flex; justify-content:center; align-items:center;">🎙️</button><div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">Tap microphone & repeat aloud</div></div>';
             }
 
             box.innerHTML = `
@@ -1089,7 +1053,7 @@ def serve_frontend():
                     <span style="font-size: 0.72rem; font-weight: 800; color: var(--success);">3-MIN LESSON EXERCISE (${(exercisePointer % currentExerciseList.length) + 1}/${currentExerciseList.length})</span>
                     <span style="font-size: 0.75rem; color: var(--warning); font-weight: 800;">${ex.exercise_type.toUpperCase()}</span>
                 </div>
-                <div style="font-size: 1.1rem; font-weight: 900; color: white; margin-bottom: 0.8rem; line-height: 1.4;">${prompt}</div>
+                <div style="font-size: 1.1rem; font-weight: 900; color: white; margin-bottom: 0.8rem; line-height: 1.4;">${ex.prompt_en}</div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Hint: ${ex.hint_en}</div>
                 ${optionsHtml}
                 ${voiceHtml}
@@ -1221,7 +1185,7 @@ def serve_frontend():
         async function buySkin(skinName, cost, category) {
             if(cost === 0) {
                 updateProfileAvatarAndSkin(sessionUser.crew_avatar, skinName);
-                showToast(`Equipped: ${skinName}`);
+                showToast('Equipped: ' + skinName);
                 return;
             }
             const res = await fetch('/api/shop/buy', {
@@ -1235,7 +1199,7 @@ def serve_frontend():
                 sessionUser = data.user;
                 localStorage.setItem('aero_crew_user', JSON.stringify(sessionUser));
                 updateDashboardUI();
-                showToast(`Successfully unlocked & equipped: ${skinName}!`);
+                showToast('Successfully unlocked & equipped: ' + skinName + '!');
                 openShop(category);
             } else {
                 playAudio('error');
