@@ -12,14 +12,13 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Elite Academy", version="11.0.0")
+app = FastAPI(title="Aero Crew Elite Academy", version="11.2.0")
 
 @app.on_event("startup")
 def startup_db():
     conn = get_db_connection()
     cur = conn.cursor()
     
-    # 1. Users Table (Unique Username, Recovery PIN, Role, Avatar, Active Skin, Reports count, Banned status)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS aero_users_v11 (
             id SERIAL PRIMARY KEY,
@@ -40,19 +39,15 @@ def startup_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
-
-    # 2. Friendships Table (Friend requests and active friends)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS aero_friendships_v11 (
             id SERIAL PRIMARY KEY,
             sender_username VARCHAR(50),
             receiver_username VARCHAR(50),
-            status VARCHAR(20) DEFAULT 'pending', -- pending, accepted
+            status VARCHAR(20) DEFAULT 'accepted',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
-
-    # 3. Real-Time Group Chat Table (WhatsApp style messages, audio URLs, images, files, PDFs)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS aero_chat_messages_v11 (
             id SERIAL PRIMARY KEY,
@@ -60,26 +55,22 @@ def startup_db():
             sender_username VARCHAR(50),
             sender_name VARCHAR(100),
             sender_avatar VARCHAR(20),
-            msg_type VARCHAR(20) DEFAULT 'text', -- text, audio, image, file
+            msg_type VARCHAR(20) DEFAULT 'text',
             content TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
-
-    # 4. Premium Tiered Skin Shop Table
     cur.execute("""
         CREATE TABLE IF NOT EXISTS aero_shop_skins_v11 (
             id SERIAL PRIMARY KEY,
             category VARCHAR(20),
-            tier_level VARCHAR(30), -- Free, Budget, Professional, Ultra-Elite Luxury
+            tier_level VARCHAR(30),
             skin_name VARCHAR(50),
             cost INT,
             preview_svg TEXT,
             desc_en TEXT
         );
     """)
-
-    # 5. Massive Long Curriculum Path Table (Year 1 & Year 2 nodes with cabin crew thematic design)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS aero_curriculum_v11 (
             id SERIAL PRIMARY KEY,
@@ -95,24 +86,21 @@ def startup_db():
             content_fr TEXT
         );
     """)
-
-    # 6. Comprehensive 4-Type Exercise Bank Table
     cur.execute("""
         CREATE TABLE IF NOT EXISTS aero_exercises_v11 (
             id SERIAL PRIMARY KEY,
             year_level INT,
             node_order INT,
-            exercise_type VARCHAR(30), -- mcq, voice, photo_card, translate
+            exercise_type VARCHAR(30),
             prompt_en TEXT,
             prompt_ar TEXT,
             prompt_fr TEXT,
-            options TEXT[], -- Array of choices
+            options TEXT[],
             correct_answer TEXT,
             hint_en TEXT
         );
     """)
 
-    # Seed Tiered Skins (Free to 10,000 XP Luxury)
     cur.execute("""
         INSERT INTO aero_shop_skins_v11 (category, tier_level, skin_name, cost, preview_svg, desc_en)
         VALUES 
@@ -128,7 +116,6 @@ def startup_db():
         ON CONFLICT DO NOTHING;
     """)
 
-    # Seed Massive Long Curriculum Path (Multiple nodes for Year 1 & Year 2)
     cur.execute("""
         INSERT INTO aero_curriculum_v11 (year_level, node_order, category, theme_icon, title_en, title_ar, title_fr, content_en, content_ar, content_fr)
         VALUES 
@@ -146,16 +133,12 @@ def startup_db():
         ON CONFLICT DO NOTHING;
     """)
 
-    # Seed 4-Type Exercise Bank for Each Node
     cur.execute("""
         INSERT INTO aero_exercises_v11 (year_level, node_order, exercise_type, prompt_en, prompt_ar, prompt_fr, options, correct_answer, hint_en)
         VALUES 
-        -- Year 1 Node 1
         (1, 1, 'mcq', 'What regulatory agency governs European Union commercial cabin crew operations?', 'ما هي الوكالة التنظيمية التي تحكم عمليات طاقم المقصورة التجاري في الاتحاد الأوروبي؟', 'Quelle agence réglemente les opérations des équipages en UE ?', ARRAY['FAA', 'EASA', 'ICAO', 'CAA'], 'EASA', 'European Union Aviation Safety Agency.'),
         (1, 1, 'translate', 'Translate "Pre-flight Check" to Arabic:', 'ترجم "فحص ما قبل الرحلة" إلى العربية :', 'Traduisez "Pre-flight Check" en arabe :', ARRAY['فحص ما قبل الرحلة', 'إخلاء الطوارئ', 'مقياس الارتفاع', 'قمرة القيادة'], 'فحص ما قبل الرحلة', 'Mandatory inspection before departure.'),
         (1, 1, 'voice', 'Repeat aloud the official cabin crew safety authority term:', 'كرر بصوت عالٍ مصطلح سلطة سلامة طاقم المقصورة الرسمي:', 'Répétez à haute voix le terme officiel :', ARRAY['EASA Part-CC', 'FAA Part-91', 'ICAO Annex 6', 'JAA Ops'], 'EASA Part-CC', 'European safety regulation standard.'),
-        
-        -- Year 1 Node 4 (Firefighting)
         (1, 4, 'photo_card', 'In case of an electrical cabin fire, which specialized fire suppressant equipment must be deployed?', 'في حال حدوث حريق كهربائي بالمقصورة، ما هي معدات إخماد الحريق المتخصصة التي يجب نشرها؟', 'En cas d incendie électrique en cabine, quel équipement spécialisé devez-vous utiliser ?', ARRAY['Halon Extinguisher', 'Water Jug', 'Coffee Pot', 'Oxygen Bottle'], 'Halon Extinguisher', 'Class A, B, C fire suppressant.'),
         (1, 4, 'mcq', 'What does PBE stand for during emergency cabin firefighting?', 'ماذا تعني اختصار PBE أثناء مكافحة حرائق المقصورة الطارئة؟', 'Que signifie PBE lors de la lutte contre les incendies ?', ARRAY['Portable Breathing Equipment', 'Passenger Boarding Entry', 'Pressure Balance Emergency', 'Pilot Barrier Electronics'], 'Portable Breathing Equipment', 'Protective smoke breathing hood.')
         ON CONFLICT DO NOTHING;
@@ -164,7 +147,6 @@ def startup_db():
     cur.close()
     conn.close()
 
-# Pydantic Models
 class RegisterModel(BaseModel):
     phone_number: str
     username: str
@@ -215,7 +197,6 @@ class DrillAttemptModel(BaseModel):
     exercise_id: int
     user_answer: str
 
-# API Endpoints
 @app.post("/api/register")
 def register(data: RegisterModel):
     conn = get_db_connection()
@@ -261,7 +242,6 @@ def change_password(data: PasswordChangeModel):
         conn.close()
         raise HTTPException(status_code=404, detail="User not found.")
     
-    # Verify Recovery PIN first, then old password
     if user["recovery_pin"] != data.recovery_pin:
         cur.close()
         conn.close()
@@ -500,7 +480,6 @@ def serve_frontend():
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; position: relative; min-height: 270px; }
         
-        /* Long Duolingo Roadmap */
         .roadmap-path { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 15px 0; max-height: 280px; overflow-y: auto; }
         .roadmap-node { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 25px var(--accent-glow); transition: transform 0.2s; position: relative; border: 3px solid #bae6fd; }
         .roadmap-node:hover { transform: scale(1.12); box-shadow: 0 0 35px var(--accent); }
@@ -509,7 +488,6 @@ def serve_frontend():
         .roadmap-node:nth-child(4n+3) { transform: translateX(0px); }
         .roadmap-node:nth-child(4n+4) { transform: translateX(-45px); }
 
-        /* WhatsApp Style Chat Box */
         .chat-container { display: flex; flex-direction: column; height: 320px; background: var(--bg-deep); border-radius: 16px; border: 1px solid var(--border-glow); overflow: hidden; }
         .chat-messages { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
         .chat-bubble { max-width: 78%; padding: 9px 12px; border-radius: 14px; font-size: 0.84rem; line-height: 1.4; position: relative; }
@@ -594,7 +572,8 @@ def serve_frontend():
                 <img src="https://img.icons8.com/color/48/airplane-take-off.png" alt="Logo">
                 <span id="txt-brand">Aero Crew</span>
             </div>
-            <div class="header-controls">
+            <!-- Top Right Icons ONLY appear in dashboard -->
+            <div class="header-controls hidden" id="dash-header-icons">
                 <div class="header-icon-btn" onclick="playAudio('click'); openFriendsModal()" title="Friend Invitations">🤝</div>
                 <div class="header-icon-btn" onclick="playAudio('click'); openShop()" title="Uniform Boutique">🎁</div>
                 <div class="header-icon-btn" onclick="playAudio('click'); openSettingsModal()" title="Settings & Profile">⚙️</div>
@@ -676,7 +655,6 @@ def serve_frontend():
 
         <!-- 4. GAMIFIED DASHBOARD -->
         <div id="screen-dashboard" class="hidden">
-            <!-- Dynamic Mascot & Active Skin Banner -->
             <div class="mascot-banner">
                 <div class="mascot-avatar" id="mascot-emoji">👔</div>
                 <div class="mascot-speech" id="mascot-speech">"Reading professional manuals guarantees cadet excellence!"</div>
@@ -694,7 +672,6 @@ def serve_frontend():
                 </div>
             </div>
 
-            <!-- Hub Grid -->
             <div class="mode-grid">
                 <div class="mode-tile" onclick="playAudio('click'); launchLongRoadmap(1)">
                     <span style="font-size: 1.4rem;">📖</span>
@@ -731,6 +708,7 @@ def serve_frontend():
         let exercisePointer = 0;
         let selectedAvatarSetting = 'steward';
 
+        // Global Audio Handler
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playAudio(type) {
             try {
@@ -794,6 +772,8 @@ def serve_frontend():
                 updateDashboardUI();
                 navigateTo('screen-dashboard');
                 fetchAcademyContent();
+            } else {
+                navigateTo('screen-login');
             }
         };
 
@@ -818,6 +798,13 @@ def serve_frontend():
         function navigateTo(id) {
             ['screen-login', 'screen-register', 'screen-reset', 'screen-dashboard'].forEach(s => document.getElementById(s).classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
+            
+            const headerIcons = document.getElementById('dash-header-icons');
+            if(id === 'screen-dashboard') {
+                headerIcons.classList.remove('hidden');
+            } else {
+                headerIcons.classList.add('hidden');
+            }
         }
 
         function logoutUser() {
@@ -932,7 +919,6 @@ def serve_frontend():
             `;
         }
 
-        // SETTINGS MODAL & SECURITY
         function openSettingsModal() {
             document.getElementById('settings-modal').style.opacity = '1';
             document.getElementById('settings-modal').style.pointerEvents = 'auto';
@@ -985,7 +971,6 @@ def serve_frontend():
             }
         }
 
-        // FRIENDS & INVITATIONS
         async function openFriendsModal() {
             document.getElementById('friends-modal').style.opacity = '1';
             document.getElementById('friends-modal').style.pointerEvents = 'auto';
@@ -1040,7 +1025,6 @@ def serve_frontend():
             showToast(`User reported! Total community reports: ${data.reports}`);
         }
 
-        // LONG DUOLINGO-STYLE ROADMAP
         function launchLongRoadmap(yearNum) {
             const box = document.getElementById('simulation-box');
             const modules = academyData.modules.filter(m => m.year_level === yearNum);
@@ -1061,11 +1045,9 @@ def serve_frontend():
             `;
         }
 
-        // 4-TYPE 3-MINUTE INTERACTIVE EXERCISE ENGINE
         function launchExerciseSession(yearNum, nodeOrder) {
             currentExerciseList = academyData.exercises.filter(e => e.year_level === yearNum && e.node_order === nodeOrder);
             if(currentExerciseList.length === 0) {
-                // Fallback generic exercise if seed is missing for that node
                 currentExerciseList = [
                     { id: 999, exercise_type: 'mcq', prompt_en: 'What is the standard emergency evacuation time mandate?', prompt_ar: 'ما هو تفويض وقت الإخلاء الطارئ القياسي؟', prompt_en_fr: 'Délai d évacuation ?', options: ['90 Seconds', '5 Minutes', '10 Minutes', '30 Seconds'], correct_answer: '90 Seconds', hint_en: 'Complete evacuation using 50% exits.' },
                     { id: 998, exercise_type: 'translate', prompt_en: 'Translate "Decompression" to Arabic:', 'prompt_ar: 'ترجم "إزالة الضغط" إلى العربية:', options: ['إزالة الضغط', 'مطبات هوائية', 'مقياس الارتفاع', 'طفاية'], correct_answer: 'إزالة الضغط', hint_en: 'Loss of cabin pressurization.' }
@@ -1151,7 +1133,6 @@ def serve_frontend():
             }, 1500);
         }
 
-        // WHATSAPP STYLE REAL-TIME STUDY GROUP CHAT
         function openGroupChat() {
             const box = document.getElementById('simulation-box');
             box.innerHTML = `
@@ -1204,7 +1185,6 @@ def serve_frontend():
             if(type === 'pdf') sendChatMessage('pdf', '📄 [EASA_Manual_Revision.pdf]');
         }
 
-        // TIERED SKIN BOUTIQUE
         function openShop(category = 'male') {
             const box = document.getElementById('simulation-box');
             const filteredSkins = academyData.skins.filter(s => s.category === category);
