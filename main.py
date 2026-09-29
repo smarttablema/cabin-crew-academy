@@ -10,14 +10,14 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Elite Academy", version="11.9.0")
+app = FastAPI(title="Aero Crew Elite Academy", version="12.0.0")
 
 @app.on_event("startup")
 def startup_db():
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_users_v11 (
+        CREATE TABLE IF NOT EXISTS aero_users_v12 (
             id SERIAL PRIMARY KEY,
             phone_number VARCHAR(20) UNIQUE,
             username VARCHAR(50) UNIQUE,
@@ -37,7 +37,7 @@ def startup_db():
         );
     """)
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_friendships_v11 (
+        CREATE TABLE IF NOT EXISTS aero_friendships_v12 (
             id SERIAL PRIMARY KEY,
             sender_username VARCHAR(50),
             receiver_username VARCHAR(50),
@@ -46,7 +46,7 @@ def startup_db():
         );
     """)
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_chat_messages_v11 (
+        CREATE TABLE IF NOT EXISTS aero_chat_messages_v12 (
             id SERIAL PRIMARY KEY,
             group_code VARCHAR(50),
             sender_username VARCHAR(50),
@@ -58,7 +58,7 @@ def startup_db():
         );
     """)
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_shop_skins_v11 (
+        CREATE TABLE IF NOT EXISTS aero_shop_skins_v12 (
             id SERIAL PRIMARY KEY,
             category VARCHAR(20),
             tier_level VARCHAR(30),
@@ -69,7 +69,7 @@ def startup_db():
         );
     """)
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_curriculum_v11 (
+        CREATE TABLE IF NOT EXISTS aero_curriculum_v12 (
             id SERIAL PRIMARY KEY,
             year_level INT,
             node_order INT,
@@ -84,7 +84,7 @@ def startup_db():
         );
     """)
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_exercises_v11 (
+        CREATE TABLE IF NOT EXISTS aero_exercises_v12 (
             id SERIAL PRIMARY KEY,
             year_level INT,
             node_order INT,
@@ -99,7 +99,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        INSERT INTO aero_shop_skins_v11 (category, tier_level, skin_name, cost, preview_svg, desc_en)
+        INSERT INTO aero_shop_skins_v12 (category, tier_level, skin_name, cost, preview_svg, desc_en)
         VALUES 
         ('male', 'Free', 'Standard Aviator Suit', 0, '👔', 'Standard clean cadet training uniform.'),
         ('male', 'Budget', 'Junior Cabin Steward', 80, '👔⭐', 'Sleek grey vest with silver airline pin.'),
@@ -114,7 +114,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        INSERT INTO aero_curriculum_v11 (year_level, node_order, category, theme_icon, title_en, title_ar, title_fr, content_en, content_ar, content_fr)
+        INSERT INTO aero_curriculum_v12 (year_level, node_order, category, theme_icon, title_en, title_ar, title_fr, content_en, content_ar, content_fr)
         VALUES 
         (1, 1, 'SEP', '✈️', 'Step 1: EASA Framework', 'Step 1: EASA Framework', 'Étape 1 : Cadre EASA', 'Introduction to EASA regulations governing cabin crew operational safety duties.', 'Introduction to EASA regulations.', 'Introduction aux réglementations.'),
         (1, 2, 'SEP', '🚪', 'Step 2: Emergency Exits & Door Arming', 'Step 2: Exits', 'Étape 2 : Portes', 'Mandatory pre-flight checks and slide arming procedures.', 'Pre-flight checks.', 'Vérifications pré-vol.'),
@@ -123,7 +123,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        INSERT INTO aero_exercises_v11 (year_level, node_order, exercise_type, prompt_en, prompt_ar, prompt_fr, options, correct_answer, hint_en)
+        INSERT INTO aero_exercises_v12 (year_level, node_order, exercise_type, prompt_en, prompt_ar, prompt_fr, options, correct_answer, hint_en)
         VALUES 
         (1, 1, 'mcq', 'What regulatory agency governs European Union commercial cabin crew operations?', 'What agency governs EU operations?', 'Quelle agence réglemente les opérations en UE ?', ARRAY['FAA', 'EASA', 'ICAO', 'CAA'], 'EASA', 'European Union Aviation Safety Agency.'),
         (1, 1, 'translate', 'Translate Pre-flight Check to Arabic:', 'Translate Pre-flight Check:', 'Traduisez Pre-flight Check :', ARRAY['فحص ما قبل الرحلة', 'إخلاء الطوارئ', 'مقياس الارتفاع', 'قمرة القيادة'], 'فحص ما قبل الرحلة', 'Mandatory inspection before departure.'),
@@ -188,14 +188,14 @@ class DrillAttemptModel(BaseModel):
 def register(data: RegisterModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_users_v11 WHERE phone_number = %s OR username = %s;", (data.phone_number, data.username))
+    cur.execute("SELECT * FROM aero_users_v12 WHERE phone_number = %s OR username = %s;", (data.phone_number, data.username))
     if cur.fetchone():
         cur.close()
         conn.close()
         raise HTTPException(status_code=400, detail="Phone number or unique username already taken.")
     
     cur.execute(
-        "INSERT INTO aero_users_v11 (phone_number, username, full_name, password, recovery_pin, role, crew_avatar, group_code) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_users_v12 (phone_number, username, full_name, password, recovery_pin, role, crew_avatar, group_code) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;",
         (data.phone_number, data.username, data.full_name, data.password, data.recovery_pin, data.role, data.crew_avatar, data.group_code)
     )
     user = cur.fetchone()
@@ -208,7 +208,7 @@ def register(data: RegisterModel):
 def login(data: LoginModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_users_v11 WHERE phone_number = %s AND password = %s;", (data.phone_number, data.password))
+    cur.execute("SELECT * FROM aero_users_v12 WHERE phone_number = %s AND password = %s;", (data.phone_number, data.password))
     user = cur.fetchone()
     cur.close()
     conn.close()
@@ -222,7 +222,7 @@ def login(data: LoginModel):
 def change_password(data: PasswordChangeModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_users_v11 WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT * FROM aero_users_v12 WHERE phone_number = %s;", (data.phone_number,))
     user = cur.fetchone()
     if not user:
         cur.close()
@@ -237,7 +237,7 @@ def change_password(data: PasswordChangeModel):
         conn.close()
         raise HTTPException(status_code=400, detail="Incorrect old password.")
     
-    cur.execute("UPDATE aero_users_v11 SET password = %s WHERE phone_number = %s;", (data.new_password, data.phone_number))
+    cur.execute("UPDATE aero_users_v12 SET password = %s WHERE phone_number = %s;", (data.new_password, data.phone_number))
     conn.commit()
     cur.close()
     conn.close()
@@ -248,7 +248,7 @@ def update_profile(data: ProfileUpdateModel):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "UPDATE aero_users_v11 SET crew_avatar = %s, active_skin = %s WHERE phone_number = %s RETURNING *;",
+        "UPDATE aero_users_v12 SET crew_avatar = %s, active_skin = %s WHERE phone_number = %s RETURNING *;",
         (data.crew_avatar, data.active_skin, data.phone_number)
     )
     user = cur.fetchone()
@@ -261,13 +261,13 @@ def update_profile(data: ProfileUpdateModel):
 def get_academy_content(group_code: str = 'EASA-ALPHA-1'):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_curriculum_v11 ORDER BY year_level ASC, node_order ASC;")
+    cur.execute("SELECT * FROM aero_curriculum_v12 ORDER BY year_level ASC, node_order ASC;")
     modules = cur.fetchall()
-    cur.execute("SELECT * FROM aero_exercises_v11 ORDER BY year_level ASC, node_order ASC, id ASC;")
+    cur.execute("SELECT * FROM aero_exercises_v12 ORDER BY year_level ASC, node_order ASC, id ASC;")
     exercises = cur.fetchall()
-    cur.execute("SELECT * FROM aero_shop_skins_v11 ORDER BY cost ASC;")
+    cur.execute("SELECT * FROM aero_shop_skins_v12 ORDER BY cost ASC;")
     skins = cur.fetchall()
-    cur.execute("SELECT * FROM aero_chat_messages_v11 WHERE group_code = %s ORDER BY id DESC LIMIT 50;", (group_code,))
+    cur.execute("SELECT * FROM aero_chat_messages_v12 WHERE group_code = %s ORDER BY id DESC LIMIT 50;", (group_code,))
     messages = cur.fetchall()
     cur.close()
     conn.close()
@@ -277,14 +277,14 @@ def get_academy_content(group_code: str = 'EASA-ALPHA-1'):
 def add_friend(data: AddFriendModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_users_v11 WHERE username = %s;", (data.receiver_username,))
+    cur.execute("SELECT * FROM aero_users_v12 WHERE username = %s;", (data.receiver_username,))
     if not cur.fetchone():
         cur.close()
         conn.close()
         raise HTTPException(status_code=404, detail="Username not found.")
     
     cur.execute(
-        "INSERT INTO aero_friendships_v11 (sender_username, receiver_username, status) VALUES (%s, %s, 'accepted') RETURNING *;",
+        "INSERT INTO aero_friendships_v12 (sender_username, receiver_username, status) VALUES (%s, %s, 'accepted') RETURNING *;",
         (data.sender_username, data.receiver_username)
     )
     rel = cur.fetchone()
@@ -299,8 +299,8 @@ def get_friends(username: str):
     cur = conn.cursor()
     cur.execute("""
         SELECT u.username, u.full_name, u.crew_avatar, u.active_skin 
-        FROM aero_users_v11 u 
-        JOIN aero_friendships_v11 f ON (f.receiver_username = u.username OR f.sender_username = u.username)
+        FROM aero_users_v12 u 
+        JOIN aero_friendships_v12 f ON (f.receiver_username = u.username OR f.sender_username = u.username)
         WHERE (f.sender_username = %s OR f.receiver_username = %s) AND u.username != %s AND f.status = 'accepted';
     """, (username, username, username))
     friends = cur.fetchall()
@@ -313,7 +313,7 @@ def send_chat_message(data: ChatMessageModel):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO aero_chat_messages_v11 (group_code, sender_username, sender_name, sender_avatar, msg_type, content) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_chat_messages_v12 (group_code, sender_username, sender_name, sender_avatar, msg_type, content) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;",
         (data.group_code, data.sender_username, data.sender_name, data.sender_avatar, data.msg_type, data.content)
     )
     msg = cur.fetchone()
@@ -326,10 +326,10 @@ def send_chat_message(data: ChatMessageModel):
 def report_user(data: ReportUserMoel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("UPDATE aero_users_v11 SET reports_count = reports_count + 1 WHERE username = %s RETURNING reports_count, username;", (data.reported_username,))
+    cur.execute("UPDATE aero_users_v12 SET reports_count = reports_count + 1 WHERE username = %s RETURNING reports_count, username;", (data.reported_username,))
     res = cur.fetchone()
     if res and res["reports_count"] >= 40:
-        cur.execute("UPDATE aero_users_v11 SET is_banned = TRUE WHERE username = %s;", (data.reported_username,))
+        cur.execute("UPDATE aero_users_v12 SET is_banned = TRUE WHERE username = %s;", (data.reported_username,))
     conn.commit()
     cur.close()
     conn.close()
@@ -339,7 +339,7 @@ def report_user(data: ReportUserMoel):
 def buy_skin(data: BuySkinModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_users_v11 WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT * FROM aero_users_v12 WHERE phone_number = %s;", (data.phone_number,))
     user = cur.fetchone()
     if not user:
         cur.close()
@@ -351,7 +351,7 @@ def buy_skin(data: BuySkinModel):
         raise HTTPException(status_code=400, detail="Not enough XP stars!")
     
     new_xp = user["xp_points"] - data.cost
-    cur.execute("UPDATE aero_users_v11 SET xp_points = %s, active_skin = %s WHERE phone_number = %s RETURNING *;", (new_xp, data.skin_name, data.phone_number))
+    cur.execute("UPDATE aero_users_v12 SET xp_points = %s, active_skin = %s WHERE phone_number = %s RETURNING *;", (new_xp, data.skin_name, data.phone_number))
     updated_user = cur.fetchone()
     conn.commit()
     cur.close()
@@ -362,9 +362,9 @@ def buy_skin(data: BuySkinModel):
 def verify_exercise(data: DrillAttemptModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_exercises_v11 WHERE id = %s;", (data.exercise_id,))
+    cur.execute("SELECT * FROM aero_exercises_v12 WHERE id = %s;", (data.exercise_id,))
     ex = cur.fetchone()
-    cur.execute("SELECT * FROM aero_users_v11 WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT * FROM aero_users_v12 WHERE phone_number = %s;", (data.phone_number,))
     user = cur.fetchone()
     if not ex or not user:
         cur.close()
@@ -373,7 +373,7 @@ def verify_exercise(data: DrillAttemptModel):
     
     correct = data.user_answer.strip().lower() == ex["correct_answer"].strip().lower()
     if correct:
-        cur.execute("UPDATE aero_users_v11 SET xp_points = xp_points + 30 WHERE phone_number = %s RETURNING xp_points, hearts, streak;", (data.phone_number,))
+        cur.execute("UPDATE aero_users_v12 SET xp_points = xp_points + 30 WHERE phone_number = %s RETURNING xp_points, hearts, streak;", (data.phone_number,))
         res = cur.fetchone()
         conn.commit()
         cur.close()
@@ -381,7 +381,7 @@ def verify_exercise(data: DrillAttemptModel):
         return {"correct": True, "message": "Perfect execution! +30 XP Stars", "xp": res["xp_points"], "hearts": res["hearts"], "streak": res["streak"]}
     else:
         new_hearts = max(0, user["hearts"] - 1)
-        cur.execute("UPDATE aero_users_v11 SET hearts = %s WHERE phone_number = %s RETURNING xp_points, hearts, streak;", (new_hearts, data.phone_number))
+        cur.execute("UPDATE aero_users_v12 SET hearts = %s WHERE phone_number = %s RETURNING xp_points, hearts, streak;", (new_hearts, data.phone_number))
         res = cur.fetchone()
         conn.commit()
         cur.close()
@@ -396,7 +396,7 @@ def serve_frontend():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aero Crew Elite Academy v11.9</title>
+    <title>Aero Crew Elite Academy v12.0</title>
     <link rel="icon" href="https://img.icons8.com/color/48/airplane-take-off.png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@450;700;900&display=swap" rel="stylesheet">
     <style>
@@ -415,32 +415,36 @@ def serve_frontend():
             --border: #1e293b;
             --border-glow: #334155;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; pointer-events: auto !important; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
         [dir="rtl"] * { font-family: 'Tajawal', sans-serif !important; }
         
         body { background: var(--bg-deep); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; }
         
-        .app-shell { width: 100%; max-width: 600px; background: var(--surface); border-radius: 36px; padding: 2rem; border: 1px solid var(--border-glow); box-shadow: 0 45px 90px rgba(0, 0, 0, 0.95); position: relative; z-index: 10; }
+        .app-shell { width: 100%; max-width: 600px; background: var(--surface); border-radius: 36px; padding: 2rem; border: 1px solid var(--border-glow); box-shadow: 0 45px 90px rgba(0, 0, 0, 0.95); position: relative; }
         
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.4rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
         .brand-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem; color: var(--accent); }
         .brand-title img { width: 34px; height: 34px; }
         
         .header-controls { display: flex; align-items: center; gap: 6px; }
-        .header-icon-btn { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 10px; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.05rem; z-index: 20; position: relative; }
+        .header-icon-btn { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 10px; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.05rem; }
 
         h2 { font-weight: 800; margin-bottom: 0.4rem; font-size: 1.4rem; color: white; }
         p.sub-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.4rem; line-height: 1.5; }
         
         label { display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.35rem; }
-        input, select, textarea { width: 100%; padding: 0.9rem 1.1rem; border-radius: 16px; border: 1px solid var(--border-glow); background: var(--bg-deep); color: white; font-size: 0.92rem; margin-bottom: 1rem; outline: none; position: relative; z-index: 25; }
+        input, select, textarea { width: 100%; padding: 0.9rem 1.1rem; border-radius: 16px; border: 1px solid var(--border-glow); background: var(--bg-deep); color: white; font-size: 0.92rem; margin-bottom: 1rem; outline: none; }
         
-        .btn-action { width: 100%; padding: 1rem; border-radius: 16px; border: none; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); font-weight: 800; font-size: 0.98rem; cursor: pointer; position: relative; z-index: 25; box-shadow: 0 6px 20px var(--accent-glow); }
+        .btn-action { width: 100%; padding: 1rem; border-radius: 16px; border: none; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); font-weight: 800; font-size: 0.98rem; cursor: pointer; box-shadow: 0 6px 20px var(--accent-glow); }
 
-        .footer-nav { display: flex; justify-content: space-between; margin-top: 1.2rem; font-size: 0.82rem; position: relative; z-index: 25; }
-        .footer-nav a { color: var(--accent); text-decoration: none; font-weight: 700; cursor: pointer; }
+        .footer-nav { display: flex; justify-content: space-between; margin-top: 1.2rem; font-size: 0.82rem; }
+        .footer-nav span { color: var(--accent); font-weight: 700; cursor: pointer; }
+        .footer-nav span:hover { text-decoration: underline; }
 
         .hidden { display: none !important; }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(2,6,23,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-card { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 28px; padding: 2rem; width: 90%; max-width: 420px; max-height: 85vh; overflow-y: auto; }
 
         .mascot-banner { display: flex; align-items: center; gap: 14px; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.35); padding: 0.85rem 1.1rem; border-radius: 18px; margin-bottom: 1.1rem; }
         .mascot-avatar { font-size: 2.6rem; }
@@ -450,20 +454,20 @@ def serve_frontend():
         .stat-item { font-weight: 800; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; }
         
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.1rem; }
-        .mode-tile { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; position: relative; z-index: 25; }
+        .mode-tile { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; }
         .mode-tile h4 { font-size: 0.85rem; font-weight: 800; margin-top: 6px; color: white; }
 
-        .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; position: relative; min-height: 270px; z-index: 20; }
+        .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; min-height: 270px; }
         
         .roadmap-path { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 15px 0; max-height: 280px; overflow-y: auto; }
-        .roadmap-node { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 1.1rem; cursor: pointer; position: relative; z-index: 30; border: 3px solid #bae6fd; }
+        .roadmap-node { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 1.1rem; cursor: pointer; border: 3px solid #bae6fd; }
 
         .chat-container { display: flex; flex-direction: column; height: 320px; background: var(--bg-deep); border-radius: 16px; border: 1px solid var(--border-glow); overflow: hidden; }
         .chat-messages { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
         .chat-bubble { max-width: 78%; padding: 9px 12px; border-radius: 14px; font-size: 0.84rem; line-height: 1.4; }
         .chat-bubble.incoming { background: var(--surface-card); color: white; align-self: flex-start; }
         .chat-bubble.outgoing { background: #0284c7; color: white; align-self: flex-end; }
-        .chat-input-bar { display: flex; gap: 6px; padding: 10px; background: var(--surface-card); border-top: 1px solid var(--border); align-items: center; z-index: 30; position: relative; }
+        .chat-input-bar { display: flex; gap: 6px; padding: 10px; background: var(--surface-card); border-top: 1px solid var(--border); align-items: center; }
 
         .toast-popup { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 14px 28px; border-radius: 35px; font-weight: 800; font-size: 0.9rem; transition: transform 0.3s; z-index: 6000; pointer-events: none; }
         .toast-popup.show { transform: translateX(-50%) translateY(0); }
@@ -472,34 +476,31 @@ def serve_frontend():
 <body>
     <div id="toast" class="toast-popup">Notification</div>
 
-    <div id="settings-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.9); display:flex; justify-content:center; align-items:center; z-index:5000; opacity:0; pointer-events:none; transition:opacity 0.25s;">
-        <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:420px; max-height:85vh; overflow-y:auto; position:relative; z-index:5001;">
+    <!-- SETTINGS MODAL -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
                 <h3 style="font-size:1.2rem; font-weight:900; color:white;">⚙️ Profile Settings</h3>
-                <button id="btn-close-settings" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
+                <button onclick="closeSettingsModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
             </div>
-
             <label>Character Avatar</label>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem;">
-                <div id="set-card-steward" style="background:var(--bg-deep); border:2px solid var(--border-glow); border-radius:14px; padding:0.9rem; text-align:center; cursor:pointer;">
+                <div onclick="selectProfileAvatar('steward')" id="set-card-steward" style="background:var(--bg-deep); border:2px solid var(--border-glow); border-radius:14px; padding:0.9rem; text-align:center; cursor:pointer;">
                     <span style="font-size:1.8rem;">👔</span>
                     <div style="font-size:0.75rem; color:white; font-weight:800; margin-top:4px;">Steward</div>
                 </div>
-                <div id="set-card-hostess" style="background:var(--bg-deep); border:2px solid var(--border-glow); border-radius:14px; padding:0.9rem; text-align:center; cursor:pointer;">
+                <div onclick="selectProfileAvatar('hostess')" id="set-card-hostess" style="background:var(--bg-deep); border:2px solid var(--border-glow); border-radius:14px; padding:0.9rem; text-align:center; cursor:pointer;">
                     <span style="font-size:1.8rem;">👗</span>
                     <div style="font-size:0.75rem; color:white; font-weight:800; margin-top:4px;">Hostess</div>
                 </div>
             </div>
-
             <label>Language</label>
             <div style="display:flex; gap:8px; margin-bottom:1.2rem;">
-                <button id="lang-en" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">English</button>
-                <button id="lang-fr" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">Français</button>
-                <button id="lang-ar" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">العربية</button>
+                <button onclick="setLanguage('en')" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">English</button>
+                <button onclick="setLanguage('fr')" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">Français</button>
+                <button onclick="setLanguage('ar')" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">العربية</button>
             </div>
-
             <hr style="border:0; border-top:1px solid var(--border); margin:1.2rem 0;">
-
             <h4 style="font-size:0.9rem; font-weight:800; color:white; margin-bottom:0.8rem;">Update Password</h4>
             <label>Recovery PIN</label>
             <input type="password" id="set-pin" placeholder="PIN" maxlength="6" />
@@ -507,27 +508,24 @@ def serve_frontend():
             <input type="password" id="set-old-pass" placeholder="Old Password" />
             <label>New Password</label>
             <input type="password" id="set-new-pass" placeholder="New Password" />
-
-            <button class="btn-action" id="btn-submit-pass" style="background:var(--warning); color:var(--bg-deep); margin-top:0.4rem;">Update Credentials 🔒</button>
+            <button class="btn-action" onclick="submitPasswordChange()" style="background:var(--warning); color:var(--bg-deep); margin-top:0.4rem;">Update Credentials 🔒</button>
         </div>
     </div>
 
-    <div id="friends-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.9); display:flex; justify-content:center; align-items:center; z-index:5000; opacity:0; pointer-events:none; transition:opacity 0.25s;">
-        <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:420px; max-height:85vh; overflow-y:auto; position:relative; z-index:5001;">
+    <!-- FRIENDS MODAL -->
+    <div id="friends-modal" class="modal-overlay">
+        <div class="modal-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
                 <h3 style="font-size:1.2rem; font-weight:900; color:white;">🤝 Cadet Friend Network</h3>
-                <button id="btn-close-friends" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
+                <button onclick="closeFriendsModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
             </div>
-
             <label>Search Username</label>
             <div style="display:flex; gap:8px; margin-bottom:1rem;">
                 <input type="text" id="search-username-input" placeholder="@username" style="margin-bottom:0;" />
-                <button class="btn-action" id="btn-add-friend" style="width:110px; padding:0; font-size:0.85rem;">Add +</button>
+                <button class="btn-action" onclick="addFriendByUsername()" style="width:110px; padding:0; font-size:0.85rem;">Add +</button>
             </div>
-
             <div id="friends-list-container" style="display:flex; flex-direction:column; gap:8px; max-height:180px; overflow-y:auto; margin-bottom:1.2rem;"></div>
-
-            <button class="btn-action" id="btn-open-group-chat" style="background:var(--success); color:white;">Open Study Group Chat 💬</button>
+            <button class="btn-action" onclick="openGroupChat(); closeFriendsModal();" style="background:var(--success); color:white;">Open Study Group Chat 💬</button>
         </div>
     </div>
 
@@ -538,12 +536,13 @@ def serve_frontend():
                 <span id="txt-brand">Aero Crew</span>
             </div>
             <div class="header-controls hidden" id="dash-header-icons">
-                <div class="header-icon-btn" id="icon-friends" title="Friends">🤝</div>
-                <div class="header-icon-btn" id="icon-shop" title="Shop">🎁</div>
-                <div class="header-icon-btn" id="icon-settings" title="Settings">⚙️</div>
+                <div class="header-icon-btn" onclick="openFriendsModal()" title="Friends">🤝</div>
+                <div class="header-icon-btn" onclick="openShop()" title="Shop">🎁</div>
+                <div class="header-icon-btn" onclick="openSettingsModal()" title="Settings">⚙️</div>
             </div>
         </div>
 
+        <!-- LOGIN SCREEN -->
         <div id="screen-login">
             <h2 id="ui-login-title">Cabin Crew Portal</h2>
             <p class="sub-desc" id="ui-login-sub">Access accredited EASA/ICAO professional curriculum.</p>
@@ -554,66 +553,69 @@ def serve_frontend():
             <label id="lbl-pass">Password</label>
             <input type="password" id="login-pass" placeholder="••••••••" />
             
-            <button class="btn-action" id="ui-login-btn">Sign In to Simulator</button>
+            <button class="btn-action" onclick="submitLogin()">Sign In to Simulator</button>
             
             <div class="footer-nav">
-                <a id="nav-reg">Create Account</a>
-                <a id="nav-reset">Forgot Password?</a>
+                <span onclick="navigateTo('screen-register')">Create Account</span>
+                <span onclick="navigateTo('screen-reset')">Forgot Password?</span>
             </div>
         </div>
 
+        <!-- REGISTER SCREEN -->
         <div id="screen-register" class="hidden">
-            <h2 id="reg-title">Cadet Enrollment</h2>
-            <p class="sub-desc" id="reg-sub">Register your official profile and unique username.</p>
+            <h2>Cadet Enrollment</h2>
+            <p class="sub-desc">Register your official profile and unique username.</p>
             
-            <label id="reg-lbl-name">Full Name</label>
+            <label>Full Name</label>
             <input type="text" id="reg-name" placeholder="First & Last Name" />
 
-            <label id="reg-lbl-username">Unique Username (e.g. @captain_alex)</label>
+            <label>Unique Username (e.g. @captain_alex)</label>
             <input type="text" id="reg-username" placeholder="@unique_handle" />
 
-            <label id="reg-lbl-phone">Phone Number</label>
+            <label>Phone Number</label>
             <input type="tel" id="reg-phone" placeholder="e.g. 0612345678" />
             
-            <label id="reg-lbl-pass">Password</label>
+            <label>Password</label>
             <input type="password" id="reg-pass" placeholder="Secure password" />
 
-            <label id="reg-lbl-pin">Recovery PIN (4-6 digits)</label>
+            <label>Recovery PIN (4-6 digits)</label>
             <input type="password" id="reg-pin" placeholder="PIN" maxlength="6" />
 
-            <label id="reg-lbl-avatar">Crew Character</label>
+            <label>Crew Character</label>
             <select id="reg-avatar">
                 <option value="steward">👔 Steward</option>
                 <option value="hostess">👗 Hostess</option>
             </select>
             
-            <button class="btn-action" id="reg-btn-sub" style="background: #10b981; color: white;">Initialize Profile</button>
+            <button class="btn-action" onclick="submitRegister()" style="background: #10b981; color: white;">Initialize Profile</button>
             
             <div class="footer-nav">
-                <a id="reg-back">Already have an account? Sign In</a>
+                <span onclick="navigateTo('screen-login')">Already have an account? Sign In</span>
             </div>
         </div>
 
+        <!-- RESET PASSWORD SCREEN -->
         <div id="screen-reset" class="hidden">
-            <h2 id="res-title">Recovery PIN Reset</h2>
-            <p class="sub-desc" id="res-sub">Enter your phone and secret recovery PIN.</p>
+            <h2>Recovery PIN Reset</h2>
+            <p class="sub-desc">Enter your phone and secret recovery PIN.</p>
             
-            <label id="res-lbl-phone">Phone Number</label>
+            <label>Phone Number</label>
             <input type="tel" id="reset-phone" placeholder="Phone" />
 
-            <label id="res-lbl-pin">Secret Recovery PIN</label>
+            <label>Secret Recovery PIN</label>
             <input type="password" id="reset-pin" placeholder="PIN" />
 
-            <label id="res-lbl-new">New Password</label>
+            <label>New Password</label>
             <input type="password" id="reset-new" placeholder="New Password" />
             
-            <button class="btn-action" id="res-btn-sub" style="background: #f59e0b; color: #020617;">Update Credentials</button>
+            <button class="btn-action" onclick="submitReset()" style="background: #f59e0b; color: #020617;">Update Credentials</button>
             
             <div class="footer-nav">
-                <a id="res-back">Back to Sign In</a>
+                <span onclick="navigateTo('screen-login')">Back to Sign In</span>
             </div>
         </div>
 
+        <!-- DASHBOARD SCREEN -->
         <div id="screen-dashboard" class="hidden">
             <div class="mascot-banner">
                 <div class="mascot-avatar" id="mascot-emoji">👔</div>
@@ -633,19 +635,19 @@ def serve_frontend():
             </div>
 
             <div class="mode-grid">
-                <div class="mode-tile" id="tile-path1">
+                <div class="mode-tile" onclick="launchLongRoadmap(1)">
                     <span style="font-size: 1.4rem;">📖</span>
                     <h4 id="tile-year1">First Year Path</h4>
                 </div>
-                <div class="mode-tile" id="tile-path2">
+                <div class="mode-tile" onclick="launchLongRoadmap(2)">
                     <span style="font-size: 1.4rem;">🏆</span>
                     <h4 id="tile-year2">Second Year Path</h4>
                 </div>
-                <div class="mode-tile" id="tile-group-chat">
+                <div class="mode-tile" onclick="openGroupChat()">
                     <span style="font-size: 1.4rem;">💬</span>
                     <h4 id="tile-group">Study Group Chat</h4>
                 </div>
-                <div class="mode-tile" id="tile-shop-boutique">
+                <div class="mode-tile" onclick="openShop()">
                     <span style="font-size: 1.4rem;">🎁</span>
                     <h4 id="tile-shop">Skin Boutique</h4>
                 </div>
@@ -654,8 +656,8 @@ def serve_frontend():
             <div id="simulation-box" class="card-container"></div>
             
             <div style="display: flex; gap: 10px;">
-                <button class="btn-action" id="btn-menu" style="background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border-glow); flex: 1;">← Hub</button>
-                <button class="btn-action" id="btn-logout" style="background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); flex: 1;">Logout 🚪</button>
+                <button class="btn-action" onclick="resetToMenu()" style="background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border-glow); flex: 1;">← Hub</button>
+                <button class="btn-action" onclick="logoutUser()" style="background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); flex: 1;">Logout 🚪</button>
             </div>
         </div>
     </div>
@@ -673,26 +675,23 @@ def serve_frontend():
                 loginTitle: "Cabin Crew Portal", loginSub: "Access accredited EASA/ICAO professional curriculum.",
                 phoneLbl: "Phone Number", passLbl: "Password", loginBtn: "Sign In to Simulator",
                 regNav: "Create Account", resetNav: "Forgot Password?",
-                tileYear1: "First Year Path", tileYear2: "Second Year Path", tileGroup: "Study Group Chat", tileShop: "Skin Boutique",
-                menuBtn: "← Hub", logoutBtn: "Logout 🚪"
+                tileYear1: "First Year Path", tileYear2: "Second Year Path", tileGroup: "Study Group Chat", tileShop: "Skin Boutique"
             },
             fr: {
                 loginTitle: "Portail Personnel de Cabine", loginSub: "Accédez au programme professionnel accrédité EASA/ICAO.",
                 phoneLbl: "Numéro de téléphone", passLbl: "Mot de passe", loginBtn: "Se connecter au simulateur",
                 regNav: "Créer un compte", resetNav: "Mot de passe oublié ?",
-                tileYear1: "Parcours 1ère Année", tileYear2: "Parcours 2nde Année", tileGroup: "Chat de Groupe", tileShop: "Boutique de Skins",
-                menuBtn: "← Menu", logoutBtn: "Déconnexion 🚪"
+                tileYear1: "Parcours 1ère Année", tileYear2: "Parcours 2nde Année", tileGroup: "Chat de Groupe", tileShop: "Boutique de Skins"
             },
             ar: {
                 loginTitle: "بوابة طاقم الطائرة", loginSub: "الوصول إلى المنهج المهني المعتمد من EASA/ICAO.",
                 phoneLbl: "رقم الهاتف", passLbl: "كلمة المرور", loginBtn: "تسجيل الدخول للمحاكي",
                 regNav: "إنشاء حساب", resetNav: "هل نسيت كلمة المرور؟",
-                tileYear1: "مسار السنة الأولى", tileYear2: "مسار السنة الثانية", tileGroup: "دردشة مجموعة الدراسة", tileShop: "متجر الأزياء",
-                menuBtn: "← القائمة", logoutBtn: "تسجيل الخروج 🚪"
+                tileYear1: "مسار السنة الأولى", tileYear2: "مسار السنة الثانية", tileGroup: "دردشة مجموعة الدراسة", tileShop: "متجر الأزياء"
             }
         };
 
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onload = function() {
             setLanguage(activeLang);
             if(sessionUser) {
                 updateDashboardUI();
@@ -701,44 +700,10 @@ def serve_frontend():
             } else {
                 navigateTo('screen-login');
             }
-
-            document.getElementById('ui-login-btn').addEventListener('click', submitLogin);
-            document.getElementById('nav-reg').addEventListener('click', () => navigateTo('screen-register'));
-            document.getElementById('nav-reset').addEventListener('click', () => navigateTo('screen-reset'));
-            
-            document.getElementById('reg-btn-sub').addEventListener('click', submitRegister);
-            document.getElementById('reg-back').addEventListener('click', () => navigateTo('screen-login'));
-
-            document.getElementById('res-btn-sub').addEventListener('click', submitReset);
-            document.getElementById('res-back').addEventListener('click', () => navigateTo('screen-login'));
-
-            document.getElementById('icon-friends').addEventListener('click', openFriendsModal);
-            document.getElementById('icon-shop').addEventListener('click', () => openShop());
-            document.getElementById('icon-settings').addEventListener('click', openSettingsModal);
-
-            document.getElementById('tile-path1').addEventListener('click', () => launchLongRoadmap(1));
-            document.getElementById('tile-path2').addEventListener('click', () => launchLongRoadmap(2));
-            document.getElementById('tile-group-chat').addEventListener('click', openGroupChat);
-            document.getElementById('tile-shop-boutique').addEventListener('click', () => openShop());
-
-            document.getElementById('btn-menu').addEventListener('click', resetToMenu);
-            document.getElementById('btn-logout').addEventListener('click', logoutUser);
-
-            document.getElementById('btn-close-settings').addEventListener('click', closeSettingsModal);
-            document.getElementById('set-card-steward').addEventListener('click', () => selectProfileAvatar('steward'));
-            document.getElementById('set-card-hostess').addEventListener('click', () => selectProfileAvatar('hostess'));
-
-            document.getElementById('lang-en').addEventListener('click', () => setLanguage('en'));
-            document.getElementById('lang-fr').addEventListener('click', () => setLanguage('fr'));
-            document.getElementById('lang-ar').addEventListener('click', () => setLanguage('ar'));
-            document.getElementById('btn-submit-pass').addEventListener('click', submitPasswordChange);
-
-            document.getElementById('btn-close-friends').addEventListener('click', closeFriendsModal);
-            document.getElementById('btn-add-friend').addEventListener('click', addFriendByUsername);
-            document.getElementById('btn-open-group-chat').addEventListener('click', openGroupChat);
-        });
+        };
 
         function updateDashboardUI() {
+            if(!sessionUser) return;
             document.getElementById('dash-name').innerText = sessionUser.full_name;
             document.getElementById('dash-skin').innerText = sessionUser.active_skin;
             document.getElementById('dash-xp').innerText = sessionUser.xp_points;
@@ -791,15 +756,10 @@ def serve_frontend():
                 document.getElementById('ui-login-sub').innerText = t.loginSub;
                 document.getElementById('lbl-phone').innerText = t.phoneLbl;
                 document.getElementById('lbl-pass').innerText = t.passLbl;
-                document.getElementById('ui-login-btn').innerText = t.loginBtn;
-                document.getElementById('nav-reg').innerText = t.regNav;
-                document.getElementById('nav-reset').innerText = t.resetNav;
                 document.getElementById('tile-year1').innerText = t.tileYear1;
                 document.getElementById('tile-year2').innerText = t.tileYear2;
                 document.getElementById('tile-group').innerText = t.tileGroup;
                 document.getElementById('tile-shop').innerText = t.tileShop;
-                document.getElementById('btn-menu').innerText = t.menuBtn;
-                document.getElementById('btn-logout').innerText = t.logoutBtn;
             }
         }
 
@@ -877,19 +837,17 @@ def serve_frontend():
         }
 
         function resetToMenu() {
-            document.getElementById('simulation-box').innerHTML = '<h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;">EASA Professional Training Center</h3><p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Select <b>First Year Path</b> or <b>Second Year Path</b> above to jump into interactive Duolingo-style roadmap exercises.</p>';
+            document.getElementById('simulation-box').innerHTML = '<h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;">EASA Professional Training Center</h3><p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Select <b>First Year Path</b> or <b>Second Year Path</b> above to jump into interactive roadmap exercises.</p>';
         }
 
         function openSettingsModal() {
-            document.getElementById('settings-modal').style.opacity = '1';
-            document.getElementById('settings-modal').style.pointerEvents = 'auto';
+            document.getElementById('settings-modal').style.display = 'flex';
             selectedAvatarSetting = sessionUser.crew_avatar;
             document.getElementById('set-card-steward').style.borderColor = selectedAvatarSetting === 'steward' ? 'var(--accent)' : 'var(--border-glow)';
             document.getElementById('set-card-hostess').style.borderColor = selectedAvatarSetting === 'hostess' ? 'var(--accent)' : 'var(--border-glow)';
         }
         function closeSettingsModal() {
-            document.getElementById('settings-modal').style.opacity = '0';
-            document.getElementById('settings-modal').style.pointerEvents = 'none';
+            document.getElementById('settings-modal').style.display = 'none';
         }
         function selectProfileAvatar(avatar) {
             selectedAvatarSetting = avatar;
@@ -932,8 +890,7 @@ def serve_frontend():
         }
 
         async function openFriendsModal() {
-            document.getElementById('friends-modal').style.opacity = '1';
-            document.getElementById('friends-modal').style.pointerEvents = 'auto';
+            document.getElementById('friends-modal').style.display = 'flex';
             const res = await fetch('/api/friends/list?username=' + sessionUser.username);
             const data = await res.json();
             const container = document.getElementById('friends-list-container');
@@ -955,8 +912,7 @@ def serve_frontend():
             `).join('');
         }
         function closeFriendsModal() {
-            document.getElementById('friends-modal').style.opacity = '0';
-            document.getElementById('friends-modal').style.pointerEvents = 'none';
+            document.getElementById('friends-modal').style.display = 'none';
         }
         async function addFriendByUsername() {
             const receiver = document.getElementById('search-username-input').value.trim();
@@ -996,19 +952,13 @@ def serve_frontend():
                 </div>
                 <div class="roadmap-path">
                     ${modules.map((mod, idx) => `
-                        <div class="roadmap-node" data-year="${yearNum}" data-order="${mod.node_order}" title="${mod.title_en}">
+                        <div class="roadmap-node" onclick="launchExerciseSession(${yearNum}, ${mod.node_order})" title="${mod.title_en}">
                             <span style="font-size:1.4rem;">${mod.theme_icon}</span>
                             <span style="font-size:0.65rem; margin-top:-2px;">${idx+1}</span>
                         </div>
                     `).join('')}
                 </div>
             `;
-
-            document.querySelectorAll('.roadmap-node').forEach(node => {
-                node.addEventListener('click', () => {
-                    launchExerciseSession(parseInt(node.getAttribute('data-year')), parseInt(node.getAttribute('data-order')));
-                });
-            });
         }
 
         function launchExerciseSession(yearNum, nodeOrder) {
@@ -1028,12 +978,14 @@ def serve_frontend():
 
             let optionsHtml = '';
             if(ex.options && ex.options.length > 0) {
-                optionsHtml = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin: 1rem 0;" id="exercise-options-container"></div>';
+                optionsHtml = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin: 1rem 0;">' +
+                    ex.options.map(opt => `<button class="btn-action" onclick="verifyExerciseAnswer(${yearNum}, ${ex.id}, '${opt}')" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:10px; font-size:0.85rem;">${opt}</button>`).join('') +
+                '</div>';
             }
 
             let voiceHtml = '';
             if(ex.exercise_type === 'voice') {
-                voiceHtml = '<div style="text-align:center; margin:1rem 0;"><button id="btn-voice-rec" class="btn-action" style="width:70px; height:70px; border-radius:50%; background:linear-gradient(135deg, #ef4444 0%, #991b1b 100%); font-size:1.8rem; margin:0 auto; display:flex; justify-content:center; align-items:center;">🎙️</button><div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">Tap microphone & repeat aloud</div></div>';
+                voiceHtml = `<div style="text-align:center; margin:1rem 0;"><button onclick="simulateVoiceRecord('${ex.correct_answer}', ${yearNum}, ${ex.id})" class="btn-action" style="width:70px; height:70px; border-radius:50%; background:linear-gradient(135deg, #ef4444 0%, #991b1b 100%); font-size:1.8rem; margin:0 auto; display:flex; justify-content:center; align-items:center;">🎙️</button><div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">Tap microphone & repeat aloud</div></div>`;
             }
 
             box.innerHTML = `
@@ -1047,25 +999,6 @@ def serve_frontend():
                 ${voiceHtml}
                 <div id="exercise-feedback" style="text-align:center; font-weight:800; font-size:0.85rem; min-height:24px; margin-top:8px;"></div>
             `;
-
-            if(ex.options && ex.options.length > 0) {
-                const optContainer = document.getElementById('exercise-options-container');
-                ex.options.forEach(opt => {
-                    const btn = document.createElement('button');
-                    btn.className = 'btn-action';
-                    btn.style.cssText = 'background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:10px; font-size:0.85rem;';
-                    btn.innerText = opt;
-                    btn.addEventListener('click', () => verifyExerciseAnswer(yearNum, ex.id, opt));
-                    optContainer.appendChild(btn);
-                });
-            }
-
-            if(ex.exercise_type === 'voice') {
-                document.getElementById('btn-voice-rec').addEventListener('click', () => {
-                    showToast('Listening to microphone audio...');
-                    setTimeout(() => verifyExerciseAnswer(yearNum, ex.id, ex.correct_answer), 1500);
-                });
-            }
         }
 
         async function verifyExerciseAnswer(yearNum, exId, chosenAnswer) {
@@ -1095,6 +1028,13 @@ def serve_frontend():
             }
         }
 
+        function simulateVoiceRecord(correctTerm, yearNum, exId) {
+            showToast('Listening to microphone audio...');
+            setTimeout(() => {
+                verifyExerciseAnswer(yearNum, exId, correctTerm);
+            }, 1500);
+        }
+
         function openGroupChat() {
             const box = document.getElementById('simulation-box');
             box.innerHTML = `
@@ -1112,21 +1052,16 @@ def serve_frontend():
                         `).join('')}
                     </div>
                     <div class="chat-input-bar">
-                        <button id="chat-att-audio" title="Voice Note" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">🎤</button>
-                        <button id="chat-att-img" title="Photo" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">📷</button>
-                        <button id="chat-att-pdf" title="PDF" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">📎</button>
+                        <button onclick="sendQuickAttachment('audio')" title="Voice Note" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">🎤</button>
+                        <button onclick="sendQuickAttachment('image')" title="Photo" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">📷</button>
+                        <button onclick="sendQuickAttachment('pdf')" title="PDF" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">📎</button>
                         <input type="text" id="chat-text-input" placeholder="Type message..." style="margin-bottom:0; flex:1; padding:7px 10px; font-size:0.82rem;" />
-                        <button class="btn-action" id="chat-send-btn" style="width:50px; padding:7px; font-size:0.82rem;">Send</button>
+                        <button onclick="sendChatMessage('text')" class="btn-action" style="width:50px; padding:7px; font-size:0.82rem;">Send</button>
                     </div>
                 </div>
             `;
             const stream = document.getElementById('chat-msg-stream');
             stream.scrollTop = stream.scrollHeight;
-
-            document.getElementById('chat-send-btn').addEventListener('click', () => sendChatMessage('text'));
-            document.getElementById('chat-att-audio').addEventListener('click', () => sendChatMessage('audio', '🎵 [Voice Note - 0:14]'));
-            document.getElementById('chat-att-img').addEventListener('click', () => sendChatMessage('image', '📷 [Shared Photo]'));
-            document.getElementById('chat-att-pdf').addEventListener('click', () => sendChatMessage('pdf', '📄 [Manual.pdf]'));
         }
 
         async function sendChatMessage(type, customContent = null) {
@@ -1146,6 +1081,11 @@ def serve_frontend():
                 openGroupChat();
             }
         }
+        function sendQuickAttachment(type) {
+            if(type === 'audio') sendChatMessage('audio', '🎵 [Voice Note - 0:14]');
+            if(type === 'image') sendChatMessage('image', '📷 [Shared Photo]');
+            if(type === 'pdf') sendChatMessage('pdf', '📄 [Manual.pdf]');
+        }
 
         function openShop(category = 'male') {
             const box = document.getElementById('simulation-box');
@@ -1157,38 +1097,27 @@ def serve_frontend():
                     <span style="font-size: 0.8rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
                 </div>
                 <div style="display: flex; gap: 8px; margin-bottom: 0.8rem;">
-                    <button id="shop-tab-male" class="btn-action" style="flex:1; padding:8px; border-radius:10px; border:1px solid ${category==='male'?'var(--accent)':'var(--border)'}; background:${category==='male'?'rgba(56,189,248,0.2)':'var(--bg-deep)'}; color:white; font-weight:800; font-size:0.8rem;">👔 Steward</button>
-                    <button id="shop-tab-female" class="btn-action" style="flex:1; padding:8px; border-radius:10px; border:1px solid ${category==='female'?'var(--accent)':'var(--border)'}; background:${category==='female'?'rgba(56,189,248,0.2)':'var(--bg-deep)'}; color:white; font-weight:800; font-size:0.8rem;">👗 Hostess</button>
+                    <button onclick="openShop('male')" class="btn-action" style="flex:1; padding:8px; border-radius:10px; border:1px solid ${category==='male'?'var(--accent)':'var(--border)'}; background:${category==='male'?'rgba(56,189,248,0.2)':'var(--bg-deep)'}; color:white; font-weight:800; font-size:0.8rem;">👔 Steward</button>
+                    <button onclick="openShop('female')" class="btn-action" style="flex:1; padding:8px; border-radius:10px; border:1px solid ${category==='female'?'var(--accent)':'var(--border)'}; background:${category==='female'?'rgba(56,189,248,0.2)':'var(--bg-deep)'}; color:white; font-weight:800; font-size:0.8rem;">👗 Hostess</button>
                 </div>
-                <div style="max-height: 190px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;" id="shop-items-list"></div>
-            `;
-
-            document.getElementById('shop-tab-male').addEventListener('click', () => openShop('male'));
-            document.getElementById('shop-tab-female').addEventListener('click', () => openShop('female'));
-
-            const itemsList = document.getElementById('shop-items-list');
-            filteredSkins.forEach(skin => {
-                const itemDiv = document.createElement('div');
-                itemDiv.style.cssText = 'background: var(--bg-deep); padding: 0.7rem 1rem; border-radius: 12px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;';
-                itemDiv.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 1.6rem;">${skin.preview_svg}</span>
-                        <div>
-                            <div style="display:flex; gap:6px; align-items:center;">
-                                <b style="color: white; font-size: 0.85rem;">${skin.skin_name}</b>
-                                <span style="font-size:0.62rem; padding:2px 6px; border-radius:6px; background:rgba(56,189,248,0.15); color:var(--accent);">${skin.tier_level}</span>
+                <div style="max-height: 190px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                    ${filteredSkins.map(skin => `
+                        <div style="background: var(--bg-deep); padding: 0.7rem 1rem; border-radius: 12px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.6rem;">${skin.preview_svg}</span>
+                                <div>
+                                    <div style="display:flex; gap:6px; align-items:center;">
+                                        <b style="color: white; font-size: 0.85rem;">${skin.skin_name}</b>
+                                        <span style="font-size:0.62rem; padding:2px 6px; border-radius:6px; background:rgba(56,189,248,0.15); color:var(--accent);">${skin.tier_level}</span>
+                                    </div>
+                                    <div style="color: var(--text-muted); font-size: 0.7rem;">${skin.desc_en}</div>
+                                </div>
                             </div>
-                            <div style="color: var(--text-muted); font-size: 0.7rem;">${skin.desc_en}</div>
+                            <button onclick="buySkin('${skin.skin_name}',${skin.cost}, '${category}')" style="background: #8b5cf6; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 0.75rem; cursor: pointer;">${skin.cost === 0 ? 'Equipped' : skin.cost + ' ⭐'}</button>
                         </div>
-                    </div>
-                `;
-                const buyBtn = document.createElement('button');
-                buyBtn.style.cssText = 'background: #8b5cf6; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 0.75rem; cursor: pointer; z-index: 35; position: relative;';
-                buyBtn.innerText = skin.cost === 0 ? 'Equipped' : skin.cost + ' ⭐';
-                buyBtn.addEventListener('click', () => buySkin(skin.skin_name, skin.cost, category));
-                itemDiv.appendChild(buyBtn);
-                itemsList.appendChild(itemDiv);
-            });
+                    `).join('')}
+                </div>
+            `;
         }
 
         async function buySkin(skinName, cost, category) {
