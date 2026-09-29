@@ -10,7 +10,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Elite Academy", version="11.5.0")
+app = FastAPI(title="Aero Crew Elite Academy", version="11.6.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -388,7 +388,7 @@ def verify_exercise(data: DrillAttemptModel):
         conn.close()
         return {"correct": False, "correct_answer": ex["correct_answer"], "message": "Incorrect answer.", "xp": res["xp_points"], "hearts": res["hearts"], "streak": res["streak"]}
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 def serve_frontend():
     return """
 <!DOCTYPE html>
@@ -396,7 +396,7 @@ def serve_frontend():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aero Crew Elite Academy</title>
+    <title>Aero Crew Elite Academy v11.6</title>
     <link rel="icon" href="https://img.icons8.com/color/48/airplane-take-off.png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@450;700;900&display=swap" rel="stylesheet">
     <style>
@@ -546,6 +546,7 @@ def serve_frontend():
                 <img src="https://img.icons8.com/color/48/airplane-take-off.png" alt="Logo">
                 <span id="txt-brand">Aero Crew</span>
             </div>
+            <!-- Top Right Icons ONLY appear in dashboard -->
             <div class="header-controls hidden" id="dash-header-icons">
                 <div class="header-icon-btn" onclick="playAudio('click'); openFriendsModal()" title="Friend Invitations">🤝</div>
                 <div class="header-icon-btn" onclick="playAudio('click'); openShop()" title="Uniform Boutique">🎁</div>
@@ -1162,7 +1163,7 @@ def serve_frontend():
                         <div style="background: var(--bg-deep); padding: 0.7rem 1rem; border-radius: 12px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <span style="font-size: 1.6rem;">${skin.preview_svg}</span>
-                                <div>
+                                <div style="display: flex; flex-direction: column; gap: 2px;">
                                     <div style="display:flex; gap:6px; align-items:center;">
                                         <b style="color: white; font-size: 0.85rem;">${skin.skin_name}</b>
                                         <span style="font-size:0.62rem; padding:2px 6px; border-radius:6px; background:rgba(56,189,248,0.15); color:var(--accent); font-weight:800;">${skin.tier_level}</span>
