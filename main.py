@@ -10,7 +10,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy", version="16.0.0")
+app = FastAPI(title="Aero Crew Academy", version="17.0.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -18,7 +18,7 @@ def startup_db():
     cur = conn.cursor()
     
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_users_v16 (
+        CREATE TABLE IF NOT EXISTS aero_users_v17 (
             id SERIAL PRIMARY KEY,
             phone_number VARCHAR(20) UNIQUE,
             username VARCHAR(50) UNIQUE,
@@ -40,7 +40,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_friend_requests_v16 (
+        CREATE TABLE IF NOT EXISTS aero_friend_requests_v17 (
             id SERIAL PRIMARY KEY,
             sender_username VARCHAR(50),
             receiver_username VARCHAR(50),
@@ -50,7 +50,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_friend_groups_v16 (
+        CREATE TABLE IF NOT EXISTS aero_friend_groups_v17 (
             id SERIAL PRIMARY KEY,
             group_name VARCHAR(100),
             creator_username VARCHAR(50),
@@ -60,7 +60,18 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_friend_group_messages_v16 (
+        CREATE TABLE IF NOT EXISTS aero_direct_messages_v17 (
+            id SERIAL PRIMARY KEY,
+            sender_username VARCHAR(50),
+            receiver_username VARCHAR(50),
+            sender_name VARCHAR(100),
+            content TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS aero_friend_group_messages_v17 (
             id SERIAL PRIMARY KEY,
             group_id INT,
             sender_username VARCHAR(50),
@@ -71,7 +82,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_groups_v16 (
+        CREATE TABLE IF NOT EXISTS aero_groups_v17 (
             id SERIAL PRIMARY KEY,
             group_name VARCHAR(100),
             group_code VARCHAR(10) UNIQUE,
@@ -81,7 +92,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_lessons_v16 (
+        CREATE TABLE IF NOT EXISTS aero_lessons_v17 (
             id SERIAL PRIMARY KEY,
             group_code VARCHAR(50),
             teacher_username VARCHAR(50),
@@ -93,7 +104,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_exams_v16 (
+        CREATE TABLE IF NOT EXISTS aero_exams_v17 (
             id SERIAL PRIMARY KEY,
             group_code VARCHAR(50),
             teacher_username VARCHAR(50),
@@ -104,7 +115,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_exam_submissions_v16 (
+        CREATE TABLE IF NOT EXISTS aero_exam_submissions_v17 (
             id SERIAL PRIMARY KEY,
             exam_id INT,
             student_username VARCHAR(50),
@@ -117,7 +128,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_quiz_results_v16 (
+        CREATE TABLE IF NOT EXISTS aero_quiz_results_v17 (
             id SERIAL PRIMARY KEY,
             lesson_id INT,
             student_username VARCHAR(50),
@@ -130,7 +141,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_chat_messages_v16 (
+        CREATE TABLE IF NOT EXISTS aero_chat_messages_v17 (
             id SERIAL PRIMARY KEY,
             group_code VARCHAR(50),
             sender_username VARCHAR(50),
@@ -143,7 +154,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_shop_skins_v16 (
+        CREATE TABLE IF NOT EXISTS aero_shop_skins_v17 (
             id SERIAL PRIMARY KEY,
             category VARCHAR(20),
             tier_level VARCHAR(30),
@@ -159,7 +170,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        INSERT INTO aero_shop_skins_v16 (category, tier_level, skin_name_en, skin_name_fr, skin_name_ar, cost, preview_svg, desc_en, desc_fr, desc_ar)
+        INSERT INTO aero_shop_skins_v17 (category, tier_level, skin_name_en, skin_name_fr, skin_name_ar, cost, preview_svg, desc_en, desc_fr, desc_ar)
         VALUES 
         ('steward', 'Free', 'Standard Aviator Suit', 'Costume Aviateur Standard', 'بدلة طيار قياسية', 0, '👔', 'Clean cadet training uniform.', 'Uniforme d’entraînement propre.', 'زي تدريب نظيف للمتدربين.'),
         ('steward', 'Professional', 'Senior Purser Uniform', 'Uniforme Chef de Cabine', 'بدلة كبير المضيفين', 500, '🎖️👔', 'Tailored navy suit with supervisor epaulets.', 'Costume marine sur mesure.', 'بدلة بحرية مفصلة مع شارات إشرافية.'),
@@ -169,7 +180,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        INSERT INTO aero_groups_v16 (group_name, group_code, teacher_username)
+        INSERT INTO aero_groups_v17 (group_name, group_code, teacher_username)
         VALUES ('EASA Alpha Professional Flight 1', '7842', 'instructor_boss')
         ON CONFLICT (group_code) DO NOTHING;
     """)
@@ -242,6 +253,12 @@ class ChatMessageModel(BaseModel):
     msg_type: str = 'text'
     content: str
 
+class DirectMessageModel(BaseModel):
+    sender_username: str
+    receiver_username: str
+    sender_name: str
+    content: str
+
 class BuySkinModel(BaseModel):
     phone_number: str
     skin_name: str
@@ -275,14 +292,14 @@ class FriendGroupMessageModel(BaseModel):
 def register(data: RegisterModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_users_v16 WHERE phone_number = %s OR username = %s;", (data.phone_number, data.username))
+    cur.execute("SELECT * FROM aero_users_v17 WHERE phone_number = %s OR username = %s;", (data.phone_number, data.username))
     if cur.fetchone():
         cur.close()
         conn.close()
         raise HTTPException(status_code=400, detail="Phone number or username already taken.")
     
     cur.execute(
-        """INSERT INTO aero_users_v16 (phone_number, username, full_name, password, recovery_pin, role, avatar_gender, group_code) 
+        """INSERT INTO aero_users_v17 (phone_number, username, full_name, password, recovery_pin, role, avatar_gender, group_code) 
            VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;""",
         (data.phone_number, data.username, data.full_name, data.password, data.recovery_pin, data.role, data.avatar_gender, data.group_code)
     )
@@ -296,14 +313,13 @@ def register(data: RegisterModel):
 def login(data: LoginModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_users_v16 WHERE phone_number = %s AND password = %s;", (data.phone_number, data.password))
+    cur.execute("SELECT * FROM aero_users_v17 WHERE phone_number = %s AND password = %s;", (data.phone_number, data.password))
     user = cur.fetchone()
     if not user:
         cur.close()
         conn.close()
         raise HTTPException(status_code=401, detail="Invalid credentials.")
 
-    # Check streak and hearts on login
     from datetime import date
     today = date.today()
     hearts = user["hearts"]
@@ -313,7 +329,7 @@ def login(data: LoginModel):
     if hearts <= 0 and last_loss and last_loss < today:
         streak = 0
         hearts = 5
-        cur.execute("UPDATE aero_users_v16 SET streak = 0, hearts = 5 WHERE id = %s;", (user["id"],))
+        cur.execute("UPDATE aero_users_v17 SET streak = 0, hearts = 5 WHERE id = %s;", (user["id"],))
         conn.commit()
         user["streak"] = 0
         user["hearts"] = 5
@@ -326,7 +342,7 @@ def login(data: LoginModel):
 def update_avatar(data: AvatarUpdateModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("UPDATE aero_users_v16 SET avatar_gender = %s WHERE phone_number = %s RETURNING *;", (data.avatar_gender, data.phone_number))
+    cur.execute("UPDATE aero_users_v17 SET avatar_gender = %s WHERE phone_number = %s RETURNING *;", (data.avatar_gender, data.phone_number))
     user = cur.fetchone()
     conn.commit()
     cur.close()
@@ -337,13 +353,13 @@ def update_avatar(data: AvatarUpdateModel):
 def change_password(data: PasswordChangeModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_users_v16 WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT * FROM aero_users_v17 WHERE phone_number = %s;", (data.phone_number,))
     user = cur.fetchone()
     if not user or user["recovery_pin"] != data.recovery_pin:
         cur.close()
         conn.close()
         raise HTTPException(status_code=400, detail="Invalid recovery PIN.")
-    cur.execute("UPDATE aero_users_v16 SET password = %s WHERE phone_number = %s;", (data.new_password, data.phone_number))
+    cur.execute("UPDATE aero_users_v17 SET password = %s WHERE phone_number = %s;", (data.new_password, data.phone_number))
     conn.commit()
     cur.close()
     conn.close()
@@ -353,14 +369,14 @@ def change_password(data: PasswordChangeModel):
 def send_friend_request(data: FriendRequestModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_users_v16 WHERE username = %s;", (data.receiver_username,))
+    cur.execute("SELECT * FROM aero_users_v17 WHERE username = %s;", (data.receiver_username,))
     target = cur.fetchone()
     if not target:
         cur.close()
         conn.close()
         raise HTTPException(status_code=404, detail="User not found.")
     cur.execute(
-        "INSERT INTO aero_friend_requests_v16 (sender_username, receiver_username) VALUES (%s, %s) RETURNING *;",
+        "INSERT INTO aero_friend_requests_v17 (sender_username, receiver_username) VALUES (%s, %s) RETURNING *;",
         (data.sender_username, data.receiver_username)
     )
     req = cur.fetchone()
@@ -373,7 +389,7 @@ def send_friend_request(data: FriendRequestModel):
 def get_friends_list(username: str):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT friends, username, full_name, avatar_gender FROM aero_users_v16 WHERE username = %s;", (username,))
+    cur.execute("SELECT friends, username, full_name, avatar_gender FROM aero_users_v17 WHERE username = %s;", (username,))
     u = cur.fetchone()
     if not u:
         cur.close()
@@ -382,13 +398,13 @@ def get_friends_list(username: str):
     friend_usernames = u["friends"] or []
     friends_data = []
     if friend_usernames:
-        cur.execute("SELECT username, full_name, avatar_gender, xp_points FROM aero_users_v16 WHERE username = ANY(%s);", (friend_usernames,))
+        cur.execute("SELECT username, full_name, avatar_gender, xp_points FROM aero_users_v17 WHERE username = ANY(%s);", (friend_usernames,))
         friends_data = cur.fetchall()
     
-    cur.execute("SELECT * FROM aero_friend_requests_v16 WHERE receiver_username = %s AND status = 'pending';", (username,))
+    cur.execute("SELECT * FROM aero_friend_requests_v17 WHERE receiver_username = %s AND status = 'pending';", (username,))
     incoming_requests = cur.fetchall()
 
-    cur.execute("SELECT * FROM aero_friend_groups_v16 WHERE %s = ANY(members) OR creator_username = %s;", (username, username))
+    cur.execute("SELECT * FROM aero_friend_groups_v17 WHERE %s = ANY(members) OR creator_username = %s;", (username, username))
     friend_groups = cur.fetchall()
 
     cur.close()
@@ -399,20 +415,20 @@ def get_friends_list(username: str):
 def accept_friend_request(data: AcceptFriendModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("UPDATE aero_friend_requests_v16 SET status = 'accepted' WHERE sender_username = %s AND receiver_username = %s;", (data.friend_username, data.username))
+    cur.execute("UPDATE aero_friend_requests_v17 SET status = 'accepted' WHERE sender_username = %s AND receiver_username = %s;", (data.friend_username, data.username))
     
-    cur.execute("SELECT friends FROM aero_users_v16 WHERE username = %s;", (data.username,))
+    cur.execute("SELECT friends FROM aero_users_v17 WHERE username = %s;", (data.username,))
     u1 = cur.fetchone()
     f1 = u1["friends"] or []
     if data.friend_username not in f1: f1.append(data.friend_username)
-    cur.execute("UPDATE aero_users_v16 SET friends = %s WHERE username = %s;", (f1, data.username))
+    cur.execute("UPDATE aero_users_v17 SET friends = %s WHERE username = %s;", (f1, data.username))
 
-    cur.execute("SELECT friends FROM aero_users_v16 WHERE username = %s;", (data.friend_username,))
+    cur.execute("SELECT friends FROM aero_users_v17 WHERE username = %s;", (data.friend_username,))
     u2 = cur.fetchone()
     if u2:
         f2 = u2["friends"] or []
         if data.username not in f2: f2.append(data.username)
-        cur.execute("UPDATE aero_users_v16 SET friends = %s WHERE username = %s;", (f2, data.friend_username))
+        cur.execute("UPDATE aero_users_v17 SET friends = %s WHERE username = %s;", (f2, data.friend_username))
 
     conn.commit()
     cur.close()
@@ -424,7 +440,7 @@ def create_friend_group(data: CreateFriendGroupModel):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO aero_friend_groups_v16 (group_name, creator_username, members) VALUES (%s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_friend_groups_v17 (group_name, creator_username, members) VALUES (%s, %s, %s) RETURNING *;",
         (data.group_name, data.creator_username, data.members)
     )
     grp = cur.fetchone()
@@ -437,7 +453,7 @@ def create_friend_group(data: CreateFriendGroupModel):
 def get_friend_group_messages(group_id: int):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_friend_group_messages_v16 WHERE group_id = %s ORDER BY id DESC LIMIT 50;", (group_id,))
+    cur.execute("SELECT * FROM aero_friend_group_messages_v17 WHERE group_id = %s ORDER BY id DESC LIMIT 50;", (group_id,))
     msgs = cur.fetchall()
     cur.close()
     conn.close()
@@ -448,8 +464,37 @@ def send_friend_group_message(data: FriendGroupMessageModel):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO aero_friend_group_messages_v16 (group_id, sender_username, sender_name, content) VALUES (%s, %s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_friend_group_messages_v17 (group_id, sender_username, sender_name, content) VALUES (%s, %s, %s, %s) RETURNING *;",
         (data.group_id, data.sender_username, data.sender_name, data.content)
+    )
+    msg = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success", "message": msg}
+
+@app.get("/api/direct-messages/list")
+def get_direct_messages(user1: str, user2: str):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT * FROM aero_direct_messages_v17 
+        WHERE (sender_username = %s AND receiver_username = %s) 
+           OR (sender_username = %s AND receiver_username = %s)
+        ORDER BY id DESC LIMIT 50;
+    """, (user1, user2, user2, user1))
+    msgs = cur.fetchall()
+    cur.close()
+    conn.close()
+    return {"messages": msgs[::-1]}
+
+@app.post("/api/direct-messages/send")
+def send_direct_message(data: DirectMessageModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO aero_direct_messages_v17 (sender_username, receiver_username, sender_name, content) VALUES (%s, %s, %s, %s) RETURNING *;",
+        (data.sender_username, data.receiver_username, data.sender_name, data.content)
     )
     msg = cur.fetchone()
     conn.commit()
@@ -461,13 +506,13 @@ def send_friend_group_message(data: FriendGroupMessageModel):
 def create_group(data: CreateGroupModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_groups_v16 WHERE group_code = %s;", (data.group_code,))
+    cur.execute("SELECT * FROM aero_groups_v17 WHERE group_code = %s;", (data.group_code,))
     if cur.fetchone():
         cur.close()
         conn.close()
         raise HTTPException(status_code=400, detail="Group code already exists.")
     cur.execute(
-        "INSERT INTO aero_groups_v16 (group_name, group_code, teacher_username) VALUES (%s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_groups_v17 (group_name, group_code, teacher_username) VALUES (%s, %s, %s) RETURNING *;",
         (data.group_name, data.group_code, data.teacher_username)
     )
     grp = cur.fetchone()
@@ -480,13 +525,13 @@ def create_group(data: CreateGroupModel):
 def get_group_info(group_code: str):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_groups_v16 WHERE group_code = %s;", (group_code,))
+    cur.execute("SELECT * FROM aero_groups_v17 WHERE group_code = %s;", (group_code,))
     grp = cur.fetchone()
-    cur.execute("SELECT username, full_name, role, avatar_gender, xp_points FROM aero_users_v16 WHERE group_code = %s;", (group_code,))
+    cur.execute("SELECT username, full_name, role, avatar_gender, xp_points FROM aero_users_v17 WHERE group_code = %s;", (group_code,))
     members = cur.fetchall()
-    cur.execute("SELECT * FROM aero_lessons_v16 WHERE group_code = %s ORDER BY id DESC;", (group_code,))
+    cur.execute("SELECT * FROM aero_lessons_v17 WHERE group_code = %s ORDER BY id DESC;", (group_code,))
     lessons = cur.fetchall()
-    cur.execute("SELECT * FROM aero_exams_v16 WHERE group_code = %s ORDER BY id DESC;", (group_code,))
+    cur.execute("SELECT * FROM aero_exams_v17 WHERE group_code = %s ORDER BY id DESC;", (group_code,))
     exams = cur.fetchall()
     cur.close()
     conn.close()
@@ -498,7 +543,7 @@ def create_lesson(data: CreateLessonModel):
     cur = conn.cursor()
     import json
     cur.execute(
-        "INSERT INTO aero_lessons_v16 (group_code, teacher_username, title, content_html, quiz_data) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_lessons_v17 (group_code, teacher_username, title, content_html, quiz_data) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
         (data.group_code, data.teacher_username, data.title, data.content_html, json.dumps(data.quiz_data))
     )
     lesson = cur.fetchone()
@@ -513,7 +558,7 @@ def create_exam(data: CreateExamModel):
     cur = conn.cursor()
     import json
     cur.execute(
-        "INSERT INTO aero_exams_v16 (group_code, teacher_username, title, exam_data) VALUES (%s, %s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_exams_v17 (group_code, teacher_username, title, exam_data) VALUES (%s, %s, %s, %s) RETURNING *;",
         (data.group_code, data.teacher_username, data.title, json.dumps(data.exam_data))
     )
     exam = cur.fetchone()
@@ -528,8 +573,8 @@ def get_teacher_analytics(group_code: str):
     cur = conn.cursor()
     cur.execute("""
         SELECT r.*, l.title as lesson_title 
-        FROM aero_quiz_results_v16 r 
-        JOIN aero_lessons_v16 l ON l.id = r.lesson_id 
+        FROM aero_quiz_results_v17 r 
+        JOIN aero_lessons_v17 l ON l.id = r.lesson_id 
         WHERE l.group_code = %s 
         ORDER BY r.completed_at DESC;
     """, (group_code,))
@@ -537,8 +582,8 @@ def get_teacher_analytics(group_code: str):
 
     cur.execute("""
         SELECT s.*, e.title as exam_title 
-        FROM aero_exam_submissions_v16 s 
-        JOIN aero_exams_v16 e ON e.id = s.exam_id 
+        FROM aero_exam_submissions_v17 s 
+        JOIN aero_exams_v17 e ON e.id = s.exam_id 
         WHERE e.group_code = %s 
         ORDER BY s.submitted_at DESC;
     """, (group_code,))
@@ -553,11 +598,11 @@ def submit_exam(data: SubmitExamModel):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO aero_exam_submissions_v16 (exam_id, student_username, student_name, score, total_questions, time_spent_seconds) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_exam_submissions_v17 (exam_id, student_username, student_name, score, total_questions, time_spent_seconds) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;",
         (data.exam_id, data.student_username, data.student_name, data.score, data.total_questions, data.time_spent_seconds)
     )
     sub = cur.fetchone()
-    cur.execute("UPDATE aero_users_v16 SET xp_points = xp_points + 100 WHERE username = %s;", (data.student_username,))
+    cur.execute("UPDATE aero_users_v17 SET xp_points = xp_points + 100 WHERE username = %s;", (data.student_username,))
     conn.commit()
     cur.close()
     conn.close()
@@ -567,20 +612,20 @@ def submit_exam(data: SubmitExamModel):
 def submit_quiz(data: SubmitQuizModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_quiz_results_v16 WHERE lesson_id = %s AND student_username = %s;", (data.lesson_id, data.student_username))
+    cur.execute("SELECT * FROM aero_quiz_results_v17 WHERE lesson_id = %s AND student_username = %s;", (data.lesson_id, data.student_username))
     existing = cur.fetchone()
     if existing:
         cur.execute(
-            "UPDATE aero_quiz_results_v16 SET score = %s, total_questions = %s, attempts = attempts + 1, completed_at = CURRENT_TIMESTAMP WHERE id = %s RETURNING *;",
+            "UPDATE aero_quiz_results_v17 SET score = %s, total_questions = %s, attempts = attempts + 1, completed_at = CURRENT_TIMESTAMP WHERE id = %s RETURNING *;",
             (data.score, data.total_questions, existing["id"])
         )
     else:
         cur.execute(
-            "INSERT INTO aero_quiz_results_v16 (lesson_id, student_username, student_name, score, total_questions, attempts) VALUES (%s, %s, %s, %s, %s, 1) RETURNING *;",
+            "INSERT INTO aero_quiz_results_v17 (lesson_id, student_username, student_name, score, total_questions, attempts) VALUES (%s, %s, %s, %s, %s, 1) RETURNING *;",
             (data.lesson_id, data.student_username, data.student_name, data.score, data.total_questions)
         )
     res = cur.fetchone()
-    cur.execute("UPDATE aero_users_v16 SET xp_points = xp_points + 50 WHERE username = %s;", (data.student_username,))
+    cur.execute("UPDATE aero_users_v17 SET xp_points = xp_points + 50 WHERE username = %s;", (data.student_username,))
     conn.commit()
     cur.close()
     conn.close()
@@ -590,7 +635,7 @@ def submit_quiz(data: SubmitQuizModel):
 def get_chat_messages(group_code: str):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_chat_messages_v16 WHERE group_code = %s ORDER BY id DESC LIMIT 50;", (group_code,))
+    cur.execute("SELECT * FROM aero_chat_messages_v17 WHERE group_code = %s ORDER BY id DESC LIMIT 50;", (group_code,))
     msgs = cur.fetchall()
     cur.close()
     conn.close()
@@ -601,7 +646,7 @@ def send_chat_message(data: ChatMessageModel):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO aero_chat_messages_v16 (group_code, sender_username, sender_name, sender_avatar_config, msg_type, content) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_chat_messages_v17 (group_code, sender_username, sender_name, sender_avatar_config, msg_type, content) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;",
         (data.group_code, data.sender_username, data.sender_name, data.sender_avatar_config, data.msg_type, data.content)
     )
     msg = cur.fetchone()
@@ -614,7 +659,7 @@ def send_chat_message(data: ChatMessageModel):
 def complete_roadmap_node(data: NodeCompleteModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT completed_nodes, xp_points, hearts FROM aero_users_v16 WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT completed_nodes, xp_points, hearts FROM aero_users_v17 WHERE phone_number = %s;", (data.phone_number,))
     user = cur.fetchone()
     if not user:
         cur.close()
@@ -628,7 +673,7 @@ def complete_roadmap_node(data: NodeCompleteModel):
 
     if data.lost_heart:
         hearts = max(0, hearts - 1)
-        cur.execute("UPDATE aero_users_v16 SET hearts = %s, last_heart_loss_date = %s WHERE phone_number = %s;", (hearts, date.today(), data.phone_number))
+        cur.execute("UPDATE aero_users_v17 SET hearts = %s, last_heart_loss_date = %s WHERE phone_number = %s;", (hearts, date.today(), data.phone_number))
         conn.commit()
         cur.close()
         conn.close()
@@ -636,9 +681,9 @@ def complete_roadmap_node(data: NodeCompleteModel):
 
     if data.node_id not in nodes:
         nodes.append(data.node_id)
-        cur.execute("UPDATE aero_users_v16 SET completed_nodes = %s, xp_points = xp_points + 30 WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts;", (nodes, data.phone_number))
+        cur.execute("UPDATE aero_users_v17 SET completed_nodes = %s, xp_points = xp_points + 30 WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts;", (nodes, data.phone_number))
     else:
-        cur.execute("UPDATE aero_users_v16 SET completed_nodes = %s WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts;", (nodes, data.phone_number))
+        cur.execute("UPDATE aero_users_v17 SET completed_nodes = %s WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts;", (nodes, data.phone_number))
     res = cur.fetchone()
     conn.commit()
     cur.close()
@@ -649,7 +694,7 @@ def complete_roadmap_node(data: NodeCompleteModel):
 def get_skins():
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_shop_skins_v16 ORDER BY cost ASC;")
+    cur.execute("SELECT * FROM aero_shop_skins_v17 ORDER BY cost ASC;")
     skins = cur.fetchall()
     cur.close()
     conn.close()
@@ -659,7 +704,7 @@ def get_skins():
 def buy_skin(data: BuySkinModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_users_v16 WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT * FROM aero_users_v17 WHERE phone_number = %s;", (data.phone_number,))
     user = cur.fetchone()
     if not user:
         cur.close()
@@ -670,7 +715,7 @@ def buy_skin(data: BuySkinModel):
         conn.close()
         raise HTTPException(status_code=400, detail="Not enough XP stars!")
     new_xp = user["xp_points"] - data.cost
-    cur.execute("UPDATE aero_users_v16 SET xp_points = %s, active_skin = %s WHERE phone_number = %s RETURNING *;", (new_xp, data.skin_name, data.phone_number))
+    cur.execute("UPDATE aero_users_v17 SET xp_points = %s, active_skin = %s WHERE phone_number = %s RETURNING *;", (new_xp, data.skin_name, data.phone_number))
     updated = cur.fetchone()
     conn.commit()
     cur.close()
@@ -708,8 +753,26 @@ def serve_frontend():
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
         [dir="rtl"] * { font-family: 'Tajawal', sans-serif !important; }
         
-        body { background: var(--bg-deep); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; }
-        .app-shell { width: 100%; max-width: 650px; background: var(--surface); border-radius: 36px; padding: 2rem; border: 1px solid var(--border-glow); box-shadow: 0 45px 90px rgba(0, 0, 0, 0.95); position: relative; }
+        body { 
+            background: radial-gradient(circle at 50% 20%, #0f172a 0%, #020617 70%), url('https://images.unsplash.com/photo-1506015391300-4802dc74de2e?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-main); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 1rem; 
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.88);
+            z-index: 1;
+        }
+
+        .app-shell { width: 100%; max-width: 650px; background: var(--surface); border-radius: 36px; padding: 2rem; border: 1px solid var(--border-glow); box-shadow: 0 45px 90px rgba(0, 0, 0, 0.95); position: relative; z-index: 2; }
         
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.4rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
         .brand-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem; color: var(--accent); }
@@ -777,10 +840,17 @@ def serve_frontend():
                 <img src="https://img.icons8.com/color/48/airplane-take-off.png" alt="Logo">
                 <span id="brand-logo-text">Aero Crew</span>
             </div>
-            <div class="header-controls hidden" id="dash-header-icons">
-                <div class="header-icon-btn" onclick="openAvatarStudio()" title="Avatar">👤</div>
-                <div class="header-icon-btn" onclick="openShop()" title="Boutique">🎁</div>
-                <div class="header-icon-btn" onclick="openSettingsModal()" title="Settings">⚙️</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div id="prelogin-lang-bar" style="display: flex; gap: 4px;">
+                    <button onclick="setLanguage('en')" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); padding:4px 8px; border-radius:8px; font-size:0.75rem; cursor:pointer;">EN</button>
+                    <button onclick="setLanguage('fr')" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); padding:4px 8px; border-radius:8px; font-size:0.75rem; cursor:pointer;">FR</button>
+                    <button onclick="setLanguage('ar')" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); padding:4px 8px; border-radius:8px; font-size:0.75rem; cursor:pointer;">AR</button>
+                </div>
+                <div class="header-controls hidden" id="dash-header-icons">
+                    <div class="header-icon-btn" onclick="openAvatarStudio()" title="Avatar">👤</div>
+                    <div class="header-icon-btn" onclick="openShop()" title="Boutique">🎁</div>
+                    <div class="header-icon-btn" onclick="openSettingsModal()" title="Settings">⚙️</div>
+                </div>
             </div>
         </div>
 
@@ -871,7 +941,7 @@ def serve_frontend():
                 </div>
                 <div style="display: flex; gap: 8px;">
                     <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">1500</span></div>
-                    <div class="stat-item" style="color: var(--danger);">❤️️ <span id="dash-hearts">5</span></div>
+                    <div class="stat-item" style="color: var(--danger);">❤ <span id="dash-hearts">5</span></div>
                     <div class="stat-item" style="color: var(--success);">🔥 <span id="dash-streak">21</span></div>
                 </div>
             </div>
@@ -924,7 +994,7 @@ def serve_frontend():
         </div>
     </div>
 
-    <!-- SETTINGS MODAL WITH FULL MULTI-LANGUAGE ENGINE -->
+    <!-- SETTINGS MODAL -->
     <div id="settings-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.9); display:none; justify-content:center; align-items:center; z-index:5000;">
         <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:400px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
@@ -952,13 +1022,47 @@ def serve_frontend():
     </div>
 
     <script>
-        let sessionUser = JSON.parse(localStorage.getItem('aero_crew_user_pro16') || 'null');
+        let sessionUser = JSON.parse(localStorage.getItem('aero_crew_user_pro17') || 'null');
         let groupInfo = { group: null, members: [], lessons: [], exams: [] };
         let socialData = { friends: [], incoming_requests: [], friend_groups: [] };
         let activeRoadmapYear = 1;
         let mediaRecorder = null;
         let audioChunks = [];
         let activeLang = localStorage.getItem('aero_lang') || 'en';
+        let dmPollingInterval = null;
+
+        /* SOUND EFFECTS ENGINE */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if(!audioCtx) return;
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            if(type === 'click') {
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+            } else if(type === 'success') {
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.08); // E5
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.16); // G5
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else if(type === 'error') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+            }
+        }
 
         const dict = {
             en: {
@@ -987,7 +1091,7 @@ def serve_frontend():
                 phoneLbl: "Numéro de téléphone", passLbl: "Mot de passe", loginBtn: "Se connecter",
                 regNav: "Créer un compte", resetNav: "Mot de passe oublié ?",
                 regTitle: "Inscription Cadet & Instructeur", regSub: "Enregistrez votre profil, choisissez votre rôle et votre avatar.",
-                regRoleLbl: "S'inscrire en tant que", optCadet: "🎓 Cadet / Étudiant", optTeacher: "👨‍🏫 Instructeur / Professeur",
+                regRoleLbl: "S'inscrire en tant que", optCadet: "🎓 Cadet / Étudiant", optTeacher: "👨‍‍🏫 Instructeur / Professeur",
                 regNameLbl: "Nom complet", regUserLbl: "Nom d'utilisateur unique", regPassLbl: "Mot de passe", regPinLbl: "PIN de récupération (4 chiffres)",
                 avatarStudioTitle: "🎨 Personnalisation d'Avatar", avatarTypeLbl: "Type d'avatar", optSteward: "👔 Steward", optHostess: "👗 Hôtesse",
                 completeRegBtn: "Terminer l'inscription", backLogin: "Déjà un compte ? Se connecter",
@@ -1035,6 +1139,7 @@ def serve_frontend():
         };
 
         function setLanguage(lang) {
+            playSound('click');
             activeLang = lang;
             localStorage.setItem('aero_lang', lang);
             const root = document.getElementById('html-root');
@@ -1060,7 +1165,7 @@ def serve_frontend():
                 document.getElementById('tr-reg-name-lbl').innerText = t.regNameLbl;
                 document.getElementById('tr-reg-user-lbl').innerText = t.regUserLbl;
                 document.getElementById('tr-reg-phone-lbl').innerText = t.phoneLbl;
-                document.getElementById('tr-reg-pass-lbl').innerText = t.regPassLbl;
+                document.getElementById('tr-reg-pass-lbl').innerText = t.passLbl;
                 document.getElementById('tr-reg-pin-lbl').innerText = t.regPinLbl;
                 document.getElementById('tr-avatar-studio-title').innerText = t.avatarStudioTitle;
                 document.getElementById('tr-avatar-type-lbl').innerText = t.avatarTypeLbl;
@@ -1100,6 +1205,7 @@ def serve_frontend():
         }
 
         function showToast(text, isError = false) {
+            playSound(isError ? 'error' : 'success');
             const t = document.getElementById('toast');
             t.innerText = text;
             t.style.background = isError ? 'var(--danger)' : 'var(--success)';
@@ -1108,6 +1214,8 @@ def serve_frontend():
         }
 
         function navigateTo(id) {
+            playSound('click');
+            if(dmPollingInterval) clearInterval(dmPollingInterval);
             ['screen-login', 'screen-register', 'screen-reset', 'screen-dashboard'].forEach(s => {
                 const el = document.getElementById(s);
                 if(el) el.classList.add('hidden');
@@ -1115,22 +1223,31 @@ def serve_frontend():
             const target = document.getElementById(id);
             if(target) target.classList.remove('hidden');
             const headerIcons = document.getElementById('dash-header-icons');
-            if(headerIcons) {
-                if(id === 'screen-dashboard') headerIcons.classList.remove('hidden');
-                else headerIcons.classList.add('hidden');
+            const langBar = document.getElementById('prelogin-lang-bar');
+            if(headerIcons && langBar) {
+                if(id === 'screen-dashboard') {
+                    headerIcons.classList.remove('hidden');
+                    langBar.classList.add('hidden');
+                } else {
+                    headerIcons.classList.add('hidden');
+                    langBar.classList.remove('hidden');
+                }
             }
         }
 
         function updateRegAvatarPreview() {
+            playSound('click');
             const gender = document.getElementById('reg-gender').value;
             document.getElementById('reg-avatar-preview').innerText = gender === 'hostess' ? '👗' : '👔';
         }
         function updateModalAvatarPreview() {
+            playSound('click');
             const gender = document.getElementById('mod-gender').value;
             document.getElementById('modal-avatar-preview').innerText = gender === 'hostess' ? '👗' : '👔';
         }
 
         async function submitRegister() {
+            playSound('click');
             const full_name = document.getElementById('reg-name').value.trim();
             const username = document.getElementById('reg-username').value.trim().replace('@','');
             const phone_number = document.getElementById('reg-phone').value.trim();
@@ -1157,6 +1274,7 @@ def serve_frontend():
         }
 
         async function submitLogin() {
+            playSound('click');
             const phone_number = document.getElementById('login-phone').value.trim();
             const password = document.getElementById('login-pass').value.trim();
             if(!phone_number || !password) { showToast('Enter credentials', true); return; }
@@ -1169,7 +1287,7 @@ def serve_frontend():
             const data = await res.json();
             if(res.ok) {
                 sessionUser = data.user;
-                localStorage.setItem('aero_crew_user_pro16', JSON.stringify(sessionUser));
+                localStorage.setItem('aero_crew_user_pro17', JSON.stringify(sessionUser));
                 updateDashboardUI();
                 navigateTo('screen-dashboard');
                 fetchGroupData();
@@ -1191,7 +1309,8 @@ def serve_frontend():
         }
 
         function logoutUser() {
-            localStorage.removeItem('aero_crew_user_pro16');
+            playSound('click');
+            localStorage.removeItem('aero_crew_user_pro17');
             sessionUser = null;
             navigateTo('screen-login');
             showToast('Logged out successfully.');
@@ -1204,6 +1323,7 @@ def serve_frontend():
         }
 
         function resetToMenu() {
+            playSound('click');
             const t = dict[activeLang];
             document.getElementById('simulation-box').innerHTML = `
                 <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;">${t.centerTitle}</h3>
@@ -1211,8 +1331,9 @@ def serve_frontend():
             `;
         }
 
-        /* DUOLINGO ROADMAP WITH ANIMATED HOPPING COMPANION AVATAR */
+        /* DUOLINGO ROADMAP WITH MULTI-LESSON & EXCLUSIVE QUESTIONS PER STEP */
         function launchRoadmap(yearNum) {
+            playSound('click');
             activeRoadmapYear = yearNum;
             const box = document.getElementById('simulation-box');
             const completedList = sessionUser.completed_nodes || [];
@@ -1240,7 +1361,7 @@ def serve_frontend():
                 nodesHtml += `
                     <div class="duo-node-wrapper">
                         ${isCurrentActive ? `<div class="companion-hopper">${companionEmoji}</div>` : ''}
-                        <div class="duo-node ${statusClass}" onclick="openNodeLesson(${yearNum}, ${i}, '${statusClass}')">
+                        <div class="duo-node ${statusClass}" onclick="openNodeLessonsList(${yearNum}, ${i}, '${statusClass}')">
                             <span style="font-size:1.3rem;">${icon}</span>
                             <span style="font-size:0.55rem; margin-top:-2px;">${i}</span>
                         </div>
@@ -1251,7 +1372,7 @@ def serve_frontend():
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
                     <h3 style="font-size: 1.05rem; color: var(--gold); font-weight: 900;">🏆 Year ${yearNum} Roadmap (100 Checkpoints)</h3>
-                    <span style="font-size: 0.72rem; color: var(--accent);">Your Companion is Hopping!</span>
+                    <span style="font-size: 0.72rem; color: var(--accent);">Multi-Lesson Duolingo Path</span>
                 </div>
                 <div class="duo-path-container">
                     <div style="display:flex; flex-direction:column; align-items:center; gap:24px; width:100%;">
@@ -1261,33 +1382,58 @@ def serve_frontend():
             `;
         }
 
-        function openNodeLesson(yearNum, nodeNum, status) {
+        function openNodeLessonsList(yearNum, nodeNum, status) {
+            playSound('click');
             if(status === 'locked') { showToast('Complete previous checkpoints first!', true); return; }
             const box = document.getElementById('simulation-box');
             const nodeId = `y${yearNum}_node_${nodeNum}`;
+
+            const subLessons = [
+                { id: 1, title: "Module A: Pre-Flight Safety Inspection", q: "What is the mandatory cabin crew action prior to door arming?", options: ["Arm cross-check and report", "Open emergency exit", "Deplane passengers"], correct: 0 },
+                { id: 2, title: "Module B: EASA Emergency Protocols", q: "In case of sudden cabin depressurization, what is your immediate action?", options: ["Secure oxygen mask and be seated", "Serve beverages", "Call flight deck for coffee"], correct: 0 },
+                { id: 3, title: "Module C: Final Clearance & Dispatch", q: "Who gives the final authorization for aircraft pushback?", options: ["Captain / Flight Deck", "Passenger in seat 12A", "Baggage loader"], correct: 0 }
+            ];
+
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
                     <span style="font-size: 0.72rem; font-weight: 800; color: var(--success);">CHECKPOINT ${nodeNum} (Year ${yearNum})</span>
-                    <span style="font-size: 0.75rem; color: var(--gold); font-weight: 800;">⭐ +30 XP</span>
+                    <button class="btn-action" onclick="launchRoadmap(${yearNum})" style="width:70px; padding:4px; font-size:0.7rem; margin-top:0;">Back</button>
                 </div>
-                <h3 style="font-size: 1.15rem; font-weight: 900; color: white; margin-bottom: 0.6rem;">Safety & Regulatory Module #${nodeNum}</h3>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;">Verify cabin readiness and emergency exit protocols according to EASA standards.</p>
-                <div style="background:var(--bg-deep); padding:1rem; border-radius:14px; border:1px solid var(--border-glow); margin-bottom:1.2rem;">
-                    <b style="color:var(--accent); font-size:0.9rem;">Question: What is the mandatory crew action before aircraft pushback?</b>
-                    <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
-                        <button class="btn-action" onclick="verifyNodeAnswer('${nodeId}', true)" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:10px; font-size:0.85rem; text-align:left; margin-top:0;">A) Secure cabin and galleys</button>
-                        <button class="btn-action" onclick="verifyNodeAnswer('${nodeId}', false)" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:10px; font-size:0.85rem; text-align:left; margin-top:0;">B) Open doors</button>
-                    </div>
+                <h3 style="font-size: 1.1rem; font-weight: 900; color: white; margin-bottom: 0.8rem;">Exclusive Lessons for Checkpoint ${nodeNum}</h3>
+                <div style="display:flex; flex-direction:column; gap:10px;" id="sub-lessons-list">
+                    ${subLessons.map(sl => `
+                        <div style="background:var(--bg-deep); padding:12px; border-radius:14px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
+                            <div><b style="color:white; font-size:0.85rem;">📖 ${sl.title}</b><div style="color:var(--text-muted); font-size:0.7rem;">Interactive Lesson & Quiz</div></div>
+                            <button class="btn-action" onclick='startSubLesson(${yearNum}, ${nodeNum}, ${JSON.stringify(sl)})' style="width:90px; padding:6px; font-size:0.75rem; margin-top:0;">Start 🚀</button>
+                        </div>
+                    `).join('')}
                 </div>
-                <div id="node-feedback" style="text-align:center; font-weight:800; font-size:0.85rem;"></div>
             `;
         }
 
-        async function verifyNodeAnswer(nodeId, isCorrect) {
-            const fb = document.getElementById('node-feedback');
+        function startSubLesson(yearNum, nodeNum, lessonObj) {
+            playSound('click');
+            const box = document.getElementById('simulation-box');
+            box.innerHTML = `
+                <h3 style="font-size:1.05rem; color:var(--accent); font-weight:900; margin-bottom:0.6rem;">${lessonObj.title}</h3>
+                <div style="background:var(--bg-deep); padding:1rem; border-radius:14px; border:1px solid var(--border-glow); margin-bottom:1rem;">
+                    <b style="color:white; font-size:0.9rem;">Question: ${lessonObj.q}</b>
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+                        ${lessonObj.options.map((opt, idx) => `
+                            <button class="btn-action" onclick="verifySubLessonAnswer(${yearNum}, ${nodeNum}, ${idx === lessonObj.correct})" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:10px; font-size:0.85rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
+                        `).join('')}
+                    </div>
+                </div>
+                <div id="sub-lesson-feedback" style="text-align:center; font-weight:800; font-size:0.85rem;"></div>
+            `;
+        }
+
+        async function verifySubLessonAnswer(yearNum, nodeNum, isCorrect) {
+            const fb = document.getElementById('sub-lesson-feedback');
+            const nodeId = `y${yearNum}_node_${nodeNum}`;
             if(isCorrect) {
                 fb.style.color = 'var(--success)';
-                fb.innerText = 'Correct! +30 XP Earned.';
+                fb.innerText = 'Correct! Checkpoint Completed! +30 XP ⭐';
                 const res = await fetch('/api/node/complete', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -1297,9 +1443,9 @@ def serve_frontend():
                 sessionUser.completed_nodes = data.completed_nodes;
                 sessionUser.xp_points = data.xp;
                 sessionUser.hearts = data.hearts;
-                localStorage.setItem('aero_crew_user_pro16', JSON.stringify(sessionUser));
+                localStorage.setItem('aero_crew_user_pro17', JSON.stringify(sessionUser));
                 updateDashboardUI();
-                setTimeout(() => launchRoadmap(activeRoadmapYear), 1500);
+                setTimeout(() => launchRoadmap(activeRoadmapYear), 1800);
             } else {
                 fb.style.color = 'var(--danger)';
                 fb.innerText = 'Incorrect answer! Heart lost ❤️-1';
@@ -1310,13 +1456,14 @@ def serve_frontend():
                 });
                 const data = await res.json();
                 sessionUser.hearts = data.hearts;
-                localStorage.setItem('aero_crew_user_pro16', JSON.stringify(sessionUser));
+                localStorage.setItem('aero_crew_user_pro17', JSON.stringify(sessionUser));
                 updateDashboardUI();
             }
         }
 
-        /* STUDY & EXAMS STUDIO WITH AUTOMATIC CODE ROUTING */
+        /* STUDY & EXAMS STUDIO */
         async function openStudyHub() {
+            playSound('click');
             const codeInput = document.getElementById('student-join-code-input');
             const codeToFetch = sessionUser.role === 'teacher' ? sessionUser.group_code : (codeInput ? codeInput.value.trim() : sessionUser.group_code);
             
@@ -1332,7 +1479,7 @@ def serve_frontend():
                         <h4 style="color:var(--accent); font-size:0.9rem; margin-bottom:0.5rem;">👨‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
                         
                         <div style="margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:10px;">
-                            <label><b>Create Quiz (Multiple Questions)</b></label>
+                            <label><b>Create Quiz</b></label>
                             <input type="text" id="les-title" placeholder="Quiz Title" style="margin-bottom:6px;" />
                             <textarea id="les-notes" placeholder="Instructions" style="height:40px; margin-bottom:6px;"></textarea>
                             <div id="quiz-questions-container" style="display:flex; flex-direction:column; gap:6px; margin-bottom:8px;">
@@ -1346,7 +1493,7 @@ def serve_frontend():
                         </div>
 
                         <div>
-                            <label><b>Create Official Exam (Multiple Questions)</b></label>
+                            <label><b>Create Official Exam</b></label>
                             <input type="text" id="ex-title" placeholder="Exam Title" style="margin-bottom:6px;" />
                             <div id="exam-questions-container" style="display:flex; flex-direction:column; gap:6px; margin-bottom:8px;">
                                 <div class="exam-q-row" style="display:flex; gap:6px;">
@@ -1410,13 +1557,12 @@ def serve_frontend():
         function onStudentCodeInput(val) {
             if(codeInputTimer) clearTimeout(codeInputTimer);
             if(val.length === 4) {
-                codeInputTimer = setTimeout(() => {
-                    openStudyHub();
-                }, 400);
+                codeInputTimer = setTimeout(() => { openStudyHub(); }, 400);
             }
         }
 
         function addQuizQuestionRow() {
+            playSound('click');
             const container = document.getElementById('quiz-questions-container');
             const row = document.createElement('div');
             row.className = 'quiz-q-row';
@@ -1426,6 +1572,7 @@ def serve_frontend():
         }
 
         function addExamQuestionRow() {
+            playSound('click');
             const container = document.getElementById('exam-questions-container');
             const row = document.createElement('div');
             row.className = 'exam-q-row';
@@ -1435,6 +1582,7 @@ def serve_frontend():
         }
 
         async function publishLesson() {
+            playSound('click');
             const title = document.getElementById('les-title').value.trim();
             const content_html = document.getElementById('les-notes').value.trim();
             if(!title) { showToast('Enter quiz title', true); return; }
@@ -1451,10 +1599,11 @@ def serve_frontend():
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ group_code: sessionUser.group_code, teacher_username: sessionUser.username, title, content_html, quiz_data })
             });
-            if(res.ok) { showToast('Quiz published with code ' + sessionUser.group_code + '!'); openStudyHub(); }
+            if(res.ok) { showToast('Quiz published!'); openStudyHub(); }
         }
 
         async function publishExam() {
+            playSound('click');
             const title = document.getElementById('ex-title').value.trim();
             if(!title) { showToast('Enter exam title', true); return; }
             const rows = document.querySelectorAll('.exam-q-row');
@@ -1470,10 +1619,11 @@ def serve_frontend():
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ group_code: sessionUser.group_code, teacher_username: sessionUser.username, title, exam_data })
             });
-            if(res.ok) { showToast('Exam published with code ' + sessionUser.group_code + '!'); openStudyHub(); }
+            if(res.ok) { showToast('Exam published!'); openStudyHub(); }
         }
 
         async function openTeacherAnalytics() {
+            playSound('click');
             const res = await fetch('/api/teacher/analytics?group_code=' + sessionUser.group_code);
             const data = await res.json();
             const box = document.getElementById('simulation-box');
@@ -1510,6 +1660,7 @@ def serve_frontend():
         let examStartTime = 0;
 
         function takeExam(exam) {
+            playSound('click');
             let questions = exam.exam_data;
             if(typeof questions === 'string') questions = JSON.parse(questions);
             examStartTime = Date.now();
@@ -1559,6 +1710,7 @@ def serve_frontend():
         }
 
         function takeLessonQuiz(lesson) {
+            playSound('click');
             let questions = lesson.quiz_data;
             if(typeof questions === 'string') questions = JSON.parse(questions);
 
@@ -1598,6 +1750,7 @@ def serve_frontend():
 
         /* FRIENDS & SOCIAL HUB */
         async function openSocialHub() {
+            playSound('click');
             const res = await fetch('/api/friends/list?username=' + sessionUser.username);
             socialData = await res.json();
             const box = document.getElementById('simulation-box');
@@ -1637,7 +1790,7 @@ def serve_frontend():
                       socialData.friends.map(f => `
                         <div style="background:var(--bg-deep); padding:8px 12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
                             <div><b style="color:white; font-size:0.85rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.75rem;">(@${f.username})</span></div>
-                            <button class="btn-action" onclick="openFriendGroupChat('direct_${f.username}', '${f.full_name}')" style="width:90px; padding:6px; font-size:0.75rem; margin-top:0;">Chat 💬</button>
+                            <button class="btn-action" onclick="openDirectChat('${f.username}', '${f.full_name}')" style="width:90px; padding:6px; font-size:0.75rem; margin-top:0;">Chat 💬</button>
                         </div>
                     `).join('')}
                 </div>
@@ -1656,6 +1809,7 @@ def serve_frontend():
         }
 
         async function sendFriendReq() {
+            playSound('click');
             const receiver = document.getElementById('friend-target-user').value.trim().replace('@','');
             if(!receiver) return;
             const res = await fetch('/api/friends/request', {
@@ -1672,6 +1826,7 @@ def serve_frontend():
         }
 
         async function acceptFriend(friendUser) {
+            playSound('click');
             const res = await fetch('/api/friends/accept', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -1684,6 +1839,7 @@ def serve_frontend():
         }
 
         function openCreateFriendGroup() {
+            playSound('click');
             const box = document.getElementById('simulation-box');
             box.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
@@ -1705,6 +1861,7 @@ def serve_frontend():
         }
 
         async function submitCreateFriendGroup() {
+            playSound('click');
             const group_name = document.getElementById('fg-name').value.trim();
             const checkboxes = document.querySelectorAll('.fg-member-checkbox:checked');
             let members = [sessionUser.username];
@@ -1722,22 +1879,115 @@ def serve_frontend():
             }
         }
 
-        let activeChatGroupId = null;
-        let activeChatTitle = '';
+        let activeChatFriendUser = null;
+        let activeChatFriendName = '';
 
-        async function openFriendGroupChat(groupId, title) {
-            activeChatGroupId = groupId;
-            activeChatTitle = title;
+        async function openDirectChat(friendUsername, friendFullName) {
+            playSound('click');
+            activeChatFriendUser = friendUsername;
+            activeChatFriendName = friendFullName;
             const box = document.getElementById('simulation-box');
 
-            let fetchUrl = typeof groupId === 'number' ? `/api/friend-groups/messages?group_id=${groupId}` : `/api/chat/messages?group_code=${sessionUser.group_code}`;
-            const res = await fetch(fetchUrl);
+            async function fetchAndRenderMessages() {
+                const res = await fetch(`/api/direct-messages/list?user1=${sessionUser.username}&user2=${friendUsername}`);
+                const data = await res.json();
+                const msgs = data.messages || [];
+                const stream = document.getElementById('chat-msg-stream');
+                if(stream) {
+                    stream.innerHTML = msgs.map(m => `
+                        <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
+                            <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
+                            <div>${m.content.startsWith('blob:') || m.content.startsWith('http') ? `<audio controls src="${m.content}" style="width:180px; height:32px;"></audio>` : m.content}</div>
+                        </div>
+                    `).join('');
+                    stream.scrollTop = stream.scrollHeight;
+                }
+            }
+
+            box.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+                    <h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">💬 Chat with ${friendFullName} (@${friendUsername})</h3>
+                    <button class="btn-action" onclick="openSocialHub()" style="width:70px; padding:6px; font-size:0.75rem; margin-top:0;">Back</button>
+                </div>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-msg-stream"></div>
+                    <div class="chat-input-bar">
+                        <button onclick="startInstantVoiceNoteDM()" id="btn-mic" title="Record Audio" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">🎤</button>
+                        <input type="text" id="chat-text-input" placeholder="Type message..." style="margin-bottom:0; flex:1; padding:7px 10px; font-size:0.82rem;" />
+                        <button onclick="sendDirectMessageContent()" class="btn-action" style="width:50px; padding:7px; font-size:0.82rem; margin-top:0;">Send</button>
+                    </div>
+                </div>
+            `;
+            await fetchAndRenderMessages();
+            if(dmPollingInterval) clearInterval(dmPollingInterval);
+            dmPollingInterval = setInterval(fetchAndRenderMessages, 2500);
+        }
+
+        async function sendDirectMessageContent(contentOverride = null) {
+            playSound('click');
+            const input = document.getElementById('chat-text-input');
+            const content = contentOverride || (input ? input.value.trim() : '');
+            if(!content) return;
+
+            await fetch('/api/direct-messages/send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ sender_username: sessionUser.username, receiver_username: activeChatFriendUser, sender_name: sessionUser.full_name, content })
+            });
+            if(!contentOverride && input) input.value = '';
+            
+            const res = await fetch(`/api/direct-messages/list?user1=${sessionUser.username}&user2=${activeChatFriendUser}`);
+            const data = await res.json();
+            const msgs = data.messages || [];
+            const stream = document.getElementById('chat-msg-stream');
+            if(stream) {
+                stream.innerHTML = msgs.map(m => `
+                    <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
+                        <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
+                        <div>${m.content.startsWith('blob:') || m.content.startsWith('http') ? `<audio controls src="${m.content}" style="width:180px; height:32px;"></audio>` : m.content}</div>
+                    </div>
+                `).join('');
+                stream.scrollTop = stream.scrollHeight;
+            }
+        }
+
+        async function startInstantVoiceNoteDM() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    sendDirectMessageContent(audioUrl);
+                    showToast('Voice note sent!');
+                };
+                mediaRecorder.start();
+                showToast('Recording voice... Tap microphone again to stop & send.');
+                document.getElementById('btn-mic').onclick = stopInstantVoiceNoteDM;
+                document.getElementById('btn-mic').style.color = 'var(--danger)';
+            } catch(e) {
+                showToast('Microphone unavailable', true);
+            }
+        }
+        function stopInstantVoiceNoteDM() {
+            if(mediaRecorder) mediaRecorder.stop();
+            document.getElementById('btn-mic').onclick = startInstantVoiceNoteDM;
+            document.getElementById('btn-mic').style.color = 'var(--accent)';
+        }
+
+        async function openFriendGroupChat(groupId, title) {
+            playSound('click');
+            if(dmPollingInterval) clearInterval(dmPollingInterval);
+            const box = document.getElementById('simulation-box');
+            const res = await fetch(`/api/friend-groups/messages?group_id=${groupId}`);
             const data = await res.json();
             const msgs = data.messages || [];
 
             box.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-                    <h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">💬 ${title}</h3>
+                    <h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">💬 Group: ${title}</h3>
                     <button class="btn-action" onclick="openSocialHub()" style="width:70px; padding:6px; font-size:0.75rem; margin-top:0;">Back</button>
                 </div>
                 <div class="chat-container">
@@ -1750,9 +2000,8 @@ def serve_frontend():
                         `).join('')}
                     </div>
                     <div class="chat-input-bar">
-                        <button onclick="startInstantVoiceNote()" id="btn-mic" title="Record Audio" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">🎤</button>
-                        <input type="text" id="chat-text-input" placeholder="Type message..." style="margin-bottom:0; flex:1; padding:7px 10px; font-size:0.82rem;" />
-                        <button onclick="sendActiveChatMessage()" class="btn-action" style="width:50px; padding:7px; font-size:0.82rem; margin-top:0;">Send</button>
+                        <input type="text" id="fg-text-input" placeholder="Type message..." style="margin-bottom:0; flex:1; padding:7px 10px; font-size:0.82rem;" />
+                        <button onclick="sendFriendGroupMsgContent(${groupId}, '${title}')" class="btn-action" style="width:50px; padding:7px; font-size:0.82rem; margin-top:0;">Send</button>
                     </div>
                 </div>
             `;
@@ -1760,58 +2009,24 @@ def serve_frontend():
             stream.scrollTop = stream.scrollHeight;
         }
 
-        async function sendActiveChatMessage(contentOverride = null) {
-            const input = document.getElementById('chat-text-input');
-            const content = contentOverride || (input ? input.value.trim() : '');
+        async function sendFriendGroupMsgContent(groupId, title) {
+            playSound('click');
+            const input = document.getElementById('fg-text-input');
+            const content = input ? input.value.trim() : '';
             if(!content) return;
-
-            if(typeof activeChatGroupId === 'number') {
-                await fetch('/api/friend-groups/send', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ group_id: activeChatGroupId, sender_username: sessionUser.username, sender_name: sessionUser.full_name, content })
-                });
-            } else {
-                await fetch('/api/chat/send', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ group_code: sessionUser.group_code, sender_username: sessionUser.username, sender_name: sessionUser.full_name, sender_avatar_config: sessionUser.avatar_gender, msg_type: 'text', content })
-                });
-            }
-            if(!contentOverride && input) input.value = '';
-            openFriendGroupChat(activeChatGroupId, activeChatTitle);
+            await fetch('/api/friend-groups/send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ group_id: groupId, sender_username: sessionUser.username, sender_name: sessionUser.full_name, content })
+            });
+            openFriendGroupChat(groupId, title);
         }
 
-        async function startInstantVoiceNote() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
-                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                mediaRecorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    sendActiveChatMessage(audioUrl);
-                    showToast('Voice note sent instantly!');
-                };
-                mediaRecorder.start();
-                showToast('Recording voice... Tap microphone again to stop & send.');
-                document.getElementById('btn-mic').onclick = stopInstantVoiceNote;
-                document.getElementById('btn-mic').style.color = 'var(--danger)';
-            } catch(e) {
-                showToast('Microphone unavailable', true);
-            }
-        }
-        function stopInstantVoiceNote() {
-            if(mediaRecorder) mediaRecorder.stop();
-            document.getElementById('btn-mic').onclick = startInstantVoiceNote;
-            document.getElementById('btn-mic').style.color = 'var(--accent)';
-        }
-
-        /* MODALS & BOUTIQUE WITH LOCALIZED SKINS & EQUIPPING */
-        function openAvatarStudio() { document.getElementById('avatar-studio-modal').style.display = 'flex'; }
-        function closeAvatarStudio() { document.getElementById('avatar-studio-modal').style.display = 'none'; }
+        /* MODALS & BOUTIQUE WITH FULL LOCALIZATION & SKIN EQUIPPING */
+        function openAvatarStudio() { playSound('click'); document.getElementById('avatar-studio-modal').style.display = 'flex'; }
+        function closeAvatarStudio() { playSound('click'); document.getElementById('avatar-studio-modal').style.display = 'none'; }
         async function saveAvatarChanges() {
+            playSound('click');
             const avatar_gender = document.getElementById('mod-gender').value;
             const res = await fetch('/api/user/avatar-update', {
                 method: 'POST',
@@ -1821,15 +2036,16 @@ def serve_frontend():
             const data = await res.json();
             if(res.ok) {
                 sessionUser = data.user;
-                localStorage.setItem('aero_crew_user_pro16', JSON.stringify(sessionUser));
+                localStorage.setItem('aero_crew_user_pro17', JSON.stringify(sessionUser));
                 updateDashboardUI();
                 closeAvatarStudio();
                 showToast('Avatar updated!');
             }
         }
-        function openSettingsModal() { document.getElementById('settings-modal').style.display = 'flex'; }
-        function closeSettingsModal() { document.getElementById('settings-modal').style.display = 'none'; }
+        function openSettingsModal() { playSound('click'); document.getElementById('settings-modal').style.display = 'flex'; }
+        function closeSettingsModal() { playSound('click'); document.getElementById('settings-modal').style.display = 'none'; }
         async function submitPasswordChangeModal() {
+            playSound('click');
             const recovery_pin = document.getElementById('set-pin').value.trim();
             const new_password = document.getElementById('set-new-pass').value.trim();
             if(!recovery_pin || !new_password) { showToast('Fill all fields', true); return; }
@@ -1843,6 +2059,7 @@ def serve_frontend():
         }
 
         async function openShop() {
+            playSound('click');
             const res = await fetch('/api/shop/skins');
             const data = await res.json();
             const box = document.getElementById('simulation-box');
@@ -1869,6 +2086,7 @@ def serve_frontend():
             `;
         }
         async function buySkin(skinName, cost) {
+            playSound('click');
             const res = await fetch('/api/shop/buy', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -1877,7 +2095,7 @@ def serve_frontend():
             const data = await res.json();
             if(res.ok) {
                 sessionUser = data.user;
-                localStorage.setItem('aero_crew_user_pro16', JSON.stringify(sessionUser));
+                localStorage.setItem('aero_crew_user_pro17', JSON.stringify(sessionUser));
                 updateDashboardUI();
                 showToast('Equipped ' + skinName + ' successfully!');
                 openShop();
