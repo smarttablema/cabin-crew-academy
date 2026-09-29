@@ -1,4 +1,5 @@
 import os
+import difflib
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI, HTTPException
@@ -10,44 +11,63 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aviation Cabin Crew Academy Hub", version="2.0.0")
+app = FastAPI(title="AeroCrew Pro Academy Elite", version="4.0.0")
 
 @app.on_event("startup")
 def startup_db():
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS crew_students_v2 (
+        CREATE TABLE IF NOT EXISTS crew_students_v4 (
             id SERIAL PRIMARY KEY,
             phone_number VARCHAR(20) UNIQUE,
             full_name VARCHAR(100),
             password VARCHAR(100),
             recovery_pin VARCHAR(10),
-            year_level INT DEFAULT 1,
-            xp_points INT DEFAULT 0,
+            xp_points INT DEFAULT 150,
+            hearts INT DEFAULT 5,
+            streak INT DEFAULT 3,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aviation_vocabulary_v2 (
+        CREATE TABLE IF NOT EXISTS official_modules_v4 (
+            id SERIAL PRIMARY KEY,
+            title_en VARCHAR(150),
+            title_ar VARCHAR(150),
+            title_fr VARCHAR(150),
+            category VARCHAR(50),
+            content_en TEXT
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS official_drills_v4 (
             id SERIAL PRIMARY KEY,
             term_en VARCHAR(100),
             term_ar VARCHAR(100),
             term_fr VARCHAR(100),
             category VARCHAR(50),
-            definition_en TEXT
+            hint_en TEXT
         );
     """)
-    # Seed robust aviation database
+    # Seed official accredited EASA / ICAO cabin crew curriculum
     cur.execute("""
-        INSERT INTO aviation_vocabulary_v2 (term_en, term_ar, term_fr, category, definition_en) 
+        INSERT INTO official_modules_v4 (title_en, title_ar, title_ar, category, content_en)
         VALUES 
-        ('Altimeter', 'مقياس الارتفاع', 'Altimètre', 'Instruments', 'An instrument that measures the altitude of the aircraft above a fixed level.'),
-        ('Bulkhead', 'الجدار الفاصل', 'Cloison', 'Cabin', 'An upright partition separating compartments inside the aircraft.'),
-        ('Decompression', 'إزالة الضغط', 'Décompression', 'Emergency', 'A failure of the cabin pressurization system at high altitude.'),
-        ('Turbulence', 'مطبات هوائية', 'Turbulence', 'Meteorology', 'Violent or unsteady movement of air or water.'),
-        ('Evacuation', 'إخلاء الطائرة', 'Évacuation', 'Emergency', 'Rapid exit of passengers from an aircraft during an emergency.'),
-        ('Galley', 'مطبخ الطائرة', 'Cuisine', 'Cabin', 'The kitchen area of an aircraft where meals and beverages are prepared.')
+        ('SEP: Emergency Evacuation & Brace Positions', 'إجراءات الإخلاء الطارئ ووضعيات الاستعداد', 'Procédures d évacuation d urgence', 'SEP', 'During an emergency water or land landing, cabin crew must immediately yell commanding brace commands, assess exit conditions for fire or water hazards, and deploy slides within 90 seconds.'),
+        ('Dangerous Goods (Hazmat) Handling', 'التعامل مع البضائع الخطرة', 'Gestion des marchandises dangereuses', 'Cargo/DG', 'Lithium battery thermal runaways in cabin overhead bins require immediate cooling with water or specialized fire extinguishers following strict airline dangerous goods protocols.'),
+        ('Aeromedical First Aid & Hypoxia', 'الإسعافات الأولية ونقص الأكسجين', 'Premiers secours aéromédicaux', 'Medical', 'Rapid decompression causes hypoxia symptoms including tunnel vision and euphoria. Crew must don portable oxygen bottles immediately before assisting incapacitated passengers.')
+        ON CONFLICT DO NOTHING;
+    """)
+    cur.execute("""
+        INSERT INTO official_drills_v4 (term_en, term_ar, term_fr, category, hint_en)
+        VALUES 
+        ('Altimeter', 'مقياس الارتفاع', 'Altimètre', 'Instruments', 'Measures barometric altitude above sea level.'),
+        ('Bulkhead', 'الجدار الفاصل', 'Cloison', 'Cabin', 'Structural partition dividing cabin zones.'),
+        ('Decompression', 'إزالة الضغط', 'Décompression', 'Emergency', 'Loss of cabin pressurization at cruising altitude.'),
+        ('Turbulence', 'مطبات هوائية', 'Turbulence', 'Meteorology', 'Unsteady atmospheric air currents causing bumps.'),
+        ('Evacuation', 'إخلاء الطائرة', 'Évacuation', 'SEP', 'Emergency rapid exit of all passengers.'),
+        ('Brace', 'وضعية الاستعداد', 'Position de sécurité', 'SEP', 'Protective crash position for passengers.')
         ON CONFLICT DO NOTHING;
     """)
     conn.commit()
@@ -59,35 +79,34 @@ class RegisterModel(BaseModel):
     full_name: str
     password: str
     recovery_pin: str
-    year_level: int = 1
 
 class LoginModel(BaseModel):
     phone_number: str
     password: str
 
-class ResetPinModel(BaseModel):
+class ResetModel(BaseModel):
     phone_number: str
     recovery_pin: str
     new_password: str
 
-class SpellingAttemptModel(BaseModel):
+class DrillAttemptModel(BaseModel):
     phone_number: str
-    vocabulary_id: int
-    user_spelling: str
+    drill_id: int
+    user_answer: str
 
 @app.post("/api/register")
 def register(data: RegisterModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM crew_students_v2 WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT * FROM crew_students_v4 WHERE phone_number = %s;", (data.phone_number,))
     if cur.fetchone():
         cur.close()
         conn.close()
         raise HTTPException(status_code=400, detail="Phone number already registered.")
     
     cur.execute(
-        "INSERT INTO crew_students_v2 (phone_number, full_name, password, recovery_pin, year_level) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
-        (data.phone_number, data.full_name, data.password, data.recovery_pin, data.year_level)
+        "INSERT INTO crew_students_v4 (phone_number, full_name, password, recovery_pin) VALUES (%s, %s, %s, %s) RETURNING *;",
+        (data.phone_number, data.full_name, data.password, data.recovery_pin)
     )
     student = cur.fetchone()
     conn.commit()
@@ -99,67 +118,84 @@ def register(data: RegisterModel):
 def login(data: LoginModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM crew_students_v2 WHERE phone_number = %s AND password = %s;", (data.phone_number, data.password))
+    cur.execute("SELECT * FROM crew_students_v4 WHERE phone_number = %s AND password = %s;", (data.phone_number, data.password))
     student = cur.fetchone()
     cur.close()
     conn.close()
     if not student:
-        raise HTTPException(status_code=401, detail="Invalid phone number or password.")
+        raise HTTPException(status_code=401, detail="Invalid credentials.")
     return {"status": "success", "student": student}
 
-@app.post("/api/reset-password")
-def reset_password(data: ResetPinModel):
+@app.post("/api/reset")
+def reset_pass(data: ResetModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM crew_students_v2 WHERE phone_number = %s AND recovery_pin = %s;", (data.phone_number, data.recovery_pin))
-    student = cur.fetchone()
-    if not student:
+    cur.execute("SELECT * FROM crew_students_v4 WHERE phone_number = %s AND recovery_pin = %s;", (data.phone_number, data.recovery_pin))
+    if not cur.fetchone():
         cur.close()
         conn.close()
-        raise HTTPException(status_code=404, detail="Invalid phone number or recovery PIN.")
-    
-    cur.execute("UPDATE crew_students_v2 SET password = %s WHERE phone_number = %s;", (data.new_password, data.phone_number))
+        raise HTTPException(status_code=404, detail="Invalid recovery PIN.")
+    cur.execute("UPDATE crew_students_v4 SET password = %s WHERE phone_number = %s;", (data.new_password, data.phone_number))
     conn.commit()
     cur.close()
     conn.close()
-    return {"status": "success", "message": "Password updated successfully!"}
+    return {"status": "success"}
 
-@app.get("/api/vocabulary")
-def get_vocabulary():
+@app.get("/api/academy/data")
+def get_academy_data():
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aviation_vocabulary_v2 ORDER BY id ASC;")
-    vocab = cur.fetchall()
+    cur.execute("SELECT * FROM official_modules_v4 ORDER BY id ASC;")
+    modules = cur.fetchall()
+    cur.execute("SELECT * FROM official_drills_v4 ORDER BY id ASC;")
+    drills = cur.fetchall()
     cur.close()
     conn.close()
-    return vocab
+    return {"modules": modules, "drills": drills}
 
-@app.post("/api/spelling/check")
-def check_spelling(data: SpellingAttemptModel):
+@app.post("/api/drill/verify")
+def verify_drill(data: DrillAttemptModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aviation_vocabulary_v2 WHERE id = %s;", (data.vocabulary_id,))
-    vocab = cur.fetchone()
-    if not vocab:
+    cur.execute("SELECT * FROM official_drills_v4 WHERE id = %s;", (data.drill_id,))
+    drill = cur.fetchone()
+    cur.execute("SELECT * FROM crew_students_v4 WHERE phone_number = %s;", (data.phone_number,))
+    student = cur.fetchone()
+    
+    if not drill or not student:
         cur.close()
         conn.close()
-        raise HTTPException(status_code=404, detail="Term not found.")
+        raise HTTPException(status_code=404, detail="Record not found.")
     
-    correct_term = vocab["term_en"].strip().lower()
-    user_input = data.user_spelling.strip().lower()
+    correct_term = drill["term_en"].strip().lower()
+    user_input = data.user_answer.strip().lower()
+    
+    # Fuzzy matching ratio calculation for typo tolerance (0.80 = 80% similarity threshold)
+    similarity = difflib.SequenceMatcher(None, user_input, correct_term).ratio()
     
     if user_input == correct_term:
-        # Check if student already answered this recently to prevent farming glitched XP
-        cur.execute("UPDATE crew_students_v2 SET xp_points = xp_points + 15 WHERE phone_number = %s RETURNING xp_points;", (data.phone_number,))
+        cur.execute("UPDATE crew_students_v4 SET xp_points = xp_points + 25 WHERE phone_number = %s RETURNING xp_points, hearts, streak;", (data.phone_number,))
         res = cur.fetchone()
         conn.commit()
         cur.close()
         conn.close()
-        return {"correct": True, "message": "Fantastic! +15 XP earned.", "new_xp": res["xp_points"]}
-    else:
+        return {"correct": True, "typo_detected": False, "message": "Perfect execution! +25 XP", "xp": res["xp_points"], "hearts": res["hearts"], "streak": res["streak"]}
+    elif similarity >= 0.78:
+        # Soft typo correction match
+        cur.execute("UPDATE crew_students_v4 SET xp_points = xp_points + 15 WHERE phone_number = %s RETURNING xp_points, hearts, streak;", (data.phone_number,))
+        res = cur.fetchone()
+        conn.commit()
         cur.close()
         conn.close()
-        return {"correct": False, "message": f"Incorrect spelling! Correct spelling is '{vocab['term_en']}'."}
+        return {"correct": True, "typo_detected": True, "message": f"Accepted with minor typo! Official spelling: '{drill['term_en']}'. +15 XP", "xp": res["xp_points"], "hearts": res["hearts"], "streak": res["streak"]}
+    else:
+        new_hearts = max(0, student["hearts"] - 1)
+        cur.execute("UPDATE crew_students_v4 SET hearts = %s WHERE phone_number = %s RETURNING xp_points, hearts, streak;", (new_hearts, data.phone_number))
+        res = cur.fetchone()
+        conn.commit()
+        cur.close()
+        conn.close()
+        return {"correct": False, "typo_detected": False, "message": f"Incorrect! Official standard term is '{drill['term_en']}'. Heart lost!", "xp": res["xp_points"], "hearts": res["hearts"], "streak": res["streak"]}
 
 @app.get("/", response_class=HTMLResponse)
 def serve_frontend():
@@ -169,83 +205,93 @@ def serve_frontend():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aviation Cabin Crew Academy Hub</title>
-    <!-- Professional Plane Favicon -->
+    <title>AeroCrew Pro Academy | Elite Aviation Training</title>
     <link rel="icon" href="https://img.icons8.com/color/48/airplane-take-off.png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-deep: #070b14;
+            --bg-deep: #030712;
             --surface: #0f172a;
             --surface-card: #1e293b;
             --accent: #38bdf8;
-            --accent-glow: rgba(56, 189, 248, 0.2);
+            --accent-glow: rgba(56, 189, 248, 0.25);
             --success: #10b981;
             --danger: #ef4444;
+            --warning: #f59e0b;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border: #334155;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg-deep); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; }
-        .app-shell { width: 100%; max-width: 520px; background: var(--surface); border-radius: 24px; padding: 2rem; border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); }
         
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
-        .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; color: var(--accent); }
-        .brand img { width: 32px; height: 32px; }
+        .app-shell { width: 100%; max-width: 500px; background: var(--surface); border-radius: 28px; padding: 2rem; border: 1px solid var(--border); box-shadow: 0 35px 70px rgba(0, 0, 0, 0.85); position: relative; overflow: hidden; }
         
-        /* Language Selector Flags/Icons */
-        .lang-selector { display: flex; gap: 8px; }
-        .lang-btn { background: var(--surface-card); border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
-        .lang-btn.active, .lang-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+        .brand-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; color: var(--accent); }
+        .brand-title img { width: 32px; height: 32px; }
+        
+        .lang-switch { display: flex; gap: 6px; }
+        .lang-badge { background: var(--surface-card); border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+        .lang-badge.active, .lang-badge:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
 
-        h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.3rem; letter-spacing: -0.5px; }
-        p.subtitle { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+        h2 { font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.4rem; font-size: 1.35rem; }
+        p.sub-desc { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.4; }
         
-        label { display: block; font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        input { width: 100%; padding: 0.85rem 1rem; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-deep); color: white; font-size: 0.95rem; margin-bottom: 1rem; outline: none; transition: border-color 0.2s; }
-        input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+        label { display: block; font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.4rem; letter-spacing: 0.5px; }
+        input { width: 100%; padding: 0.9rem 1rem; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-deep); color: white; font-size: 0.95rem; margin-bottom: 1.1rem; outline: none; transition: all 0.2s; }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
         
-        .btn { width: 100%; padding: 0.85rem; border-radius: 12px; border: none; background: var(--accent); color: #070b14; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: opacity 0.2s; }
-        .btn:hover { opacity: 0.9; }
-        
-        .nav-links { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; font-size: 0.8rem; }
-        .nav-links a { color: var(--accent); text-decoration: none; cursor: pointer; font-weight: 600; }
-        .nav-links a:hover { text-decoration: underline; }
+        .btn-action { width: 100%; padding: 0.95rem; border-radius: 14px; border: none; background: var(--accent); color: var(--bg-deep); font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: transform 0.1s, opacity 0.2s; box-shadow: 0 4px 14px var(--accent-glow); }
+        .btn-action:active { transform: scale(0.98); }
+        .btn-action:hover { opacity: 0.92; }
+
+        .footer-nav { display: flex; justify-content: space-between; margin-top: 1.2rem; font-size: 0.8rem; }
+        .footer-nav a { color: var(--accent); text-decoration: none; font-weight: 600; cursor: pointer; }
+        .footer-nav a:hover { text-decoration: underline; }
 
         .hidden { display: none !important; }
-        
-        /* Dashboard & Quiz Styles */
-        .dash-card { background: var(--surface-card); border-radius: 16px; padding: 1.2rem; margin-bottom: 1rem; border: 1px solid var(--border); }
-        .xp-badge { background: rgba(56, 189, 248, 0.1); border: 1px solid var(--accent); padding: 6px 14px; border-radius: 30px; font-size: 0.8rem; font-weight: 800; color: var(--accent); display: flex; align-items: center; gap: 6px; }
-        
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 10px 20px; border-radius: 30px; font-weight: 700; font-size: 0.85rem; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 1000; }
-        .toast.show { transform: translateX(-50%) translateY(0); }
 
-        .vocab-row { display: flex; justify-content: space-between; align-items: center; background: var(--bg-deep); padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; border: 1px solid var(--border); font-size: 0.85rem; }
+        /* Dashboard & Gamified Hub */
+        .stats-dashboard { display: flex; justify-content: space-between; align-items: center; background: var(--surface-card); padding: 0.9rem 1.2rem; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 1.2rem; }
+        .stat-item { font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; }
+        
+        .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.2rem; }
+        .mode-tile { background: var(--surface-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .mode-tile:hover { border-color: var(--accent); background: var(--accent-glow); transform: translateY(-2px); }
+        .mode-tile h4 { font-size: 0.88rem; font-weight: 700; margin-top: 6px; color: white; }
+
+        .card-container { background: var(--surface-card); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 1rem; position: relative; }
+        
+        .mic-circle { width: 75px; height: 75px; border-radius: 50%; background: var(--accent); border: none; display: flex; justify-content: center; align-items: center; margin: 1.5rem auto 1rem; cursor: pointer; box-shadow: 0 0 25px var(--accent-glow); transition: transform 0.2s; }
+        .mic-circle.recording { background: var(--danger); animation: pulseAnim 1.5s infinite; }
+        @keyframes pulseAnim { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); } 70% { box-shadow: 0 0 0 22px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+
+        .toast-popup { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 12px 24px; border-radius: 30px; font-weight: 700; font-size: 0.85rem; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        .toast-popup.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
-    <div id="toast" class="toast">Notification</div>
+    <div id="toast" class="toast-popup">Notification</div>
 
     <div class="app-shell">
-        <!-- HEADER WITH LOGO & LANGUAGES -->
-        <div class="header-top">
-            <div class="brand">
-                <img src="https://img.icons8.com/color/48/airplane-take-off.png" alt="Plane">
-                <span>AeroCrew Academy</span>
+        <!-- TOP HEADER -->
+        <div class="top-header">
+            <div class="brand-title">
+                <img src="https://img.icons8.com/color/48/airplane-take-off.png" alt="Icon">
+                <span>AeroCrew Pro</span>
             </div>
-            <div class="lang-selector">
-                <button class="lang-btn active" onclick="setLang('en')">🇬🇧 EN</button>
-                <button class="lang-btn" onclick="setLang('fr')">🇫🇷 FR</button>
-                <button class="lang-btn" onclick="setLang('ar')">🇲🇦 AR</button>
+            <div class="lang-switch">
+                <button class="lang-badge active" onclick="setLanguage('en')">EN</button>
+                <button class="lang-badge" onclick="setLanguage('fr')">FR</button>
+                <button class="lang-badge" onclick="setLanguage('ar')">AR</button>
             </div>
         </div>
 
-        <!-- 1. SIGN IN VIEW -->
-        <div id="view-login">
-            <h2>Welcome Back, Crew</h2>
-            <p class="subtitle">Access your professional academy training hub.</p>
+        <!-- 1. SIGN IN SCREEN -->
+        <div id="screen-login">
+            <h2 id="ui-login-title">Cabin Crew Portal</h2>
+            <p class="sub-desc" id="ui-login-sub">Access accredited EASA/ICAO simulation modules.</p>
             
             <label>Phone Number</label>
             <input type="tel" id="login-phone" placeholder="e.g. 0612345678" />
@@ -253,271 +299,331 @@ def serve_frontend():
             <label>Password</label>
             <input type="password" id="login-pass" placeholder="••••••••" />
             
-            <button class="btn" onclick="handleLogin()">Sign In</button>
+            <button class="btn-action" onclick="submitLogin()" id="ui-login-btn">Sign In to Simulator</button>
             
-            <div class="nav-links">
-                <a onclick="switchView('view-register')">Create Account (Sign Up)</a>
-                <a onclick="switchView('view-forgot')">Forgot Password?</a>
+            <div class="footer-nav">
+                <a onclick="navigateTo('screen-register')">Create Account</a>
+                <a onclick="navigateTo('screen-reset')">Forgot Password?</a>
             </div>
         </div>
 
-        <!-- 2. SIGN UP VIEW -->
-        <div id="view-register" class="hidden">
-            <h2>Create Account</h2>
-            <p class="subtitle">Join the professional cabin crew study platform.</p>
+        <!-- 2. REGISTER SCREEN -->
+        <div id="screen-register" class="hidden">
+            <h2>Cadet Enrollment</h2>
+            <p class="sub-desc">Register your official student training profile.</p>
             
             <label>Full Name</label>
-            <input type="text" id="reg-name" placeholder="Captain John" />
+            <input type="text" id="reg-name" placeholder="First & Last Name" />
 
             <label>Phone Number</label>
             <input type="tel" id="reg-phone" placeholder="e.g. 0612345678" />
             
             <label>Password</label>
-            <input type="password" id="reg-pass" placeholder="Create password" />
+            <input type="password" id="reg-pass" placeholder="Secure password" />
 
-            <label>Recovery PIN (4-6 digits for password reset)</label>
-            <input type="password" id="reg-pin" placeholder="e.g. 1994" maxlength="6" />
+            <label>Recovery PIN (4-6 digits)</label>
+            <input type="password" id="reg-pin" placeholder="e.g. 2026" maxlength="6" />
             
-            <button class="btn" onclick="handleRegister()" style="background: var(--success); color: white;">Complete Registration</button>
+            <button class="btn-action" onclick="submitRegister()" style="background: var(--success); color: white;">Initialize Profile</button>
             
-            <div class="nav-links">
-                <a onclick="switchView('view-login')">Already have an account? Sign In</a>
+            <div class="footer-nav">
+                <a onclick="navigateTo('screen-login')">Already have an account? Sign In</a>
             </div>
         </div>
 
-        <!-- 3. FORGOT PASSWORD VIEW (PIN RECOVERY) -->
-        <div id="view-forgot" class="hidden">
-            <h2>Reset Password</h2>
-            <p class="subtitle">Enter your phone and secret recovery PIN.</p>
+        <!-- 3. RESET PASSWORD SCREEN -->
+        <div id="screen-reset" class="hidden">
+            <h2>Recovery PIN Reset</h2>
+            <p class="sub-desc">Enter your phone and secret recovery PIN.</p>
             
             <label>Phone Number</label>
-            <input type="tel" id="forgot-phone" placeholder="e.g. 0612345678" />
+            <input type="tel" id="reset-phone" placeholder="e.g. 0612345678" />
 
             <label>Secret Recovery PIN</label>
-            <input type="password" id="forgot-pin" placeholder="Your secret PIN" />
+            <input type="password" id="reset-pin" placeholder="Your secret PIN" />
 
             <label>New Password</label>
-            <input type="password" id="forgot-newpass" placeholder="Enter new password" />
+            <input type="password" id="reset-new" placeholder="Enter new password" />
             
-            <button class="btn" onclick="handleResetPassword()" style="background: #f59e0b; color: white;">Reset Password</button>
+            <button class="btn-action" onclick="submitReset()" style="background: var(--warning); color: var(--bg-deep);">Update Credentials</button>
             
-            <div class="nav-links">
-                <a onclick="switchView('view-login')">Back to Sign In</a>
+            <div class="footer-nav">
+                <a onclick="navigateTo('screen-login')">Back to Sign In</a>
             </div>
         </div>
 
-        <!-- 4. MAIN DASHBOARD & DUOLINGO-GRADE DRILLS -->
-        <div id="view-dashboard" class="hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+        <!-- 4. GAMIFIED DASHBOARD -->
+        <div id="screen-dashboard" class="hidden">
+            <div class="stats-dashboard">
                 <div>
-                    <h3 id="dash-name" style="font-size: 1.1rem; color: var(--accent);">Student</h3>
-                    <span style="font-size: 0.75rem; color: var(--text-muted);" id="dash-level">Year 1 Professional Track</span>
+                    <h3 id="dash-name" style="font-size: 1rem; color: var(--accent);">Cadet</h3>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">EASA Professional Track</span>
                 </div>
-                <div class="xp-badge">
-                    ⭐ <span id="dash-xp">0</span> XP
+                <div style="display: flex; gap: 8px;">
+                    <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">150</span></div>
+                    <div class="stat-item" style="color: var(--danger);">❤️ <span id="dash-hearts">5</span></div>
+                    <div class="stat-item" style="color: var(--success);">🔥 <span id="dash-streak">3</span></div>
                 </div>
             </div>
 
-            <!-- Quiz Drill Box -->
-            <div class="dash-card">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span id="quiz-category" style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase; color: var(--accent); background: rgba(56,189,248,0.1); padding: 2px 8px; border-radius: 4px;">Category</span>
-                    <span id="quiz-progress" style="font-size: 0.72rem; color: var(--text-muted);">Question 1 of 6</span>
+            <!-- Mode Grid -->
+            <div class="mode-grid">
+                <div class="mode-tile" onclick="launchMode('modules')">
+                    <span style="font-size: 1.4rem;">📖</span>
+                    <h4>EASA Modules</h4>
                 </div>
-                <div id="quiz-prompt-ar" style="font-size: 1.2rem; font-weight: 800; margin-bottom: 4px; color: white;">العربية</div>
-                <div id="quiz-def" style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">Definition goes here...</div>
-                
-                <label>Translate & Type Correct English Term:</label>
-                <input type="text" id="quiz-input" placeholder="Type exact English spelling..." autocomplete="off" />
-                <button class="btn" onclick="submitSpellingAnswer()" style="background: var(--success); color: white;">Submit Answer ✓</button>
+                <div class="mode-tile" onclick="launchMode('voice')">
+                    <span style="font-size: 1.4rem;">🎙️</span>
+                    <h4>Voice Drill</h4>
+                </div>
+                <div class="mode-tile" onclick="launchMode('typing')">
+                    <span style="font-size: 1.4rem;">⌨️</span>
+                    <h4>Strict Typing</h4>
+                </div>
+                <div class="mode-tile" onclick="launchMode('vault')">
+                    <span style="font-size: 1.4rem;">📚</span>
+                    <h4>Glossary Vault</h4>
+                </div>
             </div>
 
-            <!-- Vocabulary Master List -->
-            <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.6rem; letter-spacing: 0.5px;">Academy Terminology Vault</h4>
-            <div id="vocab-vault" style="max-height: 160px; overflow-y: auto; padding-right: 4px;"></div>
+            <!-- Interactive Content Container -->
+            <div id="simulation-box" class="card-container"></div>
+            
+            <button class="btn-action" onclick="resetToMenu()" style="background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border); margin-top: 0.5rem;">← Return to Command Hub</button>
         </div>
     </div>
 
     <script>
-        let currentUser = null;
-        let vocabList = [];
-        let currentQuizIndex = 0;
+        let sessionUser = null;
+        let academyData = { modules: [], drills: [] };
         let activeLang = 'en';
+        let drillPointer = 0;
+
+        const localization = {
+            en: { title: "Cabin Crew Portal", sub: "Access accredited EASA/ICAO simulation modules.", btn: "Sign In to Simulator" },
+            fr: { title: "Portail Personnel de Cabine", sub: "Accédez aux modules de simulation EASA/ICAO.", btn: "Se connecter" },
+            ar: { title: "بوابة طاقم الطائرة", sub: "الوصول إلى وحدات المحاكاة المعتمدة من EASA/ICAO.", btn: "تسجيل الدخول للمحاكي" }
+        };
 
         function showToast(text, isError = false) {
             const t = document.getElementById('toast');
             t.innerText = text;
             t.style.background = isError ? 'var(--danger)' : 'var(--success)';
             t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
+            setTimeout(() => t.classList.remove('show'), 3500);
         }
 
-        function switchView(viewId) {
-            ['view-login', 'view-register', 'view-forgot', 'view-dashboard'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
-            document.getElementById(viewId).classList.remove('hidden');
+        function navigateTo(id) {
+            ['screen-login', 'screen-register', 'screen-reset', 'screen-dashboard'].forEach(s => document.getElementById(s).classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
         }
 
-        function setLang(lang) {
+        function setLanguage(lang) {
             activeLang = lang;
-            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.lang-badge').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
-            showToast('Language switched to ' + lang.toUpperCase());
+            if(localization[lang]) {
+                document.getElementById('ui-login-title').innerText = localization[lang].title;
+                document.getElementById('ui-login-sub').innerText = localization[lang].sub;
+                document.getElementById('ui-login-btn').innerText = localization[lang].btn;
+            }
+            showToast('Language updated: ' + lang.toUpperCase());
         }
 
-        async function handleRegister() {
+        async function submitRegister() {
             const full_name = document.getElementById('reg-name').value.trim();
             const phone_number = document.getElementById('reg-phone').value.trim();
             const password = document.getElementById('reg-pass').value.trim();
             const recovery_pin = document.getElementById('reg-pin').value.trim();
 
-            if(!full_name || !phone_number || !password || !recovery_pin) {
-                showToast('Please fill in all fields including recovery PIN.', true);
-                return;
-            }
+            if(!full_name || !phone_number || !password || !recovery_pin) { showToast('Complete all fields', true); return; }
 
-            try {
-                const res = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ full_name, phone_number, password, recovery_pin, year_level: 1 })
-                });
-                const data = await res.json();
-                if(res.ok) {
-                    showToast('Registration successful! Please sign in.');
-                    switchView('view-login');
-                } else {
-                    showToast(data.detail || 'Registration failed', true);
-                }
-            } catch(e) {
-                showToast('Network error', true);
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ full_name, phone_number, password, recovery_pin })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                showToast('Cadet profile created successfully!');
+                navigateTo('screen-login');
+            } else {
+                showToast(data.detail || 'Registration failed', true);
             }
         }
 
-        async function handleLogin() {
+        async function submitLogin() {
             const phone_number = document.getElementById('login-phone').value.trim();
             const password = document.getElementById('login-pass').value.trim();
+            if(!phone_number || !password) { showToast('Enter credentials', true); return; }
 
-            if(!phone_number || !password) {
-                showToast('Enter phone number and password.', true);
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ phone_number, password })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                sessionUser = data.student;
+                document.getElementById('dash-name').innerText = sessionUser.full_name;
+                document.getElementById('dash-xp').innerText = sessionUser.xp_points;
+                document.getElementById('dash-hearts').innerText = sessionUser.hearts;
+                document.getElementById('dash-streak').innerText = sessionUser.streak;
+                navigateTo('screen-dashboard');
+                fetchAcademyContent();
+                showToast('Welcome aboard, Captain ' + sessionUser.full_name + '!');
+            } else {
+                showToast('Invalid phone or password', true);
+            }
+        }
+
+        async function submitReset() {
+            const phone_number = document.getElementById('reset-phone').value.trim();
+            const recovery_pin = document.getElementById('reset-pin').value.trim();
+            const new_password = document.getElementById('reset-new').value.trim();
+            if(!phone_number || !recovery_pin || !new_password) { showToast('Complete all fields', true); return; }
+
+            const res = await fetch('/api/reset', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ phone_number, recovery_pin, new_password })
+            });
+            if(res.ok) {
+                showToast('Credentials updated successfully!');
+                navigateTo('screen-login');
+            } else {
+                showToast('Invalid recovery PIN', true);
+            }
+        }
+
+        async function fetchAcademyContent() {
+            const res = await fetch('/api/academy/data');
+            academyData = await res.json();
+            launchMode('modules');
+        }
+
+        function resetToMenu() {
+            document.getElementById('simulation-box').innerHTML = `
+                <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: var(--accent);">Select Training Command</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Choose a training mode above to start interactive practice.</p>
+            `;
+        }
+
+        function launchMode(mode) {
+            const box = document.getElementById('simulation-box');
+            if(mode === 'modules') {
+                const mod = academyData.modules[0];
+                box.innerHTML = `
+                    <span style="font-size: 0.68rem; font-weight: 800; background: rgba(56,189,248,0.1); color: var(--accent); padding: 2px 8px; border-radius: 4px;">OFFICIAL MODULE: ${mod.category}</span>
+                    <h3 style="font-size: 1.05rem; margin: 0.5rem 0; color: white;">${mod.title_en}</h3>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1rem;">${mod.content_en}</p>
+                    <button class="btn-action" onclick="launchMode('voice')">Proceed to Voice Drill →</button>
+                `;
+            } else if(mode === 'voice') {
+                const term = academyData.drills[drillPointer % academyData.drills.length];
+                box.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-size: 0.68rem; font-weight: 800; color: var(--warning);">VOICE PRONUNCIATION DRILL</span>
+                        <span style="font-size: 0.72rem; color: var(--text-muted);">Drill ${ (drillPointer % academyData.drills.length) + 1 } of ${academyData.drills.length}</span>
+                    </div>
+                    <div style="font-size: 1.2rem; font-weight: 800; color: white; margin-bottom: 4px;">Say: "${term.term_en}"</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">Hint: ${term.hint_en}</div>
+                    <button class="mic-circle" id="mic-trigger" onclick="startSpeechRecognition(${term.id})">
+                        <span style="font-size: 1.8rem;">🎙️</span>
+                    </button>
+                    <div id="speech-feedback" style="text-align: center; font-size: 0.78rem; color: var(--text-muted);">Click microphone and state the aviation term clearly</div>
+                `;
+            } else if(mode === 'typing') {
+                const term = academyData.drills[drillPointer % academyData.drills.length];
+                box.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-size: 0.68rem; font-weight: 800; color: var(--success);">STRICT TYPING & SPELLING</span>
+                        <span style="font-size: 0.72rem; color: var(--text-muted);">Test ${ (drillPointer % academyData.drills.length) + 1 }</span>
+                    </div>
+                    <div style="font-size: 1.1rem; font-weight: 800; color: white; margin-bottom: 4px;">Translate: ${term.term_ar} / ${term.term_fr}</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">Type official English standard terminology:</div>
+                    <input type="text" id="typing-input" placeholder="Type term exactly..." autocomplete="off" />
+                    <button class="btn-action" onclick="verifyTypingInput(${term.id})" style="background: var(--success); color: white;">Validate Spelling ✓</button>
+                `;
+            } else if(mode === 'vault') {
+                box.innerHTML = `
+                    <h3 style="font-size: 1rem; margin-bottom: 0.8rem; color: var(--accent);">EASA Glossary Vault</h3>
+                    <div style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px;">
+                        ${academyData.drills.map(d => `
+                            <div style="background: var(--bg-deep); padding: 0.6rem 0.8rem; border-radius: 10px; border: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 0.8rem;">
+                                <span><b>${d.term_en}</b></span>
+                                <span style="color: var(--accent);">${d.term_ar} /${d.term_fr}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        function startSpeechRecognition(drillId) {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if(!SpeechRec) {
+                showToast('Speech recognition not supported in your browser. Use Google Chrome.', true);
                 return;
             }
 
-            try {
-                const res = await fetch('/api/login', {
+            const rec = new SpeechRec();
+            rec.lang = 'en-US';
+            const micBtn = document.getElementById('mic-trigger');
+            const feedback = document.getElementById('speech-feedback');
+
+            micBtn.classList.add('recording');
+            feedback.innerText = "Listening... Speak now!";
+
+            rec.onresult = async function(e) {
+                micBtn.classList.remove('recording');
+                const spoken = e.results[0][0].transcript;
+                feedback.innerText = `Detected: "${spoken}"`;
+
+                const res = await fetch('/api/drill/verify', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ phone_number, password })
+                    body: JSON.stringify({ phone_number: sessionUser.phone_number, drill_id: drillId, user_answer: spoken })
                 });
                 const data = await res.json();
-                if(res.ok) {
-                    currentUser = data.student;
-                    document.getElementById('dash-name').innerText = currentUser.full_name;
-                    document.getElementById('dash-xp').innerText = currentUser.xp_points;
-                    switchView('view-dashboard');
-                    loadVocabularyAndQuiz();
-                    showToast('Welcome back, ' + currentUser.full_name + '!');
-                } else {
-                    showToast(data.detail || 'Invalid credentials', true);
-                }
-            } catch(e) {
-                showToast('Network error', true);
-            }
-        }
-
-        async function handleResetPassword() {
-            const phone_number = document.getElementById('forgot-phone').value.trim();
-            const recovery_pin = document.getElementById('forgot-pin').value.trim();
-            const new_password = document.getElementById('forgot-newpass').value.trim();
-
-            if(!phone_number || !recovery_pin || !new_password) {
-                showToast('All fields required for reset.', true);
-                return;
-            }
-
-            try {
-                const res = await fetch('/api/reset-password', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ phone_number, recovery_pin, new_password })
-                });
-                const data = await res.json();
-                if(res.ok) {
-                    showToast('Password reset successful! Sign in now.');
-                    switchView('view-login');
-                } else {
-                    showToast(data.detail || 'Reset failed', true);
-                }
-            } catch(e) {
-                showToast('Network error', true);
-            }
-        }
-
-        async function loadVocabularyAndQuiz() {
-            const res = await fetch('/api/vocabulary');
-            vocabList = await res.json();
-            renderQuizCard();
-            renderVault();
-        }
-
-        function renderQuizCard() {
-            if(vocabList.length === 0) return;
-            const item = vocabList[currentQuizIndex % vocabList.length];
-            
-            document.getElementById('quiz-category').innerText = item.category;
-            document.getElementById('quiz-progress').innerText = `Question ${ (currentQuizIndex % vocabList.length) + 1 } of ${vocabList.length}`;
-            
-            let promptText = item.term_ar;
-            if(activeLang === 'fr') promptText = item.term_fr;
-            if(activeLang === 'en') promptText = item.definition_en;
-            
-            document.getElementById('quiz-prompt-ar').innerText = promptText;
-            document.getElementById('quiz-def').innerText = `Category: ${item.category} | Hint length: ${item.term_en.length} letters`;
-            document.getElementById('quiz-input').value = '';
-            document.getElementById('quiz-input').dataset.targetId = item.id;
-        }
-
-        async function submitSpellingAnswer() {
-            const inputField = document.getElementById('quiz-input');
-            const userSpelling = inputField.value.trim();
-            const vocabId = inputField.dataset.targetId;
-
-            if(!userSpelling) {
-                showToast('Please type your answer!', true);
-                return;
-            }
-
-            try {
-                const res = await fetch('/api/spelling/check', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ phone_number: currentUser.phone_number, vocabulary_id: parseInt(vocabId), user_spelling: userSpelling })
-                });
-                const data = await res.json();
+                showToast(data.message, !data.correct);
+                document.getElementById('dash-xp').innerText = data.xp;
+                document.getElementById('dash-hearts').innerText = data.hearts;
+                document.getElementById('dash-streak').innerText = data.streak;
                 if(data.correct) {
-                    showToast(data.message);
-                    currentUser.xp_points = data.new_xp;
-                    document.getElementById('dash-xp').innerText = currentUser.xp_points;
-                    // Advance to next question automatically (Duolingo style rotation)
-                    currentQuizIndex++;
-                    renderQuizCard();
-                } else {
-                    showToast(data.message, true);
+                    drillPointer++;
+                    setTimeout(() => launchMode('voice'), 1800);
                 }
-            } catch(e) {
-                showToast('Error validating answer', true);
-            }
+            };
+
+            rec.onerror = function() {
+                micBtn.classList.remove('recording');
+                feedback.innerText = "Microphone timeout. Try again.";
+                showToast('Microphone error detected', true);
+            };
+
+            rec.start();
         }
 
-        function renderVault() {
-            const vault = document.getElementById('vocab-vault');
-            vault.innerHTML = vocabList.map(v => `
-                <div class="vocab-row">
-                    <div><b>${v.term_en}</b> <span style="color: var(--text-muted); font-size: 0.75rem;">(${v.category})</span></div>
-                    <div style="color: var(--accent); font-weight: 600;">${v.term_ar} / ${v.term_fr}</div>
-                </div>
-            `).join('');
+        async function verifyTypingInput(drillId) {
+            const inp = document.getElementById('typing-input');
+            const val = inp.value.trim();
+            if(!val) { showToast('Type an answer first', true); return; }
+
+            const res = await fetch('/api/drill/verify', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ phone_number: sessionUser.phone_number, drill_id: drillId, user_answer: val })
+            });
+            const data = await res.json();
+            showToast(data.message, !data.correct);
+            document.getElementById('dash-xp').innerText = data.xp;
+            document.getElementById('dash-hearts').innerText = data.hearts;
+            document.getElementById('dash-streak').innerText = data.streak;
+            if(data.correct) {
+                drillPointer++;
+                setTimeout(() => launchMode('typing'), 1500);
+            }
         }
     </script>
 </body>
