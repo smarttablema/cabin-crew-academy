@@ -11,7 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="AeroCrew Pro Academy Elite", version="6.0.0")
+app = FastAPI(title="AeroCrew Pro Academy Elite", version="7.1.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -24,14 +24,14 @@ def startup_db():
             full_name VARCHAR(100),
             password VARCHAR(100),
             recovery_pin VARCHAR(10),
-            xp_points INT DEFAULT 350,
+            xp_points INT DEFAULT 450,
             hearts INT DEFAULT 5,
-            streak INT DEFAULT 7,
+            streak INT DEFAULT 10,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS academy_path_modules_v6 (
+        CREATE TABLE IF NOT EXISTS comprehensive_academy_modules_v7 (
             id SERIAL PRIMARY KEY,
             year_level INT,
             node_order INT,
@@ -39,13 +39,13 @@ def startup_db():
             title_en TEXT,
             title_ar TEXT,
             title_fr TEXT,
-            desc_en TEXT,
-            desc_ar TEXT,
-            desc_fr TEXT
+            content_en TEXT,
+            content_ar TEXT,
+            content_fr TEXT
         );
     """)
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS official_drills_v6 (
+        CREATE TABLE IF NOT EXISTS official_drills_v7 (
             id SERIAL PRIMARY KEY,
             term_en VARCHAR(100),
             term_ar VARCHAR(100),
@@ -57,49 +57,62 @@ def startup_db():
         );
     """)
     
-    # Seed Year 1 & Year 2 Professional Curriculum Nodes
+    # Seed full, comprehensive, multi-paragraph professional EASA academy curriculum
     cur.execute("""
-        INSERT INTO academy_path_modules_v6 (year_level, node_order, category, title_en, title_ar, title_fr, desc_en, desc_ar, desc_fr)
+        INSERT INTO comprehensive_academy_modules_v7 (year_level, node_order, category, title_en, title_ar, title_fr, content_en, content_ar, content_fr)
         VALUES 
-        (1, 1, 'SEP', 'Introduction to Cabin Safety & SEP', 'مقدمة في سلامة المقصورة وإجراءات الطوارئ', 'Introduction à la sécurité cabine', 
-         'Learn core aviation regulations, EASA standards, pre-flight safety checks, and sterile flight deck protocols.',
-         'تعرف على لوائح الطيران الأساسية، معايير EASA، فحوصات السلامة قبل الرحلة، وبروتوكولات قمرة القيادة المعقمة.',
-         'Apprenez la réglementation aéronautique, les normes EASA et les vérifications de sécurité avant vol.'),
-        
-        (1, 2, 'SEP', 'Emergency Evacuation & Exits', 'الإخلاء الطارئ ومخارج الطوارئ', 'Évacuation d urgence et issues', 
-         'Master the 90-second evacuation rule, slide arming cross-checks, and emergency land/water brace commands.',
-         'إتقان قاعدة الإخلاء في 90 ثانية، والتحقق المتقاطع لتجهيز المنحدرات، وأوامر وضعية الاستعداد.',
-         'Maîtrisez la règle d évacuation de 90 secondes, l armement des toboggans et les positions de sécurité.'),
-        
-        (1, 3, 'Cargo/DG', 'Dangerous Goods (Hazmat) in Cabin', 'البضائع الخطرة والمواد الخطرة في المقصورة', 'Marchandises dangereuses en cabine', 
-         'Identify prohibited cargo, lithium battery thermal runaway management in overhead lockers, and specialized extinguishers.',
-         'تحديد البضائع المحظورة، وإدارة حرائق بطاريات الليثيوم في خزائن الأمتعة، واستخدام طفايات الحريق.',
-         'Identifiez les marchandises prohibées, la gestion des feux de batteries au lithium et les extincteurs.'),
+        (1, 1, 'SEP', 
+         'Module 1: EASA Regulatory Framework & Pre-Flight Safety Checks', 
+         'الوحدة 1: إطار لوائح وكالة سلامة الطيران الأوروبية وفحوصات ما قبل الرحلة', 
+         'Module 1: Cadre réglementaire EASA et vérifications pré-vol',
+         '1. Regulatory Framework: Cabin crew operate under strict European Union Aviation Safety Agency (EASA) regulations, specifically Part-CC and ORO.CC. Cabin crew are designated safety professionals responsible for passenger wellbeing, emergency preparedness, and security enforcement.\n\n2. Pre-Flight Inspection Protocols: Before every sector, mandatory cabin integrity checks must be conducted. Crew members inspect emergency exit doors (checking arming levers, slide pressure gauges, and gust locks), emergency locator transmitters (ELT), megaophones, life vests, portable oxygen cylinders (PBO), and fire suppression equipment (Halon/Water extinguishers and PBE smoke hoods).\n\n3. Sterile Flight Deck & Briefings: Effective communication between the Flight Crew and Cabin Crew is paramount. Standard operating procedures dictate silent review during taxi, takeoff, and landing, with strict entry protocols enforced via cockpit door surveillance systems.',
+         '1. الإطار التنظيمي: يعمل طاقم المقصورة تحت لوائح صارمة لوكالة سلامة الطيران الأوروبية (EASA)، وتحديداً الجزء CC و ORO.CC.\n\n2. فحوصات ما قبل الرحلة: إجراء عمليات تفتيش إلزامية لسلامة المقصورة قبل كل رحلة، وفحص أبواب مخارج الطوارئ ومعدات مكافحة الحريق وأجهزة الأكسجين المحمولة.\n\n3. قمرة القيادة المعقمة والإحاطة: التواصل الفعال بين طاقم القيادة والمقصورة أمر بالغ الأهمية.',
+         '1. Cadre réglementaire : Les membres d équipage de cabine opèrent sous la réglementation stricte de l AESA (Part-CC et ORO.CC).\n\n2. Protocoles d inspection pré-vol : Avant chaque vol, des contrôles obligatoires d intégrité de la cabine doivent être menés.\n\n3. Cockpit stérile et Briefings : Une communication efficace entre l équipage de conduite et la cabine est primordiale.'),
 
-        (1, 4, 'Medical', 'Aeromedical First Aid & Hypoxia', 'الإسعافات الأولية الطبية ونقص الأكسجين', 'Premiers secours et hypoxie', 
-         'Recognize hypoxia symptoms, administer portable oxygen bottles, perform CPR, and manage rapid cabin decompression.',
-         'التعرف على أعراض نقص الأكسجين، وإدارة اسطوانات الأكسجين، وإجراء انعاش القلب، وإزالة الضغط.',
-         'Reconnaître les symptômes de l hypoxie, administrer l oxygène portable et gérer la décompression.'),
+        (1, 2, 'SEP', 
+         'Module 2: Emergency Evacuation & 90-Second Rule Dynamics', 
+         'الوحدة 2: الإخلاء الطارئ وديناميكيات قاعدة 90 ثانية', 
+         'Module 2: Évacuation d urgence et règle des 90 secondes',
+         '1. The 90-Second Mandate: EASA certification standards require that an aircraft must be fully evacuated within 90 seconds using only 50% of available emergency exits under simulated emergency conditions.\n\n2. Slide Deployment & Cross-Checking: Upon command from the Senior Purser or Captain, doors are evaluated for exterior hazards (fire, water, terrain). Slides must be manually inflated if automatic inflation fails. Cross-checking ensures all doors are correctly armed or disarmed during flight transitions.\n\n3. Crowd Control & Brace Commands: Cabin crew must utilize authoritative, commanding vocal projection for brace commands ("HEADS DOWN, STAY DOWN!") and post-evacuation crowd control ("LEAVE ALL BAGS, JUMP AND SLIDE!").',
+         '1. تفويض 90 ثانية: تتطلب معايير شهادة EASA إخلاء الطائرة بالكامل خلال 90 ثانية باستخدام 50% فقط من مخارج الطوارئ.\n\n2. نشر المنحدرات والتحقق المتقاطع: بناءً على توجيهات كبير المضيفين، يتم تقييم الأبواب للتأكد من عدم وجود مخاطر خارجية.\n\n3. السيطرة على الحشود وأوامر الاستعداد: يجب على أطقم المقصورة استخدام نبرة صوت قوية وحاسمة لأوامر الاستعداد والسيطرة على الحشود.',
+         '1. La règle des 90 secondes : Les normes de certification exigent une évacuation complète en 90 secondes en utilisant 50% des issues.\n\n2. Déploiement des toboggans : Sur ordre du chef de cabine, les portes sont évaluées pour écarter les risques extérieurs.\n\n3. Gestion des foules et positions de sécurité : L équipage doit utiliser des ordres vocaux puissants et directifs.'),
 
-        (2, 1, 'CRM', 'Advanced Crew Resource Management', 'إدارة موارد الطاقم المتقدمة', 'Gestion avancée des ressources (CRM)', 
-         'Leadership in high-stress multi-crew environments, effective communication, decision-making, and error management.',
-         'القيادة في بيئات الطاقم المتعدد عالية الضغط، التواصل الفعال، اتخاذ القرارات، وإدارة الأخطاء.',
-         'Leadership dans les environnements multi-équipages à haut stress, communication efficace et gestion des erreurs.'),
+        (1, 3, 'Cargo/DG', 
+         'Module 3: Dangerous Goods (Hazmat) & Lithium Battery Thermal Runaway', 
+         'الوحدة 3: البضائع الخطرة وحالات الهروب الحراري لبطاريات الليثيوم', 
+         'Module 3: Marchandises dangereuses et emballement thermique au lithium',
+         '1. Dangerous Goods Classification: Cabin crew are trained to recognize hidden hazardous materials (Class 9 miscellaneous, explosives, compressed gases, flammable liquids, and radioactive items).\n\n2. Lithium-Ion Battery Incidents: In the event of a portable electronic device (PED) overheating or entering thermal runaway in overhead bins or passenger seats, crew must immediately deploy specialized response protocols.\n\n3. Mitigation Procedure: Pour copious amounts of water or non-flammable liquid onto the device to cool thermal cells, deploy PBE (Protective Breathing Equipment), utilize fire gloves, and submerge the device in a dedicated DG fire containment bag.',
+         '1. تصنيف البضائع الخطرة: يتم تدريب طاقم المقصورة على التعرف على المواد الخطرة المخفية.\n\n2. حوادث بطاريات الليثيوم أيون: في حالة ارتفاع حرارة الأجهزة الإلكترونية المحمولة، يجب تطبيق بروتوكولات الاستجابة الفورية.\n\n3. إجراءات التخفيف: صب كميات كبيرة من الماء أو السوائل غير القابلة للاشتعال لتبريد الخلايا الحرارية.',
+         '1. Classification des marchandises dangereuses : L équipage est formé à reconnaître les matières dangereuses cachées.\n\n2. Incidents de batteries lithium-ion : En cas de surchauffe d un appareil électronique portable, appliquer les protocoles.\n\n3. Procédure d atténuation : Verser de grandes quantités d eau pour refroidir les cellules thermiques.'),
 
-        (2, 2, 'AVSEC', 'Aviation Security & Threat Levels', 'أمن الطيران ومستويات التهديد', 'Sûreté aérienne et menaces', 
-         'Unruly passenger de-escalation, bomb threat checklist management, flight deck defense, and cabin search protocols.',
-         'تهدئة الركاب المشاغبين، إدارة قوائم التهديد بالقنابل، دفاع قمرة القيادة، وبروتوكولات تفتيش المقصورة.',
-         'Désescalade des passagers indisciplinés, gestion des alertes à la bombe et protocoles de fouille de cabine.'),
+        (1, 4, 'Medical', 
+         'Module 4: Aeromedical First Aid, Hypoxia & Decompression', 
+         'الوحدة 4: الإسعافات الأولية الطبية ونقص الأكسجين وإزالة الضغط', 
+         'Module 4: Premiers secours aéromédicaux, hypoxie et décompression',
+         '1. Rapid Decompression: Characterized by a loud roaring sound, rush of air, fogging in the cabin, and automatic deployment of passenger oxygen masks. Cabin crew must immediately don portable oxygen bottles before moving to assist passengers.\n\n2. Hypoxia Recognition: Symptoms include tunnel vision, euphoria, cyanosis, impaired judgment, and dizziness. Immediate supplemental oxygen is critical.\n\n3. First Aid & CPR Protocols: Management of medical emergencies including cardiac arrest (AED operation), choking (Heimlich maneuver), asthma attacks, and cabin hyperventilation.',
+         '1. إزالة الضغط السريع: تتميز بصوت عالٍ، وتدفق الهواء، والضباب في المقصورة، ونشر أقنعة الأكسجين تلقائياً.\n\n2. التعرف على نقص الأكسجين: تشمل الأعراض الرؤية النفقية، والنشوة، والزرقة، ضعف التمييز.\n\n3. الإسعافات الأولية وإنعاش القلب: إدارة الحالات الطبية الطارئة بما في ذلك السكتة القلبية.',
+         '1. Décompression rapide : Caractérisée par un bruit sourd, un flux d air et le déploiement automatique des masques à oxygène.\n\n2. Reconnaissance de l hypoxie : Symptômes incluant vision tubulaire, euphorie, cyanose et vertiges.\n\n3. Premiers secours et réanimation : Gestion des urgences médicales incluant l arrêt cardiaque.'),
 
-        (2, 3, 'SEP', 'Senior Purser & Crew Leadership', 'كبير المضيفين القيادة المتقدمة', 'Chef de cabine et leadership', 
-         'Managing crew rosters, briefing protocols, emergency coordination with flight deck, and post-incident reporting.',
-         'إدارة جداول الطاقم، بروتوكولات الإحاطة، التنسيق الطارئ مع قمرة القيادة، وتقارير ما بعد الحوادث.',
-         'Gestion des plannings d équipage, protocoles de briefing et coordination d urgence avec le cockpit.')
+        (2, 1, 'CRM', 
+         'Module 5 (Year 2): Advanced Crew Resource Management & Leadership', 
+         'الوحدة 5 (السنة 2): إدارة موارد الطاقم المتقدمة والقيادة', 
+         'Module 5 (Année 2) : Gestion des ressources d équipage et leadership',
+         '1. Leadership & Command Dynamics: Second-year training transitions from operational compliance to advanced crew leadership, conflict resolution, and multicultural team coordination.\n\n2. Threat and Error Management (TEM): Proactive identification of operational threats, managing cockpit-cabin interface vulnerabilities, and debriefing critical safety events.\n\n3. Decision-Making Models: Utilizing structured frameworks (FORCES and DOT-DEDUCT) to make rapid, safety-critical decisions under extreme time constraints.',
+         '1. القيادة وديناميكيات القيادة: ينتقل التدريب في السنة الثانية من الامتثال التشغيلي إلى قيادة الطاقم المتقدمة وحل النزاعات.\n\n2. إدارة التهديدات والأخطاء (TEM): التحديد الاستباقي للتهديدات التشغيلية وإدارة ثغرات واجهة قمرة القيادة.\n\n3. نماذج اتخاذ القرار: استخدام الأطر المنظمة لاتخاذ قرارات حرجة بسرعة.',
+         '1. Leadership et dynamique d équipage : La formation de deuxième année passe de la conformité au leadership avancé.\n\n2. Gestion des menaces et des erreurs (TEM) : Identification proactive des menaces opérationnelles.\n\n3. Modèles de prise de décision : Utilisation de cadres structurés pour prendre des décisions critiques.'),
+
+        (2, 2, 'AVSEC', 
+         'Module 6 (Year 2): Aviation Security, Threat Levels & Unruly Passengers', 
+         'الوحدة 6 (السنة 2): أمن الطيران ومستويات التهديد والركاب المشاغبين', 
+         'Module 6 (Année 2) : Sûreté aérienne, niveaux de menaces et passagers indisciplinés',
+         '1. Unruly Passenger Escalation Matrix: Four-tier threat level management ranging from verbal non-compliance (Tier 1) to physical breach of the flight deck (Tier 4).\n\n2. Cabin Search & Bomb Threat Checklists: Systematic search protocols for suspicious objects, coordination with air marshals, and security containment procedures.\n\n3. Flight Deck Defense Protocols: Establishing sterile barriers, securing cockpit access during emergency events, and coordinated defensive action plans.',
+         '1. مصفوفة تصعيد الركاب المشاغبين: إدارة مستويات التهديد من الفئة الأولى إلى الرابعة.\n\n2. عمليات تفتيش المقصورة وقوائم مراجعة التهديد بالقنابل: بروتوكولات البحث المنهجي عن الأجسام المشبوهة.\n\n3. بروتوكولات دفاع قمرة القيادة: إنشاء حواجز معقمة وتأمين الوصول إلى قمرة القيادة.',
+         '1. Matrice d escalation des passagers indisciplinés : Gestion des niveaux de menace de 1 à 4.\n\n2. Fouilles de cabine et listes de contrôle d alerte à la bombe : Protocoles de recherche systématique.\n\n3. Protocoles de défense du poste de pilotage : Établissement de barrières stériles.')
         ON CONFLICT DO NOTHING;
     """)
 
     cur.execute("""
-        INSERT INTO official_drills_v6 (term_en, term_ar, term_fr, category, hint_en, hint_ar, hint_fr)
+        INSERT INTO official_drills_v7 (term_en, term_ar, term_fr, category, hint_en, hint_ar, hint_fr)
         VALUES 
         ('Altimeter', 'مقياس الارتفاع', 'Altimètre', 'Instruments', 'Measures barometric altitude.', 'يقيس الارتفاع الجوي.', 'Mesure l altitude barométrique.'),
         ('Bulkhead', 'الجدار الفاصل', 'Cloison', 'Cabin', 'Structural cabin partition.', 'فاصل هيكلي للمقصورة.', 'Cloison structurelle de cabine.'),
@@ -184,9 +197,9 @@ def reset_pass(data: ResetModel):
 def get_academy_content():
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM academy_path_modules_v6 ORDER BY year_level ASC, node_order ASC;")
+    cur.execute("SELECT * FROM comprehensive_academy_modules_v7 ORDER BY year_level ASC, node_order ASC;")
     modules = cur.fetchall()
-    cur.execute("SELECT * FROM official_drills_v6 ORDER BY id ASC;")
+    cur.execute("SELECT * FROM official_drills_v7 ORDER BY id ASC;")
     drills = cur.fetchall()
     cur.close()
     conn.close()
@@ -196,7 +209,7 @@ def get_academy_content():
 def verify_drill(data: DrillAttemptModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM official_drills_v6 WHERE id = %s;", (data.drill_id,))
+    cur.execute("SELECT * FROM official_drills_v7 WHERE id = %s;", (data.drill_id,))
     drill = cur.fetchone()
     cur.execute("SELECT * FROM aviation_academy_students WHERE phone_number = %s;", (data.phone_number,))
     student = cur.fetchone()
@@ -242,84 +255,83 @@ def serve_frontend():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AeroCrew Pro Academy | Elite Aviation Training</title>
+    <title>AeroCrew Pro Academy Elite</title>
     <link rel="icon" href="https://img.icons8.com/color/48/airplane-take-off.png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@450;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-deep: #020617;
-            --surface: #0f172a;
-            --surface-card: #1e293b;
+            --surface: #0b0f19;
+            --surface-card: #131b2e;
+            --surface-card-hover: #1c2844;
             --accent: #38bdf8;
-            --accent-glow: rgba(56, 189, 248, 0.3);
+            --accent-glow: rgba(56, 189, 248, 0.35);
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --border: #334155;
+            --border: #1e293b;
+            --border-glow: #334155;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
         [dir="rtl"] * { font-family: 'Tajawal', sans-serif !important; }
         
         body { background: var(--bg-deep); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; }
         
-        .app-shell { width: 100%; max-width: 520px; background: var(--surface); border-radius: 32px; padding: 2.2rem; border: 1px solid var(--border); box-shadow: 0 40px 80px rgba(0, 0, 0, 0.9); position: relative; overflow: hidden; }
+        .app-shell { width: 100%; max-width: 580px; background: var(--surface); border-radius: 36px; padding: 2.2rem; border: 1px solid var(--border-glow); box-shadow: 0 45px 90px rgba(0, 0, 0, 0.95), 0 0 40px rgba(56, 189, 248, 0.08); position: relative; overflow: hidden; }
         
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
-        .brand-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.15rem; color: var(--accent); }
-        .brand-title img { width: 34px; height: 34px; }
+        .brand-title { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.25rem; color: var(--accent); letter-spacing: -0.5px; }
+        .brand-title img { width: 38px; height: 38px; filter: drop-shadow(0 0 10px var(--accent-glow)); }
         
         .lang-switch { display: flex; gap: 6px; }
-        .lang-badge { background: var(--surface-card); border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; font-size: 0.72rem; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
-        .lang-badge.active, .lang-badge:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+        .lang-badge { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 10px; padding: 6px 12px; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+        .lang-badge.active, .lang-badge:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); box-shadow: 0 0 15px var(--accent-glow); }
 
-        h2 { font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.4rem; font-size: 1.4rem; }
-        p.sub-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5; }
+        h2 { font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.4rem; font-size: 1.5rem; color: white; }
+        p.sub-desc { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.6rem; line-height: 1.5; }
         
-        label { display: block; font-size: 0.74rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.4rem; letter-spacing: 0.5px; }
-        input { width: 100%; padding: 0.95rem 1.1rem; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-deep); color: white; font-size: 0.95rem; margin-bottom: 1.1rem; outline: none; transition: all 0.2s; }
+        label { display: block; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.4rem; letter-spacing: 0.8px; }
+        input { width: 100%; padding: 1rem 1.2rem; border-radius: 16px; border: 1px solid var(--border-glow); background: var(--bg-deep); color: white; font-size: 1rem; margin-bottom: 1.2rem; outline: none; transition: all 0.2s; }
         input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
         
-        .btn-action { width: 100%; padding: 1rem; border-radius: 14px; border: none; background: var(--accent); color: var(--bg-deep); font-weight: 800; font-size: 0.98rem; cursor: pointer; transition: transform 0.1s, opacity 0.2s; box-shadow: 0 4px 16px var(--accent-glow); }
+        .btn-action { width: 100%; padding: 1.05rem; border-radius: 16px; border: none; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); font-weight: 800; font-size: 1rem; cursor: pointer; transition: transform 0.1s, opacity 0.2s, box-shadow 0.2s; box-shadow: 0 6px 20px var(--accent-glow); }
         .btn-action:active { transform: scale(0.98); }
-        .btn-action:hover { opacity: 0.92; }
+        .btn-action:hover { opacity: 0.95; box-shadow: 0 8px 25px var(--accent-glow); }
 
-        .footer-nav { display: flex; justify-content: space-between; margin-top: 1.2rem; font-size: 0.82rem; }
-        .footer-nav a { color: var(--accent); text-decoration: none; font-weight: 600; cursor: pointer; }
+        .footer-nav { display: flex; justify-content: space-between; margin-top: 1.4rem; font-size: 0.85rem; }
+        .footer-nav a { color: var(--accent); text-decoration: none; font-weight: 700; cursor: pointer; }
         .footer-nav a:hover { text-decoration: underline; }
 
         .hidden { display: none !important; }
 
-        .stats-dashboard { display: flex; justify-content: space-between; align-items: center; background: var(--surface-card); padding: 0.95rem 1.2rem; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 1.2rem; }
-        .stat-item { font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; }
+        .stats-dashboard { display: flex; justify-content: space-between; align-items: center; background: var(--surface-card); padding: 1rem 1.3rem; border-radius: 18px; border: 1px solid var(--border-glow); margin-bottom: 1.4rem; }
+        .stat-item { font-weight: 800; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; }
         
-        /* 2x2 Grid requested by user */
-        .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.2rem; }
-        .mode-tile { background: var(--surface-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
-        .mode-tile:hover { border-color: var(--accent); background: var(--accent-glow); transform: translateY(-2px); }
-        .mode-tile h4 { font-size: 0.88rem; font-weight: 700; margin-top: 6px; color: white; }
+        .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.4rem; }
+        .mode-tile { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 18px; padding: 1.2rem; text-align: center; cursor: pointer; transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .mode-tile:hover { border-color: var(--accent); background: var(--surface-card-hover); transform: translateY(-3px); box-shadow: 0 10px 25px rgba(56,189,248,0.15); }
+        .mode-tile h4 { font-size: 0.92rem; font-weight: 800; margin-top: 8px; color: white; }
 
-        .card-container { background: var(--surface-card); border-radius: 20px; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 1rem; position: relative; min-height: 240px; }
+        .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.6rem; border: 1px solid var(--border-glow); margin-bottom: 1.2rem; position: relative; min-height: 280px; }
         
-        /* Duolingo-style Learning Path Tree */
-        .path-container { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 10px 0; max-height: 230px; overflow-y: auto; }
-        .path-node { width: 56px; height: 56px; border-radius: 50%; background: var(--accent); color: var(--bg-deep); display: flex; justify-content: center; align-items: center; font-weight: 800; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 20px var(--accent-glow); transition: transform 0.2s; position: relative; }
-        .path-node:hover { transform: scale(1.1); }
-        .path-node.locked { background: var(--border); color: var(--text-muted); box-shadow: none; cursor: not-allowed; }
-        .path-node:nth-child(even) { transform: translateX(25px); }
-        .path-node:nth-child(odd) { transform: translateX(-25px); }
+        .path-container { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 12px 0; max-height: 280px; overflow-y: auto; }
+        .path-node { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 1.2rem; cursor: pointer; box-shadow: 0 0 25px var(--accent-glow); transition: transform 0.2s, box-shadow 0.2s; position: relative; border: 3px solid #bae6fd; }
+        .path-node:hover { transform: scale(1.12); box-shadow: 0 0 35px var(--accent); }
+        .path-node:nth-child(even) { transform: translateX(35px); }
+        .path-node:nth-child(odd) { transform: translateX(-35px); }
 
-        .mic-circle { width: 75px; height: 75px; border-radius: 50%; background: var(--accent); border: none; display: flex; justify-content: center; align-items: center; margin: 1rem auto 0.5rem; cursor: pointer; box-shadow: 0 0 25px var(--accent-glow); transition: transform 0.2s; }
-        .mic-circle.recording { background: var(--danger); animation: pulseAnim 1.5s infinite; }
-        @keyframes pulseAnim { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); } 70% { box-shadow: 0 0 0 22px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        .mic-circle { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); border: none; display: flex; justify-content: center; align-items: center; margin: 1.2rem auto 0.6rem; cursor: pointer; box-shadow: 0 0 30px var(--accent-glow); transition: transform 0.2s; }
+        .mic-circle.recording { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); animation: pulseAnim 1.5s infinite; }
+        @keyframes pulseAnim { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); } 70% { box-shadow: 0 0 0 24px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
 
-        .timer-bar { width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 1rem; overflow: hidden; }
+        .timer-bar { width: 100%; height: 5px; background: var(--border); border-radius: 3px; margin-bottom: 1.2rem; overflow: hidden; }
         .timer-progress { width: 100%; height: 100%; background: var(--warning); transition: width 1s linear; }
 
-        .inline-feedback { text-align: center; font-size: 0.82rem; font-weight: 700; margin-top: 8px; min-height: 20px; transition: color 0.2s; }
+        .inline-feedback { text-align: center; font-size: 0.85rem; font-weight: 800; margin-top: 10px; min-height: 24px; }
 
-        .toast-popup { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 12px 24px; border-radius: 30px; font-weight: 700; font-size: 0.85rem; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 4000; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        .toast-popup { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 14px 28px; border-radius: 35px; font-weight: 800; font-size: 0.9rem; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 4000; box-shadow: 0 15px 35px rgba(0,0,0,0.7); }
         .toast-popup.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
@@ -330,7 +342,7 @@ def serve_frontend():
         <div class="top-header">
             <div class="brand-title">
                 <img src="https://img.icons8.com/color/48/airplane-take-off.png" alt="Icon">
-                <span id="txt-brand">AeroCrew Pro</span>
+                <span id="txt-brand">AeroCrew Pro Elite</span>
             </div>
             <div class="lang-switch">
                 <button class="lang-badge active" onclick="setLanguage('en')">EN</button>
@@ -342,7 +354,7 @@ def serve_frontend():
         <!-- 1. SIGN IN SCREEN -->
         <div id="screen-login">
             <h2 id="ui-login-title">Cabin Crew Portal</h2>
-            <p class="sub-desc" id="ui-login-sub">Access accredited EASA/ICAO simulation modules.</p>
+            <p class="sub-desc" id="ui-login-sub">Access accredited EASA/ICAO professional curriculum.</p>
             
             <label id="lbl-phone">Phone Number</label>
             <input type="tel" id="login-phone" placeholder="e.g. 0612345678" />
@@ -375,7 +387,7 @@ def serve_frontend():
             <label id="reg-lbl-pin">Recovery PIN (4-6 digits)</label>
             <input type="password" id="reg-pin" placeholder="e.g. 2026" maxlength="6" />
             
-            <button class="btn-action" onclick="submitRegister()" style="background: var(--success); color: white;" id="reg-btn-sub">Initialize Profile</button>
+            <button class="btn-action" onclick="submitRegister()" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: white;" id="reg-btn-sub">Initialize Profile</button>
             
             <div class="footer-nav">
                 <a onclick="navigateTo('screen-login')" id="reg-back">Already have an account? Sign In</a>
@@ -396,7 +408,7 @@ def serve_frontend():
             <label id="res-lbl-new">New Password</label>
             <input type="password" id="reset-new" placeholder="Enter new password" />
             
-            <button class="btn-action" onclick="submitReset()" style="background: var(--warning); color: var(--bg-deep);" id="res-btn-sub">Update Credentials</button>
+            <button class="btn-action" onclick="submitReset()" style="background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); color: var(--bg-deep);" id="res-btn-sub">Update Credentials</button>
             
             <div class="footer-nav">
                 <a onclick="navigateTo('screen-login')" id="res-back">Back to Sign In</a>
@@ -407,80 +419,95 @@ def serve_frontend():
         <div id="screen-dashboard" class="hidden">
             <div class="stats-dashboard">
                 <div>
-                    <h3 id="dash-name" style="font-size: 1rem; color: var(--accent);">Cadet</h3>
-                    <span style="font-size: 0.7rem; color: var(--text-muted);" id="dash-track">EASA Professional Track</span>
+                    <h3 id="dash-name" style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">Cadet</h3>
+                    <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;" id="dash-track">EASA Professional Track</span>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">350</span></div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">450</span></div>
                     <div class="stat-item" style="color: var(--danger);">❤️ <span id="dash-hearts">5</span></div>
-                    <div class="stat-item" style="color: var(--success);">🔥 <span id="dash-streak">7</span></div>
+                    <div class="stat-item" style="color: var(--success);">🔥 <span id="dash-streak">10</span></div>
                 </div>
             </div>
 
-            <!-- Requested 2x2 Grid Layout -->
+            <!-- 2x2 Grid -->
             <div class="mode-grid">
                 <div class="mode-tile" onclick="launchYearPath(1)">
-                    <span style="font-size: 1.4rem;">📖</span>
+                    <span style="font-size: 1.5rem;">📖</span>
                     <h4 id="tile-year1">First Year</h4>
                 </div>
                 <div class="mode-tile" onclick="launchYearPath(2)">
-                    <span style="font-size: 1.4rem;">🏆</span>
+                    <span style="font-size: 1.5rem;">🏆</span>
                     <h4 id="tile-year2">Second Year</h4>
                 </div>
                 <div class="mode-tile" onclick="launchMode('typing')">
-                    <span style="font-size: 1.4rem;">⌨️</span>
+                    <span style="font-size: 1.5rem;">⌨️</span>
                     <h4 id="tile-typing">Strict Typing</h4>
                 </div>
                 <div class="mode-tile" onclick="launchMode('voice')">
-                    <span style="font-size: 1.4rem;">🎙️</span>
+                    <span style="font-size: 1.5rem;">🎙️</span>
                     <h4 id="tile-voice">Voice Drill</h4>
                 </div>
             </div>
 
             <div id="simulation-box" class="card-container"></div>
             
-            <button class="btn-action" onclick="resetToMenu()" style="background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border); margin-top: 0.5rem;" id="btn-menu">← Return to Command Hub</button>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-action" onclick="resetToMenu()" style="background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border-glow); flex: 1;" id="btn-menu">← Hub</button>
+                <button class="btn-action" onclick="logoutUser()" style="background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); flex: 1;" id="btn-logout">Logout 🚪</button>
+            </div>
         </div>
     </div>
 
     <script>
-        let sessionUser = null;
+        let sessionUser = JSON.parse(localStorage.getItem('aerocrew_user') || 'null');
         let academyData = { modules: [], drills: [] };
-        let activeLang = 'en';
+        let activeLang = localStorage.getItem('aerocrew_lang') || 'en';
         let drillPointer = 0;
         let timerInterval = null;
         let secondsLeft = 30;
 
         const translations = {
             en: {
-                loginTitle: "Cabin Crew Portal", loginSub: "Access accredited EASA/ICAO simulation modules.",
+                loginTitle: "Cabin Crew Portal", loginSub: "Access accredited EASA/ICAO professional curriculum.",
                 phoneLbl: "Phone Number", passLbl: "Password", loginBtn: "Sign In to Simulator",
                 regNav: "Create Account", resetNav: "Forgot Password?",
                 regTitle: "Cadet Enrollment", regSub: "Register your official student training profile.",
                 regName: "Full Name", regPass: "Password", regPin: "Recovery PIN (4-6 digits)", regBtn: "Initialize Profile", regBack: "Already have an account? Sign In",
                 resTitle: "Recovery PIN Reset", resSub: "Enter your phone and secret recovery PIN.", resNew: "New Password", resBtn: "Update Credentials",
                 tileYear1: "First Year", tileYear2: "Second Year", tileTyping: "Strict Typing", tileVoice: "Voice Drill",
-                menuBtn: "← Return to Command Hub"
+                menuBtn: "← Hub", logoutBtn: "Logout 🚪"
             },
             fr: {
-                loginTitle: "Portail Personnel de Cabine", loginSub: "Accédez aux modules de simulation EASA/ICAO.",
+                loginTitle: "Portail Personnel de Cabine", loginSub: "Accédez au programme professionnel accrédité EASA/ICAO.",
                 phoneLbl: "Numéro de téléphone", passLbl: "Mot de passe", loginBtn: "Se connecter au simulateur",
                 regNav: "Créer un compte", resetNav: "Mot de passe oublié ?",
                 regTitle: "Inscription Cadet", regSub: "Enregistrez votre profil de formation officiel.",
                 regName: "Nom et Prénom", regPass: "Mot de passe", regPin: "PIN de récupération (4-6 chiffres)", regBtn: "Initialiser le profil", regBack: "Déjà un compte ? Se connecter",
                 resTitle: "Réinitialisation PIN", resSub: "Entrez votre téléphone et votre PIN secret.", resNew: "Nouveau mot de passe", resBtn: "Mettre à jour",
                 tileYear1: "Première Année", tileYear2: "Seconde Année", tileTyping: "Saisie Stricte", tileVoice: "Drill Vocal",
-                menuBtn: "← Retour au Menu"
+                menuBtn: "← Menu", logoutBtn: "Déconnexion 🚪"
             },
             ar: {
-                loginTitle: "بوابة طاقم الطائرة", loginSub: "الوصول إلى وحدات المحاكاة المعتمدة من EASA/ICAO.",
+                loginTitle: "بوابة طاقم الطائرة", loginSub: "الوصول إلى المنهج المهني المعتمد من EASA/ICAO.",
                 phoneLbl: "رقم الهاتف", passLbl: "كلمة المرور", loginBtn: "تسجيل الدخول للمحاكي",
                 regNav: "إنشاء حساب", resetNav: "هل نسيت كلمة المرور؟",
                 regTitle: "تسجيل المتدرب", regSub: "سجل ملف تدريب الطالب الرسمي الخاص بك.",
                 regName: "الاسم الكامل", regPass: "كلمة المرور", regPin: "رمز الاسترداد (4-6 أرقام)", regBtn: "تهيئة الملف الشخصي", regBack: "لديك حساب بالفعل؟ تسجيل الدخول",
                 resTitle: "إعادة تعيين الرمز", resSub: "أدخل هاتفك ورقم الرمز السري للاسترداد.", resNew: "كلمة المرور الجديدة", resBtn: "تحديث بيانات الاعتماد",
                 tileYear1: "السنة الأولى", tileYear2: "السنة الثانية", tileTyping: "الكتابة الدقيقة", tileVoice: "تدريب الصوت",
-                menuBtn: "← العودة إلى القائمة الرئيسية"
+                menuBtn: "← القائمة", logoutBtn: "تسجيل الخروج 🚪"
+            }
+        };
+
+        window.onload = function() {
+            setLanguage(activeLang);
+            if(sessionUser) {
+                document.getElementById('dash-name').innerText = sessionUser.full_name;
+                document.getElementById('dash-xp').innerText = sessionUser.xp_points;
+                document.getElementById('dash-hearts').innerText = sessionUser.hearts;
+                document.getElementById('dash-streak').innerText = sessionUser.streak;
+                navigateTo('screen-dashboard');
+                fetchAcademyContent();
             }
         };
 
@@ -497,10 +524,19 @@ def serve_frontend():
             document.getElementById(id).classList.remove('hidden');
         }
 
+        function logoutUser() {
+            if(timerInterval) clearInterval(timerInterval);
+            localStorage.removeItem('aerocrew_user');
+            sessionUser = null;
+            navigateTo('screen-login');
+            showToast('Logged out successfully.');
+        }
+
         function setLanguage(lang) {
             activeLang = lang;
+            localStorage.setItem('aerocrew_lang', lang);
             document.querySelectorAll('.lang-badge').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
+            if(event && event.target) event.target.classList.add('active');
             
             const root = document.getElementById('html-root');
             if(lang === 'ar') {
@@ -541,8 +577,8 @@ def serve_frontend():
                 document.getElementById('tile-typing').innerText = t.tileTyping;
                 document.getElementById('tile-voice').innerText = t.tileVoice;
                 document.getElementById('btn-menu').innerText = t.menuBtn;
+                document.getElementById('btn-logout').innerText = t.logoutBtn;
             }
-            showToast('Language updated: ' + lang.toUpperCase());
         }
 
         async function submitRegister() {
@@ -580,6 +616,7 @@ def serve_frontend():
             const data = await res.json();
             if(res.ok) {
                 sessionUser = data.student;
+                localStorage.setItem('aerocrew_user', JSON.stringify(sessionUser));
                 document.getElementById('dash-name').innerText = sessionUser.full_name;
                 document.getElementById('dash-xp').innerText = sessionUser.xp_points;
                 document.getElementById('dash-hearts').innerText = sessionUser.hearts;
@@ -620,8 +657,8 @@ def serve_frontend():
         function resetToMenu() {
             if(timerInterval) clearInterval(timerInterval);
             document.getElementById('simulation-box').innerHTML = `
-                <h3 style="font-size: 1.05rem; margin-bottom: 0.5rem; color: var(--accent);">EASA Professional Training Center</h3>
-                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Select <b>First Year</b> or <b>Second Year</b> above to explore the official Duolingo-style interactive path, or jump straight into typing & voice drills.</p>
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;">EASA Professional Training Center</h3>
+                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Select <b>First Year</b> or <b>Second Year</b> above to explore the official multi-paragraph curriculum library, or launch strict typing & voice drills.</p>
             `;
         }
 
@@ -631,8 +668,8 @@ def serve_frontend():
             const yearMods = academyData.modules.filter(m => m.year_level === yearNum);
 
             box.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                    <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 800;">Year ${yearNum} Official Learning Path</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">Year ${yearNum} Curriculum Library</h3>
                     <span style="font-size: 0.75rem; color: var(--text-muted);">Interactive Roadmap</span>
                 </div>
                 <div class="path-container">
@@ -654,16 +691,16 @@ def serve_frontend():
             const mod = academyData.modules.find(m => m.id === modId);
             if(!mod) return;
             let title = mod.title_en;
-            let desc = mod.desc_en;
-            if(activeLang === 'ar') { title = mod.title_ar; desc = mod.desc_ar; }
-            if(activeLang === 'fr') { title = mod.title_fr; desc = mod.desc_fr; }
+            let content = mod.content_en;
+            if(activeLang === 'ar') { title = mod.title_ar; content = mod.content_ar; }
+            if(activeLang === 'fr') { title = mod.title_fr; content = mod.content_fr; }
 
             const box = document.getElementById('simulation-box');
             box.innerHTML = `
-                <span style="font-size: 0.7rem; font-weight: 800; background: rgba(56,189,248,0.15); color: var(--accent); padding: 3px 10px; border-radius: 6px;">EASA OFFICIAL CURRICULUM : ${mod.category}</span>
-                <h3 style="font-size: 1.15rem; margin: 0.6rem 0; color: white; font-weight: 800;">${title}</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem; background: var(--bg-deep); padding: 1rem; border-radius: 12px; border: 1px solid var(--border);">${desc}</p>
-                <button class="btn-action" onclick="launchYearPath(${mod.year_level})">← Back to Path</button>
+                <span style="font-size: 0.72rem; font-weight: 800; background: rgba(56,189,248,0.15); color: var(--accent); padding: 4px 10px; border-radius: 6px;">EASA OFFICIAL MANUAL : ${mod.category}</span>
+                <h3 style="font-size: 1.15rem; margin: 0.8rem 0; color: white; font-weight: 900; line-height: 1.4;">${title}</h3>
+                <div style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 1.5rem; background: var(--bg-deep); padding: 1.2rem; border-radius: 16px; border: 1px solid var(--border-glow); max-height: 220px; overflow-y: auto; white-space: pre-line;">${content}</div>
+                <button class="btn-action" onclick="launchYearPath(${mod.year_level})">← Back to Roadmap</button>
             `;
         }
 
@@ -702,21 +739,21 @@ def serve_frontend():
                 if(activeLang === 'fr') hint = term.hint_fr;
 
                 box.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                        <span style="font-size: 0.7rem; font-weight: 800; color: var(--warning);">VOICE PRONUNCIATION DRILL</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-size: 0.72rem; font-weight: 800; color: var(--warning);">VOICE PRONUNCIATION DRILL</span>
                         <span style="font-size: 0.75rem; color: var(--text-muted);" id="timer-text">30s remaining</span>
                     </div>
                     <div class="timer-bar"><div id="timer-fill" class="timer-progress"></div></div>
-                    <div style="font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 4px;">Say: "${term.term_en}"</div>
-                    <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.5rem;">Hint: ${hint}</div>
+                    <div style="font-size: 1.3rem; font-weight: 900; color: white; margin-bottom: 4px;">Say: "${term.term_en}"</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.6rem;">Hint: ${hint}</div>
                     <button class="mic-circle" id="mic-trigger" onclick="startSpeechRecognition(${term.id})">
-                        <span style="font-size: 1.8rem;">🎙️</span>
+                        <span style="font-size: 1.9rem;">🎙️</span>
                     </button>
                     <div id="inline-msg" class="inline-feedback" style="color: var(--text-muted);">Click mic and speak clearly</div>
-                    <div id="reveal-container" style="text-align: center; margin-top: 6px;"></div>
+                    <div id="reveal-container" style="text-align: center; margin-top: 8px;"></div>
                 `;
                 start30SecTimer(() => {
-                    document.getElementById('reveal-container').innerHTML = `<button onclick="revealAnswer('${term.term_en}')" style="background:none; border:1px solid var(--warning); color:var(--warning); padding:4px 12px; border-radius:6px; font-weight:700; font-size:0.75rem; cursor:pointer;">Reveal Answer 💡</button>`;
+                    document.getElementById('reveal-container').innerHTML = `<button onclick="revealAnswer('${term.term_en}')" style="background:none; border:1px solid var(--warning); color:var(--warning); padding:5px 14px; border-radius:8px; font-weight:800; font-size:0.8rem; cursor:pointer;">Reveal Answer 💡</button>`;
                 });
             } else if(mode === 'typing') {
                 let promptTerm = term.term_ar;
@@ -724,20 +761,20 @@ def serve_frontend():
                 if(activeLang === 'en') promptTerm = term.hint_en;
 
                 box.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                        <span style="font-size: 0.7rem; font-weight: 800; color: var(--success);">STRICT SPELLING & TYPING</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-size: 0.72rem; font-weight: 800; color: var(--success);">STRICT SPELLING & TYPING TEST</span>
                         <span style="font-size: 0.75rem; color: var(--text-muted);" id="timer-text">30s remaining</span>
                     </div>
                     <div class="timer-bar"><div id="timer-fill" class="timer-progress"></div></div>
-                    <div style="font-size: 1.15rem; font-weight: 800; color: white; margin-bottom: 4px;">Translate: ${promptTerm}</div>
-                    <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;">Type exact English EASA terminology:</div>
+                    <div style="font-size: 1.2rem; font-weight: 900; color: white; margin-bottom: 4px;">Translate: ${promptTerm}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Type exact English EASA terminology:</div>
                     <input type="text" id="typing-input" placeholder="Type term exactly..." autocomplete="off" />
-                    <button class="btn-action" onclick="verifyTypingInput(${term.id})" style="background: var(--success); color: white; margin-bottom: 0.6rem;">Validate Spelling ✓</button>
+                    <button class="btn-action" onclick="verifyTypingInput(${term.id})" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: white; margin-bottom: 0.8rem;">Validate Spelling ✓</button>
                     <div id="inline-msg" class="inline-feedback" style="color: var(--text-muted);"></div>
-                    <div id="reveal-container" style="text-align: center; margin-top: 4px;"></div>
+                    <div id="reveal-container" style="text-align: center; margin-top: 6px;"></div>
                 `;
                 start30SecTimer(() => {
-                    document.getElementById('reveal-container').innerHTML = `<button onclick="revealAnswer('${term.term_en}')" style="background:none; border:1px solid var(--warning); color:var(--warning); padding:4px 12px; border-radius:6px; font-weight:700; font-size:0.75rem; cursor:pointer;">Reveal Answer 💡</button>`;
+                    document.getElementById('reveal-container').innerHTML = `<button onclick="revealAnswer('${term.term_en}')" style="background:none; border:1px solid var(--warning); color:var(--warning); padding:5px 14px; border-radius:8px; font-weight:800; font-size:0.8rem; cursor:pointer;">Reveal Answer 💡</button>`;
                 });
             }
         }
@@ -772,6 +809,10 @@ def serve_frontend():
                 document.getElementById('dash-xp').innerText = data.xp;
                 document.getElementById('dash-hearts').innerText = data.hearts;
                 document.getElementById('dash-streak').innerText = data.streak;
+                sessionUser.xp_points = data.xp;
+                sessionUser.hearts = data.hearts;
+                sessionUser.streak = data.streak;
+                localStorage.setItem('aerocrew_user', JSON.stringify(sessionUser));
 
                 if(data.correct) {
                     inlineMsg.style.color = 'var(--success)';
@@ -809,6 +850,10 @@ def serve_frontend():
             document.getElementById('dash-xp').innerText = data.xp;
             document.getElementById('dash-hearts').innerText = data.hearts;
             document.getElementById('dash-streak').innerText = data.streak;
+            sessionUser.xp_points = data.xp;
+            sessionUser.hearts = data.hearts;
+            sessionUser.streak = data.streak;
+            localStorage.setItem('aerocrew_user', JSON.stringify(sessionUser));
 
             if(data.correct) {
                 inlineMsg.style.color = 'var(--success)';
