@@ -10,7 +10,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Elite Academy", version="11.7.0")
+app = FastAPI(title="Aero Crew Elite Academy", version="11.8.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -396,7 +396,7 @@ def serve_frontend():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aero Crew Elite Academy v11.7</title>
+    <title>Aero Crew Elite Academy v11.8</title>
     <link rel="icon" href="https://img.icons8.com/color/48/airplane-take-off.png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@450;700;900&display=swap" rel="stylesheet">
     <style>
@@ -415,7 +415,7 @@ def serve_frontend():
             --border: #1e293b;
             --border-glow: #334155;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; pointer-events: auto !important; }
         [dir="rtl"] * { font-family: 'Tajawal', sans-serif !important; }
         
         body { background: var(--bg-deep); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; }
@@ -434,14 +434,14 @@ def serve_frontend():
         p.sub-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.4rem; line-height: 1.5; }
         
         label { display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.35rem; letter-spacing: 0.8px; }
-        input, select, textarea { width: 100%; padding: 0.9rem 1.1rem; border-radius: 16px; border: 1px solid var(--border-glow); background: var(--bg-deep); color: white; font-size: 0.92rem; margin-bottom: 1rem; outline: none; transition: all 0.2s; }
+        input, select, textarea { width: 100%; padding: 0.9rem 1.1rem; border-radius: 16px; border: 1px solid var(--border-glow); background: var(--bg-deep); color: white; font-size: 0.92rem; margin-bottom: 1rem; outline: none; transition: all 0.2s; position: relative; z-index: 20; }
         input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
         
-        .btn-action { width: 100%; padding: 1rem; border-radius: 16px; border: none; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); font-weight: 800; font-size: 0.98rem; cursor: pointer; transition: transform 0.1s, opacity 0.2s, box-shadow 0.2s; box-shadow: 0 6px 20px var(--accent-glow); }
+        .btn-action { width: 100%; padding: 1rem; border-radius: 16px; border: none; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); font-weight: 800; font-size: 0.98rem; cursor: pointer; transition: transform 0.1s, opacity 0.2s, box-shadow 0.2s; box-shadow: 0 6px 20px var(--accent-glow); position: relative; z-index: 20; }
         .btn-action:active { transform: scale(0.98); }
         .btn-action:hover { opacity: 0.95; box-shadow: 0 8px 25px var(--accent-glow); }
 
-        .footer-nav { display: flex; justify-content: space-between; margin-top: 1.2rem; font-size: 0.82rem; }
+        .footer-nav { display: flex; justify-content: space-between; margin-top: 1.2rem; font-size: 0.82rem; position: relative; z-index: 20; }
         .footer-nav a { color: var(--accent); text-decoration: none; font-weight: 700; cursor: pointer; }
         .footer-nav a:hover { text-decoration: underline; }
 
@@ -456,14 +456,14 @@ def serve_frontend():
         .stat-item { font-weight: 800; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; }
         
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.1rem; }
-        .mode-tile { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .mode-tile { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; z-index: 20; }
         .mode-tile:hover { border-color: var(--accent); background: var(--surface-card-hover); transform: translateY(-3px); box-shadow: 0 10px 25px rgba(56,189,248,0.15); }
         .mode-tile h4 { font-size: 0.85rem; font-weight: 800; margin-top: 6px; color: white; }
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; position: relative; min-height: 270px; }
         
         .roadmap-path { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 15px 0; max-height: 280px; overflow-y: auto; }
-        .roadmap-node { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 25px var(--accent-glow); transition: transform 0.2s; position: relative; border: 3px solid #bae6fd; }
+        .roadmap-node { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 25px var(--accent-glow); transition: transform 0.2s; position: relative; border: 3px solid #bae6fd; z-index: 25; }
         .roadmap-node:hover { transform: scale(1.12); box-shadow: 0 0 35px var(--accent); }
 
         .chat-container { display: flex; flex-direction: column; height: 320px; background: var(--bg-deep); border-radius: 16px; border: 1px solid var(--border-glow); overflow: hidden; }
@@ -484,16 +484,16 @@ def serve_frontend():
         <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:420px; max-height:85vh; overflow-y:auto; box-shadow:0 30px 60px rgba(0,0,0,0.9);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
                 <h3 style="font-size:1.2rem; font-weight:900; color:white;">⚙️ Profile & Academy Settings</h3>
-                <button onclick="closeSettingsModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
+                <button id="btn-close-settings" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
             </div>
 
             <label>Change Character Avatar</label>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem;">
-                <div onclick="selectProfileAvatar('steward')" id="set-card-steward" style="background:var(--bg-deep); border:2px solid var(--border-glow); border-radius:14px; padding:0.9rem; text-align:center; cursor:pointer;">
+                <div id="set-card-steward" style="background:var(--bg-deep); border:2px solid var(--border-glow); border-radius:14px; padding:0.9rem; text-align:center; cursor:pointer;">
                     <span style="font-size:1.8rem;">👔</span>
                     <div style="font-size:0.75rem; color:white; font-weight:800; margin-top:4px;">Steward</div>
                 </div>
-                <div onclick="selectProfileAvatar('hostess')" id="set-card-hostess" style="background:var(--bg-deep); border:2px solid var(--border-glow); border-radius:14px; padding:0.9rem; text-align:center; cursor:pointer;">
+                <div id="set-card-hostess" style="background:var(--bg-deep); border:2px solid var(--border-glow); border-radius:14px; padding:0.9rem; text-align:center; cursor:pointer;">
                     <span style="font-size:1.8rem;">👗</span>
                     <div style="font-size:0.75rem; color:white; font-weight:800; margin-top:4px;">Hostess</div>
                 </div>
@@ -501,9 +501,9 @@ def serve_frontend():
 
             <label>Interface Language</label>
             <div style="display:flex; gap:8px; margin-bottom:1.2rem;">
-                <button onclick="playAudio('click'); setLanguage('en')" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">English 🇬🇧</button>
-                <button onclick="playAudio('click'); setLanguage('fr')" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">Français 🇫🇷</button>
-                <button onclick="playAudio('click'); setLanguage('ar')" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">العربية 🇸🇦</button>
+                <button id="lang-en" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">English 🇬🇧</button>
+                <button id="lang-fr" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">Français 🇫🇷</button>
+                <button id="lang-ar" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">العربية 🇸🇦</button>
             </div>
 
             <hr style="border:0; border-top:1px solid var(--border); margin:1.2rem 0;">
@@ -516,7 +516,7 @@ def serve_frontend():
             <label>New Password</label>
             <input type="password" id="set-new-pass" placeholder="Enter new password" />
 
-            <button class="btn-action" onclick="playAudio('click'); submitPasswordChange()" style="background:var(--warning); color:var(--bg-deep); margin-top:0.4rem;">Update Credentials 🔒</button>
+            <button class="btn-action" id="btn-submit-pass" style="background:var(--warning); color:var(--bg-deep); margin-top:0.4rem;">Update Credentials 🔒</button>
         </div>
     </div>
 
@@ -524,19 +524,19 @@ def serve_frontend():
         <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:420px; max-height:85vh; overflow-y:auto; box-shadow:0 30px 60px rgba(0,0,0,0.9);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
                 <h3 style="font-size:1.2rem; font-weight:900; color:white;">🤝 Cadet Friend Network</h3>
-                <button onclick="closeFriendsModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
+                <button id="btn-close-friends" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
             </div>
 
             <label>Search Friend by Unique Username</label>
             <div style="display:flex; gap:8px; margin-bottom:1rem;">
                 <input type="text" id="search-username-input" placeholder="e.g. @killua_s" style="margin-bottom:0;" />
-                <button class="btn-action" onclick="playAudio('click'); addFriendByUsername()" style="width:110px; padding:0; font-size:0.85rem;">Add +</button>
+                <button class="btn-action" id="btn-add-friend" style="width:110px; padding:0; font-size:0.85rem;">Add +</button>
             </div>
 
             <h4 style="font-size:0.85rem; font-weight:800; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase;">Connected Friends Online</h4>
             <div id="friends-list-container" style="display:flex; flex-direction:column; gap:8px; max-height:180px; overflow-y:auto; margin-bottom:1.2rem;"></div>
 
-            <button class="btn-action" onclick="playAudio('click'); openGroupChat()" style="background:var(--success); color:white;">Open Study Group Chat 💬</button>
+            <button class="btn-action" id="btn-open-group-chat" style="background:var(--success); color:white;">Open Study Group Chat 💬</button>
         </div>
     </div>
 
@@ -547,9 +547,9 @@ def serve_frontend():
                 <span id="txt-brand">Aero Crew</span>
             </div>
             <div class="header-controls hidden" id="dash-header-icons">
-                <div class="header-icon-btn" onclick="playAudio('click'); openFriendsModal()" title="Friend Invitations">🤝</div>
-                <div class="header-icon-btn" onclick="playAudio('click'); openShop()" title="Uniform Boutique">🎁</div>
-                <div class="header-icon-btn" onclick="playAudio('click'); openSettingsModal()" title="Settings & Profile">⚙️</div>
+                <div class="header-icon-btn" id="icon-friends" title="Friend Invitations">🤝</div>
+                <div class="header-icon-btn" id="icon-shop" title="Uniform Boutique">🎁</div>
+                <div class="header-icon-btn" id="icon-settings" title="Settings & Profile">⚙️</div>
             </div>
         </div>
 
@@ -563,11 +563,11 @@ def serve_frontend():
             <label id="lbl-pass">Password</label>
             <input type="password" id="login-pass" placeholder="••••••••" />
             
-            <button class="btn-action" onclick="playAudio('click'); submitLogin()" id="ui-login-btn">Sign In to Simulator</button>
+            <button class="btn-action" id="ui-login-btn">Sign In to Simulator</button>
             
             <div class="footer-nav">
-                <a onclick="playAudio('click'); navigateTo('screen-register')" id="nav-reg">Create Account</a>
-                <a onclick="playAudio('click'); navigateTo('screen-reset')" id="nav-reset">Forgot Password?</a>
+                <a id="nav-reg">Create Account</a>
+                <a id="nav-reset">Forgot Password?</a>
             </div>
         </div>
 
@@ -596,10 +596,10 @@ def serve_frontend():
                 <option value="hostess">👗 Hostess (Female Crew Avatar)</option>
             </select>
             
-            <button class="btn-action" onclick="playAudio('click'); submitRegister()" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: white;" id="reg-btn-sub">Initialize Profile</button>
+            <button class="btn-action" id="reg-btn-sub" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: white;">Initialize Profile</button>
             
             <div class="footer-nav">
-                <a onclick="playAudio('click'); navigateTo('screen-login')" id="reg-back">Already have an account? Sign In</a>
+                <a id="reg-back">Already have an account? Sign In</a>
             </div>
         </div>
 
@@ -616,10 +616,10 @@ def serve_frontend():
             <label id="res-lbl-new">New Password</label>
             <input type="password" id="reset-new" placeholder="Enter new password" />
             
-            <button class="btn-action" onclick="playAudio('click'); submitReset()" style="background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); color: var(--bg-deep);" id="res-btn-sub">Update Credentials</button>
+            <button class="btn-action" id="res-btn-sub" style="background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); color: var(--bg-deep);">Update Credentials</button>
             
             <div class="footer-nav">
-                <a onclick="playAudio('click'); navigateTo('screen-login')" id="res-back">Back to Sign In</a>
+                <a id="res-back">Back to Sign In</a>
             </div>
         </div>
 
@@ -642,19 +642,19 @@ def serve_frontend():
             </div>
 
             <div class="mode-grid">
-                <div class="mode-tile" onclick="playAudio('click'); launchLongRoadmap(1)">
+                <div class="mode-tile" id="tile-path1">
                     <span style="font-size: 1.4rem;">📖</span>
                     <h4 id="tile-year1">First Year Path</h4>
                 </div>
-                <div class="mode-tile" onclick="playAudio('click'); launchLongRoadmap(2)">
+                <div class="mode-tile" id="tile-path2">
                     <span style="font-size: 1.4rem;">🏆</span>
                     <h4 id="tile-year2">Second Year Path</h4>
                 </div>
-                <div class="mode-tile" onclick="playAudio('click'); openGroupChat()">
+                <div class="mode-tile" id="tile-group-chat">
                     <span style="font-size: 1.4rem;">💬</span>
                     <h4 id="tile-group">Study Group Chat</h4>
                 </div>
-                <div class="mode-tile" onclick="playAudio('click'); openShop()">
+                <div class="mode-tile" id="tile-shop-boutique">
                     <span style="font-size: 1.4rem;">🎁</span>
                     <h4 id="tile-shop">Skin Boutique</h4>
                 </div>
@@ -663,8 +663,8 @@ def serve_frontend():
             <div id="simulation-box" class="card-container"></div>
             
             <div style="display: flex; gap: 10px;">
-                <button class="btn-action" onclick="playAudio('click'); resetToMenu()" style="background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border-glow); flex: 1;" id="btn-menu">← Hub</button>
-                <button class="btn-action" onclick="playAudio('click'); logoutUser()" style="background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); flex: 1;" id="btn-logout">Logout 🚪</button>
+                <button class="btn-action" id="btn-menu" style="background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border-glow); flex: 1;">← Hub</button>
+                <button class="btn-action" id="btn-logout" style="background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); flex: 1;">Logout 🚪</button>
             </div>
         </div>
     </div>
@@ -734,7 +734,7 @@ def serve_frontend():
             }
         };
 
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', () => {
             setLanguage(activeLang);
             if(sessionUser) {
                 updateDashboardUI();
@@ -743,7 +743,43 @@ def serve_frontend():
             } else {
                 navigateTo('screen-login');
             }
-        };
+
+            // Safe Event Listeners Binding
+            document.getElementById('ui-login-btn').addEventListener('click', () => { playAudio('click'); submitLogin(); });
+            document.getElementById('nav-reg').addEventListener('click', () => { playAudio('click'); navigateTo('screen-register'); });
+            document.getElementById('nav-reset').addEventListener('click', () => { playAudio('click'); navigateTo('screen-reset'); });
+            
+            document.getElementById('reg-btn-sub').addEventListener('click', () => { playAudio('click'); submitRegister(); });
+            document.getElementById('reg-back').addEventListener('click', () => { playAudio('click'); navigateTo('screen-login'); });
+
+            document.getElementById('res-btn-sub').addEventListener('click', () => { playAudio('click'); submitReset(); });
+            document.getElementById('res-back').addEventListener('click', () => { playAudio('click'); navigateTo('screen-login'); });
+
+            document.getElementById('icon-friends').addEventListener('click', () => { playAudio('click'); openFriendsModal(); });
+            document.getElementById('icon-shop').addEventListener('click', () => { playAudio('click'); openShop(); });
+            document.getElementById('icon-settings').addEventListener('click', () => { playAudio('click'); openSettingsModal(); });
+
+            document.getElementById('tile-path1').addEventListener('click', () => { playAudio('click'); launchLongRoadmap(1); });
+            document.getElementById('tile-path2').addEventListener('click', () => { playAudio('click'); launchLongRoadmap(2); });
+            document.getElementById('tile-group-chat').addEventListener('click', () => { playAudio('click'); openGroupChat(); });
+            document.getElementById('tile-shop-boutique').addEventListener('click', () => { playAudio('click'); openShop(); });
+
+            document.getElementById('btn-menu').addEventListener('click', () => { playAudio('click'); resetToMenu(); });
+            document.getElementById('btn-logout').addEventListener('click', () => { playAudio('click'); logoutUser(); });
+
+            document.getElementById('btn-close-settings').addEventListener('click', closeSettingsModal);
+            document.getElementById('set-card-steward').addEventListener('click', () => selectProfileAvatar('steward'));
+            document.getElementById('set-card-hostess').addEventListener('click', () => selectProfileAvatar('hostess'));
+
+            document.getElementById('lang-en').addEventListener('click', () => { playAudio('click'); setLanguage('en'); });
+            document.getElementById('lang-fr').addEventListener('click', () => { playAudio('click'); setLanguage('fr'); });
+            document.getElementById('lang-ar').addEventListener('click', () => { playAudio('click'); setLanguage('ar'); });
+            document.getElementById('btn-submit-pass').addEventListener('click', () => { playAudio('click'); submitPasswordChange(); });
+
+            document.getElementById('btn-close-friends').addEventListener('click', closeFriendsModal);
+            document.getElementById('btn-add-friend').addEventListener('click', () => { playAudio('click'); addFriendByUsername(); });
+            document.getElementById('btn-open-group-chat').addEventListener('click', () => { playAudio('click'); openGroupChat(); });
+        });
 
         function updateDashboardUI() {
             document.getElementById('dash-name').innerText = sessionUser.full_name;
