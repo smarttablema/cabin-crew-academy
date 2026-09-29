@@ -10,7 +10,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Elite Academy", version="11.8.0")
+app = FastAPI(title="Aero Crew Elite Academy", version="11.9.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -396,7 +396,7 @@ def serve_frontend():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aero Crew Elite Academy v11.8</title>
+    <title>Aero Crew Elite Academy v11.9</title>
     <link rel="icon" href="https://img.icons8.com/color/48/airplane-take-off.png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@450;700;900&display=swap" rel="stylesheet">
     <style>
@@ -420,74 +420,66 @@ def serve_frontend():
         
         body { background: var(--bg-deep); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; }
         
-        .app-shell { width: 100%; max-width: 600px; background: var(--surface); border-radius: 36px; padding: 2rem; border: 1px solid var(--border-glow); box-shadow: 0 45px 90px rgba(0, 0, 0, 0.95), 0 0 40px rgba(56, 189, 248, 0.08); position: relative; z-index: 10; }
+        .app-shell { width: 100%; max-width: 600px; background: var(--surface); border-radius: 36px; padding: 2rem; border: 1px solid var(--border-glow); box-shadow: 0 45px 90px rgba(0, 0, 0, 0.95); position: relative; z-index: 10; }
         
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.4rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
-        .brand-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem; color: var(--accent); letter-spacing: -0.5px; }
-        .brand-title img { width: 34px; height: 34px; filter: drop-shadow(0 0 10px var(--accent-glow)); }
+        .brand-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+        .brand-title img { width: 34px; height: 34px; }
         
         .header-controls { display: flex; align-items: center; gap: 6px; }
-        .header-icon-btn { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 10px; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; font-size: 1.05rem; }
-        .header-icon-btn:hover { border-color: var(--accent); background: var(--accent-glow); box-shadow: 0 0 15px var(--accent-glow); }
+        .header-icon-btn { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 10px; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.05rem; z-index: 20; position: relative; }
 
-        h2 { font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.4rem; font-size: 1.4rem; color: white; }
+        h2 { font-weight: 800; margin-bottom: 0.4rem; font-size: 1.4rem; color: white; }
         p.sub-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.4rem; line-height: 1.5; }
         
-        label { display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.35rem; letter-spacing: 0.8px; }
-        input, select, textarea { width: 100%; padding: 0.9rem 1.1rem; border-radius: 16px; border: 1px solid var(--border-glow); background: var(--bg-deep); color: white; font-size: 0.92rem; margin-bottom: 1rem; outline: none; transition: all 0.2s; position: relative; z-index: 20; }
-        input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+        label { display: block; font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.35rem; }
+        input, select, textarea { width: 100%; padding: 0.9rem 1.1rem; border-radius: 16px; border: 1px solid var(--border-glow); background: var(--bg-deep); color: white; font-size: 0.92rem; margin-bottom: 1rem; outline: none; position: relative; z-index: 25; }
         
-        .btn-action { width: 100%; padding: 1rem; border-radius: 16px; border: none; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); font-weight: 800; font-size: 0.98rem; cursor: pointer; transition: transform 0.1s, opacity 0.2s, box-shadow 0.2s; box-shadow: 0 6px 20px var(--accent-glow); position: relative; z-index: 20; }
-        .btn-action:active { transform: scale(0.98); }
-        .btn-action:hover { opacity: 0.95; box-shadow: 0 8px 25px var(--accent-glow); }
+        .btn-action { width: 100%; padding: 1rem; border-radius: 16px; border: none; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); font-weight: 800; font-size: 0.98rem; cursor: pointer; position: relative; z-index: 25; box-shadow: 0 6px 20px var(--accent-glow); }
 
-        .footer-nav { display: flex; justify-content: space-between; margin-top: 1.2rem; font-size: 0.82rem; position: relative; z-index: 20; }
+        .footer-nav { display: flex; justify-content: space-between; margin-top: 1.2rem; font-size: 0.82rem; position: relative; z-index: 25; }
         .footer-nav a { color: var(--accent); text-decoration: none; font-weight: 700; cursor: pointer; }
-        .footer-nav a:hover { text-decoration: underline; }
 
         .hidden { display: none !important; }
 
-        .mascot-banner { display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg, rgba(56,189,248,0.18) 0%, rgba(2,132,199,0.06) 100%); border: 1px solid rgba(56,189,248,0.35); padding: 0.85rem 1.1rem; border-radius: 18px; margin-bottom: 1.1rem; }
-        .mascot-avatar { font-size: 2.6rem; animation: bounceMascot 2s infinite ease-in-out; }
-        @keyframes bounceMascot { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-        .mascot-speech { font-size: 0.82rem; color: #bae6fd; font-weight: 700; line-height: 1.4; }
+        .mascot-banner { display: flex; align-items: center; gap: 14px; background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.35); padding: 0.85rem 1.1rem; border-radius: 18px; margin-bottom: 1.1rem; }
+        .mascot-avatar { font-size: 2.6rem; }
+        .mascot-speech { font-size: 0.82rem; color: #bae6fd; font-weight: 700; }
 
         .stats-dashboard { display: flex; justify-content: space-between; align-items: center; background: var(--surface-card); padding: 0.85rem 1.1rem; border-radius: 18px; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; }
         .stat-item { font-weight: 800; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; }
         
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.1rem; }
-        .mode-tile { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; z-index: 20; }
-        .mode-tile:hover { border-color: var(--accent); background: var(--surface-card-hover); transform: translateY(-3px); box-shadow: 0 10px 25px rgba(56,189,248,0.15); }
+        .mode-tile { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; position: relative; z-index: 25; }
         .mode-tile h4 { font-size: 0.85rem; font-weight: 800; margin-top: 6px; color: white; }
 
-        .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; position: relative; min-height: 270px; }
+        .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; position: relative; min-height: 270px; z-index: 20; }
         
         .roadmap-path { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 15px 0; max-height: 280px; overflow-y: auto; }
-        .roadmap-node { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 25px var(--accent-glow); transition: transform 0.2s; position: relative; border: 3px solid #bae6fd; z-index: 25; }
-        .roadmap-node:hover { transform: scale(1.12); box-shadow: 0 0 35px var(--accent); }
+        .roadmap-node { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: var(--bg-deep); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 1.1rem; cursor: pointer; position: relative; z-index: 30; border: 3px solid #bae6fd; }
 
         .chat-container { display: flex; flex-direction: column; height: 320px; background: var(--bg-deep); border-radius: 16px; border: 1px solid var(--border-glow); overflow: hidden; }
         .chat-messages { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-        .chat-bubble { max-width: 78%; padding: 9px 12px; border-radius: 14px; font-size: 0.84rem; line-height: 1.4; position: relative; }
-        .chat-bubble.incoming { background: var(--surface-card); color: white; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .chat-bubble.outgoing { background: #0284c7; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .chat-input-bar { display: flex; gap: 6px; padding: 10px; background: var(--surface-card); border-top: 1px solid var(--border); align-items: center; }
+        .chat-bubble { max-width: 78%; padding: 9px 12px; border-radius: 14px; font-size: 0.84rem; line-height: 1.4; }
+        .chat-bubble.incoming { background: var(--surface-card); color: white; align-self: flex-start; }
+        .chat-bubble.outgoing { background: #0284c7; color: white; align-self: flex-end; }
+        .chat-input-bar { display: flex; gap: 6px; padding: 10px; background: var(--surface-card); border-top: 1px solid var(--border); align-items: center; z-index: 30; position: relative; }
 
-        .toast-popup { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 14px 28px; border-radius: 35px; font-weight: 800; font-size: 0.9rem; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 6000; box-shadow: 0 15px 35px rgba(0,0,0,0.7); }
+        .toast-popup { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 14px 28px; border-radius: 35px; font-weight: 800; font-size: 0.9rem; transition: transform 0.3s; z-index: 6000; pointer-events: none; }
         .toast-popup.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
     <div id="toast" class="toast-popup">Notification</div>
 
-    <div id="settings-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.9); backdrop-filter:blur(8px); display:flex; justify-content:center; align-items:center; z-index:5000; opacity:0; pointer-events:none; transition:opacity 0.25s;">
-        <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:420px; max-height:85vh; overflow-y:auto; box-shadow:0 30px 60px rgba(0,0,0,0.9);">
+    <div id="settings-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.9); display:flex; justify-content:center; align-items:center; z-index:5000; opacity:0; pointer-events:none; transition:opacity 0.25s;">
+        <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:420px; max-height:85vh; overflow-y:auto; position:relative; z-index:5001;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
-                <h3 style="font-size:1.2rem; font-weight:900; color:white;">⚙️ Profile & Academy Settings</h3>
+                <h3 style="font-size:1.2rem; font-weight:900; color:white;">⚙️ Profile Settings</h3>
                 <button id="btn-close-settings" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
             </div>
 
-            <label>Change Character Avatar</label>
+            <label>Character Avatar</label>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem;">
                 <div id="set-card-steward" style="background:var(--bg-deep); border:2px solid var(--border-glow); border-radius:14px; padding:0.9rem; text-align:center; cursor:pointer;">
                     <span style="font-size:1.8rem;">👔</span>
@@ -499,41 +491,40 @@ def serve_frontend():
                 </div>
             </div>
 
-            <label>Interface Language</label>
+            <label>Language</label>
             <div style="display:flex; gap:8px; margin-bottom:1.2rem;">
-                <button id="lang-en" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">English 🇬🇧</button>
-                <button id="lang-fr" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">Français 🇫🇷</button>
-                <button id="lang-ar" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">العربية 🇸🇦</button>
+                <button id="lang-en" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">English</button>
+                <button id="lang-fr" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">Français</button>
+                <button id="lang-ar" class="btn-action" style="padding:8px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow);">العربية</button>
             </div>
 
             <hr style="border:0; border-top:1px solid var(--border); margin:1.2rem 0;">
 
-            <h4 style="font-size:0.9rem; font-weight:800; color:white; margin-bottom:0.8rem;">Secure Password Update</h4>
-            <label>Recovery PIN (4-6 digits)</label>
-            <input type="password" id="set-pin" placeholder="Enter recovery PIN" maxlength="6" />
+            <h4 style="font-size:0.9rem; font-weight:800; color:white; margin-bottom:0.8rem;">Update Password</h4>
+            <label>Recovery PIN</label>
+            <input type="password" id="set-pin" placeholder="PIN" maxlength="6" />
             <label>Old Password</label>
-            <input type="password" id="set-old-pass" placeholder="Enter current password" />
+            <input type="password" id="set-old-pass" placeholder="Old Password" />
             <label>New Password</label>
-            <input type="password" id="set-new-pass" placeholder="Enter new password" />
+            <input type="password" id="set-new-pass" placeholder="New Password" />
 
             <button class="btn-action" id="btn-submit-pass" style="background:var(--warning); color:var(--bg-deep); margin-top:0.4rem;">Update Credentials 🔒</button>
         </div>
     </div>
 
-    <div id="friends-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.9); backdrop-filter:blur(8px); display:flex; justify-content:center; align-items:center; z-index:5000; opacity:0; pointer-events:none; transition:opacity 0.25s;">
-        <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:420px; max-height:85vh; overflow-y:auto; box-shadow:0 30px 60px rgba(0,0,0,0.9);">
+    <div id="friends-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.9); display:flex; justify-content:center; align-items:center; z-index:5000; opacity:0; pointer-events:none; transition:opacity 0.25s;">
+        <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:420px; max-height:85vh; overflow-y:auto; position:relative; z-index:5001;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
                 <h3 style="font-size:1.2rem; font-weight:900; color:white;">🤝 Cadet Friend Network</h3>
                 <button id="btn-close-friends" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
             </div>
 
-            <label>Search Friend by Unique Username</label>
+            <label>Search Username</label>
             <div style="display:flex; gap:8px; margin-bottom:1rem;">
-                <input type="text" id="search-username-input" placeholder="e.g. @killua_s" style="margin-bottom:0;" />
+                <input type="text" id="search-username-input" placeholder="@username" style="margin-bottom:0;" />
                 <button class="btn-action" id="btn-add-friend" style="width:110px; padding:0; font-size:0.85rem;">Add +</button>
             </div>
 
-            <h4 style="font-size:0.85rem; font-weight:800; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase;">Connected Friends Online</h4>
             <div id="friends-list-container" style="display:flex; flex-direction:column; gap:8px; max-height:180px; overflow-y:auto; margin-bottom:1.2rem;"></div>
 
             <button class="btn-action" id="btn-open-group-chat" style="background:var(--success); color:white;">Open Study Group Chat 💬</button>
@@ -547,9 +538,9 @@ def serve_frontend():
                 <span id="txt-brand">Aero Crew</span>
             </div>
             <div class="header-controls hidden" id="dash-header-icons">
-                <div class="header-icon-btn" id="icon-friends" title="Friend Invitations">🤝</div>
-                <div class="header-icon-btn" id="icon-shop" title="Uniform Boutique">🎁</div>
-                <div class="header-icon-btn" id="icon-settings" title="Settings & Profile">⚙️</div>
+                <div class="header-icon-btn" id="icon-friends" title="Friends">🤝</div>
+                <div class="header-icon-btn" id="icon-shop" title="Shop">🎁</div>
+                <div class="header-icon-btn" id="icon-settings" title="Settings">⚙️</div>
             </div>
         </div>
 
@@ -588,15 +579,15 @@ def serve_frontend():
             <input type="password" id="reg-pass" placeholder="Secure password" />
 
             <label id="reg-lbl-pin">Recovery PIN (4-6 digits)</label>
-            <input type="password" id="reg-pin" placeholder="e.g. 2026" maxlength="6" />
+            <input type="password" id="reg-pin" placeholder="PIN" maxlength="6" />
 
             <label id="reg-lbl-avatar">Crew Character</label>
             <select id="reg-avatar">
-                <option value="steward">👔 Steward (Male Crew Avatar)</option>
-                <option value="hostess">👗 Hostess (Female Crew Avatar)</option>
+                <option value="steward">👔 Steward</option>
+                <option value="hostess">👗 Hostess</option>
             </select>
             
-            <button class="btn-action" id="reg-btn-sub" style="background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: white;">Initialize Profile</button>
+            <button class="btn-action" id="reg-btn-sub" style="background: #10b981; color: white;">Initialize Profile</button>
             
             <div class="footer-nav">
                 <a id="reg-back">Already have an account? Sign In</a>
@@ -608,15 +599,15 @@ def serve_frontend():
             <p class="sub-desc" id="res-sub">Enter your phone and secret recovery PIN.</p>
             
             <label id="res-lbl-phone">Phone Number</label>
-            <input type="tel" id="reset-phone" placeholder="e.g. 0612345678" />
+            <input type="tel" id="reset-phone" placeholder="Phone" />
 
             <label id="res-lbl-pin">Secret Recovery PIN</label>
-            <input type="password" id="reset-pin" placeholder="Your secret PIN" />
+            <input type="password" id="reset-pin" placeholder="PIN" />
 
             <label id="res-lbl-new">New Password</label>
-            <input type="password" id="reset-new" placeholder="Enter new password" />
+            <input type="password" id="reset-new" placeholder="New Password" />
             
-            <button class="btn-action" id="res-btn-sub" style="background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); color: var(--bg-deep);">Update Credentials</button>
+            <button class="btn-action" id="res-btn-sub" style="background: #f59e0b; color: #020617;">Update Credentials</button>
             
             <div class="footer-nav">
                 <a id="res-back">Back to Sign In</a>
@@ -632,7 +623,7 @@ def serve_frontend():
             <div class="stats-dashboard">
                 <div>
                     <h3 id="dash-name" style="font-size: 1rem; color: var(--accent); font-weight: 900;">Cadet</h3>
-                    <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700;" id="dash-skin">Standard Aviator Suit</span>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);" id="dash-skin">Standard Aviator Suit</span>
                 </div>
                 <div style="display: flex; gap: 8px;">
                     <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">1200</span></div>
@@ -677,39 +668,6 @@ def serve_frontend():
         let exercisePointer = 0;
         let selectedAvatarSetting = 'steward';
 
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playAudio(type) {
-            try {
-                if(audioCtx.state === 'suspended') audioCtx.resume();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-
-                if(type === 'click') {
-                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.05);
-                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
-                    osc.start(); osc.stop(audioCtx.currentTime + 0.05);
-                } else if(type === 'success') {
-                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.08);
-                    osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.16);
-                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-                } else if(type === 'error') {
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-                    osc.frequency.setValueAtTime(150, audioCtx.currentTime + 0.1);
-                    gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
-                    osc.start(); osc.stop(audioCtx.currentTime + 0.25);
-                }
-            } catch(e) {}
-        }
-
         const translations = {
             en: {
                 loginTitle: "Cabin Crew Portal", loginSub: "Access accredited EASA/ICAO professional curriculum.",
@@ -744,41 +702,40 @@ def serve_frontend():
                 navigateTo('screen-login');
             }
 
-            // Safe Event Listeners Binding
-            document.getElementById('ui-login-btn').addEventListener('click', () => { playAudio('click'); submitLogin(); });
-            document.getElementById('nav-reg').addEventListener('click', () => { playAudio('click'); navigateTo('screen-register'); });
-            document.getElementById('nav-reset').addEventListener('click', () => { playAudio('click'); navigateTo('screen-reset'); });
+            document.getElementById('ui-login-btn').addEventListener('click', submitLogin);
+            document.getElementById('nav-reg').addEventListener('click', () => navigateTo('screen-register'));
+            document.getElementById('nav-reset').addEventListener('click', () => navigateTo('screen-reset'));
             
-            document.getElementById('reg-btn-sub').addEventListener('click', () => { playAudio('click'); submitRegister(); });
-            document.getElementById('reg-back').addEventListener('click', () => { playAudio('click'); navigateTo('screen-login'); });
+            document.getElementById('reg-btn-sub').addEventListener('click', submitRegister);
+            document.getElementById('reg-back').addEventListener('click', () => navigateTo('screen-login'));
 
-            document.getElementById('res-btn-sub').addEventListener('click', () => { playAudio('click'); submitReset(); });
-            document.getElementById('res-back').addEventListener('click', () => { playAudio('click'); navigateTo('screen-login'); });
+            document.getElementById('res-btn-sub').addEventListener('click', submitReset);
+            document.getElementById('res-back').addEventListener('click', () => navigateTo('screen-login'));
 
-            document.getElementById('icon-friends').addEventListener('click', () => { playAudio('click'); openFriendsModal(); });
-            document.getElementById('icon-shop').addEventListener('click', () => { playAudio('click'); openShop(); });
-            document.getElementById('icon-settings').addEventListener('click', () => { playAudio('click'); openSettingsModal(); });
+            document.getElementById('icon-friends').addEventListener('click', openFriendsModal);
+            document.getElementById('icon-shop').addEventListener('click', () => openShop());
+            document.getElementById('icon-settings').addEventListener('click', openSettingsModal);
 
-            document.getElementById('tile-path1').addEventListener('click', () => { playAudio('click'); launchLongRoadmap(1); });
-            document.getElementById('tile-path2').addEventListener('click', () => { playAudio('click'); launchLongRoadmap(2); });
-            document.getElementById('tile-group-chat').addEventListener('click', () => { playAudio('click'); openGroupChat(); });
-            document.getElementById('tile-shop-boutique').addEventListener('click', () => { playAudio('click'); openShop(); });
+            document.getElementById('tile-path1').addEventListener('click', () => launchLongRoadmap(1));
+            document.getElementById('tile-path2').addEventListener('click', () => launchLongRoadmap(2));
+            document.getElementById('tile-group-chat').addEventListener('click', openGroupChat);
+            document.getElementById('tile-shop-boutique').addEventListener('click', () => openShop());
 
-            document.getElementById('btn-menu').addEventListener('click', () => { playAudio('click'); resetToMenu(); });
-            document.getElementById('btn-logout').addEventListener('click', () => { playAudio('click'); logoutUser(); });
+            document.getElementById('btn-menu').addEventListener('click', resetToMenu);
+            document.getElementById('btn-logout').addEventListener('click', logoutUser);
 
             document.getElementById('btn-close-settings').addEventListener('click', closeSettingsModal);
             document.getElementById('set-card-steward').addEventListener('click', () => selectProfileAvatar('steward'));
             document.getElementById('set-card-hostess').addEventListener('click', () => selectProfileAvatar('hostess'));
 
-            document.getElementById('lang-en').addEventListener('click', () => { playAudio('click'); setLanguage('en'); });
-            document.getElementById('lang-fr').addEventListener('click', () => { playAudio('click'); setLanguage('fr'); });
-            document.getElementById('lang-ar').addEventListener('click', () => { playAudio('click'); setLanguage('ar'); });
-            document.getElementById('btn-submit-pass').addEventListener('click', () => { playAudio('click'); submitPasswordChange(); });
+            document.getElementById('lang-en').addEventListener('click', () => setLanguage('en'));
+            document.getElementById('lang-fr').addEventListener('click', () => setLanguage('fr'));
+            document.getElementById('lang-ar').addEventListener('click', () => setLanguage('ar'));
+            document.getElementById('btn-submit-pass').addEventListener('click', submitPasswordChange);
 
             document.getElementById('btn-close-friends').addEventListener('click', closeFriendsModal);
-            document.getElementById('btn-add-friend').addEventListener('click', () => { playAudio('click'); addFriendByUsername(); });
-            document.getElementById('btn-open-group-chat').addEventListener('click', () => { playAudio('click'); openGroupChat(); });
+            document.getElementById('btn-add-friend').addEventListener('click', addFriendByUsername);
+            document.getElementById('btn-open-group-chat').addEventListener('click', openGroupChat);
         });
 
         function updateDashboardUI() {
@@ -809,11 +766,8 @@ def serve_frontend():
             
             const headerIcons = document.getElementById('dash-header-icons');
             if(headerIcons) {
-                if(id === 'screen-dashboard') {
-                    headerIcons.classList.remove('hidden');
-                } else {
-                    headerIcons.classList.add('hidden');
-                }
+                if(id === 'screen-dashboard') headerIcons.classList.remove('hidden');
+                else headerIcons.classList.add('hidden');
             }
         }
 
@@ -938,7 +892,6 @@ def serve_frontend():
             document.getElementById('settings-modal').style.pointerEvents = 'none';
         }
         function selectProfileAvatar(avatar) {
-            playAudio('click');
             selectedAvatarSetting = avatar;
             document.getElementById('set-card-steward').style.borderColor = avatar === 'steward' ? 'var(--accent)' : 'var(--border-glow)';
             document.getElementById('set-card-hostess').style.borderColor = avatar === 'hostess' ? 'var(--accent)' : 'var(--border-glow)';
@@ -1029,7 +982,7 @@ def serve_frontend():
                 body: JSON.stringify({ reported_username: username })
             });
             const data = await res.json();
-            showToast('User reported! Total community reports: ' + data.reports);
+            showToast('User reported! Total reports: ' + data.reports);
         }
 
         function launchLongRoadmap(yearNum) {
@@ -1039,17 +992,23 @@ def serve_frontend():
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
                     <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">Year ${yearNum} Long Roadmap</h3>
-                    <span style="font-size: 0.72rem; color: var(--text-muted);">Duolingo-Style Path</span>
+                    <span style="font-size: 0.72rem; color: var(--text-muted);">Interactive Path</span>
                 </div>
                 <div class="roadmap-path">
                     ${modules.map((mod, idx) => `
-                        <div class="roadmap-node" onclick="playAudio('click'); launchExerciseSession(${yearNum}, ${mod.node_order})" title="${mod.title_en}">
+                        <div class="roadmap-node" data-year="${yearNum}" data-order="${mod.node_order}" title="${mod.title_en}">
                             <span style="font-size:1.4rem;">${mod.theme_icon}</span>
                             <span style="font-size:0.65rem; margin-top:-2px;">${idx+1}</span>
                         </div>
                     `).join('')}
                 </div>
             `;
+
+            document.querySelectorAll('.roadmap-node').forEach(node => {
+                node.addEventListener('click', () => {
+                    launchExerciseSession(parseInt(node.getAttribute('data-year')), parseInt(node.getAttribute('data-order')));
+                });
+            });
         }
 
         function launchExerciseSession(yearNum, nodeOrder) {
@@ -1069,19 +1028,17 @@ def serve_frontend():
 
             let optionsHtml = '';
             if(ex.options && ex.options.length > 0) {
-                optionsHtml = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin: 1rem 0;">' +
-                    ex.options.map(opt => `<button class="btn-action" onclick="verifyExerciseAnswer(${yearNum}, ${ex.id}, '${opt}')" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:10px; font-size:0.85rem;">${opt}</button>`).join('') +
-                '</div>';
+                optionsHtml = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin: 1rem 0;" id="exercise-options-container"></div>';
             }
 
             let voiceHtml = '';
             if(ex.exercise_type === 'voice') {
-                voiceHtml = '<div style="text-align:center; margin:1rem 0;"><button onclick="simulateVoiceRecord(\'' + ex.correct_answer + '\', ' + yearNum + ', ' + ex.id + ')" class="btn-action" style="width:70px; height:70px; border-radius:50%; background:linear-gradient(135deg, #ef4444 0%, #991b1b 100%); font-size:1.8rem; margin:0 auto; display:flex; justify-content:center; align-items:center;">🎙️</button><div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">Tap microphone & repeat aloud</div></div>';
+                voiceHtml = '<div style="text-align:center; margin:1rem 0;"><button id="btn-voice-rec" class="btn-action" style="width:70px; height:70px; border-radius:50%; background:linear-gradient(135deg, #ef4444 0%, #991b1b 100%); font-size:1.8rem; margin:0 auto; display:flex; justify-content:center; align-items:center;">🎙️</button><div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">Tap microphone & repeat aloud</div></div>';
             }
 
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
-                    <span style="font-size: 0.72rem; font-weight: 800; color: var(--success);">3-MIN LESSON EXERCISE (${(exercisePointer % currentExerciseList.length) + 1}/${currentExerciseList.length})</span>
+                    <span style="font-size: 0.72rem; font-weight: 800; color: var(--success);">EXERCISE (${(exercisePointer % currentExerciseList.length) + 1}/${currentExerciseList.length})</span>
                     <span style="font-size: 0.75rem; color: var(--warning); font-weight: 800;">${ex.exercise_type.toUpperCase()}</span>
                 </div>
                 <div style="font-size: 1.1rem; font-weight: 900; color: white; margin-bottom: 0.8rem; line-height: 1.4;">${ex.prompt_en}</div>
@@ -1090,6 +1047,25 @@ def serve_frontend():
                 ${voiceHtml}
                 <div id="exercise-feedback" style="text-align:center; font-weight:800; font-size:0.85rem; min-height:24px; margin-top:8px;"></div>
             `;
+
+            if(ex.options && ex.options.length > 0) {
+                const optContainer = document.getElementById('exercise-options-container');
+                ex.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn-action';
+                    btn.style.cssText = 'background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:10px; font-size:0.85rem;';
+                    btn.innerText = opt;
+                    btn.addEventListener('click', () => verifyExerciseAnswer(yearNum, ex.id, opt));
+                    optContainer.appendChild(btn);
+                });
+            }
+
+            if(ex.exercise_type === 'voice') {
+                document.getElementById('btn-voice-rec').addEventListener('click', () => {
+                    showToast('Listening to microphone audio...');
+                    setTimeout(() => verifyExerciseAnswer(yearNum, ex.id, ex.correct_answer), 1500);
+                });
+            }
         }
 
         async function verifyExerciseAnswer(yearNum, exId, chosenAnswer) {
@@ -1109,23 +1085,14 @@ def serve_frontend():
 
             const fb = document.getElementById('exercise-feedback');
             if(data.correct) {
-                playAudio('success');
                 fb.style.color = 'var(--success)';
                 fb.innerText = data.message;
                 exercisePointer++;
                 setTimeout(() => renderCurrentExercise(yearNum), 1500);
             } else {
-                playAudio('error');
                 fb.style.color = 'var(--danger)';
                 fb.innerText = data.message;
             }
-        }
-
-        function simulateVoiceRecord(correctTerm, yearNum, exId) {
-            showToast('Listening to microphone audio...');
-            setTimeout(() => {
-                verifyExerciseAnswer(yearNum, exId, correctTerm);
-            }, 1500);
         }
 
         function openGroupChat() {
@@ -1133,7 +1100,7 @@ def serve_frontend():
             box.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
                     <h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">💬 ${sessionUser.group_code} Study Chat</h3>
-                    <span style="font-size:0.72rem; color:var(--success); font-weight:800;">● Live WhatsApp Room</span>
+                    <span style="font-size:0.72rem; color:var(--success); font-weight:800;">● Live Room</span>
                 </div>
                 <div class="chat-container">
                     <div class="chat-messages" id="chat-msg-stream">
@@ -1145,21 +1112,26 @@ def serve_frontend():
                         `).join('')}
                     </div>
                     <div class="chat-input-bar">
-                        <button onclick="sendQuickAttachment('audio')" title="Voice Note" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">🎤</button>
-                        <button onclick="sendQuickAttachment('image')" title="Image / Photo" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">📷</button>
-                        <button onclick="sendQuickAttachment('pdf')" title="PDF File" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">📎</button>
+                        <button id="chat-att-audio" title="Voice Note" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">🎤</button>
+                        <button id="chat-att-img" title="Photo" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">📷</button>
+                        <button id="chat-att-pdf" title="PDF" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">📎</button>
                         <input type="text" id="chat-text-input" placeholder="Type message..." style="margin-bottom:0; flex:1; padding:7px 10px; font-size:0.82rem;" />
-                        <button onclick="sendChatMessage('text')" class="btn-action" style="width:50px; padding:7px; font-size:0.82rem;">Send</button>
+                        <button class="btn-action" id="chat-send-btn" style="width:50px; padding:7px; font-size:0.82rem;">Send</button>
                     </div>
                 </div>
             `;
             const stream = document.getElementById('chat-msg-stream');
             stream.scrollTop = stream.scrollHeight;
+
+            document.getElementById('chat-send-btn').addEventListener('click', () => sendChatMessage('text'));
+            document.getElementById('chat-att-audio').addEventListener('click', () => sendChatMessage('audio', '🎵 [Voice Note - 0:14]'));
+            document.getElementById('chat-att-img').addEventListener('click', () => sendChatMessage('image', '📷 [Shared Photo]'));
+            document.getElementById('chat-att-pdf').addEventListener('click', () => sendChatMessage('pdf', '📄 [Manual.pdf]'));
         }
 
         async function sendChatMessage(type, customContent = null) {
             const input = document.getElementById('chat-text-input');
-            const content = customContent || input.value.trim();
+            const content = customContent || (input ? input.value.trim() : '');
             if(!content) return;
 
             const res = await fetch('/api/chat/send', {
@@ -1168,16 +1140,11 @@ def serve_frontend():
                 body: JSON.stringify({ group_code: sessionUser.group_code, sender_username: sessionUser.username, sender_name: sessionUser.full_name, sender_avatar: sessionUser.crew_avatar, msg_type: type, content: content })
             });
             if(res.ok) {
-                if(!customContent) input.value = '';
+                if(!customContent && input) input.value = '';
                 const data = await res.json();
                 academyData.messages.push(data.message);
                 openGroupChat();
             }
-        }
-        function sendQuickAttachment(type) {
-            if(type === 'audio') sendChatMessage('audio', '🎵 [Voice Note - 0:14]');
-            if(type === 'image') sendChatMessage('image', '📷 [Shared Flight Deck Photo]');
-            if(type === 'pdf') sendChatMessage('pdf', '📄 [EASA_Manual_Revision.pdf]');
         }
 
         function openShop(category = 'male') {
@@ -1186,31 +1153,42 @@ def serve_frontend():
 
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                    <h3 style="font-size: 1.05rem; color: #a78bfa; font-weight: 900;">🎁 Tiered Uniform Boutique</h3>
+                    <h3 style="font-size: 1.05rem; color: #a78bfa; font-weight: 900;">🎁 Uniform Boutique</h3>
                     <span style="font-size: 0.8rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
                 </div>
                 <div style="display: flex; gap: 8px; margin-bottom: 0.8rem;">
-                    <button onclick="playAudio('click'); openShop('male')" style="flex:1; padding:8px; border-radius:10px; border:1px solid ${category==='male'?'var(--accent)':'var(--border)'}; background:${category==='male'?'var(--accent-glow)':'var(--bg-deep)'}; color:white; font-weight:800; font-size:0.8rem; cursor:pointer;">👔 Steward Collection</button>
-                    <button onclick="playAudio('click'); openShop('female')" style="flex:1; padding:8px; border-radius:10px; border:1px solid ${category==='female'?'var(--accent)':'var(--border)'}; background:${category==='female'?'var(--accent-glow)':'var(--bg-deep)'}; color:white; font-weight:800; font-size:0.8rem; cursor:pointer;">👗 Hostess Collection</button>
+                    <button id="shop-tab-male" class="btn-action" style="flex:1; padding:8px; border-radius:10px; border:1px solid ${category==='male'?'var(--accent)':'var(--border)'}; background:${category==='male'?'rgba(56,189,248,0.2)':'var(--bg-deep)'}; color:white; font-weight:800; font-size:0.8rem;">👔 Steward</button>
+                    <button id="shop-tab-female" class="btn-action" style="flex:1; padding:8px; border-radius:10px; border:1px solid ${category==='female'?'var(--accent)':'var(--border)'}; background:${category==='female'?'rgba(56,189,248,0.2)':'var(--bg-deep)'}; color:white; font-weight:800; font-size:0.8rem;">👗 Hostess</button>
                 </div>
-                <div style="max-height: 190px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
-                    ${filteredSkins.map(skin => `
-                        <div style="background: var(--bg-deep); padding: 0.7rem 1rem; border-radius: 12px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <span style="font-size: 1.6rem;">${skin.preview_svg}</span>
-                                <div style="display: flex; flex-direction: column; gap: 2px;">
-                                    <div style="display:flex; gap:6px; align-items:center;">
-                                        <b style="color: white; font-size: 0.85rem;">${skin.skin_name}</b>
-                                        <span style="font-size:0.62rem; padding:2px 6px; border-radius:6px; background:rgba(56,189,248,0.15); color:var(--accent); font-weight:800;">${skin.tier_level}</span>
-                                    </div>
-                                    <div style="color: var(--text-muted); font-size: 0.7rem;">${skin.desc_en}</div>
-                                </div>
-                            </div>
-                            <button onclick="playAudio('click'); buySkin('${skin.skin_name}',${skin.cost}, '${category}')" style="background: #8b5cf6; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 0.75rem; cursor: pointer;">${skin.cost === 0 ? 'Equipped' : skin.cost + ' ⭐'}</button>
-                        </div>
-                    `).join('')}
-                </div>
+                <div style="max-height: 190px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;" id="shop-items-list"></div>
             `;
+
+            document.getElementById('shop-tab-male').addEventListener('click', () => openShop('male'));
+            document.getElementById('shop-tab-female').addEventListener('click', () => openShop('female'));
+
+            const itemsList = document.getElementById('shop-items-list');
+            filteredSkins.forEach(skin => {
+                const itemDiv = document.createElement('div');
+                itemDiv.style.cssText = 'background: var(--bg-deep); padding: 0.7rem 1rem; border-radius: 12px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;';
+                itemDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.6rem;">${skin.preview_svg}</span>
+                        <div>
+                            <div style="display:flex; gap:6px; align-items:center;">
+                                <b style="color: white; font-size: 0.85rem;">${skin.skin_name}</b>
+                                <span style="font-size:0.62rem; padding:2px 6px; border-radius:6px; background:rgba(56,189,248,0.15); color:var(--accent);">${skin.tier_level}</span>
+                            </div>
+                            <div style="color: var(--text-muted); font-size: 0.7rem;">${skin.desc_en}</div>
+                        </div>
+                    </div>
+                `;
+                const buyBtn = document.createElement('button');
+                buyBtn.style.cssText = 'background: #8b5cf6; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 0.75rem; cursor: pointer; z-index: 35; position: relative;';
+                buyBtn.innerText = skin.cost === 0 ? 'Equipped' : skin.cost + ' ⭐';
+                buyBtn.addEventListener('click', () => buySkin(skin.skin_name, skin.cost, category));
+                itemDiv.appendChild(buyBtn);
+                itemsList.appendChild(itemDiv);
+            });
         }
 
         async function buySkin(skinName, cost, category) {
@@ -1226,14 +1204,12 @@ def serve_frontend():
             });
             const data = await res.json();
             if(res.ok) {
-                playAudio('success');
                 sessionUser = data.user;
                 localStorage.setItem('aero_crew_user', JSON.stringify(sessionUser));
                 updateDashboardUI();
                 showToast('Successfully unlocked & equipped: ' + skinName + '!');
                 openShop(category);
             } else {
-                playAudio('error');
                 showToast(data.detail || 'Purchase failed', true);
             }
         }
