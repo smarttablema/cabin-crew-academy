@@ -215,7 +215,7 @@
             <label id="tr-reg-role-lbl">Register As</label>
             <select id="reg-role" onchange="toggleTeacherCodeContainer()">
                 <option value="student" id="tr-opt-cadet">🎓 Cadet / Student (Starts with 5,000 XP ⭐)</option>
-                <option value="teacher" id="tr-opt-teacher">👨‍🏫 Instructor / Teacher (Starts with 5,000 XP ⭐)</option>
+                <option value="teacher" id="tr-opt-teacher">👨‍‍🏫 Instructor / Teacher (Starts with 5,000 XP ⭐)</option>
             </select>
 
             <div id="teacher-code-box" class="hidden" style="background: rgba(56, 189, 248, 0.08); padding: 12px; border-radius: 14px; border: 1px dashed var(--accent); margin-bottom: 1.1rem;">
@@ -297,7 +297,7 @@
                     <h4 id="tr-tile-eng">Aviation English & ICAO Mastery</h4>
                 </div>
                 <div class="mode-tile" onclick="launchVocabularyRoadmap()">
-                    <span style="font-size: 1.5rem;">🗣️</span>
+                    <span style="font-size: 1.5rem;">🗣️️</span>
                     <h4 id="tr-tile-vocab">English Vocabulary to Arabic (5k)</h4>
                 </div>
                 <div class="mode-tile" onclick="openSpinningWheelModal()">
@@ -698,7 +698,7 @@
             const role = document.getElementById('reg-role').value;
             const teacher_code = document.getElementById('reg-teacher-code').value.trim();
             const avatar_gender = document.getElementById('reg-gender').value;
-            const group_code = '7842';
+            const group_code = '';
 
             if(!full_name || !username || !phone_number || !password || !recovery_pin) { showToast('Complete all fields', true); return; }
 
@@ -785,7 +785,7 @@
                 streakBadge.innerHTML = `🔥 <span id="dash-streak">${streakVal}</span>`;
             }
 
-            const roleText = sessionUser.role === 'teacher' ? 'Instructor / Teacher (Code: ' + sessionUser.group_code + ')' : 'Cadet / Student (Code: ' + sessionUser.group_code + ')';
+            const roleText = sessionUser.role === 'teacher' ? 'Instructor / Teacher' : 'Cadet / Student';
             document.getElementById('dash-role-badge').innerText = roleText;
             document.getElementById('settings-my-username').innerText = '@' + sessionUser.username;
         }
@@ -800,7 +800,7 @@
         }
 
         async function fetchGroupData() {
-            if(!sessionUser) return;
+            if(!sessionUser || !sessionUser.group_code) return;
             const res = await fetch('/api/group/info?group_code=' + sessionUser.group_code);
             groupInfo = await res.json();
         }
@@ -1493,7 +1493,7 @@
                 if(timerEl) timerEl.innerText = `⏱️ ${timeLeft}s`;
                 if(timeLeft <= 0) {
                     clearInterval(questionTimerInterval);
-                    showToast('Time expired! Heart lost ❤️-1', true);
+                    showToast('Time expired! Heart lost ❤️️-1', true);
                     const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `${poolKey}_node_${nodeNum}`;
                     const res = await fetch('/api/node/complete', {
                         method: 'POST',
@@ -1662,15 +1662,24 @@
             }, 150);
         }
 
-        /* STUDY & EXAMS STUDIO (INCLUDING TEACHER CODE INPUT BOX) */
+        /* STUDY & EXAMS STUDIO */
         async function openStudyHub() {
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
             
-            const res = await fetch('/api/group/info?group_code=' + sessionUser.group_code);
-            groupInfo = await res.json();
+            if(sessionUser && sessionUser.group_code) {
+                try {
+                    const res = await fetch('/api/group/info?group_code=' + sessionUser.group_code);
+                    groupInfo = await res.json();
+                } catch(e) {
+                    groupInfo = { group: null, members: [], lessons: [], exams: [] };
+                }
+            } else {
+                groupInfo = { group: null, members: [], lessons: [], exams: [] };
+            }
+            
             const isTeacher = sessionUser.role === 'teacher';
 
             let teacherControls = '';
@@ -1698,11 +1707,11 @@
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
                     <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">📚 Study & Exams Studio</h3>
-                    <span style="font-size: 0.78rem; color: var(--success); font-weight: 800;">Code: ${sessionUser.group_code}</span>
+                    <span style="font-size: 0.78rem; color: var(--success); font-weight: 800;">${sessionUser.group_code ? 'Code: ' + sessionUser.group_code : 'No Code'}</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
                     
-                    <!-- DESIGNED TEACHER CODE INPUT BOX FOR STUDENTS -->
+                    <!-- TEACHER CODE INPUT BOX (CLEANED) -->
                     <div style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(2, 6, 23, 0.9)); padding: 1.4rem; border-radius: 20px; border: 1px solid var(--accent); margin-bottom: 1.5rem; box-shadow: 0 0 25px var(--accent-glow);">
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
                             <span style="font-size:1.5rem;">🔑</span>
@@ -1710,7 +1719,7 @@
                         </div>
                         <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">Enter your instructor's access code below to load their official exams and sync your statistics directly to their dashboard.</p>
                         <div style="display:flex; gap:10px;">
-                            <input type="text" id="student-group-code-input" value="${sessionUser.group_code || ''}" placeholder="e.g. 7842" maxlength="6" style="margin-bottom:0; flex:1; text-align:center; font-weight:800; letter-spacing:2px;" />
+                            <input type="text" id="student-group-code-input" value="${sessionUser.group_code || ''}" placeholder="Enter code..." maxlength="6" style="margin-bottom:0; flex:1; text-align:center; font-weight:800; letter-spacing:2px;" />
                             <button class="btn-action" onclick="updateStudentGroupCode()" style="width:130px; margin-top:0; padding:10px; font-size:0.85rem; background:var(--success); color:white;">Load Exams 🚀</button>
                         </div>
                     </div>
@@ -1914,7 +1923,7 @@
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️️ 1v1 Battle Arena</h3>
+                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️ 1v1 Battle Arena</h3>
                     <span style="font-size: 0.78rem; color: var(--gold); font-weight: 800;">Duel</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
@@ -2158,7 +2167,7 @@
             const contentEl = document.getElementById('battle-modal-content');
             contentEl.innerHTML = `
                 <div style="text-align:center; padding: 2rem 0;">
-                    <div style="font-size: 4rem; margin-bottom: 1.2rem;">${data.result === 'win' ? '🏆' : (data.result === 'draw' ? '🤝' : '✈️️')}</div>
+                    <div style="font-size: 4rem; margin-bottom: 1.2rem;">${data.result === 'win' ? '🏆' : (data.result === 'draw' ? '🤝' : '✈️')}</div>
                     <h3 style="font-size: 1.4rem; color: ${outcomeColor}; font-weight: 900; margin-bottom: 0.6rem;">${outcomeTitle}</h3>
                     <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 2rem; line-height:1.6;">Your Score: <b>${battleScore}/8</b> | Opponent Score: <b>${data.opponent_score}/8</b><br><br>${rewardMsg}</p>
                     <button class="btn-action" onclick="document.getElementById('battle-arena-modal').style.display='none'; refreshUserData(false);" style="background:var(--success); color:white; padding:1.1rem;">Close Arena 🚀</button>
