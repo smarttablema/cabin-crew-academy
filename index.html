@@ -785,7 +785,7 @@
                 streakBadge.innerHTML = `🔥 <span id="dash-streak">${streakVal}</span>`;
             }
 
-            const roleText = sessionUser.role === 'teacher' ? 'Instructor / Teacher (Code: ' + sessionUser.group_code + ')' : 'Cadet / Student';
+            const roleText = sessionUser.role === 'teacher' ? 'Instructor / Teacher (Code: ' + sessionUser.group_code + ')' : 'Cadet / Student (Code: ' + sessionUser.group_code + ')';
             document.getElementById('dash-role-badge').innerText = roleText;
             document.getElementById('settings-my-username').innerText = '@' + sessionUser.username;
         }
@@ -832,7 +832,7 @@
                 if(count > 0) {
                     countEl.innerText = count;
                 } else if(count === 0) {
-                    countEl.innerText = 'GO! ✈️️';
+                    countEl.innerText = 'GO! ✈';
                 } else {
                     clearInterval(timer);
                     modal.style.display = 'none';
@@ -1123,7 +1123,6 @@
             ]
         };
 
-        // 5000 FULL VOCABULARY GENERATOR DATABASE
         const baseVocabList = [
             { en: "Altimeter", ar: "مقياس الارتفاع" }, { en: "Aileron", ar: "جنيح الطائرة" }, { en: "Fuselage", ar: "بدن الطائرة" },
             { en: "Empennage", ar: "ذيل الطائرة" }, { en: "Turbulence", ar: "مطبات هوائية" }, { en: "Knots", ar: "عقدة بحرية (سرعة)" },
@@ -1322,7 +1321,6 @@
                     showToast('Pronunciation Accepted! +30 XP ⭐');
                     if(statusEl) statusEl.innerText = `Matched! Review Arabic translation below...`;
                     
-                    // Extended 6-second delay so students can clearly see and memorize the Arabic translation
                     setTimeout(() => completeVocabNode(nodeNum), 6000);
                 } else {
                     showToast(`Mispronounced. Heart lost ❤️-1`, true);
@@ -1664,12 +1662,13 @@
             }, 150);
         }
 
-        /* STUDY & EXAMS STUDIO */
+        /* STUDY & EXAMS STUDIO (INCLUDING TEACHER CODE INPUT BOX) */
         async function openStudyHub() {
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
+            
             const res = await fetch('/api/group/info?group_code=' + sessionUser.group_code);
             groupInfo = await res.json();
             const isTeacher = sessionUser.role === 'teacher';
@@ -1702,10 +1701,25 @@
                     <span style="font-size: 0.78rem; color: var(--success); font-weight: 800;">Code: ${sessionUser.group_code}</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
+                    
+                    <!-- DESIGNED TEACHER CODE INPUT BOX FOR STUDENTS -->
+                    <div style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(2, 6, 23, 0.9)); padding: 1.4rem; border-radius: 20px; border: 1px solid var(--accent); margin-bottom: 1.5rem; box-shadow: 0 0 25px var(--accent-glow);">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                            <span style="font-size:1.5rem;">🔑</span>
+                            <h4 style="color:var(--accent); font-size:1rem; font-weight:900; margin-bottom:0;">Enter Teacher / Class Code</h4>
+                        </div>
+                        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">Enter your instructor's access code below to load their official exams and sync your statistics directly to their dashboard.</p>
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="student-group-code-input" value="${sessionUser.group_code || ''}" placeholder="e.g. 7842" maxlength="6" style="margin-bottom:0; flex:1; text-align:center; font-weight:800; letter-spacing:2px;" />
+                            <button class="btn-action" onclick="updateStudentGroupCode()" style="width:130px; margin-top:0; padding:10px; font-size:0.85rem; background:var(--success); color:white;">Load Exams 🚀</button>
+                        </div>
+                    </div>
+
                     ${teacherControls}
+
                     <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">Official Exams (${groupInfo.exams.length})</h4>
                     <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.5rem;">
-                        ${groupInfo.exams.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No exams available.</div>' :
+                        ${groupInfo.exams.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No exams available for this code. Enter a valid teacher code above.</div>' :
                           groupInfo.exams.map(e => `
                             <div style="background:var(--surface-card); padding:14px; border-radius:16px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
                                 <div><b style="color:white; font-size:0.95rem;">🏆 ${e.title}</b></div>
@@ -1715,6 +1729,29 @@
                     </div>
                 </div>
             `;
+        }
+
+        async function updateStudentGroupCode() {
+            playSound('click');
+            const codeInput = document.getElementById('student-group-code-input');
+            const newCode = codeInput ? codeInput.value.trim() : '';
+            if(!newCode) { showToast('Enter a valid code', true); return; }
+
+            const res = await fetch('/api/user/group-update', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ phone_number: sessionUser.phone_number, group_code: newCode })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                sessionUser = data.user;
+                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                updateDashboardUI();
+                showToast('Class code updated successfully! Loading exams...');
+                openStudyHub();
+            } else {
+                showToast(data.detail || 'Failed to update code', true);
+            }
         }
 
         function addExamQuestionRow() {
@@ -1877,7 +1914,7 @@
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️ 1v1 Battle Arena</h3>
+                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️️ 1v1 Battle Arena</h3>
                     <span style="font-size: 0.78rem; color: var(--gold); font-weight: 800;">Duel</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
@@ -2121,7 +2158,7 @@
             const contentEl = document.getElementById('battle-modal-content');
             contentEl.innerHTML = `
                 <div style="text-align:center; padding: 2rem 0;">
-                    <div style="font-size: 4rem; margin-bottom: 1.2rem;">${data.result === 'win' ? '🏆' : (data.result === 'draw' ? '🤝' : '✈️')}</div>
+                    <div style="font-size: 4rem; margin-bottom: 1.2rem;">${data.result === 'win' ? '🏆' : (data.result === 'draw' ? '🤝' : '✈️️')}</div>
                     <h3 style="font-size: 1.4rem; color: ${outcomeColor}; font-weight: 900; margin-bottom: 0.6rem;">${outcomeTitle}</h3>
                     <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 2rem; line-height:1.6;">Your Score: <b>${battleScore}/8</b> | Opponent Score: <b>${data.opponent_score}/8</b><br><br>${rewardMsg}</p>
                     <button class="btn-action" onclick="document.getElementById('battle-arena-modal').style.display='none'; refreshUserData(false);" style="background:var(--success); color:white; padding:1.1rem;">Close Arena 🚀</button>
