@@ -11,7 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="28.0.0")
+app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="29.0.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -1373,6 +1373,26 @@ def serve_frontend():
             }
         }
 
+        async function submitReset() {
+            playSound('click');
+            const phone_number = document.getElementById('reset-phone').value.trim();
+            const recovery_pin = document.getElementById('reset-pin').value.trim();
+            const new_password = document.getElementById('reset-new').value.trim();
+            if(!phone_number || !recovery_pin || !new_password) { showToast('Complete all fields', true); return; }
+            
+            const res = await fetch('/api/user/password-change', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ phone_number, recovery_pin, new_password })
+            });
+            if(res.ok) {
+                showToast('Password updated successfully! Please sign in.');
+                navigateTo('screen-login');
+            } else {
+                showToast('Invalid phone or recovery PIN', true);
+            }
+        }
+
         function updateDashboardUI() {
             if(!sessionUser) return;
             document.getElementById('dash-name').innerText = sessionUser.full_name;
@@ -1603,7 +1623,7 @@ def serve_frontend():
                     <b style="color:white; font-size:0.95rem; display:block; margin-bottom:12px;">${qObj.q}</b>
                     <div style="display:flex; flex-direction:column; gap:8px;">
                         ${qObj.options.map((opt, idx) => `
-                            <button class="btn-action" onclick="verifyDynamicAnswer('${poolKey}', ${nodeNum}, ${idx === qObj.correct}, ${stepIdx}, ${JSON.stringify(questions).replace(/"/g, '&quot;')})" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:11px; font-size:0.85rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
+                            <button class="btn-action" onclick="verifyDynamicAnswer('${poolKey}', ${nodeNum}, ${idx === qObj.correct}, ${stepIdx}, ${encodeURIComponent(JSON.stringify(questions))})" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:11px; font-size:0.85rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
                         `).join('')}
                     </div>
                 </div>
@@ -1633,10 +1653,10 @@ def serve_frontend():
             }, 1000);
         }
 
-        async function verifyDynamicAnswer(poolKey, nodeNum, isCorrect, stepIdx, questionsJson) {
+        async function verifyDynamicAnswer(poolKey, nodeNum, isCorrect, stepIdx, questionsParam) {
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             const fb = document.getElementById('dyn-feedback');
-            const questions = typeof questionsJson === 'string' ? JSON.parse(questionsJson.replace(/&quot;/g, '"')) : questionsJson;
+            const questions = typeof questionsParam === 'string' ? JSON.parse(decodeURIComponent(questionsParam)) : questionsParam;
             const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `${poolKey}_node_${nodeNum}`;
 
             if(isCorrect) {
@@ -1764,7 +1784,7 @@ def serve_frontend():
             if(isTeacher) {
                 teacherControls = `
                     <div style="background:var(--bg-deep); padding:1rem; border-radius:14px; border:1px solid var(--accent); margin-bottom:1rem;">
-                        <h4 style="color:var(--accent); font-size:0.9rem; margin-bottom:0.5rem;">👨‍‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
+                        <h4 style="color:var(--accent); font-size:0.9rem; margin-bottom:0.5rem;">👨‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
                         
                         <div style="margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:10px;">
                             <label><b>Create Quiz</b></label>
@@ -1823,7 +1843,7 @@ def serve_frontend():
                       groupInfo.exams.map(e => `
                         <div style="background:var(--bg-deep); padding:10px; border-radius:12px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
                             <div><b style="color:white; font-size:0.85rem;">🏆 ${e.title}</b><div style="color:var(--text-muted); font-size:0.7rem;">Teacher: ${e.teacher_username}</div></div>
-                            <button class="btn-action" onclick='takeExam(${JSON.stringify(e)})' style="width:90px; padding:6px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Start ⏱</button>
+                            <button class="btn-action" onclick='takeExam(${encodeURIComponent(JSON.stringify(e))})' style="width:90px; padding:6px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Start ⏱</button>
                         </div>
                     `).join('')}
                 </div>
@@ -1834,7 +1854,7 @@ def serve_frontend():
                       groupInfo.lessons.map(l => `
                         <div style="background:var(--bg-deep); padding:10px; border-radius:12px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
                             <div><b style="color:white; font-size:0.85rem;">📝 ${l.title}</b></div>
-                            <button class="btn-action" onclick='takeLessonQuiz(${JSON.stringify(l)})' style="width:90px; padding:6px; font-size:0.75rem; margin-top:0;">Take 📝</button>
+                            <button class="btn-action" onclick='takeLessonQuiz(${encodeURIComponent(JSON.stringify(l))})' style="width:90px; padding:6px; font-size:0.75rem; margin-top:0;">Take 📝</button>
                         </div>
                     `).join('')}
                 </div>
@@ -1947,8 +1967,9 @@ def serve_frontend():
         let currentExamTimer = null;
         let examStartTime = 0;
 
-        function takeExam(exam) {
+        function takeExam(examParam) {
             playSound('click');
+            const exam = typeof examParam === 'string' ? JSON.parse(decodeURIComponent(examParam)) : examParam;
             let questions = exam.exam_data;
             if(typeof questions === 'string') questions = JSON.parse(questions);
             examStartTime = Date.now();
@@ -1997,8 +2018,9 @@ def serve_frontend():
             }
         }
 
-        function takeLessonQuiz(lesson) {
+        function takeLessonQuiz(lessonParam) {
             playSound('click');
+            const lesson = typeof lessonParam === 'string' ? JSON.parse(decodeURIComponent(lessonParam)) : lessonParam;
             let questions = lesson.quiz_data;
             if(typeof questions === 'string') questions = JSON.parse(questions);
 
