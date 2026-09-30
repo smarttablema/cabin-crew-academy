@@ -11,7 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="27.0.0")
+app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="28.0.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -1159,7 +1159,7 @@ def serve_frontend():
                 phoneLbl: "رقم الهاتف", passLbl: "كلمة المرور", loginBtn: "تسجيل الدخول",
                 regNav: "إنشاء حساب", resetNav: "نسيت كلمة المرور؟",
                 regTitle: "تسجيل المتدربين والمدربين", regSub: "سجل ملفك الشخصي واجتاز التدريب وصمم صورتك الرمزية.",
-                regRoleLbl: "التسجيل كـ", optCadet: "🎓 متدرب / طالب", optTeacher: "👨‍🏫 مدرب / معلم",
+                regRoleLbl: "التسجيل كـ", optCadet: "🎓 متدرب / طالب", optTeacher: "👨‍‍🏫 مدرب / معلم",
                 regNameLbl: "الاسم الكامل", regUserLbl: "اسم المستخدم الفريد", regPassLbl: "كلمة المرور", regPinLbl: "رقم الاسترداد السري (4 أرقام)",
                 avatarStudioTitle: "🎨 تخصيص الصورة الرمزية", avatarTypeLbl: "نوع الصورة", optSteward: "👔 مضيف جوي", optHostess: "👗 مضيفة جوية",
                 completeRegBtn: "إتمام التسجيل", backLogin: "لديك حساب بالفعل؟ سجل دخولك",
@@ -1498,7 +1498,7 @@ def serve_frontend():
         };
 
         function getRandomQuizQuestions(poolKey, count = 3) {
-            const pool = [...masterQuestionPools[poolKey]];
+            const pool = [...(masterQuestionPools[poolKey] || masterQuestionPools['year1'])];
             for (let i = pool.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -1690,7 +1690,6 @@ def serve_frontend():
         /* ROADMAPS FOR YEAR 1 & YEAR 2 (RANDOMIZED ANTI-CHEAT) */
         function launchRoadmap(yearKey) {
             playSound('click');
-            activeRoadmapYear = yearKey;
             const box = document.getElementById('simulation-box');
             const completedList = sessionUser.completed_nodes || [];
             
@@ -1765,7 +1764,7 @@ def serve_frontend():
             if(isTeacher) {
                 teacherControls = `
                     <div style="background:var(--bg-deep); padding:1rem; border-radius:14px; border:1px solid var(--accent); margin-bottom:1rem;">
-                        <h4 style="color:var(--accent); font-size:0.9rem; margin-bottom:0.5rem;">👨‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
+                        <h4 style="color:var(--accent); font-size:0.9rem; margin-bottom:0.5rem;">👨‍‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
                         
                         <div style="margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:10px;">
                             <label><b>Create Quiz</b></label>
@@ -2256,7 +2255,9 @@ def serve_frontend():
                 }
                 mediaRecorder = new MediaRecorder(stream, options);
                 audioChunks = [];
-                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.ondataavailable = e => {
+                    if (e.data && e.data.size > 0) audioChunks.push(e.data);
+                };
                 mediaRecorder.start();
                 showToast('Recording voice note...');
                 const controls = document.getElementById('voice-recording-controls');
