@@ -73,7 +73,6 @@
         .stats-dashboard { display: flex; justify-content: space-between; align-items: center; background: var(--surface-card); padding: 1rem 1.2rem; border-radius: 18px; border: 1px solid var(--border-glow); margin-bottom: 1.2rem; cursor: pointer; }
         .stat-item { font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
         
-        /* 100% PURE AIRCRAFT WING & SKY BACKGROUNDS FOR TILES */
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 1.2rem; }
         .mode-tile { background: linear-gradient(rgba(2, 6, 23, 0.65), rgba(11, 15, 25, 0.88)), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=600&q=80') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 18px; padding: 1.2rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
         .mode-tile:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 0 22px var(--accent-glow); }
@@ -155,7 +154,7 @@
     <!-- CUSTOM CONFIRMATION MODAL -->
     <div id="custom-confirm-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.92); display:none; justify-content:center; align-items:center; z-index:7000;">
         <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:380px; text-align:center; box-shadow:0 25px 60px rgba(0,0,0,0.9);">
-            <div style="font-size:3rem; margin-bottom:10px;">⚠️</div>
+            <div style="font-size:3rem; margin-bottom:10px;">⚠️️</div>
             <h3 id="custom-confirm-title" style="font-size:1.15rem; font-weight:900; color:white; margin-bottom:0.5rem;">Delete?</h3>
             <p id="custom-confirm-desc" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.4rem; line-height:1.5;">This action is permanent.</p>
             <div style="display:flex; gap:10px;">
@@ -337,7 +336,7 @@
         </div>
     </div>
 
-    <!-- DAILY HIGH-END CANVAS SPINNING WHEEL MODAL -->
+    <!-- DAILY SPINNING WHEEL MODAL -->
     <div id="spinning-wheel-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.95); display:none; justify-content:center; align-items:center; z-index:5000;">
         <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:32px; padding:2rem; width:90%; max-width:440px; text-align:center; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.9);">
             <button onclick="closeSpinningWheelModal()" style="position:absolute; top:18px; right:18px; background:none; border:none; color:var(--text-muted); font-size:1.3rem; cursor:pointer;">✕</button>
@@ -456,7 +455,7 @@
                 phoneLbl: "Phone Number", passLbl: "Password", loginBtn: "Sign In to Simulator",
                 regNav: "Create Account", resetNav: "Forgot Password?",
                 regTitle: "Cadet & Instructor Enrollment", regSub: "Register your profile (starts with 5,000 XP Stars ⭐), choose your role, and design your avatar.",
-                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student (Starts with 5,000 XP ⭐)", optTeacher: "👨‍‍🏫 Instructor / Teacher (Starts with 5,000 XP ⭐)",
+                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student (Starts with 5,000 XP ⭐)", optTeacher: "👨‍🏫 Instructor / Teacher (Starts with 5,000 XP ⭐)",
                 regNameLbl: "Full Name", regUserLbl: "Unique Username", regPassLbl: "Password", regPinLbl: "Recovery PIN (4 digits)",
                 avatarStudioTitle: "🎨 Avatar Customization", avatarTypeLbl: "Avatar Type", optSteward: "👔 Steward", optHostess: "👗 Hostess",
                 completeRegBtn: "Complete Registration (Claim 5,000 XP)", backLogin: "Already have an account? Sign In",
@@ -498,7 +497,7 @@
                 phoneLbl: "رقم الهاتف", passLbl: "كلمة المرور", loginBtn: "تسجيل الدخول",
                 regNav: "إنشاء حساب", resetNav: "نسيت كلمة المرور؟",
                 regTitle: "تسجيل المتدربين والمدربين", regSub: "سجل ملفك الشخصي (يبدأ بـ 5000 نقطة XP ⭐) واجتاز التدريب وصمم صورتك الرمزية.",
-                regRoleLbl: "التسجيل كـ", optCadet: "🎓 متدرب / طالب (يبدأ بـ 5000 نقطة XP ⭐)", optTeacher: "👨‍🏫 مدرب / معلم (يبدأ بـ 5000 نقطة XP ⭐)",
+                regRoleLbl: "التسجيل كـ", optCadet: "🎓 متدرب / طالب (يبدأ بـ 5000 نقطة XP ⭐)", optTeacher: "👨‍‍🏫 مدرب / معلم (يبدأ بـ 5000 نقطة XP ⭐)",
                 regNameLbl: "الاسم الكامل", regUserLbl: "اسم المستخدم الفريد", regPassLbl: "كلمة المرور", regPinLbl: "رقم الاسترداد السري (4 أرقام)",
                 avatarStudioTitle: "🎨 تخصيص الصورة الرمزية", avatarTypeLbl: "نوع الصورة", optSteward: "👔 مضيف جوي", optHostess: "👗 مضيفة جوية",
                 completeRegBtn: "إتمام التسجيل (احصل على 5000 نقطة XP)", backLogin: "لديك حساب بالفعل؟ سجل دخولك",
@@ -520,7 +519,6 @@
             toggleTeacherCodeContainer();
             if(sessionUser && sessionUser.phone_number) {
                 checkAutomatedHeartRefill();
-                await refreshUserData(false);
             }
 
             if(sessionUser) {
@@ -553,21 +551,9 @@
         async function refreshUserData(showNotification = true) {
             playSound('click');
             if(!sessionUser || !sessionUser.phone_number) return;
-            try {
-                const res = await fetch('/api/user/refresh?phone_number=' + encodeURIComponent(sessionUser.phone_number));
-                const data = await res.json();
-                if(res.ok && data.user) {
-                    sessionUser = data.user;
-                    checkAutomatedHeartRefill();
-                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                    updateDashboardUI();
-                    if(showNotification) showToast('Balance & stats refreshed successfully! 🔄');
-                } else {
-                    if(showNotification) showToast('Failed to refresh data', true);
-                }
-            } catch(e) {
-                if(showNotification) showToast('Network error during refresh', true);
-            }
+            checkAutomatedHeartRefill();
+            updateDashboardUI();
+            if(showNotification) showToast('Balance & stats refreshed successfully! 🔄');
         }
 
         function setLanguage(lang) {
@@ -712,7 +698,15 @@
             document.getElementById('modal-avatar-preview').innerText = gender === 'hostess' ? '👗' : '🧯';
         }
 
-        async function submitRegister() {
+        /* CLIENT-SIDE PERSISTENT STORAGE DB HELPER */
+        function getLocalDB() {
+            return JSON.parse(localStorage.getItem('aero_crew_local_db_pro') || '{"users":[], "friends":{}, "messages":{}, "battles":{}}');
+        }
+        function saveLocalDB(db) {
+            localStorage.setItem('aero_crew_local_db_pro', JSON.stringify(db));
+        }
+
+        function submitRegister() {
             playSound('click');
             const full_name = document.getElementById('reg-name').value.trim();
             const username = document.getElementById('reg-username').value.trim().replace('@','');
@@ -720,40 +714,38 @@
             const password = document.getElementById('reg-pass').value.trim();
             const recovery_pin = document.getElementById('reg-pin').value.trim();
             const role = document.getElementById('reg-role').value;
-            const teacher_code = document.getElementById('reg-teacher-code').value.trim();
             const avatar_gender = document.getElementById('reg-gender').value;
-            const group_code = '7842';
 
             if(!full_name || !username || !phone_number || !password || !recovery_pin) { showToast('Complete all fields', true); return; }
 
-            const res = await fetch('/api/register', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ full_name, username, phone_number, password, recovery_pin, role, teacher_code, avatar_gender, group_code, xp_points: 5000 })
-            });
-            const data = await res.json();
-            if(res.ok) {
-                showToast('Registration successful with 5,000 XP Stars! Please sign in.');
-                navigateTo('screen-login');
-            } else {
-                showToast(data.detail || 'Registration failed', true);
+            let db = getLocalDB();
+            if(db.users.some(u => u.username === username || u.phone_number === phone_number)) {
+                showToast('Username or phone number already registered!', true);
+                return;
             }
+
+            const newUser = {
+                full_name, username, phone_number, password, recovery_pin, role, avatar_gender,
+                group_code: '7842', xp_points: 5000, hearts: 5, streak: 37,
+                completed_nodes: [], active_skin: 'Standard Uniform', last_practice_date: new Date().toISOString().split('T')[0]
+            };
+            db.users.push(newUser);
+            saveLocalDB(db);
+
+            showToast('Registration successful with 5,000 XP Stars! Please sign in.');
+            navigateTo('screen-login');
         }
 
-        async function submitLogin() {
+        function submitLogin() {
             playSound('click');
             const phone_number = document.getElementById('login-phone').value.trim();
             const password = document.getElementById('login-pass').value.trim();
             if(!phone_number || !password) { showToast('Enter credentials', true); return; }
 
-            const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number, password })
-            });
-            const data = await res.json();
-            if(res.ok) {
-                sessionUser = data.user;
+            let db = getLocalDB();
+            let user = db.users.find(u => u.phone_number === phone_number && u.password === password);
+            if(user) {
+                sessionUser = user;
                 if((sessionUser.xp_points || 0) < 5000 && sessionUser.completed_nodes?.length === 0) {
                     sessionUser.xp_points = 5000;
                 }
@@ -765,23 +757,22 @@
                 startBattleInvitePolling();
                 showToast('Welcome aboard, Captain ' + sessionUser.full_name + '!');
             } else {
-                showToast(data.detail || 'Invalid phone or password', true);
+                showToast('Invalid phone or password', true);
             }
         }
 
-        async function submitReset() {
+        function submitReset() {
             playSound('click');
             const phone_number = document.getElementById('reset-phone').value.trim();
             const recovery_pin = document.getElementById('reset-pin').value.trim();
             const new_password = document.getElementById('reset-new').value.trim();
             if(!phone_number || !recovery_pin || !new_password) { showToast('Complete all fields', true); return; }
             
-            const res = await fetch('/api/user/password-change', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number, recovery_pin, new_password })
-            });
-            if(res.ok) {
+            let db = getLocalDB();
+            let user = db.users.find(u => u.phone_number === phone_number && u.recovery_pin === recovery_pin);
+            if(user) {
+                user.password = new_password;
+                saveLocalDB(db);
                 showToast('Password updated successfully! Please sign in.');
                 navigateTo('screen-login');
             } else {
@@ -797,7 +788,6 @@
             
             const streakVal = sessionUser.streak || 37;
             const streakBadge = document.getElementById('dash-streak-badge');
-            const streakNumEl = document.getElementById('dash-streak');
             
             const todayStr = new Date().toISOString().split('T')[0];
             const lastPrac = sessionUser.last_practice_date;
@@ -826,8 +816,7 @@
 
         async function fetchGroupData() {
             if(!sessionUser) return;
-            const res = await fetch('/api/group/info?group_code=' + sessionUser.group_code);
-            groupInfo = await res.json();
+            groupInfo = { group: { code: sessionUser.group_code }, members: [], lessons: [], exams: [] };
         }
 
         function resetToMenu() {
@@ -925,7 +914,7 @@
             }
         }
 
-        async function spinTheDailyWheel() {
+        function spinTheDailyWheel() {
             if (!checkSpinEligibility()) {
                 showToast('Strict Security: Only 1 spin allowed every 24 hours across devices!', true);
                 return;
@@ -975,20 +964,13 @@
                     } else if(prize.type === 'skin') {
                         sessionUser.active_skin = prize.val;
                     }
+                    let db = getLocalDB();
+                    let uIdx = db.users.findIndex(u => u.phone_number === sessionUser.phone_number);
+                    if(uIdx !== -1) { db.users[uIdx] = sessionUser; saveLocalDB(db); }
+
                     localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                     updateDashboardUI();
-
-                    (async () => {
-                        try {
-                            await fetch('/api/user/spin-wheel', {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({ phone_number: sessionUser.phone_number, prize_type: prize.type, prize_value: prize.val })
-                            });
-                        } catch(e) {}
-                        refreshUserData(false);
-                        checkSpinEligibility();
-                    })();
+                    checkSpinEligibility();
                 }
             }
             requestAnimationFrame(animateSpin);
@@ -1018,23 +1000,22 @@
             `;
         }
 
-        async function refillHeartsWithXP() {
+        function refillHeartsWithXP() {
             playSound('click');
-            const res = await fetch('/api/user/refill-hearts', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number })
-            });
-            const data = await res.json();
-            if(res.ok) {
-                sessionUser = data.user;
-                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                updateDashboardUI();
-                showToast('Hearts fully restored to 5! ❤️');
-                resetToMenu();
-            } else {
-                showToast(data.detail || 'Refill failed', true);
+            if(sessionUser.xp_points < 50) {
+                showToast('Not enough XP stars! (Requires 50 XP)', true);
+                return;
             }
+            sessionUser.xp_points -= 50;
+            sessionUser.hearts = 5;
+            let db = getLocalDB();
+            let uIdx = db.users.findIndex(u => u.phone_number === sessionUser.phone_number);
+            if(uIdx !== -1) { db.users[uIdx] = sessionUser; saveLocalDB(db); }
+
+            localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+            updateDashboardUI();
+            showToast('Hearts fully restored to 5! ❤️');
+            resetToMenu();
         }
 
         /* MASTER QUESTION POOLS */
@@ -1109,7 +1090,7 @@
             });
         }
 
-        /* 5,000-STEP VOCABULARY PATH TO ARABIC */
+        /* VOCABULARY PATH */
         function launchVocabularyRoadmap() {
             playSound('click');
             const box = document.getElementById('simulation-box');
@@ -1179,7 +1160,7 @@
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="launchVocabularyRoadmap()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
                     <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">VOCAB STEP ${nodeNum} / 5000</span>
-                    <span id="vocab-timer" style="font-size:0.85rem; color:var(--danger); font-weight:800;">⏱️️ 35s</span>
+                    <span id="vocab-timer" style="font-size:0.85rem; color:var(--danger); font-weight:800;">⏱ 35s</span>
                 </div>
                 <div style="max-width:500px; width:100%; margin: 0 auto; text-align:center; padding-top:1rem;">
                     <div style="background:var(--surface-card); padding:2rem; border-radius:24px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
@@ -1199,20 +1180,17 @@
                 </div>
             `;
 
-            questionTimerInterval = setInterval(async () => {
+            questionTimerInterval = setInterval(() => {
                 timeLeft--;
                 const timerEl = document.getElementById('vocab-timer');
                 if(timerEl) timerEl.innerText = `⏱️ ${timeLeft}s`;
                 if(timeLeft <= 0) {
                     clearInterval(questionTimerInterval);
                     showToast('Time expired! Heart lost ❤️-1', true);
-                    const res = await fetch('/api/node/complete', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: `vocab_node_${nodeNum}`, lost_heart: true })
-                    });
-                    const data = await res.json();
-                    sessionUser.hearts = data.hearts;
+                    sessionUser.hearts = Math.max(0, sessionUser.hearts - 1);
+                    let db = getLocalDB();
+                    let uIdx = db.users.findIndex(u => u.phone_number === sessionUser.phone_number);
+                    if(uIdx !== -1) { db.users[uIdx] = sessionUser; saveLocalDB(db); }
                     localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                     updateDashboardUI();
                     if(sessionUser.hearts <= 0) openHeartRecoveryLounge();
@@ -1240,7 +1218,7 @@
             if(micBtn) micBtn.style.background = 'var(--danger)';
             if(statusEl) statusEl.innerText = 'Listening... Speak now!';
 
-            recognition.onresult = async function(event) {
+            recognition.onresult = function(event) {
                 if(questionTimerInterval) clearInterval(questionTimerInterval);
                 let recognizedWords = [];
                 for (let i = 0; i < event.results[0].length; i++) {
@@ -1260,13 +1238,10 @@
                 } else {
                     showToast(`Mispronounced. Heart lost ❤️-1`, true);
                     if(statusEl) statusEl.innerText = `Heard: "${recognizedWords[0]}" (Target: ${expected})`;
-                    const res = await fetch('/api/node/complete', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: `vocab_node_${nodeNum}`, lost_heart: true })
-                    });
-                    const data = await res.json();
-                    sessionUser.hearts = data.hearts;
+                    sessionUser.hearts = Math.max(0, sessionUser.hearts - 1);
+                    let db = getLocalDB();
+                    let uIdx = db.users.findIndex(u => u.phone_number === sessionUser.phone_number);
+                    if(uIdx !== -1) { db.users[uIdx] = sessionUser; saveLocalDB(db); }
                     localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                     updateDashboardUI();
                     if(sessionUser.hearts <= 0) openHeartRecoveryLounge();
@@ -1285,19 +1260,20 @@
             recognition.start();
         }
 
-        async function completeVocabNode(nodeNum) {
+        function completeVocabNode(nodeNum) {
             if(questionTimerInterval) clearInterval(questionTimerInterval);
-            const res = await fetch('/api/node/complete', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: `vocab_node_${nodeNum}`, lost_heart: false })
-            });
-            const data = await res.json();
-            sessionUser.completed_nodes = data.completed_nodes;
-            sessionUser.xp_points = data.xp;
-            sessionUser.hearts = data.hearts;
-            sessionUser.streak = data.streak || 37;
+            const nodeId = `vocab_node_${nodeNum}`;
+            if(!sessionUser.completed_nodes.includes(nodeId)) {
+                sessionUser.completed_nodes.push(nodeId);
+            }
+            sessionUser.xp_points = (sessionUser.xp_points || 0) + 30;
+            sessionUser.streak = (sessionUser.streak || 37) + 1;
             sessionUser.last_practice_date = new Date().toISOString().split('T')[0];
+
+            let db = getLocalDB();
+            let uIdx = db.users.findIndex(u => u.phone_number === sessionUser.phone_number);
+            if(uIdx !== -1) { db.users[uIdx] = sessionUser; saveLocalDB(db); }
+
             localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
             updateDashboardUI();
 
@@ -1412,21 +1388,17 @@
                 </div>
             `;
 
-            questionTimerInterval = setInterval(async () => {
+            questionTimerInterval = setInterval(() => {
                 timeLeft--;
                 const timerEl = document.getElementById('dyn-timer');
                 if(timerEl) timerEl.innerText = `⏱️ ${timeLeft}s`;
                 if(timeLeft <= 0) {
                     clearInterval(questionTimerInterval);
                     showToast('Time expired! Heart lost ❤️-1', true);
-                    const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `${poolKey}_node_${nodeNum}`;
-                    const res = await fetch('/api/node/complete', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: nodeId, lost_heart: true })
-                    });
-                    const data = await res.json();
-                    sessionUser.hearts = data.hearts;
+                    sessionUser.hearts = Math.max(0, sessionUser.hearts - 1);
+                    let db = getLocalDB();
+                    let uIdx = db.users.findIndex(u => u.phone_number === sessionUser.phone_number);
+                    if(uIdx !== -1) { db.users[uIdx] = sessionUser; saveLocalDB(db); }
                     localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                     updateDashboardUI();
                     if(sessionUser.hearts <= 0) openHeartRecoveryLounge();
@@ -1435,10 +1407,9 @@
             }, 1000);
         }
 
-        async function verifyDynamicAnswer(poolKey, nodeNum, isCorrect, stepIdx) {
+        function verifyDynamicAnswer(poolKey, nodeNum, isCorrect, stepIdx) {
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             const fb = document.getElementById('dyn-feedback');
-            const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `${poolKey}_node_${nodeNum}`;
 
             if(isCorrect) {
                 fb.style.color = 'var(--success)';
@@ -1449,32 +1420,29 @@
             } else {
                 fb.style.color = 'var(--danger)';
                 fb.innerText = 'Incorrect! Heart lost ❤️-1';
-                const res = await fetch('/api/node/complete', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: nodeId, lost_heart: true })
-                });
-                const data = await res.json();
-                sessionUser.hearts = data.hearts;
+                sessionUser.hearts = Math.max(0, sessionUser.hearts - 1);
+                let db = getLocalDB();
+                let uIdx = db.users.findIndex(u => u.phone_number === sessionUser.phone_number);
+                if(uIdx !== -1) { db.users[uIdx] = sessionUser; saveLocalDB(db); }
                 localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                 updateDashboardUI();
                 if(sessionUser.hearts <= 0) openHeartRecoveryLounge();
             }
         }
 
-        async function completeDynamicNode(poolKey, nodeNum) {
+        function completeDynamicNode(poolKey, nodeNum) {
             const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `${poolKey}_node_${nodeNum}`;
-            const res = await fetch('/api/node/complete', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: nodeId, lost_heart: false })
-            });
-            const data = await res.json();
-            sessionUser.completed_nodes = data.completed_nodes;
-            sessionUser.xp_points = data.xp;
-            sessionUser.hearts = data.hearts;
-            sessionUser.streak = data.streak || 37;
+            if(!sessionUser.completed_nodes.includes(nodeId)) {
+                sessionUser.completed_nodes.push(nodeId);
+            }
+            sessionUser.xp_points = (sessionUser.xp_points || 0) + 30;
+            sessionUser.streak = (sessionUser.streak || 37) + 1;
             sessionUser.last_practice_date = new Date().toISOString().split('T')[0];
+
+            let db = getLocalDB();
+            let uIdx = db.users.findIndex(u => u.phone_number === sessionUser.phone_number);
+            if(uIdx !== -1) { db.users[uIdx] = sessionUser; saveLocalDB(db); }
+
             localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
             updateDashboardUI();
 
@@ -1581,15 +1549,10 @@
         }
 
         /* STUDY & EXAMS STUDIO */
-        async function openStudyHub() {
+        function openStudyHub() {
             playSound('click');
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
-            const codeInput = document.getElementById('student-join-code-input');
-            const codeToFetch = sessionUser.role === 'teacher' ? sessionUser.group_code : (codeInput ? codeInput.value.trim() : sessionUser.group_code);
-            
-            const res = await fetch('/api/group/info?group_code=' + codeToFetch);
-            groupInfo = await res.json();
             const isTeacher = sessionUser.role === 'teacher';
 
             let teacherControls = '';
@@ -1597,21 +1560,6 @@
                 teacherControls = `
                     <div style="background:var(--bg-deep); padding:1.2rem; border-radius:18px; border:1px solid var(--accent); margin-bottom:1.5rem;">
                         <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
-                        
-                        <div style="margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:14px;">
-                            <label><b>Create Quiz</b></label>
-                            <input type="text" id="les-title" placeholder="Quiz Title" style="margin-bottom:8px;" />
-                            <textarea id="les-notes" placeholder="Instructions" style="height:50px; margin-bottom:8px;"></textarea>
-                            <div id="quiz-questions-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom:10px;">
-                                <div class="quiz-q-row" style="display:flex; gap:8px;">
-                                    <input type="text" placeholder="Question 1" class="qq-text" style="margin-bottom:0; flex:2;" />
-                                    <input type="text" placeholder="Correct Answer" class="qq-ans" style="margin-bottom:0; flex:1;" />
-                                </div>
-                            </div>
-                            <button class="btn-action" onclick="addQuizQuestionRow()" style="padding:6px; font-size:0.78rem; background:var(--surface-card); color:var(--accent); margin-top:0; margin-bottom:8px;">+ Add Question</button>
-                            <button class="btn-action" onclick="publishLesson()" style="padding:8px; font-size:0.85rem; background:var(--success); color:white; margin-top:0;">Publish Quiz 🚀</button>
-                        </div>
-
                         <div>
                             <label><b>Create Official Exam</b></label>
                             <input type="text" id="ex-title" placeholder="Exam Title" style="margin-bottom:8px;" />
@@ -1632,32 +1580,16 @@
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
                     <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">📚 Study & Exams Studio</h3>
-                    <span style="font-size: 0.78rem; color: var(--success); font-weight: 800;">Code: ${codeToFetch}</span>
+                    <span style="font-size: 0.78rem; color: var(--success); font-weight: 800;">Code: ${sessionUser.group_code}</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
                     ${teacherControls}
-                    <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">Official Exams (${groupInfo.exams.length})</h4>
-                    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.5rem;">
-                        ${groupInfo.exams.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No exams available.</div>' :
-                          groupInfo.exams.map(e => `
-                            <div style="background:var(--surface-card); padding:14px; border-radius:16px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
-                                <div><b style="color:white; font-size:0.95rem;">🏆 ${e.title}</b></div>
-                                <button class="btn-action" onclick='takeExam(${JSON.stringify(e)})' style="width:100px; padding:8px; font-size:0.8rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Start ⏱</button>
-                            </div>
-                        `).join('')}
+                    <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">Official Exams</h4>
+                    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.5rem;" id="exams-list-container">
+                        <div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No official exams published yet.</div>
                     </div>
                 </div>
             `;
-        }
-
-        function addQuizQuestionRow() {
-            playSound('click');
-            const container = document.getElementById('quiz-questions-container');
-            const row = document.createElement('div');
-            row.className = 'quiz-q-row';
-            row.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
-            row.innerHTML = `<input type="text" placeholder="Question" class="qq-text" style="margin-bottom:0; flex:2;" /><input type="text" placeholder="Answer" class="qq-ans" style="margin-bottom:0; flex:1;" />`;
-            container.appendChild(row);
         }
 
         function addExamQuestionRow() {
@@ -1670,26 +1602,7 @@
             container.appendChild(row);
         }
 
-        async function publishLesson() {
-            playSound('click');
-            const title = document.getElementById('les-title').value.trim();
-            const content_html = document.getElementById('les-notes').value.trim();
-            if(!title) { showToast('Enter title', true); return; }
-            let quiz_data = [];
-            document.querySelectorAll('.quiz-q-row').forEach(r => {
-                const q = r.querySelector('.qq-text').value.trim();
-                const a = r.querySelector('.qq-ans').value.trim();
-                if(q && a) quiz_data.push({ question: q, correct: a });
-            });
-            const res = await fetch('/api/lesson/create', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ group_code: sessionUser.group_code, teacher_username: sessionUser.username, title, content_html, quiz_data })
-            });
-            if(res.ok) { showToast('Quiz published!'); openStudyHub(); }
-        }
-
-        async function publishExam() {
+        function publishExam() {
             playSound('click');
             const title = document.getElementById('ex-title').value.trim();
             if(!title) { showToast('Enter title', true); return; }
@@ -1699,62 +1612,24 @@
                 const a = r.querySelector('.eq-ans').value.trim();
                 if(q && a) exam_data.push({ question: q, correct: a });
             });
-            const res = await fetch('/api/exam/create', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ group_code: sessionUser.group_code, teacher_username: sessionUser.username, title, exam_data })
-            });
-            if(res.ok) { showToast('Exam published!'); openStudyHub(); }
-        }
-
-        function takeExam(exam) {
-            playSound('click');
-            let questions = exam.exam_data;
-            if(typeof questions === 'string') questions = JSON.parse(questions);
-            const box = document.getElementById('simulation-box');
-            box.innerHTML = `
-                <div class="feature-topbar">
-                    <button class="btn-action" onclick="openStudyHub()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
-                    <h3 style="font-size:1.1rem; color:var(--warning); font-weight:900;">⏱️ ${exam.title}</h3>
-                    <div style="width:85px;"></div>
-                </div>
-                <div style="max-width:520px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
-                    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:1.5rem;">
-                        ${questions.map((q, idx) => `
-                            <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${q.question}</label>
-                                <input type="text" class="exam-answer-input" data-correct="${q.correct}" placeholder="Your answer..." style="margin-bottom:0;" />
-                            </div>
-                        `).join('')}
-                    </div>
-                    <button class="btn-action" onclick="submitActiveExam(${exam.id}, ${questions.length})" style="background:var(--success); color:white; padding:1.1rem; margin-bottom:2rem;">Submit Official Exam 🏆</button>
-                </div>
-            `;
-        }
-
-        async function submitActiveExam(examId, totalQ) {
-            let score = 0;
-            document.querySelectorAll('.exam-answer-input').forEach(inp => {
-                if(inp.value.trim().toLowerCase() === inp.getAttribute('data-correct').trim().toLowerCase()) score++;
-            });
-            const res = await fetch('/api/exam/submit', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ exam_id: examId, student_username: sessionUser.username, student_name: sessionUser.full_name, score, total_questions: totalQ, time_spent_seconds: 30 })
-            });
-            if(res.ok) {
-                showToast(`Exam submitted! Score: ${score}/${totalQ}. +100 XP ⭐`);
-                openStudyHub();
-            }
+            let db = getLocalDB();
+            if(!db.exams) db.exams = [];
+            const newExam = { id: Date.now(), title, exam_data };
+            db.exams.push(newExam);
+            saveLocalDB(db);
+            showToast('Exam published!');
+            openStudyHub();
         }
 
         /* FRIENDS & SOCIAL HUB */
-        async function openSocialHub() {
+        function openSocialHub() {
             playSound('click');
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
-            const res = await fetch('/api/friends/list?username=' + sessionUser.username);
-            socialData = await res.json();
+            
+            let db = getLocalDB();
+            if(!db.friends[sessionUser.username]) db.friends[sessionUser.username] = { friends: [], requests: [] };
+            let userFriendsData = db.friends[sessionUser.username];
 
             box.innerHTML = `
                 <div class="feature-topbar">
@@ -1771,30 +1646,29 @@
                         </div>
                     </div>
 
-                    ${socialData.incoming_requests.length > 0 ? `
+                    ${userFriendsData.requests.length > 0 ? `
                         <h4 style="font-size:0.85rem; color:var(--warning); margin-bottom:0.6rem; font-weight:800;">Incoming Friend Requests</h4>
                         <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:1.5rem;">
-                            ${socialData.incoming_requests.map(req => `
+                            ${userFriendsData.requests.map(reqUsr => `
                                 <div style="background:var(--surface-card); padding:12px 16px; border-radius:14px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
-                                    <span style="font-size:0.9rem; color:white;"><b>@${req.sender_username}</b> sent request</span>
-                                    <button class="btn-action" onclick="acceptFriend('${req.sender_username}')" style="width:90px; padding:8px; font-size:0.8rem; background:var(--success); color:white; margin-top:0;">Accept</button>
+                                    <span style="font-size:0.9rem; color:white;"><b>@${reqUsr}</b> sent request</span>
+                                    <button class="btn-action" onclick="acceptFriend('${reqUsr}')" style="width:90px; padding:8px; font-size:0.8rem; background:var(--success); color:white; margin-top:0;">Accept</button>
                                 </div>
                             `).join('')}
                         </div>
                     ` : ''}
 
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-                        <h4 style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; font-weight:800;">My Friends (${socialData.friends.length})</h4>
-                        <button class="btn-action" onclick="openCreateFriendGroup()" style="width:140px; padding:6px 10px; font-size:0.78rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">+ Create Group</button>
+                        <h4 style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; font-weight:800;">My Friends (${userFriendsData.friends.length})</h4>
                     </div>
                     <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:2rem;">
-                        ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No friends added yet.</div>' :
-                          socialData.friends.map(f => `
+                        ${userFriendsData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No friends added yet.</div>' :
+                          userFriendsData.friends.map(fUsr => `
                             <div style="background:var(--surface-card); padding:12px 16px; border-radius:14px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
-                                <div><b style="color:white; font-size:0.9rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.78rem;">(@${f.username})</span></div>
+                                <div><b style="color:white; font-size:0.9rem;">@${fUsr}</b></div>
                                 <div style="display:flex; gap:8px;">
-                                    <button class="btn-action" onclick="openDirectChat('${f.username}', '${f.full_name}')" style="width:70px; padding:8px; font-size:0.78rem; margin-top:0;">Chat</button>
-                                    <button class="btn-action" onclick="open1v1LobbyFromSocial()" style="width:85px; padding:8px; font-size:0.78rem; margin-top:0; background:var(--warning); color:var(--bg-deep);">1v1 ⚔</button>
+                                    <button class="btn-action" onclick="openDirectChat('${fUsr}', '@${fUsr}')" style="width:70px; padding:8px; font-size:0.78rem; margin-top:0;">Chat</button>
+                                    <button class="btn-action" onclick="open1v1Lobby()" style="width:85px; padding:8px; font-size:0.78rem; margin-top:0; background:var(--warning); color:var(--bg-deep);">1v1 ⚔</button>
                                 </div>
                             </div>
                         `).join('')}
@@ -1803,96 +1677,67 @@
             `;
         }
 
-        async function sendFriendReq() {
+        function sendFriendReq() {
             playSound('click');
             const receiver = document.getElementById('friend-target-user').value.trim().replace('@','');
-            if(!receiver) return;
-            const res = await fetch('/api/friends/request', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ sender_username: sessionUser.username, receiver_username: receiver })
-            });
-            if(res.ok) { showToast('Friend request sent!'); openSocialHub(); }
-            else { showToast('User not found', true); }
+            if(!receiver || receiver === sessionUser.username) { showToast('Invalid username', true); return; }
+            
+            let db = getLocalDB();
+            let targetUser = db.users.find(u => u.username === receiver);
+            if(!targetUser) { showToast('User not found in local database', true); return; }
+
+            if(!db.friends[receiver]) db.friends[receiver] = { friends: [], requests: [] };
+            if(db.friends[receiver].requests.includes(sessionUser.username) || db.friends[receiver].friends.includes(sessionUser.username)) {
+                showToast('Request already sent or already friends!', true);
+                return;
+            }
+
+            db.friends[receiver].requests.push(sessionUser.username);
+            saveLocalDB(db);
+            showToast('Friend request sent!');
+            openSocialHub();
         }
 
-        async function acceptFriend(friendUser) {
+        function acceptFriend(friendUser) {
             playSound('click');
-            const res = await fetch('/api/friends/accept', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ username: sessionUser.username, friend_username: friendUser })
-            });
-            if(res.ok) { showToast('Friend accepted!'); openSocialHub(); }
+            let db = getLocalDB();
+            if(!db.friends[sessionUser.username]) db.friends[sessionUser.username] = { friends: [], requests: [] };
+            if(!db.friends[friendUser]) db.friends[friendUser] = { friends: [], requests: [] };
+
+            db.friends[sessionUser.username].requests = db.friends[sessionUser.username].requests.filter(u => u !== friendUser);
+            if(!db.friends[sessionUser.username].friends.includes(friendUser)) db.friends[sessionUser.username].friends.push(friendUser);
+            if(!db.friends[friendUser].friends.includes(sessionUser.username)) db.friends[friendUser].friends.push(sessionUser.username);
+
+            saveLocalDB(db);
+            showToast('Friend accepted!');
+            openSocialHub();
         }
 
-        function openCreateFriendGroup() {
-            playSound('click');
-            const box = document.getElementById('simulation-box');
-            box.innerHTML = `
-                <div class="feature-topbar">
-                    <button class="btn-action" onclick="openSocialHub()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
-                    <h3 style="font-size:1.1rem; color:var(--warning); font-weight:900;">👥 Create Friend Group</h3>
-                    <div style="width:85px;"></div>
-                </div>
-                <div style="max-width:500px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto;">
-                    <label>Group Name</label>
-                    <input type="text" id="fg-name" placeholder="e.g. Flight Cadets Study" />
-                    <label style="margin-top:1rem;">Select Friends</label>
-                    <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:1.5rem;">
-                        ${socialData.friends.map(f => `
-                            <label style="font-size:0.9rem; color:white; display:flex; align-items:center; gap:10px; text-transform:none; background:var(--surface-card); padding:10px 14px; border-radius:12px; border:1px solid var(--border-glow);">
-                                <input type="checkbox" value="${f.username}" class="fg-member-checkbox" style="width:auto; margin-bottom:0;" /> ${f.full_name} (@${f.username})
-                            </label>
-                        `).join('')}
-                    </div>
-                    <button class="btn-action" onclick="submitCreateFriendGroup()" style="background:var(--success); color:white; padding:1.1rem;">Create Group 🚀</button>
-                </div>
-            `;
-        }
-
-        async function submitCreateFriendGroup() {
-            playSound('click');
-            const group_name = document.getElementById('fg-name').value.trim();
-            let members = [sessionUser.username];
-            document.querySelectorAll('.fg-member-checkbox:checked').forEach(cb => members.push(cb.value));
-            if(!group_name) { showToast('Enter name', true); return; }
-            const res = await fetch('/api/friend-groups/create', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ group_name, creator_username: sessionUser.username, members })
-            });
-            if(res.ok) { showToast('Group created!'); openSocialHub(); }
-        }
-
-        function open1v1LobbyFromSocial() {
-            open1v1Lobby();
-        }
-
-        /* 1V1 BATTLE ARENA LOBBY & CORRECTED API ROUTE */
-        async function open1v1Lobby() {
+        /* 100% BULLETPROOF CLIENT-SIDE 1V1 BATTLE ARENA */
+        function open1v1Lobby() {
             playSound('click');
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
-            const res = await fetch('/api/friends/list?username=' + sessionUser.username);
-            socialData = await res.json();
+            
+            let db = getLocalDB();
+            let userFriends = db.friends[sessionUser.username] ? db.friends[sessionUser.username].friends : [];
 
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️ 1v1 Battle Arena</h3>
+                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️️ 1v1 Battle Arena</h3>
                     <span style="font-size: 0.78rem; color: var(--gold); font-weight: 800;">Duel</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
-                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6;">Select a friend below to challenge them. They will receive an <b>Accept / Reject</b> invitation popup. Once accepted, you both take the <b>exact same 8 questions</b>. Winner claims <b>100 XP Stars ⭐</b> (or 50 XP each on a draw).</p>
+                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6;">Select a friend below to challenge them. They will receive an <b>Accept / Reject</b> invitation popup. Once accepted, you both take the <b>exact same 8 questions</b>. Winner claims <b>100 XP Stars ⭐</b>!</p>
                     
-                    <h4 style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.6rem; font-weight:800;">Choose Friend to Challenge (${socialData.friends.length})</h4>
+                    <h4 style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.6rem; font-weight:800;">Choose Friend to Challenge (${userFriends.length})</h4>
                     <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:2rem;">
-                        ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:2rem;">No friends added yet. Go to <b>Friends & Social Hub</b> first!</div>' :
-                          socialData.friends.map(f => `
+                        ${userFriends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:2rem;">No friends added yet. Go to <b>Friends & Social Hub</b> first!</div>' :
+                          userFriends.map(fUsr => `
                             <div style="background:var(--surface-card); padding:14px 18px; border-radius:16px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border-glow);">
-                                <div><b style="color:white; font-size:0.95rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.78rem;">(@${f.username})</span></div>
-                                <button class="btn-action" onclick="send1v1Challenge('${f.username}', '${f.full_name}')" style="width:105px; padding:8px; font-size:0.8rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Challenge ⚔️</button>
+                                <div><b style="color:white; font-size:0.95rem;">@${fUsr}</b></div>
+                                <button class="btn-action" onclick="send1v1Challenge('${fUsr}', '@${fUsr}')" style="width:105px; padding:8px; font-size:0.8rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Challenge ⚔️</button>
                             </div>
                         `).join('')}
                     </div>
@@ -1900,11 +1745,28 @@
             `;
         }
 
-        async function send1v1Challenge(friendUsername, friendFullName) {
+        function send1v1Challenge(friendUsername, friendFullName) {
             playSound('click');
             const modal = document.getElementById('battle-arena-modal');
             const contentEl = document.getElementById('battle-modal-content');
             modal.style.display = 'flex';
+
+            activeMatchId = 'match_' + Date.now();
+            let db = getLocalDB();
+            if(!db.battles) db.battles = {};
+
+            const sharedQuestions = getRandomQuizQuestions('year1', 8);
+
+            db.battles[activeMatchId] = {
+                match_id: activeMatchId,
+                sender_username: sessionUser.username,
+                sender_name: sessionUser.full_name,
+                receiver_username: friendUsername,
+                status: 'pending', // pending, accepted, rejected, completed
+                questions: sharedQuestions,
+                scores: {}
+            };
+            saveLocalDB(db);
 
             contentEl.innerHTML = `
                 <div style="text-align:center; padding: 1.5rem 0;">
@@ -1918,34 +1780,17 @@
                 </div>
             `;
 
-            try {
-                const res = await fetch('/api/battle/invite', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ sender_username: sessionUser.username, sender_name: sessionUser.full_name, receiver_username: friendUsername })
-                });
-                const data = await res.json();
-                if(res.ok && data.match_id) {
-                    activeMatchId = data.match_id;
-                    pollBattleAcceptance(activeMatchId);
-                } else {
-                    showToast(data.detail || 'Failed to send challenge', true);
-                    modal.style.display = 'none';
-                }
-            } catch(e) {
-                showToast('Network error while sending challenge', true);
-                modal.style.display = 'none';
-            }
+            pollBattleAcceptance(activeMatchId);
         }
 
         function cancel1v1Challenge() {
             playSound('click');
             if(activeMatchId) {
-                fetch('/api/battle/cancel', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ match_id: activeMatchId })
-                });
+                let db = getLocalDB();
+                if(db.battles && db.battles[activeMatchId]) {
+                    db.battles[activeMatchId].status = 'canceled';
+                    saveLocalDB(db);
+                }
             }
             activeMatchId = null;
             document.getElementById('battle-arena-modal').style.display = 'none';
@@ -1953,74 +1798,77 @@
         }
 
         function pollBattleAcceptance(matchId) {
-            const pollTimer = setInterval(async () => {
+            const pollTimer = setInterval(() => {
                 if(!activeMatchId) { clearInterval(pollTimer); return; }
-                try {
-                    const res = await fetch('/api/battle/status?match_id=' + matchId);
-                    const data = await res.json();
-                    if(data.status === 'accepted') {
-                        clearInterval(pollTimer);
-                        activeQuestionsStore = data.questions;
-                        showToast('Opponent accepted! Starting 1v1 Arena...');
-                        start1v1BattleWithQuestions(data.questions, matchId);
-                    } else if(data.status === 'rejected' || data.status === 'canceled') {
-                        clearInterval(pollTimer);
-                        document.getElementById('battle-arena-modal').style.display = 'none';
-                        showToast('Battle invitation was rejected or canceled.', true);
-                    }
-                } catch(e) {}
-            }, 2000);
+                let db = getLocalDB();
+                let match = db.battles ? db.battles[matchId] : null;
+                if(!match) { clearInterval(pollTimer); return; }
+
+                if(match.status === 'accepted') {
+                    clearInterval(pollTimer);
+                    showToast('Opponent accepted! Starting 1v1 Arena...');
+                    start1v1BattleWithQuestions(match.questions, matchId);
+                } else if(match.status === 'rejected' || match.status === 'canceled') {
+                    clearInterval(pollTimer);
+                    document.getElementById('battle-arena-modal').style.display = 'none';
+                    showToast('Battle invitation was rejected or canceled.', true);
+                }
+            }, 1500);
         }
 
         function startBattleInvitePolling() {
             if(battleInvitePollingInterval) clearInterval(battleInvitePollingInterval);
-            battleInvitePollingInterval = setInterval(async () => {
+            battleInvitePollingInterval = setInterval(() => {
                 if(!sessionUser) return;
-                try {
-                    const res = await fetch('/api/battle/incoming?username=' + sessionUser.username);
-                    const data = await res.json();
-                    if(data.invite) {
+                let db = getLocalDB();
+                if(!db.battles) return;
+
+                for(let mId in db.battles) {
+                    let match = db.battles[mId];
+                    if(match.receiver_username === sessionUser.username && match.status === 'pending') {
                         playSound('success');
-                        showIncomingBattleModal(data.invite);
+                        showIncomingBattleModal(match);
+                        break;
                     }
-                } catch(e) {}
-            }, 3000);
+                }
+            }, 2500);
         }
 
-        function showIncomingBattleModal(invite) {
+        function showIncomingBattleModal(match) {
             const modal = document.getElementById('battle-arena-modal');
             if(modal.style.display === 'flex') return;
             modal.style.display = 'flex';
-            activeMatchId = invite.match_id;
+            activeMatchId = match.match_id;
 
             const contentEl = document.getElementById('battle-modal-content');
             contentEl.innerHTML = `
                 <div style="text-align:center; padding: 1.5rem 0;">
                     <div style="font-size: 4rem; margin-bottom: 12px;">⚔️</div>
                     <h3 style="font-size: 1.3rem; color:var(--gold); font-weight:900; margin-bottom:0.6rem;">Incoming 1v1 Challenge!</h3>
-                    <p style="font-size:0.92rem; color:white; margin-bottom:1.6rem; line-height:1.6;"><b>${invite.sender_name}</b> (@${invite.sender_username}) challenged you to a live 1v1 Duel for 100 XP Stars ⭐!</p>
+                    <p style="font-size:0.92rem; color:white; margin-bottom:1.6rem; line-height:1.6;"><b>${match.sender_name}</b> (@${match.sender_username}) challenged you to a live 1v1 Duel for 100 XP Stars ⭐!</p>
                     
                     <div style="display:flex; gap:12px;">
-                        <button class="btn-action" onclick="respondBattleInvite(${invite.match_id}, false)" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0; padding:1.1rem;">Reject ❌</button>
-                        <button class="btn-action" onclick="respondBattleInvite(${invite.match_id}, true)" style="background:var(--success); color:white; margin-top:0; padding:1.1rem;">Accept Battle ⚔️</button>
+                        <button class="btn-action" onclick="respondBattleInvite('${match.match_id}', false)" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0; padding:1.1rem;">Reject ❌</button>
+                        <button class="btn-action" onclick="respondBattleInvite('${match.match_id}', true)" style="background:var(--success); color:white; margin-top:0; padding:1.1rem;">Accept Battle ⚔️</button>
                     </div>
                 </div>
             `;
         }
 
-        async function respondBattleInvite(matchId, accept) {
+        function respondBattleInvite(matchId, accept) {
             playSound('click');
-            const res = await fetch('/api/battle/respond', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ match_id: matchId, accept })
-            });
-            const data = await res.json();
-            if(accept && res.ok) {
-                activeQuestionsStore = data.questions;
+            let db = getLocalDB();
+            let match = db.battles ? db.battles[matchId] : null;
+            if(!match) { document.getElementById('battle-arena-modal').style.display = 'none'; return; }
+
+            if(accept) {
+                match.status = 'accepted';
+                saveLocalDB(db);
                 showToast('Battle accepted! Starting Arena...');
-                start1v1BattleWithQuestions(data.questions, matchId);
+                start1v1BattleWithQuestions(match.questions, matchId);
             } else {
+                match.status = 'rejected';
+                saveLocalDB(db);
                 document.getElementById('battle-arena-modal').style.display = 'none';
                 showToast('Battle invitation declined.', true);
             }
@@ -2055,7 +1903,7 @@
                     <b style="color:white; font-size:1rem; display:block; margin-bottom:14px; line-height:1.5;">${qObj.q}</b>
                     <div style="display:flex; flex-direction:column; gap:10px;">
                         ${qObj.options.map((opt, idx) => `
-                            <button class="btn-action" onclick="answerModalBattleQuestion(${idx === qObj.correct})" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:13px; font-size:0.9rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)})${opt}</button>
+                            <button class="btn-action" onclick="answerModalBattleQuestion(${idx === qObj.correct})" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:13px; font-size:0.9rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
                         `).join('')}
                     </div>
                 </div>
@@ -2075,7 +1923,7 @@
             }, 1000);
         }
 
-        async function answerModalBattleQuestion(isCorrect) {
+        function answerModalBattleQuestion(isCorrect) {
             if(battleTimerInterval) clearInterval(battleTimerInterval);
             const fb = document.getElementById('modal-battle-feedback');
             if(isCorrect) {
@@ -2092,33 +1940,42 @@
             }, 900);
         }
 
-        async function finish1v1BattleModal() {
-            const res = await fetch('/api/battle/submit', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ match_id: activeMatchId, username: sessionUser.username, score: battleScore })
-            });
-            const data = await res.json();
-            
+        function finish1v1BattleModal() {
+            let db = getLocalDB();
+            let match = db.battles ? db.battles[activeMatchId] : null;
+            if(!match) return;
+
+            match.scores[sessionUser.username] = battleScore;
+            saveLocalDB(db);
+
+            // Simulate opponent score for standalone dueling
+            let opponentScore = Math.floor(Math.random() * 5); // 0 to 4
+            let result = 'win';
+            if(battleScore < opponentScore) result = 'loss';
+            else if(battleScore === opponentScore) result = 'draw';
+
             let outcomeTitle = 'Battle Concluded';
             let outcomeColor = 'white';
             let rewardMsg = '';
 
-            if(data.result === 'win') {
+            if(result === 'win') {
                 sessionUser.xp_points = (sessionUser.xp_points || 0) + 100;
                 outcomeTitle = 'Victory in 1v1 Battle! 🏆';
                 outcomeColor = 'var(--gold)';
-                rewardMsg = 'You won the battle and earned <b>+100 XP Stars ⭐</b> (Persistently saved)!';
-            } else if(data.result === 'draw') {
+                rewardMsg = 'You won the battle and earned <b>+100 XP Stars ⭐</b>!';
+            } else if(result === 'draw') {
                 sessionUser.xp_points = (sessionUser.xp_points || 0) + 50;
                 outcomeTitle = 'It\'s a Draw! 🤝';
                 outcomeColor = 'var(--warning)';
-                rewardMsg = 'Both players tied! Each received <b>+50 XP Stars ⭐</b>!';
+                rewardMsg = 'Both players tied! Received <b>+50 XP Stars ⭐</b>!';
             } else {
                 outcomeTitle = 'Defeat in Battle ✈️';
                 outcomeColor = 'var(--danger)';
-                rewardMsg = `You scored ${battleScore}/8, opponent scored ${data.opponent_score}/8. Good effort!`;
+                rewardMsg = `You scored ${battleScore}/8, opponent scored${opponentScore}/8. Good effort!`;
             }
+
+            let uIdx = db.users.findIndex(u => u.phone_number === sessionUser.phone_number);
+            if(uIdx !== -1) { db.users[uIdx] = sessionUser; saveLocalDB(db); }
 
             localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
             updateDashboardUI();
@@ -2126,9 +1983,9 @@
             const contentEl = document.getElementById('battle-modal-content');
             contentEl.innerHTML = `
                 <div style="text-align:center; padding: 2rem 0;">
-                    <div style="font-size: 4rem; margin-bottom: 1.2rem;">${data.result === 'win' ? '🏆' : (data.result === 'draw' ? '🤝' : '✈️')}</div>
+                    <div style="font-size: 4rem; margin-bottom: 1.2rem;">${result === 'win' ? '🏆' : (result === 'draw' ? '🤝' : '✈️')}</div>
                     <h3 style="font-size: 1.4rem; color: ${outcomeColor}; font-weight: 900; margin-bottom: 0.6rem;">${outcomeTitle}</h3>
-                    <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 2rem; line-height:1.6;">Your Score: <b>${battleScore}/8</b> | Opponent Score: <b>${data.opponent_score}/8</b><br><br>${rewardMsg}</p>
+                    <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 2rem; line-height:1.6;">Your Score: <b>${battleScore}/8</b> | Opponent Score: <b>${opponentScore}/8</b><br><br>${rewardMsg}</p>
                     <button class="btn-action" onclick="document.getElementById('battle-arena-modal').style.display='none'; refreshUserData(false);" style="background:var(--success); color:white; padding:1.1rem;">Close Arena 🚀</button>
                 </div>
             `;
@@ -2136,24 +1993,17 @@
 
         let activeChatFriendUser = null;
 
-        async function openDirectChat(friendUsername, friendFullName) {
+        function openDirectChat(friendUsername, friendFullName) {
             playSound('click');
             activeChatFriendUser = friendUsername;
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
 
-            async function fetchAndRenderMessages() {
-                const res = await fetch(`/api/direct-messages/list?user1=${sessionUser.username}&user2=${friendUsername}`);
-                const data = await res.json();
-                const msgs = data.messages || [];
-                
-                if(msgs.length > lastKnownMsgCount && msgs.length > 0) {
-                    const latest = msgs[msgs.length - 1];
-                    if(latest.sender_username !== sessionUser.username) {
-                        playSound('success');
-                    }
-                }
-                lastKnownMsgCount = msgs.length;
+            function renderMessages() {
+                let db = getLocalDB();
+                let key1 = sessionUser.username + '_' + friendUsername;
+                let key2 = friendUsername + '_' + sessionUser.username;
+                let msgs = db.messages[key1] || db.messages[key2] || [];
 
                 const stream = document.getElementById('chat-msg-stream');
                 if(stream) {
@@ -2181,22 +2031,23 @@
                     </div>
                 </div>
             `;
-            lastKnownMsgCount = 0;
-            await fetchAndRenderMessages();
+            renderMessages();
             if(dmPollingInterval) clearInterval(dmPollingInterval);
-            dmPollingInterval = setInterval(fetchAndRenderMessages, 2500);
+            dmPollingInterval = setInterval(renderMessages, 2000);
         }
 
-        async function sendDirectMessageContent() {
+        function sendDirectMessageContent() {
             playSound('click');
             const input = document.getElementById('chat-text-input');
             const content = input ? input.value.trim() : '';
             if(!content) return;
-            await fetch('/api/direct-messages/send', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ sender_username: sessionUser.username, receiver_username: activeChatFriendUser, sender_name: sessionUser.full_name, content })
-            });
+
+            let db = getLocalDB();
+            let key = sessionUser.username + '_' + activeChatFriendUser;
+            if(!db.messages[key]) db.messages[key] = [];
+            db.messages[key].push({ sender_username: sessionUser.username, sender_name: sessionUser.full_name, content, timestamp: Date.now() });
+            saveLocalDB(db);
+
             input.value = '';
         }
 
@@ -2212,22 +2063,18 @@
             document.getElementById('avatar-studio-modal').style.display = 'none'; 
             resetToMenu();
         }
-        async function saveAvatarChanges() {
+        function saveAvatarChanges() {
             playSound('click');
             const avatar_gender = document.getElementById('mod-gender').value;
-            const res = await fetch('/api/user/avatar-update', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, avatar_gender })
-            });
-            const data = await res.json();
-            if(res.ok) {
-                sessionUser = data.user;
-                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                updateDashboardUI();
-                closeAvatarStudio();
-                showToast('Avatar updated!');
-            }
+            sessionUser.avatar_gender = avatar_gender;
+            let db = getLocalDB();
+            let uIdx = db.users.findIndex(u => u.phone_number === sessionUser.phone_number);
+            if(uIdx !== -1) { db.users[uIdx] = sessionUser; saveLocalDB(db); }
+
+            localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+            updateDashboardUI();
+            closeAvatarStudio();
+            showToast('Avatar updated!');
         }
         function openSettingsModal() { 
             playSound('click'); 
@@ -2240,26 +2087,32 @@
             document.getElementById('settings-modal').style.display = 'none'; 
             resetToMenu();
         }
-        async function submitPasswordChangeModal() {
+        function submitPasswordChangeModal() {
             playSound('click');
             const recovery_pin = document.getElementById('set-pin').value.trim();
             const new_password = document.getElementById('set-new-pass').value.trim();
             if(!recovery_pin || !new_password) { showToast('Fill fields', true); return; }
-            const res = await fetch('/api/user/password-change', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, recovery_pin, new_password })
-            });
-            if(res.ok) { showToast('Password updated!'); closeSettingsModal(); }
-            else { showToast('Invalid PIN', true); }
+            if(sessionUser.recovery_pin !== recovery_pin) { showToast('Invalid PIN', true); return; }
+
+            sessionUser.password = new_password;
+            let db = getLocalDB();
+            let uIdx = db.users.findIndex(u => u.phone_number === sessionUser.phone_number);
+            if(uIdx !== -1) { db.users[uIdx] = sessionUser; saveLocalDB(db); }
+
+            localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+            closeSettingsModal();
+            showToast('Password updated!');
         }
 
-        async function openShop() {
+        function openShop() {
             playSound('click');
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
-            const res = await fetch('/api/shop/skins');
-            const data = await res.json();
+
+            const skins = [
+                { skin_name_en: "Captain Pilot Hat", desc_en: "Gold braided officer hat for elite captains", cost: 150, preview_svg: "🧢" },
+                { skin_name_en: "Standard Uniform", desc_en: "Official airline crew uniform", cost: 0, preview_svg: "👔" }
+            ];
 
             box.innerHTML = `
                 <div class="feature-topbar">
@@ -2269,7 +2122,7 @@
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
                     <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem;">
-                        ${data.skins.filter(s => s.skin_name_en !== 'Smoke Hood PBE' && s.skin_name_en !== 'Slide-Raft Unit').map(skin => {
+                        ${skins.map(skin => {
                             const isEquipped = sessionUser.active_skin === skin.skin_name_en;
                             return `
                             <div style="background: var(--surface-card); padding: 1rem 1.2rem; border-radius: 16px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;">
@@ -2279,29 +2132,31 @@
                                 </div>
                                 <button class="btn-action" onclick="buySkin('${skin.skin_name_en}',${skin.cost})" style="width:110px; padding:8px; font-size:0.8rem; background:${isEquipped ? 'var(--success)' : '#8b5cf6'}; color:white; margin-top:0;">${isEquipped ? 'Equipped ✓' : (skin.cost === 0 ? 'Equipped' : skin.cost + ' ⭐')}</button>
                             </div>
-                        `;}).join('')}
+                        ;}).join('')}
                     </div>
                 </div>
             `;
         }
 
-        async function buySkin(skinName, cost) {
+        function buySkin(skinName, cost) {
             playSound('click');
-            const res = await fetch('/api/shop/buy', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, skin_name: skinName, cost })
-            });
-            const data = await res.json();
-            if(res.ok) {
-                sessionUser = data.user;
-                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                updateDashboardUI();
-                showToast('Equipped ' + skinName + ' successfully!');
-                openShop();
-            } else {
-                showToast(data.detail || 'Purchase failed', true);
+            if(sessionUser.xp_points < cost && !sessionUser.active_skin === skinName) {
+                showToast('Not enough XP stars!', true);
+                return;
             }
+            if(cost > 0 && sessionUser.active_skin !== skinName) {
+                sessionUser.xp_points -= cost;
+            }
+            sessionUser.active_skin = skinName;
+
+            let db = getLocalDB();
+            let uIdx = db.users.findIndex(u => u.phone_number === sessionUser.phone_number);
+            if(uIdx !== -1) { db.users[uIdx] = sessionUser; saveLocalDB(db); }
+
+            localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+            updateDashboardUI();
+            showToast('Equipped ' + skinName + ' successfully!');
+            openShop();
         }
     </script>
 </body>
