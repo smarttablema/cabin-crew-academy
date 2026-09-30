@@ -530,7 +530,7 @@
                 localStorage.setItem(refillKey, nowTs);
                 sessionUser.last_heart_refill_timestamp = nowTs;
                 localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                showToast('💖 Automated 24h Heart Refill: Hearts restored to 5!');
+                showToast('💖 Secure 24h Heart Refill: Hearts restored to 5!');
             }
         }
 
@@ -960,28 +960,74 @@
             requestAnimationFrame(animateSpin);
         }
 
-        /* HEART RECOVERY LOUNGE */
+        /* HEART RECOVERY LOUNGE & SECURE 24-HOUR REFILL */
         function openHeartRecoveryLounge() {
             playSound('click');
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
+
+            const now = Date.now();
+            const refillKey = 'aero_heart_refill_' + (sessionUser ? sessionUser.phone_number : 'guest');
+            const lastRefill = parseInt(localStorage.getItem(refillKey) || (sessionUser && sessionUser.last_heart_refill_timestamp ? sessionUser.last_heart_refill_timestamp : '0'));
+            const twentyFourHours = 24 * 60 * 60 * 1000;
+            const timePassed = now - lastRefill;
+            const canClaimFree = timePassed >= twentyFourHours;
+
+            let freeRefillHtml = '';
+            if (canClaimFree) {
+                freeRefillHtml = `
+                    <div style="background:rgba(16, 185, 129, 0.12); padding:1.5rem; border-radius:22px; border:1px solid var(--success); margin-bottom:1.5rem;">
+                        <div style="font-size:2.5rem; margin-bottom:8px;">💖</div>
+                        <h4 style="color:var(--success); font-size:1.05rem; margin-bottom:6px; font-weight:900;">Claim Free 24h Heart Refill (5 Hearts)</h4>
+                        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.2rem;">Your 24-hour cooldown is complete! Claim your free hearts now.</p>
+                        <button class="btn-action" onclick="claimFree24hHearts()" style="background:var(--success); color:white; padding:1rem;">Claim 5 Free Hearts 🎁</button>
+                    </div>
+                `;
+            } else {
+                const remainingMs = twentyFourHours - timePassed;
+                const remHrs = Math.floor(remainingMs / (60 * 60 * 1000));
+                const remMins = Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000));
+                freeRefillHtml = `
+                    <div style="background:var(--surface-card); padding:1.4rem; border-radius:22px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
+                        <div style="font-size:2rem; margin-bottom:6px;">⏳</div>
+                        <h4 style="color:var(--warning); font-size:0.95rem; margin-bottom:4px; font-weight:900;">24-Hour Heart Refill Cooldown</h4>
+                        <p style="font-size:0.82rem; color:var(--text-muted);">Next free refill available in <b>${remHrs}h ${remMins}m</b> (Strictly 1 free refill every 24 hours).</p>
+                    </div>
+                `;
+            }
+
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size:1.15rem; color:var(--danger); font-weight:900;">❤ Heart Recovery Lounge</h3>
+                    <h3 style="font-size:1.1rem; color:var(--danger); font-weight:900;">❤ Heart Recovery Lounge</h3>
                     <div style="width:85px;"></div>
                 </div>
-                <div style="max-width:480px; width:100%; margin: 0 auto; text-align:center; padding-top:1rem;">
-                    <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6;">You currently have <b>${sessionUser.hearts}/5 hearts</b>. Refill your hearts instantly using XP stars or wait for the automatic 24-hour refill.</p>
+                <div style="max-width:480px; width:100%; margin: 0 auto; text-align:center; padding-top:0.5rem;">
+                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.4rem; line-height:1.6;">You currently have <b>${sessionUser.hearts}/5 hearts</b>. Claim your free 24-hour refill or spend XP stars.</p>
                     
-                    <div style="background:var(--surface-card); padding:1.8rem; border-radius:22px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
-                        <div style="font-size:2.8rem; margin-bottom:10px;">⭐</div>
-                        <h4 style="color:var(--warning); font-size:1.1rem; margin-bottom:6px; font-weight:900;">Refill 5 Hearts (Cost: 50 XP Stars)</h4>
-                        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.4rem;">Your Balance: ${sessionUser.xp_points} XP Stars</p>
-                        <button class="btn-action" onclick="refillHeartsWithXP()" style="background:var(--success); color:white; padding:1.1rem;">Refill Hearts Now ⚡</button>
+                    ${freeRefillHtml}
+
+                    <div style="background:var(--surface-card); padding:1.5rem; border-radius:22px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
+                        <div style="font-size:2.2rem; margin-bottom:8px;">⭐</div>
+                        <h4 style="color:var(--warning); font-size:1rem; margin-bottom:4px; font-weight:900;">Refill with XP (Cost: 50 XP Stars)</h4>
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1.1rem;">Your Balance: ${sessionUser.xp_points} XP Stars</p>
+                        <button class="btn-action" onclick="refillHeartsWithXP()" style="background:var(--accent); color:var(--bg-deep); padding:0.95rem;">Refill Instantly ⚡</button>
                     </div>
                 </div>
             `;
+        }
+
+        async function claimFree24hHearts() {
+            playSound('click');
+            const now = Date.now();
+            const refillKey = 'aero_heart_refill_' + sessionUser.phone_number;
+            localStorage.setItem(refillKey, now.toString());
+            sessionUser.hearts = 5;
+            sessionUser.last_heart_refill_timestamp = now.toString();
+            localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+            updateDashboardUI();
+            showToast('💖 Free 24h Hearts Claimed! Hearts restored to 5.');
+            openHeartRecoveryLounge();
         }
 
         async function refillHeartsWithXP() {
@@ -1808,7 +1854,7 @@
                     modal.style.display = 'none';
                 }
             } catch(e) {
-                showToast('Network error while sending challenge', true);
+                showToast('Network error while sending challenge. Please check connection.', true);
                 modal.style.display = 'none';
             }
         }
@@ -1820,7 +1866,7 @@
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ match_id: String(activeMatchId) })
-                });
+                }).catch(e => {});
             }
             activeMatchId = null;
             document.getElementById('battle-arena-modal').style.display = 'none';
@@ -1923,7 +1969,7 @@
 
             contentEl.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
-                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔️️ 1v1 BATTLE • Q${battleCurrentIdx+1} / 8</span>
+                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔ 1v1 BATTLE • Q${battleCurrentIdx+1} / 8</span>
                     <span id="modal-battle-timer" style="font-size:0.88rem; color:var(--danger); font-weight:800;">⏱ 30s</span>
                 </div>
                 <div style="background:var(--bg-deep); padding:1.4rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.2rem; text-align:left;">
