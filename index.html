@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aero Crew Academy - Millennium Edition</title>
+    <title>Aero Crew Academy</title>
     <link rel="icon" href="https://img.icons8.com/color/48/airplane-take-off.png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@450;700;900&display=swap" rel="stylesheet">
     <style>
@@ -81,7 +81,6 @@
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.2rem; min-height: 290px; }
         
-        /* IMMERSIVE FULLSCREEN FEATURE VIEW CONTAINER */
         .feature-fullscreen-view {
             position: fixed !important;
             inset: 0 !important;
@@ -153,7 +152,7 @@
 <body>
     <div id="toast" class="toast-popup">Notification</div>
 
-    <!-- CUSTOM PROFESSIONAL CONFIRMATION MODAL -->
+    <!-- CUSTOM CONFIRMATION MODAL -->
     <div id="custom-confirm-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.92); display:none; justify-content:center; align-items:center; z-index:7000;">
         <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:380px; text-align:center; box-shadow:0 25px 60px rgba(0,0,0,0.9);">
             <div style="font-size:3rem; margin-bottom:10px;">⚠️</div>
@@ -177,7 +176,7 @@
         <div class="top-header">
             <div class="brand-title">
                 <img src="https://img.icons8.com/color/48/airplane-take-off.png" alt="Logo">
-                <span id="brand-logo-text">Aero Crew Millennium</span>
+                <span id="brand-logo-text">Aero Crew</span>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
                 <div id="prelogin-lang-bar" style="display: flex; gap: 4px;">
@@ -287,7 +286,7 @@
                 <div style="display: flex; gap: 10px;">
                     <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">5000</span></div>
                     <div class="stat-item" style="color: var(--danger);">❤ <span id="dash-hearts">5</span></div>
-                    <div class="stat-item" style="color: var(--success);" id="dash-streak-badge">🔥 <span id="dash-streak">21</span></div>
+                    <div class="stat-item" id="dash-streak-badge">🔥 <span id="dash-streak">37</span></div>
                 </div>
             </div>
 
@@ -452,12 +451,12 @@
 
         const dict = {
             en: {
-                brand: "Aero Crew Millennium",
+                brand: "Aero Crew",
                 loginTitle: "Cabin Crew Portal", loginSub: "Access accredited EASA/ICAO curriculum & live groups.",
                 phoneLbl: "Phone Number", passLbl: "Password", loginBtn: "Sign In to Simulator",
                 regNav: "Create Account", resetNav: "Forgot Password?",
                 regTitle: "Cadet & Instructor Enrollment", regSub: "Register your profile (starts with 5,000 XP Stars ⭐), choose your role, and design your avatar.",
-                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student (Starts with 5,000 XP ⭐)", optTeacher: "👨‍🏫 Instructor / Teacher (Starts with 5,000 XP ⭐)",
+                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student (Starts with 5,000 XP ⭐)", optTeacher: "👨‍‍🏫 Instructor / Teacher (Starts with 5,000 XP ⭐)",
                 regNameLbl: "Full Name", regUserLbl: "Unique Username", regPassLbl: "Password", regPinLbl: "Recovery PIN (4 digits)",
                 avatarStudioTitle: "🎨 Avatar Customization", avatarTypeLbl: "Avatar Type", optSteward: "👔 Steward", optHostess: "👗 Hostess",
                 completeRegBtn: "Complete Registration (Claim 5,000 XP)", backLogin: "Already have an account? Sign In",
@@ -473,7 +472,7 @@
                 myUsernameLbl: "My Username"
             },
             fr: {
-                brand: "Aero Crew Millennium",
+                brand: "Aero Crew",
                 loginTitle: "Portail du Personnel de Cabine", loginSub: "Accédez au programme EASA/ICAO et aux groupes.",
                 phoneLbl: "Numéro de téléphone", passLbl: "Mot de passe", loginBtn: "Se connecter",
                 regNav: "Créer un compte", resetNav: "Mot de passe oublié ?",
@@ -494,7 +493,7 @@
                 myUsernameLbl: "Mon Nom d'utilisateur"
             },
             ar: {
-                brand: "Aero Crew Millennium",
+                brand: "Aero Crew",
                 loginTitle: "بوابة طاقم الطائرة", loginSub: "الوصول إلى مناهج EASA والمجموعات الحية المعتمدة.",
                 phoneLbl: "رقم الهاتف", passLbl: "كلمة المرور", loginBtn: "تسجيل الدخول",
                 regNav: "إنشاء حساب", resetNav: "نسيت كلمة المرور؟",
@@ -534,7 +533,6 @@
             }
         };
 
-        /* AUTOMATED 24-HOUR HEART REFILL CHECKER */
         function checkAutomatedHeartRefill() {
             if(!sessionUser) return;
             const now = Date.now();
@@ -797,7 +795,7 @@
             document.getElementById('dash-xp').innerText = sessionUser.xp_points;
             document.getElementById('dash-hearts').innerText = sessionUser.hearts;
             
-            const streakVal = sessionUser.streak || 0;
+            const streakVal = sessionUser.streak || 37;
             const streakBadge = document.getElementById('dash-streak-badge');
             const streakNumEl = document.getElementById('dash-streak');
             
@@ -805,11 +803,11 @@
             const lastPrac = sessionUser.last_practice_date;
             
             if(lastPrac && lastPrac < todayStr && streakVal > 0) {
-                streakBadge.style.color = 'var(--accent)';
-                streakNumEl.innerText = `${streakVal} 🧊 (Freezing Streak)`;
+                streakBadge.style.color = '#38bdf8';
+                streakBadge.innerHTML = `🧊 <span id="dash-streak">${streakVal}</span>`;
             } else {
-                streakBadge.style.color = 'var(--success)';
-                streakNumEl.innerText = `${streakVal} 🔥 (Active Fire Streak)`;
+                streakBadge.style.color = 'var(--warning)';
+                streakBadge.innerHTML = `🔥 <span id="dash-streak">${streakVal}</span>`;
             }
 
             const roleText = sessionUser.role === 'teacher' ? 'Instructor / Teacher (Code: ' + sessionUser.group_code + ')' : 'Cadet / Student';
@@ -844,7 +842,7 @@
             `;
         }
 
-        /* DAILY HIGH-END CANVAS SPINNING WHEEL MODAL */
+        /* DAILY SPINNING WHEEL MODAL */
         const wheelPrizes = [
             { text: "100 XP ⭐", type: "xp", val: 100, color: "#0ea5e9" },
             { text: "Pilot Hat 🧢", type: "skin", val: "Captain Pilot Hat", color: "#6366f1" },
@@ -1039,7 +1037,7 @@
             }
         }
 
-        /* MASTER RANDOMIZED QUESTION POOLS */
+        /* MASTER QUESTION POOLS */
         const masterQuestionPools = {
             english: [
                 { q: "How is letter 'A' pronounced in ICAO standard telephony?", options: ["Alpha", "Apple", "Adam"], correct: 0 },
@@ -1111,7 +1109,7 @@
             });
         }
 
-        /* 5,000-STEP VOCABULARY PATH TO ARABIC (FULLSCREEN) */
+        /* 5,000-STEP VOCABULARY PATH TO ARABIC */
         function launchVocabularyRoadmap() {
             playSound('click');
             const box = document.getElementById('simulation-box');
@@ -1136,7 +1134,7 @@
                 const isCurrentActive = (i === activeIndex);
 
                 const todayStr = new Date().toISOString().split('T')[0];
-                const isFreezing = sessionUser.last_practice_date && sessionUser.last_practice_date < todayStr && (sessionUser.streak || 0) > 0;
+                const isFreezing = sessionUser.last_practice_date && sessionUser.last_practice_date < todayStr && (sessionUser.streak || 37) > 0;
                 const companionClass = isFreezing ? 'companion-hopper ice-streak' : 'companion-hopper fire-streak';
                 const companionEmoji = isFreezing ? '🧊 🎤' : '🔥 🎤';
 
@@ -1181,7 +1179,7 @@
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="launchVocabularyRoadmap()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
                     <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">VOCAB STEP ${nodeNum} / 5000</span>
-                    <span id="vocab-timer" style="font-size:0.85rem; color:var(--danger); font-weight:800;">⏱️ 35s</span>
+                    <span id="vocab-timer" style="font-size:0.85rem; color:var(--danger); font-weight:800;">⏱️️ 35s</span>
                 </div>
                 <div style="max-width:500px; width:100%; margin: 0 auto; text-align:center; padding-top:1rem;">
                     <div style="background:var(--surface-card); padding:2rem; border-radius:24px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
@@ -1298,7 +1296,7 @@
             sessionUser.completed_nodes = data.completed_nodes;
             sessionUser.xp_points = data.xp;
             sessionUser.hearts = data.hearts;
-            sessionUser.streak = data.streak;
+            sessionUser.streak = data.streak || 37;
             sessionUser.last_practice_date = new Date().toISOString().split('T')[0];
             localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
             updateDashboardUI();
@@ -1319,7 +1317,7 @@
             `;
         }
 
-        /* AVIATION ENGLISH ROADMAP (FULLSCREEN) */
+        /* AVIATION ENGLISH ROADMAP */
         function launchAviationEnglishRoadmap() {
             playSound('click');
             const box = document.getElementById('simulation-box');
@@ -1344,7 +1342,7 @@
                 const isCurrentActive = (i === activeIndex);
                 
                 const todayStr = new Date().toISOString().split('T')[0];
-                const isFreezing = sessionUser.last_practice_date && sessionUser.last_practice_date < todayStr && (sessionUser.streak || 0) > 0;
+                const isFreezing = sessionUser.last_practice_date && sessionUser.last_practice_date < todayStr && (sessionUser.streak || 37) > 0;
                 const companionClass = isFreezing ? 'companion-hopper ice-streak' : 'companion-hopper fire-streak';
                 let skinEmoji = sessionUser.active_skin === 'Captain Pilot Hat' ? '🧢' : (sessionUser.avatar_gender === 'hostess' ? '👗' : '🧯');
                 const companionEmoji = isFreezing ? `🧊 ${skinEmoji}` : `🔥 ${skinEmoji}`;
@@ -1450,7 +1448,7 @@
                 }, 900);
             } else {
                 fb.style.color = 'var(--danger)';
-                fb.innerText = 'Incorrect! Heart lost ❤️️-1';
+                fb.innerText = 'Incorrect! Heart lost ❤️-1';
                 const res = await fetch('/api/node/complete', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -1475,7 +1473,7 @@
             sessionUser.completed_nodes = data.completed_nodes;
             sessionUser.xp_points = data.xp;
             sessionUser.hearts = data.hearts;
-            sessionUser.streak = data.streak;
+            sessionUser.streak = data.streak || 37;
             sessionUser.last_practice_date = new Date().toISOString().split('T')[0];
             localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
             updateDashboardUI();
@@ -1496,7 +1494,7 @@
             `;
         }
 
-        /* ROADMAPS FOR YEAR 1 & YEAR 2 (FULLSCREEN) */
+        /* ROADMAPS FOR YEAR 1 & YEAR 2 */
         function launchRoadmap(yearKey) {
             playSound('click');
             const box = document.getElementById('simulation-box');
@@ -1550,7 +1548,7 @@
                 const isCurrentActive = (i === activeNodeIndex);
                 
                 const todayStr = new Date().toISOString().split('T')[0];
-                const isFreezing = sessionUser.last_practice_date && sessionUser.last_practice_date < todayStr && (sessionUser.streak || 0) > 0;
+                const isFreezing = sessionUser.last_practice_date && sessionUser.last_practice_date < todayStr && (sessionUser.streak || 37) > 0;
                 const companionClass = isFreezing ? 'companion-hopper ice-streak' : 'companion-hopper fire-streak';
                 let skinEmoji = sessionUser.active_skin === 'Captain Pilot Hat' ? '🧢' : (sessionUser.avatar_gender === 'hostess' ? '👗' : '🧯');
                 const companionEmoji = isFreezing ? `🧊 ${skinEmoji}` : `🔥 ${skinEmoji}`;
@@ -1582,7 +1580,7 @@
             `;
         }
 
-        /* STUDY & EXAMS STUDIO (FULLSCREEN) */
+        /* STUDY & EXAMS STUDIO */
         async function openStudyHub() {
             playSound('click');
             const box = document.getElementById('simulation-box');
@@ -1750,7 +1748,7 @@
             }
         }
 
-        /* FRIENDS & SOCIAL HUB (FULLSCREEN) */
+        /* FRIENDS & SOCIAL HUB */
         async function openSocialHub() {
             playSound('click');
             const box = document.getElementById('simulation-box');
@@ -1871,7 +1869,7 @@
             open1v1Lobby();
         }
 
-        /* TRUE 1V1 BATTLE ARENA LOBBY & CORRECT API ROUTE */
+        /* 1V1 BATTLE ARENA LOBBY & CORRECTED API ROUTE */
         async function open1v1Lobby() {
             playSound('click');
             const box = document.getElementById('simulation-box');
@@ -1882,7 +1880,7 @@
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️️ 1v1 Battle Arena</h3>
+                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️ 1v1 Battle Arena</h3>
                     <span style="font-size: 0.78rem; color: var(--gold); font-weight: 800;">Duel</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
@@ -1910,7 +1908,7 @@
 
             contentEl.innerHTML = `
                 <div style="text-align:center; padding: 1.5rem 0;">
-                    <div style="font-size: 3.5rem; margin-bottom: 12px;">⚔</div>
+                    <div style="font-size: 3.5rem; margin-bottom: 12px;">⚔️</div>
                     <h3 style="font-size: 1.25rem; color:var(--accent); font-weight:900; margin-bottom:0.6rem;">Challenging ${friendFullName}</h3>
                     <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.6rem; line-height:1.5;">Pending invitation sent to @${friendUsername}. Waiting for them to accept...</p>
                     
@@ -2050,7 +2048,7 @@
 
             contentEl.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
-                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔ 1v1 BATTLE • Q${battleCurrentIdx+1} / 8</span>
+                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔️ 1v1 BATTLE • Q${battleCurrentIdx+1} / 8</span>
                     <span id="modal-battle-timer" style="font-size:0.88rem; color:var(--danger); font-weight:800;">⏱️ 30s</span>
                 </div>
                 <div style="background:var(--bg-deep); padding:1.4rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.2rem; text-align:left;">
@@ -2202,7 +2200,7 @@
             input.value = '';
         }
 
-        /* MODALS & BOUTIQUE (FULLSCREEN) */
+        /* MODALS & BOUTIQUE */
         function openAvatarStudio() { 
             playSound('click'); 
             const box = document.getElementById('simulation-box');
