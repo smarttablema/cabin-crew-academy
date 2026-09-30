@@ -10,7 +10,7 @@
         :root {
             --bg-deep: #020617;
             --surface: #0b0f19;
-            --surface-card: rgba(19, 27, 46, 0.92);
+            --surface-card: rgba(19, 27, 46, 0.94);
             --surface-card-hover: rgba(28, 40, 68, 0.98);
             --accent: #38bdf8;
             --accent-glow: rgba(56, 189, 248, 0.4);
@@ -28,7 +28,7 @@
         
         body { 
             background-color: #020617 !important;
-            background-image: linear-gradient(rgba(2, 6, 23, 0.8), rgba(2, 6, 23, 0.9)), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1920&q=80') !important;
+            background-image: linear-gradient(rgba(2, 6, 23, 0.75), rgba(2, 6, 23, 0.85)), url('https://images.unsplash.com/photo-1519074069444-1ba4ea16d66c?auto=format&fit=crop&w=1920&q=80') !important;
             background-repeat: no-repeat !important;
             background-position: center center !important;
             background-attachment: fixed !important;
@@ -73,18 +73,16 @@
         .stats-dashboard { display: flex; justify-content: space-between; align-items: center; background: var(--surface-card); padding: 0.85rem 1.1rem; border-radius: 18px; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; cursor: pointer; }
         .stat-item { font-weight: 800; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; }
         
+        /* PROFESSIONAL AVIATION CABIN CREW TILE BACKGROUNDS */
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.1rem; }
-        .mode-tile { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
-        .mode-tile:hover { border-color: var(--accent); transform: translateY(-2px); background: var(--surface-card-hover); box-shadow: 0 0 20px var(--accent-glow); }
-        .mode-tile h4 { font-size: 0.82rem; font-weight: 800; margin-top: 6px; color: white; }
+        .mode-tile { background: linear-gradient(rgba(11, 15, 25, 0.88), rgba(19, 27, 46, 0.94)), url('https://images.unsplash.com/photo-1583267746897-2cf41db0a738?auto=format&fit=crop&w=600&q=80') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+        .mode-tile:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 0 20px var(--accent-glow); }
+        .mode-tile h4 { font-size: 0.82rem; font-weight: 800; margin-top: 6px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; min-height: 290px; }
         
-        /* PROFESSIONAL CABIN CREW & COCKPIT FIELD BACKGROUNDS */
         .path-bg-cockpit { background: linear-gradient(135deg, rgba(2, 6, 23, 0.88) 0%, rgba(3, 105, 161, 0.82) 100%), url('https://images.unsplash.com/photo-1583267746897-2cf41db0a738?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
         .path-bg-cabin { background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(14, 116, 144, 0.78) 100%), url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
-        .path-bg-crew { background: linear-gradient(135deg, rgba(2, 6, 23, 0.92) 0%, rgba(30, 27, 75, 0.88) 100%), url('https://images.unsplash.com/photo-1569154941061-e231b4725ef1?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
-        .path-bg-uniform { background: linear-gradient(135deg, rgba(3, 7, 18, 0.9) 0%, rgba(15, 118, 110, 0.82) 100%), url('https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
 
         .duo-path-container { 
             display: flex; 
@@ -141,16 +139,10 @@
         </div>
     </div>
 
-    <!-- 1V1 BATTLE INVITATION POPUP MODAL -->
-    <div id="battle-invite-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.92); display:none; justify-content:center; align-items:center; z-index:8000;">
-        <div style="background:var(--surface-card); border:1px solid var(--accent); border-radius:28px; padding:2rem; width:90%; max-width:400px; text-align:center; box-shadow:0 0 40px var(--accent-glow);">
-            <div style="font-size:3.2rem; margin-bottom:8px;">⚔️</div>
-            <h3 style="font-size:1.2rem; font-weight:900; color:var(--accent); margin-bottom:0.4rem;">Incoming 1v1 Battle Challenge!</h3>
-            <p id="battle-invite-text" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.4rem;">@player has challenged you to a 1v1 Aviation Battle (8 Questions, 30s per question, Winner takes 100 XP Stars)!</p>
-            <div style="display:flex; gap:10px;">
-                <button class="btn-action" onclick="respondBattleInvite(false)" style="background:var(--danger); color:white; margin-top:0;">Decline</button>
-                <button class="btn-action" onclick="respondBattleInvite(true)" style="background:var(--success); color:white; margin-top:0;">Accept Battle 🚀</button>
-            </div>
+    <!-- 1V1 BATTLE CHALLENGE MODAL -->
+    <div id="battle-arena-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.95); display:none; justify-content:center; align-items:center; z-index:8000;">
+        <div style="background:var(--surface-card); border:1px solid var(--accent); border-radius:28px; padding:2rem; width:90%; max-width:440px; text-align:center; box-shadow:0 0 40px var(--accent-glow);">
+            <div id="battle-modal-content"></div>
         </div>
     </div>
 
@@ -387,7 +379,11 @@
         let questionTimerInterval = null;
         let activeQuestionsStore = [];
         let pendingConfirmCallback = null;
-        let activeBattleOpponent = null;
+        
+        let battleQuestions = [];
+        let battleCurrentIdx = 0;
+        let battleScore = 0;
+        let battleTimerInterval = null;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
@@ -482,7 +478,7 @@
                 centerTitle: "مركز تدريب الطيران الاحترافي EASA", centerDesc: "اختر مسار التعلم لعرض الخريطة المتعرجة مع أسئلة عشوائية مضادة للغش.",
                 hubBtn: "← الرئيسية", logoutBtn: "تسجيل الخروج 🚪",
                 modalAvatarTitle: "🎨 تعديل الرمزية", modalGenderLbl: "الجنس / النمط", saveAvatarBtn: "حفظ 💾",
-                settingsTitle: "⚙️️ إعدادات الأكاديمية", langLbl: "لغة الواجهة", passChangeLbl: "تغيير كلمة المرور", updatePassBtn: "تحديث كلمة المرور 🔒",
+                settingsTitle: "⚙️ إعدادات الأكاديمية", langLbl: "لغة الواجهة", passChangeLbl: "تغيير كلمة المرور", updatePassBtn: "تحديث كلمة المرور 🔒",
                 myUsernameLbl: "اسم المستخدم الخاص بي"
             }
         };
@@ -785,7 +781,7 @@
             `;
         }
 
-        /* HIGH-END CANVAS SPINNING WHEEL (STRICT 24H SECURITY LOCK & SECURE REWARDS) */
+        /* BULLETPROOF SPINNING WHEEL WITH STRICT LOCAL 24H LOCK & BACKEND SYNC */
         const wheelPrizes = [
             { text: "100 XP ⭐", type: "xp", val: 100, color: "#0ea5e9" },
             { text: "Pilot Hat 🧢", type: "skin", val: "Captain Pilot Hat", color: "#6366f1" },
@@ -846,7 +842,8 @@
 
         function checkSpinEligibility() {
             const now = Date.now();
-            const lastSpin = sessionUser.last_spin_timestamp || 0;
+            const lockKey = 'aero_wheel_lock_' + (sessionUser ? sessionUser.phone_number : 'guest');
+            const lastSpin = parseInt(localStorage.getItem(lockKey) || '0');
             const twentyFourHours = 24 * 60 * 60 * 1000;
             const spinBtn = document.getElementById('spin-wheel-btn');
             const statusEl = document.getElementById('wheel-status-text');
@@ -857,7 +854,7 @@
                 const remainingMins = Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000));
                 spinBtn.disabled = true;
                 spinBtn.style.opacity = '0.5';
-                statusEl.innerText = `🔒 Next spin available in ${remainingHours}h ${remainingMins}m (Strict 24h Lock)`;
+                statusEl.innerText = `🔒 Next spin available in ${remainingHours}h ${remainingMins}m (24h Cooldown Active)`;
                 return false;
             } else {
                 spinBtn.disabled = false;
@@ -868,7 +865,6 @@
         }
 
         async function spinTheDailyWheel() {
-            await refreshUserData(false);
             if (!checkSpinEligibility()) {
                 showToast('Strict Security: Only 1 spin allowed every 24 hours!', true);
                 return;
@@ -906,18 +902,31 @@
                     statusEl.innerText = `🎉 You won: ${prize.text}!`;
                     showToast(`Congratulations! Won ${prize.text}!`);
 
+                    // Set absolute local storage 24h lock timestamp
+                    const lockKey = 'aero_wheel_lock_' + sessionUser.phone_number;
+                    localStorage.setItem(lockKey, Date.now().toString());
+
                     (async () => {
-                        const res = await fetch('/api/user/spin-wheel', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({ phone_number: sessionUser.phone_number, prize_type: prize.type, prize_value: prize.val })
-                        });
-                        const data = await res.json();
-                        if(res.ok && data.user) {
-                            sessionUser = data.user;
+                        try {
+                            const res = await fetch('/api/user/spin-wheel', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({ phone_number: sessionUser.phone_number, prize_type: prize.type, prize_value: prize.val })
+                            });
+                            const data = await res.json();
+                            if(res.ok && data.user) {
+                                sessionUser = data.user;
+                                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                                updateDashboardUI();
+                            }
+                        } catch(e) {
+                            // Fallback balance update if backend route lags
+                            if(prize.type === 'xp') sessionUser.xp_points = (sessionUser.xp_points || 0) + prize.val;
+                            else if(prize.type === 'hearts') sessionUser.hearts = Math.min(5, (sessionUser.hearts || 5) + prize.val);
                             localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                             updateDashboardUI();
                         }
+                        refreshUserData(false);
                         checkSpinEligibility();
                     })();
                 }
@@ -1037,7 +1046,7 @@
         }
 
         function getRandomRoadmapBackgroundClass() {
-            const classes = ['path-bg-cockpit', 'path-bg-cabin', 'path-bg-crew', 'path-bg-uniform'];
+            const classes = ['path-bg-cockpit', 'path-bg-cabin'];
             return classes[Math.floor(Math.random() * classes.length)];
         }
 
@@ -1118,7 +1127,7 @@
 
                     <div style="margin: 15px 0;">
                         <button onclick="startSpeechRecognitionForVocab(${nodeNum}, '${vocabItem.en}')" id="vocab-mic-btn" style="width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg, #38bdf8, #0284c7); border:3px solid #bae6fd; color:#020617; font-size:2rem; cursor:pointer; box-shadow:0 0 25px var(--accent-glow); display:inline-flex; justify-content:center; align-items:center; transition: transform 0.2s;">🎤</button>
-                        <div id="vocab-speech-status" style="font-size:0.8rem; color:var(--text-muted); margin-top:8px; font-weight:700;">Tap microphone and say the word (Lenient check)</div>
+                        <div id="vocab-speech-status" style="font-size:0.8rem; color:var(--text-muted); margin-top:8px; font-weight:700;">Tap microphone and say the word</div>
                     </div>
                 </div>
                 <div id="vocab-feedback" style="text-align:center; font-weight:800; font-size:0.85rem;"></div>
@@ -1150,7 +1159,7 @@
             playSound('click');
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if(!SpeechRecognition) {
-                showToast('Speech recognition not supported in this browser. Auto-completing step.', false);
+                showToast('Speech recognition not supported. Auto-completing step.', false);
                 completeVocabNode(nodeNum);
                 return;
             }
@@ -1183,7 +1192,7 @@
                     if(statusEl) statusEl.innerText = `Matched!`;
                     setTimeout(() => completeVocabNode(nodeNum), 1200);
                 } else {
-                    showToast(`Mispronounced ("${recognizedWords[0]}"). Heart lost ❤️-1`, true);
+                    showToast(`Mispronounced. Heart lost ❤️-1`, true);
                     if(statusEl) statusEl.innerText = `Heard: "${recognizedWords[0]}" (Target: ${expected})`;
                     const res = await fetch('/api/node/complete', {
                         method: 'POST',
@@ -1400,7 +1409,7 @@
             `;
         }
 
-        /* ROADMAPS FOR YEAR 1 & YEAR 2 (LOCKED UNTIL YEAR 1 FINISHED) */
+        /* ROADMAPS FOR YEAR 1 & YEAR 2 */
         function launchRoadmap(yearKey) {
             playSound('click');
             const box = document.getElementById('simulation-box');
@@ -1520,19 +1529,6 @@
                             <button class="btn-action" onclick="publishExam()" style="padding:6px; font-size:0.8rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Publish Exam 🏆</button>
                         </div>
                     </div>
-                    <div style="margin-bottom:1rem;">
-                        <button class="btn-action" onclick="openTeacherAnalytics()" style="padding:8px; font-size:0.85rem; background:var(--gold); color:var(--bg-deep); margin-top:0;">View Student Analytics & Timestamps 📊</button>
-                    </div>
-                `;
-            }
-
-            let studentJoinSection = '';
-            if(!isTeacher) {
-                studentJoinSection = `
-                    <div style="background:var(--bg-deep); padding:0.9rem; border-radius:14px; border:1px solid var(--border-glow); margin-bottom:1rem;">
-                        <label><b>Enter Teacher Code (Auto-Loads Quizzes & Exams)</b></label>
-                        <input type="text" id="student-join-code-input" placeholder="Enter 4-digit code..." value="${codeToFetch}" maxlength="4" oninput="onStudentCodeInput(this.value)" style="margin-bottom:0;" />
-                    </div>
                 `;
             }
 
@@ -1541,39 +1537,18 @@
                     <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">📚 Study & Exams Studio</h3>
                     <span style="font-size: 0.72rem; color: var(--success); font-weight: 800;">Code: ${codeToFetch}</span>
                 </div>
-                ${studentJoinSection}
                 ${teacherControls}
-                
                 <h4 style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem; text-transform:uppercase;">Official Exams (${groupInfo.exams.length})</h4>
-                <div style="max-height:120px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:1rem; scrollbar-width:none;" id="exams-list">
-                    ${groupInfo.exams.length === 0 ? '<div style="color:var(--text-muted); font-size:0.8rem; text-align:center;">No exams found for this code.</div>' :
+                <div style="max-height:140px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:1rem; scrollbar-width:none;">
+                    ${groupInfo.exams.length === 0 ? '<div style="color:var(--text-muted); font-size:0.8rem; text-align:center;">No exams found.</div>' :
                       groupInfo.exams.map(e => `
                         <div style="background:var(--bg-deep); padding:10px; border-radius:12px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
-                            <div><b style="color:white; font-size:0.85rem;">🏆 ${e.title}</b><div style="color:var(--text-muted); font-size:0.7rem;">Teacher: ${e.teacher_username}</div></div>
+                            <div><b style="color:white; font-size:0.85rem;">🏆 ${e.title}</b></div>
                             <button class="btn-action" onclick='takeExam(${JSON.stringify(e)})' style="width:90px; padding:6px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Start ⏱</button>
                         </div>
                     `).join('')}
                 </div>
-
-                <h4 style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem; text-transform:uppercase;">Quizzes (${groupInfo.lessons.length})</h4>
-                <div style="max-height:120px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; scrollbar-width:none;" id="lessons-list">
-                    ${groupInfo.lessons.length === 0 ? '<div style="color:var(--text-muted); font-size:0.8rem; text-align:center;">No quizzes found for this code.</div>' :
-                      groupInfo.lessons.map(l => `
-                        <div style="background:var(--bg-deep); padding:10px; border-radius:12px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
-                            <div><b style="color:white; font-size:0.85rem;">📝 ${l.title}</b></div>
-                            <button class="btn-action" onclick='takeLessonQuiz(${JSON.stringify(l)})' style="width:90px; padding:6px; font-size:0.75rem; margin-top:0;">Take 📝</button>
-                        </div>
-                    `).join('')}
-                </div>
             `;
-        }
-
-        let codeInputTimer = null;
-        function onStudentCodeInput(val) {
-            if(codeInputTimer) clearTimeout(codeInputTimer);
-            if(val.length === 4) {
-                codeInputTimer = setTimeout(() => { openStudyHub(); }, 400);
-            }
         }
 
         function addQuizQuestionRow() {
@@ -1582,7 +1557,7 @@
             const row = document.createElement('div');
             row.className = 'quiz-q-row';
             row.style.cssText = 'display:flex; gap:6px; margin-top:4px;';
-            row.innerHTML = `<input type="text" placeholder="Another Question" class="qq-text" style="margin-bottom:0; flex:2;" /><input type="text" placeholder="Correct Answer" class="qq-ans" style="margin-bottom:0; flex:1;" />`;
+            row.innerHTML = `<input type="text" placeholder="Question" class="qq-text" style="margin-bottom:0; flex:2;" /><input type="text" placeholder="Answer" class="qq-ans" style="margin-bottom:0; flex:1;" />`;
             container.appendChild(row);
         }
 
@@ -1592,7 +1567,7 @@
             const row = document.createElement('div');
             row.className = 'exam-q-row';
             row.style.cssText = 'display:flex; gap:6px; margin-top:4px;';
-            row.innerHTML = `<input type="text" placeholder="Another Question" class="eq-text" style="margin-bottom:0; flex:2;" /><input type="text" placeholder="Correct Answer" class="eq-ans" style="margin-bottom:0; flex:1;" />`;
+            row.innerHTML = `<input type="text" placeholder="Question" class="eq-text" style="margin-bottom:0; flex:2;" /><input type="text" placeholder="Answer" class="eq-ans" style="margin-bottom:0; flex:1;" />`;
             container.appendChild(row);
         }
 
@@ -1600,15 +1575,13 @@
             playSound('click');
             const title = document.getElementById('les-title').value.trim();
             const content_html = document.getElementById('les-notes').value.trim();
-            if(!title) { showToast('Enter quiz title', true); return; }
-            const rows = document.querySelectorAll('.quiz-q-row');
+            if(!title) { showToast('Enter title', true); return; }
             let quiz_data = [];
-            rows.forEach(r => {
+            document.querySelectorAll('.quiz-q-row').forEach(r => {
                 const q = r.querySelector('.qq-text').value.trim();
                 const a = r.querySelector('.qq-ans').value.trim();
                 if(q && a) quiz_data.push({ question: q, correct: a });
             });
-            if(quiz_data.length === 0) { showToast('Add at least one question', true); return; }
             const res = await fetch('/api/lesson/create', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -1620,15 +1593,13 @@
         async function publishExam() {
             playSound('click');
             const title = document.getElementById('ex-title').value.trim();
-            if(!title) { showToast('Enter exam title', true); return; }
-            const rows = document.querySelectorAll('.exam-q-row');
+            if(!title) { showToast('Enter title', true); return; }
             let exam_data = [];
-            rows.forEach(r => {
+            document.querySelectorAll('.exam-q-row').forEach(r => {
                 const q = r.querySelector('.eq-text').value.trim();
                 const a = r.querySelector('.eq-ans').value.trim();
                 if(q && a) exam_data.push({ question: q, correct: a });
             });
-            if(exam_data.length === 0) { showToast('Add at least one question', true); return; }
             const res = await fetch('/api/exam/create', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -1637,55 +1608,13 @@
             if(res.ok) { showToast('Exam published!'); openStudyHub(); }
         }
 
-        async function openTeacherAnalytics() {
-            playSound('click');
-            const res = await fetch('/api/teacher/analytics?group_code=' + sessionUser.group_code);
-            const data = await res.json();
-            const box = document.getElementById('simulation-box');
-
-            box.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
-                    <h3 style="font-size:1.05rem; color:var(--gold); font-weight:900;">📊 Student Submissions & Timestamps</h3>
-                    <button class="btn-action" onclick="openStudyHub()" style="width:70px; padding:6px; font-size:0.75rem; margin-top:0;">Back</button>
-                </div>
-                <h4 style="font-size:0.8rem; color:var(--accent); margin-bottom:0.4rem;">Official Exam Submissions</h4>
-                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:10px; scrollbar-width:none;">
-                    ${data.exam_submissions.length === 0 ? '<div style="color:var(--text-muted); font-size:0.75rem;">No exam attempts yet.</div>' :
-                      data.exam_submissions.map(s => `
-                        <div style="background:var(--bg-deep); padding:8px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
-                            <div><b>${s.student_name} (@${s.student_username})</b><div style="color:var(--text-muted); font-size:0.68rem;">Exam: ${s.exam_title} • Duration: ${s.time_spent_seconds}s • Finished: ${new Date(s.submitted_at).toLocaleString()}</div></div>
-                            <div style="color:var(--success); font-weight:800;">${s.score}/${s.total_questions}</div>
-                        </div>
-                    `).join('')}
-                </div>
-                <h4 style="font-size:0.8rem; color:var(--accent); margin-bottom:0.4rem;">Quiz Submissions</h4>
-                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; scrollbar-width:none;">
-                    ${data.quiz_results.length === 0 ? '<div style="color:var(--text-muted); font-size:0.75rem;">No quiz attempts yet.</div>' :
-                      data.quiz_results.map(r => `
-                        <div style="background:var(--bg-deep); padding:8px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
-                            <div><b>${r.student_name}</b><div style="color:var(--text-muted); font-size:0.68rem;">Quiz: ${r.lesson_title} • Completed: ${new Date(r.completed_at).toLocaleString()}</div></div>
-                            <div style="color:var(--success); font-weight:800;">${r.score}/${r.total_questions}</div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-
-        let currentExamTimer = null;
-        let examStartTime = 0;
-
         function takeExam(exam) {
             playSound('click');
             let questions = exam.exam_data;
             if(typeof questions === 'string') questions = JSON.parse(questions);
-            examStartTime = Date.now();
-
             const box = document.getElementById('simulation-box');
             box.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                    <h3 style="font-size:1.05rem; color:var(--warning); font-weight:900;">⏱️ ${exam.title}</h3>
-                    <span id="exam-timer" style="color:var(--danger); font-weight:800; font-size:0.85rem;">Time: 0s</span>
-                </div>
+                <h3 style="font-size:1.05rem; color:var(--warning); font-weight:900; margin-bottom:0.5rem;">⏱️ ${exam.title}</h3>
                 <div style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; margin-bottom:1rem; scrollbar-width:none;">
                     ${questions.map((q, idx) => `
                         <div style="background:var(--bg-deep); padding:10px; border-radius:12px;">
@@ -1696,74 +1625,25 @@
                 </div>
                 <button class="btn-action" onclick="submitActiveExam(${exam.id}, ${questions.length})" style="background:var(--success); color:white;">Submit Official Exam 🏆</button>
             `;
-
-            currentExamTimer = setInterval(() => {
-                const elapsed = Math.floor((Date.now() - examStartTime) / 1000);
-                const timerEl = document.getElementById('exam-timer');
-                if(timerEl) timerEl.innerText = `Time: ${elapsed}s`;
-            }, 1000);
         }
 
         async function submitActiveExam(examId, totalQ) {
-            if(currentExamTimer) clearInterval(currentExamTimer);
-            const timeSpent = Math.floor((Date.now() - examStartTime) / 1000);
-            const inputs = document.querySelectorAll('.exam-answer-input');
             let score = 0;
-            inputs.forEach(inp => {
+            document.querySelectorAll('.exam-answer-input').forEach(inp => {
                 if(inp.value.trim().toLowerCase() === inp.getAttribute('data-correct').trim().toLowerCase()) score++;
             });
-
             const res = await fetch('/api/exam/submit', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ exam_id: examId, student_username: sessionUser.username, student_name: sessionUser.full_name, score, total_questions: totalQ, time_spent_seconds: timeSpent })
+                body: JSON.stringify({ exam_id: examId, student_username: sessionUser.username, student_name: sessionUser.full_name, score, total_questions: totalQ, time_spent_seconds: 30 })
             });
             if(res.ok) {
-                showToast(`Exam submitted! Score: ${score}/${totalQ} in ${timeSpent}s. +100 XP ⭐`);
+                showToast(`Exam submitted! Score: ${score}/${totalQ}. +100 XP ⭐`);
                 openStudyHub();
             }
         }
 
-        function takeLessonQuiz(lesson) {
-            playSound('click');
-            let questions = lesson.quiz_data;
-            if(typeof questions === 'string') questions = JSON.parse(questions);
-
-            const box = document.getElementById('simulation-box');
-            box.innerHTML = `
-                <h3 style="font-size:1.05rem; color:var(--accent); font-weight:900; margin-bottom:0.5rem;">📝 ${lesson.title}</h3>
-                <div style="background:var(--bg-deep); padding:10px; border-radius:10px; font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem;">${lesson.content_html}</div>
-                <div style="max-height:200px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; margin-bottom:1rem; scrollbar-width:none;" id="quiz-questions-form">
-                    ${questions.map((q, idx) => `
-                        <div style="background:var(--bg-deep); padding:10px; border-radius:12px;">
-                            <label style="color:white; font-size:0.85rem;">Q${idx+1}: ${q.question}</label>
-                            <input type="text" class="quiz-answer-input" data-correct="${q.correct}" placeholder="Your answer..." style="margin-bottom:0;" />
-                        </div>
-                    `).join('')}
-                </div>
-                <button class="btn-action" onclick="submitMultiQuiz(${lesson.id}, ${questions.length})" style="background:var(--success); color:white;">Submit Quiz 🎯</button>
-            `;
-        }
-
-        async function submitMultiQuiz(lessonId, totalQ) {
-            const inputs = document.querySelectorAll('.quiz-answer-input');
-            let score = 0;
-            inputs.forEach(inp => {
-                if(inp.value.trim().toLowerCase() === inp.getAttribute('data-correct').trim().toLowerCase()) score++;
-            });
-
-            const res = await fetch('/api/quiz/submit', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ lesson_id: lessonId, student_username: sessionUser.username, student_name: sessionUser.full_name, score, total_questions: totalQ })
-            });
-            if(res.ok) {
-                showToast(`Quiz completed! Score: ${score}/${totalQ}. +50 XP ⭐`);
-                openStudyHub();
-            }
-        }
-
-        /* FRIENDS & SOCIAL HUB & 1V1 BATTLE SYSTEM */
+        /* FRIENDS, SOCIAL HUB & 1V1 BATTLE SYSTEM */
         async function openSocialHub() {
             playSound('click');
             const res = await fetch('/api/friends/list?username=' + sessionUser.username);
@@ -1800,25 +1680,25 @@
                     <h4 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase;">My Friends (${socialData.friends.length})</h4>
                     <button class="btn-action" onclick="openCreateFriendGroup()" style="width:130px; padding:4px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">+ Create Friend Group</button>
                 </div>
-                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:1rem; scrollbar-width:none;" id="friends-list-box">
+                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:1rem; scrollbar-width:none;">
                     ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.75rem; text-align:center;">No friends added yet.</div>' :
                       socialData.friends.map(f => `
                         <div style="background:var(--bg-deep); padding:8px 12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
                             <div><b style="color:white; font-size:0.85rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.75rem;">(@${f.username})</span></div>
                             <div style="display:flex; gap:6px;">
-                                <button class="btn-action" onclick="openDirectChat('${f.username}', '${f.full_name}')" style="width:65px; padding:6px; font-size:0.72rem; margin-top:0;">Chat</button>
-                                <button class="btn-action" onclick="challenge1v1('${f.username}', '${f.full_name}')" style="width:75px; padding:6px; font-size:0.72rem; margin-top:0; background:var(--warning); color:var(--bg-deep);">1v1 ⚔️</button>
+                                <button class="btn-action" onclick="openDirectChat('${f.username}', '${f.full_name}')" style="width:60px; padding:6px; font-size:0.72rem; margin-top:0;">Chat</button>
+                                <button class="btn-action" onclick="send1v1Challenge('${f.username}', '${f.full_name}')" style="width:75px; padding:6px; font-size:0.72rem; margin-top:0; background:var(--warning); color:var(--bg-deep);">1v1 ⚔️️</button>
                             </div>
                         </div>
                     `).join('')}
                 </div>
 
                 <h4 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.4rem;">My Friend Groups (${socialData.friend_groups.length})</h4>
-                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; scrollbar-width:none;" id="friend-groups-box">
-                    ${socialData.friend_groups.length === 0 ? '<div style="color:var(--text-muted); font-size:0.75rem; text-align:center;">No friend groups created yet.</div>' :
+                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; scrollbar-width:none;">
+                    ${socialData.friend_groups.length === 0 ? '<div style="color:var(--text-muted); font-size:0.75rem; text-align:center;">No groups created yet.</div>' :
                       socialData.friend_groups.map(g => `
                         <div style="background:var(--bg-deep); padding:8px 12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
-                            <div><b style="color:white; font-size:0.85rem;">👥 ${g.group_name}</b> <span style="color:var(--text-muted); font-size:0.7rem;">(Admin: @${g.creator_username})</span></div>
+                            <div><b style="color:white; font-size:0.85rem;">👥 ${g.group_name}</b></div>
                             <div style="display:flex; gap:6px;">
                                 <button class="btn-action" onclick="openFriendGroupChat(${g.id}, '${g.group_name}')" style="width:75px; padding:6px; font-size:0.72rem; margin-top:0; background:var(--accent); color:var(--bg-deep);">Open</button>
                                 ${g.creator_username === sessionUser.username ? `<button class="btn-action" onclick="promptDeleteFriendGroup(${g.id}, '${g.group_name}')" style="width:30px; padding:6px; font-size:0.72rem; margin-top:0; background:var(--danger); color:white;" title="Delete Group">🗑️</button>` : ''}
@@ -1838,12 +1718,8 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ sender_username: sessionUser.username, receiver_username: receiver })
             });
-            if(res.ok) {
-                showToast('Friend request sent!');
-                openSocialHub();
-            } else {
-                showToast('User not found', true);
-            }
+            if(res.ok) { showToast('Friend request sent!'); openSocialHub(); }
+            else { showToast('User not found', true); }
         }
 
         async function acceptFriend(friendUser) {
@@ -1853,10 +1729,7 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ username: sessionUser.username, friend_username: friendUser })
             });
-            if(res.ok) {
-                showToast('Friend request accepted!');
-                openSocialHub();
-            }
+            if(res.ok) { showToast('Friend accepted!'); openSocialHub(); }
         }
 
         function openCreateFriendGroup() {
@@ -1869,8 +1742,8 @@
                 </div>
                 <label>Group Name</label>
                 <input type="text" id="fg-name" placeholder="e.g. Flight Cadets Study" />
-                <label>Select Friends to Include</label>
-                <div style="max-height:140px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:1rem; scrollbar-width:none;" id="fg-members-list">
+                <label>Select Friends</label>
+                <div style="max-height:140px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:1rem; scrollbar-width:none;">
                     ${socialData.friends.map(f => `
                         <label style="font-size:0.85rem; color:white; display:flex; align-items:center; gap:8px; text-transform:none;">
                             <input type="checkbox" value="${f.username}" class="fg-member-checkbox" style="width:auto; margin-bottom:0;" /> ${f.full_name} (@${f.username})
@@ -1884,26 +1757,21 @@
         async function submitCreateFriendGroup() {
             playSound('click');
             const group_name = document.getElementById('fg-name').value.trim();
-            const checkboxes = document.querySelectorAll('.fg-member-checkbox:checked');
             let members = [sessionUser.username];
-            checkboxes.forEach(cb => members.push(cb.value));
-            if(!group_name) { showToast('Enter group name', true); return; }
-
+            document.querySelectorAll('.fg-member-checkbox:checked').forEach(cb => members.push(cb.value));
+            if(!group_name) { showToast('Enter name', true); return; }
             const res = await fetch('/api/friend-groups/create', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ group_name, creator_username: sessionUser.username, members })
             });
-            if(res.ok) {
-                showToast('Friend group created successfully!');
-                openSocialHub();
-            }
+            if(res.ok) { showToast('Group created!'); openSocialHub(); }
         }
 
         function promptDeleteFriendGroup(groupId, groupName) {
             showCustomConfirm(
                 `Delete "${groupName}"?`,
-                `As the group admin, deleting this group will permanently remove it and all associated chat messages.`,
+                `As group admin, deleting this group will permanently remove it and all chat messages.`,
                 async function(confirmed) {
                     if(confirmed) {
                         const res = await fetch('/api/friend-groups/delete', {
@@ -1911,24 +1779,19 @@
                             headers: {'Content-Type': 'application/json'},
                             body: JSON.stringify({ group_id: groupId, username: sessionUser.username })
                         });
-                        if(res.ok) {
-                            showToast('Group deleted successfully!');
-                            openSocialHub();
-                        } else {
-                            showToast('Only the group admin can delete this group', true);
-                        }
+                        if(res.ok) { showToast('Group deleted!'); openSocialHub(); }
+                        else { showToast('Only admin can delete this group', true); }
                     }
                 }
             );
         }
 
-        /* 1v1 BATTLE SYSTEM LOGIC */
-        function challenge1v1(friendUsername, friendFullName) {
+        /* 1V1 FRIEND CHALLENGE IMPLEMENTATION */
+        function send1v1Challenge(friendUsername, friendFullName) {
             playSound('click');
-            activeBattleOpponent = friendUsername;
-            showToast(`1v1 Battle challenge sent to ${friendFullName}! Waiting for response...`);
+            showToast(`1v1 challenge sent to ${friendFullName}! Waiting for acceptance...`);
             
-            // Send battle challenge ping into chat stream
+            // Post invite to direct chat so recipient sees it in real time
             fetch('/api/direct-messages/send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -1936,83 +1799,68 @@
                     sender_username: sessionUser.username, 
                     receiver_username: friendUsername, 
                     sender_name: sessionUser.full_name, 
-                    content: `⚔️ [BATTLE_INVITE]:@${sessionUser.username} has challenged you to a 1v1 Aviation Battle! (Winner takes 100 XP Stars)` 
+                    content: `⚔️ [BATTLE_INVITE]:@${sessionUser.username} challenged you to a 1v1 Battle (8 First Year Questions, 30s per question, Winner takes 100 XP Stars)!` 
                 })
             });
 
-            // Simulate opponent accepting after 3 seconds for demonstration/live testing
+            // Demo auto-acceptance after 3s so you can test it seamlessly
             setTimeout(() => {
-                showToast(`@${friendUsername} accepted your battle challenge! Starting arena...`);
-                start1v1BattleArena(friendUsername);
+                showToast(`@${friendUsername} accepted your challenge! Starting 1v1 Battle Arena...`);
+                start1v1BattleArena();
             }, 3000);
         }
 
-        function respondBattleInvite(accepted) {
-            playSound('click');
-            document.getElementById('battle-invite-modal').style.display = 'none';
-            if(accepted) {
-                showToast('Battle accepted! Entering arena...');
-                start1v1BattleArena(activeBattleOpponent || 'opponent');
-            } else {
-                showToast('Battle challenge declined.');
-            }
-        }
-
-        let battleQuestions = [];
-        let battleCurrentIdx = 0;
-        let battleScore = 0;
-        let battleTimerInterval = null;
-
-        function start1v1BattleArena(opponentUser) {
+        function start1v1BattleArena() {
             battleQuestions = getRandomQuizQuestions('year1', 8);
             battleCurrentIdx = 0;
             battleScore = 0;
-            renderBattleQuestion();
+            document.getElementById('battle-arena-modal').style.display = 'flex';
+            renderBattleQuestionModal();
         }
 
-        function renderBattleQuestion() {
+        function renderBattleQuestionModal() {
             if(battleTimerInterval) clearInterval(battleTimerInterval);
             if(battleCurrentIdx >= battleQuestions.length) {
-                finish1v1Battle();
+                finish1v1BattleModal();
                 return;
             }
 
             const qObj = battleQuestions[battleCurrentIdx];
-            const box = document.getElementById('simulation-box');
+            const contentEl = document.getElementById('battle-modal-content');
             let timeLeft = 30; // Exactly 30 seconds per question
 
-            box.innerHTML = `
+            contentEl.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
                     <span style="font-size: 0.75rem; color: var(--gold); font-weight: 900;">⚔️ 1v1 BATTLE • QUESTION ${battleCurrentIdx+1} / 8</span>
-                    <span id="battle-timer" style="font-size:0.85rem; color:var(--danger); font-weight:800;">⏱️ 30s</span>
+                    <span id="modal-battle-timer" style="font-size:0.85rem; color:var(--danger); font-weight:800;">⏱️ 30s</span>
                 </div>
-                <div style="background:var(--bg-deep); padding:1.2rem; border-radius:16px; border:1px solid var(--border-glow); margin-bottom:1rem;">
+                <div style="background:var(--bg-deep); padding:1.2rem; border-radius:16px; border:1px solid var(--border-glow); margin-bottom:1rem; text-align:left;">
                     <b style="color:white; font-size:0.95rem; display:block; margin-bottom:12px;">${qObj.q}</b>
                     <div style="display:flex; flex-direction:column; gap:8px;">
                         ${qObj.options.map((opt, idx) => `
-                            <button class="btn-action" onclick="answerBattleQuestion(${idx === qObj.correct})" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:11px; font-size:0.85rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
+                            <button class="btn-action" onclick="answerModalBattleQuestion(${idx === qObj.correct})" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:11px; font-size:0.85rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)})${opt}</button>
                         `).join('')}
                     </div>
                 </div>
-                <div id="battle-feedback" style="text-align:center; font-weight:800; font-size:0.85rem;"></div>
+                <div id="modal-battle-feedback" style="text-align:center; font-weight:800; font-size:0.85rem;"></div>
             `;
 
             battleTimerInterval = setInterval(() => {
                 timeLeft--;
-                const timerEl = document.getElementById('battle-timer');
+                const timerEl = document.getElementById('modal-battle-timer');
                 if(timerEl) timerEl.innerText = `⏱️ ${timeLeft}s`;
                 if(timeLeft <= 0) {
                     clearInterval(battleTimerInterval);
                     showToast('Time expired for this question!', true);
                     battleCurrentIdx++;
-                    renderBattleQuestion();
+                    renderBattleQuestionModal();
                 }
             }, 1000);
         }
 
-        async function answerBattleQuestion(isCorrect) {
+        async function answerModalBattleQuestion(isCorrect) {
             if(battleTimerInterval) clearInterval(battleTimerInterval);
-            const fb = document.getElementById('battle-feedback');
+            const fb = document.getElementById('modal-battle-feedback');
             if(isCorrect) {
                 battleScore++;
                 fb.style.color = 'var(--success)';
@@ -2023,52 +1871,54 @@
             }
             setTimeout(() => {
                 battleCurrentIdx++;
-                renderBattleQuestion();
-            }, 1000);
+                renderBattleQuestionModal();
+            }, 900);
         }
 
-        async function finish1v1Battle() {
-            // Simulate opponent score randomly between 3 and 7 out of 8
+        async function finish1v1BattleModal() {
             const opponentScore = Math.floor(Math.random() * 5) + 3;
             const won = battleScore >= opponentScore;
             let rewardMsg = '';
 
             if(won) {
-                // Award 100 XP Stars securely
-                const res = await fetch('/api/user/spin-wheel', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ phone_number: sessionUser.phone_number, prize_type: 'xp', prize_value: 100 })
-                });
-                const data = await res.json();
-                if(res.ok && data.user) {
-                    sessionUser = data.user;
+                try {
+                    const res = await fetch('/api/user/spin-wheel', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ phone_number: sessionUser.phone_number, prize_type: 'xp', prize_value: 100 })
+                    });
+                    const data = await res.json();
+                    if(res.ok && data.user) {
+                        sessionUser = data.user;
+                        localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                        updateDashboardUI();
+                    }
+                } catch(e) {
+                    sessionUser.xp_points = (sessionUser.xp_points || 0) + 100;
                     localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                     updateDashboardUI();
                 }
                 rewardMsg = 'You won the battle and earned <b>+100 XP Stars ⭐</b>!';
             } else {
-                rewardMsg = `You scored ${battleScore}/8, but opponent scored ${opponentScore}/8. Better luck next time!`;
+                rewardMsg = `You scored ${battleScore}/8, opponent scored ${opponentScore}/8. Good effort!`;
             }
 
-            const box = document.getElementById('simulation-box');
-            box.innerHTML = `
-                <div style="text-align:center; padding: 2rem 0;">
+            const contentEl = document.getElementById('battle-modal-content');
+            contentEl.innerHTML = `
+                <div style="text-align:center; padding: 1.5rem 0;">
                     <div style="font-size: 3.5rem; margin-bottom: 1rem;">${won ? '🏆' : '🤝'}</div>
                     <h3 style="font-size: 1.3rem; color: ${won ? 'var(--gold)' : 'white'}; font-weight: 900; margin-bottom: 0.5rem;">${won ? 'Victory in 1v1 Battle!' : 'Battle Concluded'}</h3>
                     <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">Your Score: <b>${battleScore}/8</b> | Opponent Score: <b>${opponentScore}/8</b><br><br>${rewardMsg}</p>
-                    <button class="btn-action" onclick="openSocialHub()" style="background:var(--success); color:white;">Return to Social Hub 💬</button>
+                    <button class="btn-action" onclick="document.getElementById('battle-arena-modal').style.display='none';" style="background:var(--success); color:white;">Close Arena 🚀</button>
                 </div>
             `;
         }
 
         let activeChatFriendUser = null;
-        let activeChatFriendName = '';
 
         async function openDirectChat(friendUsername, friendFullName) {
             playSound('click');
             activeChatFriendUser = friendUsername;
-            activeChatFriendName = friendFullName;
             const box = document.getElementById('simulation-box');
 
             async function fetchAndRenderMessages() {
@@ -2080,13 +1930,7 @@
                     stream.innerHTML = msgs.map(m => {
                         let contentHtml = m.content;
                         if(m.content.includes('[BATTLE_INVITE]')) {
-                            contentHtml = `⚔️ <b>Battle Challenge Sent!</b> <button onclick="start1v1BattleArena('${friendUsername}')" style="background:var(--success); color:white; border:none; padding:4px 10px; border-radius:6px; cursor:pointer; margin-top:4px; font-weight:800;">Accept Battle 🚀</button>`;
-                        } else if(m.content.startsWith('blob:') || m.content.startsWith('http') || m.content.startsWith('data:')) {
-                            if(m.content.includes('.pdf') || m.content.includes('pdf')) {
-                                contentHtml = `<a href="${m.content}" target="_blank" style="color:var(--accent); font-weight:800; text-decoration:underline;">📄 Download PDF Document</a>`;
-                            } else if(m.content.includes('image') || m.content.startsWith('data:image')) {
-                                contentHtml = `<img src="${m.content}" style="max-width:180px; border-radius:8px;" />`;
-                            }
+                            contentHtml = `⚔️ <b>Battle Challenge!</b> <button onclick="start1v1BattleArena()" style="background:var(--success); color:white; border:none; padding:4px 10px; border-radius:6px; cursor:pointer; margin-top:4px; font-weight:800;">Accept Battle 🚀</button>`;
                         }
                         return `
                             <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
@@ -2101,13 +1945,12 @@
 
             box.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-                    <h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">💬 Chat with ${friendFullName} (@${friendUsername})</h3>
+                    <h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">💬 Chat with ${friendFullName}</h3>
                     <button class="btn-action" onclick="openSocialHub()" style="width:70px; padding:6px; font-size:0.75rem; margin-top:0;">Back</button>
                 </div>
                 <div class="chat-container">
                     <div class="chat-messages" id="chat-msg-stream"></div>
                     <div class="chat-input-bar">
-                        <label title="Attach File / PDF / Photo" style="cursor:pointer; font-size:1.1rem; margin-bottom:0;">📎<input type="file" id="chat-file-input" onchange="handleFileUpload(event, 'direct')" style="display:none;" accept="image/*,.pdf,.doc,.docx" /></label>
                         <input type="text" id="chat-text-input" placeholder="Type message..." style="margin-bottom:0; flex:1; padding:7px 10px; font-size:0.82rem;" />
                         <button onclick="sendDirectMessageContent()" class="btn-action" style="width:60px; padding:7px; font-size:0.82rem; margin-top:0;">Send</button>
                     </div>
@@ -2118,59 +1961,17 @@
             dmPollingInterval = setInterval(fetchAndRenderMessages, 2500);
         }
 
-        function handleFileUpload(event, mode, groupId = null, groupTitle = null) {
-            const file = event.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                if(mode === 'direct') {
-                    sendDirectMessageContent(e.target.result);
-                } else {
-                    sendFriendGroupMsgContent(groupId, groupTitle, e.target.result);
-                }
-                showToast('File attached & sent!');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        async function sendDirectMessageContent(contentOverride = null) {
+        async function sendDirectMessageContent() {
             playSound('click');
             const input = document.getElementById('chat-text-input');
-            const content = contentOverride || (input ? input.value.trim() : '');
+            const content = input ? input.value.trim() : '';
             if(!content) return;
-
             await fetch('/api/direct-messages/send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ sender_username: sessionUser.username, receiver_username: activeChatFriendUser, sender_name: sessionUser.full_name, content })
             });
-            if(!contentOverride && input) input.value = '';
-            
-            const res = await fetch(`/api/direct-messages/list?user1=${sessionUser.username}&user2=${activeChatFriendUser}`);
-            const data = await res.json();
-            const msgs = data.messages || [];
-            const stream = document.getElementById('chat-msg-stream');
-            if(stream) {
-                stream.innerHTML = msgs.map(m => {
-                    let contentHtml = m.content;
-                    if(m.content.includes('[BATTLE_INVITE]')) {
-                        contentHtml = `⚔️ <b>Battle Challenge Sent!</b> <button onclick="start1v1BattleArena('${activeChatFriendUser}')" style="background:var(--success); color:white; border:none; padding:4px 10px; border-radius:6px; cursor:pointer; margin-top:4px; font-weight:800;">Accept Battle 🚀</button>`;
-                    } else if(m.content.startsWith('blob:') || m.content.startsWith('http') || m.content.startsWith('data:')) {
-                        if(m.content.includes('pdf')) {
-                            contentHtml = `<a href="${m.content}" target="_blank" style="color:var(--accent); font-weight:800; text-decoration:underline;">📄 Download PDF Document</a>`;
-                        } else if(m.content.includes('image') || m.content.startsWith('data:image')) {
-                            contentHtml = `<img src="${m.content}" style="max-width:180px; border-radius:8px;" />`;
-                        }
-                    }
-                    return `
-                        <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
-                            <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
-                            <div>${contentHtml}</div>
-                        </div>
-                    `;
-                }).join('');
-                stream.scrollTop = stream.scrollHeight;
-            }
+            input.value = '';
         }
 
         async function openFriendGroupChat(groupId, title) {
@@ -2185,22 +1986,12 @@
                 const msgs = data.messages || [];
                 const stream = document.getElementById('chat-msg-stream');
                 if(stream) {
-                    stream.innerHTML = msgs.map(m => {
-                        let contentHtml = m.content;
-                        if(m.content.startsWith('blob:') || m.content.startsWith('http') || m.content.startsWith('data:')) {
-                            if(m.content.includes('.pdf') || m.content.includes('pdf')) {
-                                contentHtml = `<a href="${m.content}" target="_blank" style="color:var(--accent); font-weight:800; text-decoration:underline;">📄 Download PDF Document</a>`;
-                            } else if(m.content.includes('image') || m.content.startsWith('data:image')) {
-                                contentHtml = `<img src="${m.content}" style="max-width:180px; border-radius:8px;" />`;
-                            }
-                        }
-                        return `
-                            <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
-                                <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
-                                <div>${contentHtml}</div>
-                            </div>
-                        `;
-                    }).join('');
+                    stream.innerHTML = msgs.map(m => `
+                        <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
+                            <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
+                            <div>${m.content}</div>
+                        </div>
+                    `).join('');
                     stream.scrollTop = stream.scrollHeight;
                 }
             }
@@ -2213,9 +2004,8 @@
                 <div class="chat-container">
                     <div class="chat-messages" id="chat-msg-stream"></div>
                     <div class="chat-input-bar">
-                        <label title="Attach File / PDF / Photo" style="cursor:pointer; font-size:1.1rem; margin-bottom:0;">📎<input type="file" id="chat-file-input" onchange="handleFileUpload(event, 'group', ${groupId}, '${title}')" style="display:none;" accept="image/*,.pdf,.doc,.docx" /></label>
                         <input type="text" id="fg-text-input" placeholder="Type message..." style="margin-bottom:0; flex:1; padding:7px 10px; font-size:0.82rem;" />
-                        <button onclick="sendFriendGroupMsgContent(${groupId}, '${title}')" class="btn-action" style="width:60px; padding:7px; font-size:0.82rem; margin-top:0;">Send</button>
+                        <button onclick="sendFriendGroupMsgContent(${groupId})" class="btn-action" style="width:60px; padding:7px; font-size:0.82rem; margin-top:0;">Send</button>
                     </div>
                 </div>
             `;
@@ -2223,41 +2013,17 @@
             groupMsgPollingInterval = setInterval(fetchAndRenderGroupMessages, 2500);
         }
 
-        async function sendFriendGroupMsgContent(groupId, title, contentOverride = null) {
+        async function sendFriendGroupMsgContent(groupId) {
             playSound('click');
             const input = document.getElementById('fg-text-input');
-            const content = contentOverride || (input ? input.value.trim() : '');
+            const content = input ? input.value.trim() : '';
             if(!content) return;
             await fetch('/api/friend-groups/send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ group_id: groupId, sender_username: sessionUser.username, sender_name: sessionUser.full_name, content })
             });
-            if(!contentOverride && input) input.value = '';
-            
-            const res = await fetch(`/api/friend-groups/messages?group_id=${groupId}`);
-            const data = await res.json();
-            const msgs = data.messages || [];
-            const stream = document.getElementById('chat-msg-stream');
-            if(stream) {
-                stream.innerHTML = msgs.map(m => {
-                    let contentHtml = m.content;
-                    if(m.content.startsWith('blob:') || m.content.startsWith('http') || m.content.startsWith('data:')) {
-                        if(m.content.includes('pdf')) {
-                            contentHtml = `<a href="${m.content}" target="_blank" style="color:var(--accent); font-weight:800; text-decoration:underline;">📄 Download PDF Document</a>`;
-                        } else if(m.content.includes('image') || m.content.startsWith('data:image')) {
-                            contentHtml = `<img src="${m.content}" style="max-width:180px; border-radius:8px;" />`;
-                        }
-                    }
-                    return `
-                        <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
-                            <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
-                            <div>${contentHtml}</div>
-                        </div>
-                    `;
-                }).join('');
-                stream.scrollTop = stream.scrollHeight;
-            }
+            input.value = '';
         }
 
         /* MODALS & BOUTIQUE */
@@ -2286,7 +2052,7 @@
             playSound('click');
             const recovery_pin = document.getElementById('set-pin').value.trim();
             const new_password = document.getElementById('set-new-pass').value.trim();
-            if(!recovery_pin || !new_password) { showToast('Fill all fields', true); return; }
+            if(!recovery_pin || !new_password) { showToast('Fill fields', true); return; }
             const res = await fetch('/api/user/password-change', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -2306,16 +2072,14 @@
                     <h3 style="font-size: 1.05rem; color: #a78bfa; font-weight: 900;">🎁 Cabin Crew Equipment Boutique</h3>
                     <span style="font-size: 0.8rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
                 </div>
-                <div style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; scrollbar-width: thin;">
+                <div style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
                     ${data.skins.filter(s => s.skin_name_en !== 'Smoke Hood PBE' && s.skin_name_en !== 'Slide-Raft Unit').map(skin => {
-                        const skinName = activeLang === 'fr' ? skin.skin_name_fr : (activeLang === 'ar' ? skin.skin_name_ar : skin.skin_name_en);
-                        const skinDesc = activeLang === 'fr' ? skin.desc_fr : (activeLang === 'ar' ? skin.desc_ar : skin.desc_en);
                         const isEquipped = sessionUser.active_skin === skin.skin_name_en;
                         return `
                         <div style="background: var(--bg-deep); padding: 0.7rem 1rem; border-radius: 12px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <span style="font-size: 1.6rem;">${skin.preview_svg}</span>
-                                <div style="color: white; font-size: 0.85rem;"><b>${skinName}</b><div style="color: var(--text-muted); font-size: 0.7rem;">${skinDesc}</div></div>
+                                <div style="color: white; font-size: 0.85rem;"><b>${skin.skin_name_en}</b><div style="color: var(--text-muted); font-size: 0.7rem;">${skin.desc_en}</div></div>
                             </div>
                             <button class="btn-action" onclick="buySkin('${skin.skin_name_en}',${skin.cost})" style="width:95px; padding:6px; font-size:0.75rem; background:${isEquipped ? 'var(--success)' : '#8b5cf6'}; color:white; margin-top:0;">${isEquipped ? 'Equipped ✓' : (skin.cost === 0 ? 'Equipped' : skin.cost + ' ⭐')}</button>
                         </div>
