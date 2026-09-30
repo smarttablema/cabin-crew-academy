@@ -80,23 +80,12 @@
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; min-height: 290px; }
         
-        /* NEW CUSTOM AVIATION ROADMAP BACKGROUNDS */
-        .path-backdrop-y1 {
-            background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(15, 23, 42, 0.92) 100%), 
-                        url('https://images.unsplash.com/photo-1519074069444-1ba4ea16d66c?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important;
-        }
-        .path-backdrop-y2 {
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.92) 100%), 
-                        url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important;
-        }
-        .path-backdrop-eng {
-            background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(3, 105, 161, 0.82) 100%), 
-                        url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important;
-        }
-        .path-backdrop-vocab {
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(88, 28, 135, 0.85) 100%), 
-                        url('https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important;
-        }
+        /* RANDOMIZED AVIATION ROADMAP BACKGROUNDS */
+        .path-bg-1 { background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(15, 23, 42, 0.92) 100%), url('https://images.unsplash.com/photo-1519074069444-1ba4ea16d66c?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
+        .path-bg-2 { background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.92) 100%), url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
+        .path-bg-3 { background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(3, 105, 161, 0.82) 100%), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
+        .path-bg-4 { background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(88, 28, 135, 0.85) 100%), url('https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
+        .path-bg-5 { background: linear-gradient(135deg, rgba(2, 6, 23, 0.88) 0%, rgba(19, 78, 74, 0.85) 100%), url('https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
 
         .duo-path-container { 
             display: flex; 
@@ -113,7 +102,6 @@
         .duo-path-container::-webkit-scrollbar { display: none; }
 
         .duo-node-wrapper { display: flex; width: 100%; position: relative; }
-        
         .duo-node-wrapper:nth-child(odd) { justify-content: flex-start; padding-left: 18%; }
         .duo-node-wrapper:nth-child(even) { justify-content: flex-end; padding-right: 18%; }
 
@@ -265,7 +253,7 @@
                 </div>
                 <div class="mode-tile" onclick="launchRoadmap('year2')">
                     <span style="font-size: 1.4rem;">🏆</span>
-                    <h4 id="tr-tile-y2">Second Year Path (100 Nodes)</h4>
+                    <h4 id="tr-tile-y2">Second Year Path (Locked)</h4>
                 </div>
                 <div class="mode-tile" onclick="launchAviationEnglishRoadmap()">
                     <span style="font-size: 1.4rem;">🌐</span>
@@ -275,11 +263,15 @@
                     <span style="font-size: 1.4rem;">🗣️</span>
                     <h4 id="tr-tile-vocab">English Vocabulary to Arabic (5k)</h4>
                 </div>
+                <div class="mode-tile" onclick="openSpinningWheelModal()">
+                    <span style="font-size: 1.4rem;">🎡</span>
+                    <h4>Daily Spinning Wheel (24h)</h4>
+                </div>
                 <div class="mode-tile" onclick="openStudyHub()">
                     <span style="font-size: 1.4rem;">📚</span>
                     <h4 id="tr-tile-study">Lessons, Quizzes & Exams Studio</h4>
                 </div>
-                <div class="mode-tile" onclick="openSocialHub()">
+                <div class="mode-tile" onclick="openSocialHub()" style="grid-column: span 2;">
                     <span style="font-size: 1.4rem;">💬</span>
                     <h4 id="tr-tile-social">Friends, Private Chat & Groups</h4>
                 </div>
@@ -287,13 +279,39 @@
 
             <div id="simulation-box" class="card-container">
                 <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;" id="tr-center-title">EASA Professional Training Center</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;" id="tr-center-desc">Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, or <b>English Vocabulary to Arabic</b> above to begin your training adventure.</p>
+                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;" id="tr-center-desc">Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, <b>English Vocabulary</b>, or the <b>Daily Wheel</b> above to begin your training adventure.</p>
             </div>
             
             <div style="display: flex; gap: 10px;">
                 <button class="btn-action" onclick="resetToMenu()" style="background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border-glow); flex: 1; margin-top:0;" id="tr-hub-btn">← Hub</button>
                 <button class="btn-action" onclick="logoutUser()" style="background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); flex: 1; margin-top:0;" id="tr-logout-btn">Logout 🚪</button>
             </div>
+        </div>
+    </div>
+
+    <!-- DAILY SPINNING WHEEL MODAL -->
+    <div id="spinning-wheel-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.92); display:none; justify-content:center; align-items:center; z-index:5000;">
+        <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:440px; text-align:center; position:relative;">
+            <button onclick="closeSpinningWheelModal()" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-muted); font-size:1.3rem; cursor:pointer;">✕</button>
+            <h3 style="font-size:1.2rem; font-weight:900; color:var(--gold); margin-bottom:0.4rem;">🎡 Daily Aviation Spinning Wheel</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1.2rem;">Spin every 24 hours to win XP, hearts, or exclusive Pilot Hat skins!</p>
+            
+            <div style="position:relative; width:220px; height:220px; margin:0 auto 1.4 auto; border-radius:50%; border:6px solid var(--accent); background:linear-gradient(135deg, #0f172a, #1e293b); display:flex; justify-content:center; align-items:center; box-shadow:0 0 35px var(--accent-glow); overflow:hidden;" id="wheel-outer">
+                <div id="wheel-pointer" style="position:absolute; top:-10px; font-size:1.8rem; z-index:10; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));">🔻</div>
+                <div id="wheel-disc" style="width:100%; height:100%; border-radius:50%; position:relative; transition: transform 4s cubic-bezier(0.15, 0.95, 0.15, 1); display:flex; justify-content:center; align-items:center;">
+                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(0deg) translate(0, -70px);">100 XP ⭐</div>
+                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(45deg) translate(0, -70px);">Pilot Hat 🧢</div>
+                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(90deg) translate(0, -70px);">50 XP ⭐</div>
+                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(135deg) translate(0, -70px);">5 Hearts ❤</div>
+                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(180deg) translate(0, -70px);">25 XP ⭐</div>
+                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(225deg) translate(0, -70px);">0 XP 😢</div>
+                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(270deg) translate(0, -70px);">2 Hearts ❤</div>
+                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(315deg) translate(0, -70px);">10 XP ⭐</div>
+                </div>
+            </div>
+
+            <div id="wheel-status-text" style="font-size:0.85rem; color:var(--text-muted); font-weight:700; margin-bottom:1rem;">Ready for your daily spin!</div>
+            <button class="btn-action" onclick="spinTheDailyWheel()" id="spin-wheel-btn" style="background:linear-gradient(135deg, #fbbf24, #d97706); color:#451a03; margin-top:0;">SPIN WHEEL 🎁</button>
         </div>
     </div>
 
@@ -392,16 +410,16 @@
                 phoneLbl: "Phone Number", passLbl: "Password", loginBtn: "Sign In to Simulator",
                 regNav: "Create Account", resetNav: "Forgot Password?",
                 regTitle: "Cadet & Instructor Enrollment", regSub: "Register your profile, choose your role, and design your avatar.",
-                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student", optTeacher: "👨‍🏫 Instructor / Teacher",
+                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student", optTeacher: "👨‍‍🏫 Instructor / Teacher",
                 regNameLbl: "Full Name", regUserLbl: "Unique Username", regPassLbl: "Password", regPinLbl: "Recovery PIN (4 digits)",
                 avatarStudioTitle: "🎨 Avatar Customization", avatarTypeLbl: "Avatar Type", optSteward: "👔 Steward", optHostess: "👗 Hostess",
                 completeRegBtn: "Complete Registration", backLogin: "Already have an account? Sign In",
                 resetTitle: "Recovery PIN Reset", resetSub: "Enter your phone and secret recovery PIN.", resetNewLbl: "New Password",
                 updateCredBtn: "Update Credentials", backLogin2: "Back to Sign In",
-                tileY1: "First Year Path (100 Nodes)", tileY2: "Second Year Path (100 Nodes)", tileEng: "Aviation English & ICAO Mastery",
+                tileY1: "First Year Path (100 Nodes)", tileY2: "Second Year Path (Locked)", tileEng: "Aviation English & ICAO Mastery",
                 tileVocab: "English Vocabulary to Arabic (5k)",
                 tileStudy: "Lessons, Quizzes & Exams Studio", tileSocial: "Friends, Private Chat & Groups",
-                centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, or <b>English Vocabulary to Arabic</b> above to begin your training adventure.",
+                centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, <b>English Vocabulary</b>, or the <b>Daily Wheel</b> above to begin your training adventure.",
                 hubBtn: "← Hub", logoutBtn: "Logout 🚪",
                 modalAvatarTitle: "🎨 Edit Avatar", modalGenderLbl: "Gender / Style", saveAvatarBtn: "Save Avatar 💾",
                 settingsTitle: "⚙️ Academy Settings", langLbl: "Interface Language", passChangeLbl: "Change Password", updatePassBtn: "Update Password 🔒",
@@ -419,7 +437,7 @@
                 completeRegBtn: "Terminer l'inscription", backLogin: "Déjà un compte ? Se connecter",
                 resetTitle: "Réinitialisation du PIN", resetSub: "Entrez votre téléphone et votre PIN de récupération secret.", resetNewLbl: "Nouveau mot de passe",
                 updateCredBtn: "Mettre à jour", backLogin2: "Retour à la connexion",
-                tileY1: "Parcours 1ère Année (100 Nœuds)", tileY2: "Parcours 2ème Année (100 Nœuds)", tileEng: "Anglais Aéronautique & ICAO",
+                tileY1: "Parcours 1ère Année (100 Nœuds)", tileY2: "Parcours 2ème Année (Verrouillé)", tileEng: "Anglais Aéronautique & ICAO",
                 tileVocab: "Vocabulaire Anglais-Arabe (5k)",
                 tileStudy: "Studio Leçons, Quiz & Examens", tileSocial: "Amis, Chat Privé & Groupes",
                 centerTitle: "Centre de Formation Professionnelle EASA", centerDesc: "Sélectionnez <b>Parcours 1ère Année</b>, <b>2ème Année</b>, <b>Anglais Aéronautique</b> ou <b>Vocabulaire</b> pour débuter.",
@@ -440,7 +458,7 @@
                 completeRegBtn: "إتمام التسجيل", backLogin: "لديك حساب بالفعل؟ سجل دخولك",
                 resetTitle: "إعادة تعيين رقم الاسترداد", resetSub: "أدخل هاتفك ورقم الاسترداد السري الخاص بك.", resetNewLbl: "كلمة المرور الجديدة",
                 updateCredBtn: "تحديث بيانات الاعتماد", backLogin2: "العودة لتسجيل الدخول",
-                tileY1: "مسار السنة الأولى (100 نقطة)", tileY2: "مسار السنة الثانية (100 نقطة)", tileEng: "اللغة الإنجليزية للطيران وإيكاو",
+                tileY1: "مسار السنة الأولى (100 نقطة)", tileY2: "مسار السنة الثانية (مغلق)", tileEng: "اللغة الإنجليزية للطيران وإيكاو",
                 tileVocab: "مفردات طيران إنجليزية إلى العربية (5k)",
                 tileStudy: "استوديو الدروس والاختبارات", tileSocial: "الأصدقاء والمحادثة الخاصة والمجموعات",
                 centerTitle: "مركز تدريب الطيران الاحترافي EASA", centerDesc: "اختر مسار التعلم لعرض الخريطة المتعرجة مع أسئلة عشوائية مضادة للغش.",
@@ -720,6 +738,72 @@
             `;
         }
 
+        /* 24-HOUR DAILY SPINNING WHEEL */
+        function openSpinningWheelModal() {
+            playSound('click');
+            document.getElementById('spinning-wheel-modal').style.display = 'flex';
+        }
+        function closeSpinningWheelModal() {
+            playSound('click');
+            document.getElementById('spinning-wheel-modal').style.display = 'none';
+        }
+
+        async function spinTheDailyWheel() {
+            playSound('click');
+            const now = Date.now();
+            const lastSpin = sessionUser.last_spin_timestamp || 0;
+            const twentyFourHours = 24 * 60 * 60 * 1000;
+
+            if(now - lastSpin < twentyFourHours) {
+                const remainingHours = Math.ceil((twentyFourHours - (now - lastSpin)) / (60 * 60 * 1000));
+                showToast(`Already spun today! Next spin available in ${remainingHours} hours.`, true);
+                return;
+            }
+
+            const wheelDisc = document.getElementById('wheel-disc');
+            const statusEl = document.getElementById('wheel-status-text');
+            const spinBtn = document.getElementById('spin-wheel-btn');
+            spinBtn.disabled = true;
+            statusEl.innerText = 'Spinning the wheel... 🎡';
+
+            // 8 segments = 45 deg each
+            const winningDegs = [0, 45, 90, 135, 180, 225, 270, 315];
+            const randIdx = Math.floor(Math.random() * winningDegs.length);
+            const targetDeg = 360 * 6 + winningDegs[randIdx]; // 6 full rotations + prize angle
+
+            wheelDisc.style.transform = `rotate(${targetDeg}deg)`;
+
+            setTimeout(async () => {
+                const prizes = [
+                    { type: 'xp', val: 100, text: '🎉 You won 100 XP Stars! ⭐' },
+                    { type: 'skin', val: 'Captain Pilot Hat', text: '🎩 You won the Captain Pilot Hat skin!' },
+                    { type: 'xp', val: 50, text: '🎉 You won 50 XP Stars! ⭐' },
+                    { type: 'hearts', val: 5, text: '❤ You won 5 Hearts!' },
+                    { type: 'xp', val: 25, text: '🎉 You won 25 XP Stars! ⭐' },
+                    { type: 'xp', val: 0, text: '😢 Zero XP this time! Try again tomorrow.' },
+                    { type: 'hearts', val: 2, text: '❤ You won 2 Hearts!' },
+                    { type: 'xp', val: 10, text: '🎉 You won 10 XP Stars! ⭐' }
+                ];
+                const prize = prizes[randIdx];
+                statusEl.innerText = prize.text;
+                showToast(prize.text);
+
+                // Update server/session state
+                const res = await fetch('/api/user/spin-wheel', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ phone_number: sessionUser.phone_number, prize_type: prize.type, prize_value: prize.val })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    sessionUser = data.user;
+                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                    updateDashboardUI();
+                }
+                spinBtn.disabled = false;
+            }, 4000);
+        }
+
         /* HEART RECOVERY LOUNGE */
         function openHeartRecoveryLounge() {
             playSound('click');
@@ -795,27 +879,23 @@
         };
 
         const aviationVocabDatabase = [
-            { en: "Altimeter", ar: "مقياس الارتفاع" },
-            { en: "Aileron", ar: "جنيح الطائرة" },
-            { en: "Fuselage", ar: "بدن الطائرة" },
-            { en: "Empennage", ar: "ذيل الطائرة" },
-            { en: "Turbulence", ar: "مطبات هوائية" },
-            { en: "Knots", ar: "عقدة بحرية (سرعة)" },
-            { en: "Runway", ar: "مهبط / مدرج الهبوط" },
-            { en: "Taxiway", ar: "ممر المترددات/المدرج الفرعي" },
-            { en: "Glide slope", ar: "منحدر الهبوط" },
-            { en: "Avionics", ar: "إلكترونيات الطيران" },
-            { en: "Cabin pressure", ar: "ضغط المقصورة" },
-            { en: "Evacuation", ar: "إخلاء الطوارئ" },
-            { en: "Bulkhead", ar: "الجدار الفاصل" },
-            { en: "Galley", ar: "مطبخ الطائرة" },
-            { en: "Manifest", ar: "بيان الركاب" },
-            { en: "Briefing", ar: "الاحاطة الإرشادية" },
-            { en: "Checklist", ar: "قائمة التدقيق" },
-            { en: "Transponder", ar: "جهاز الإرسال والاستقبال" },
-            { en: "Heading", ar: "الاتجاه المغناطيسي" },
-            { en: "Waypoint", ar: "نقطة الملاحة" }
+            { en: "Altimeter", ar: "مقياس الارتفاع" }, { en: "Aileron", ar: "جنيح الطائرة" }, { en: "Fuselage", ar: "بدن الطائرة" },
+            { en: "Empennage", ar: "ذيل الطائرة" }, { en: "Turbulence", ar: "مطبات هوائية" }, { en: "Knots", ar: "عقدة بحرية (سرعة)" },
+            { en: "Runway", ar: "مهبط / مدرج الهبوط" }, { en: "Taxiway", ar: "ممر المترددات/المدرج الفرعي" }, { en: "Glide slope", ar: "منحدر الهبوط" },
+            { en: "Avionics", ar: "إلكترونيات الطيران" }, { en: "Cabin pressure", ar: "ضغط المقصورة" }, { en: "Evacuation", ar: "إخلاء الطوارئ" },
+            { en: "Bulkhead", ar: "الجدار الفاصل" }, { en: "Galley", ar: "مطبخ الطائرة" }, { en: "Manifest", ar: "بيان الركاب" },
+            { en: "Briefing", ar: "الاحاطة الإرشادية" }, { en: "Checklist", ar: "قائمة التدقيق" }, { en: "Transponder", ar: "جهاز الإرسال والاستقبال" },
+            { en: "Heading", ar: "الاتجاه المغناطيسي" }, { en: "Waypoint", ar: "نقطة الملاحة" }, { en: "Airspeed", ar: "السرعة الجوية" },
+            { en: "Flaps", ar: "لوحات الجناح" }, { en: "Spoilers", ar: "كوابح الرفع" }, { en: "Landing gear", ar: "معدات الهبوط" },
+            { en: "Cockpit", ar: "قمرة القيادة" }, { en: "Control tower", ar: "برج المراقبة" }, { en: "Air traffic control", ar: "مراقبة الحركة الجوية" },
+            { en: "Dispatch", ar: "إرسال الرحلات" }, { en: "Payload", ar: "الحمولة النافعة" }, { en: "Pitch", ar: "زاوية الميل الرأسي" }
         ];
+
+        // Pseudo-random shuffler for 5,000 randomized vocabulary items
+        function getVocabItemForStep(stepNum) {
+            const index = (stepNum * 739 + 17) % aviationVocabDatabase.length;
+            return aviationVocabDatabase[index];
+        }
 
         function getRandomQuizQuestions(poolKey, count = 3) {
             const pool = [...(masterQuestionPools[poolKey] || masterQuestionPools['year1'])];
@@ -834,6 +914,11 @@
                 const newCorrectIdx = opts.indexOf(correctText);
                 return { q: item.q, options: opts, correct: newCorrectIdx };
             });
+        }
+
+        function getRandomRoadmapBackgroundClass() {
+            const classes = ['path-bg-1', 'path-bg-2', 'path-bg-3', 'path-bg-4', 'path-bg-5'];
+            return classes[Math.floor(Math.random() * classes.length)];
         }
 
         /* 5,000-STEP VOCABULARY PATH TO ARABIC */
@@ -870,12 +955,14 @@
                 `;
             }
 
+            const bgClass = getRandomRoadmapBackgroundClass();
+
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
                     <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">🗣️ Aviation Vocabulary (5,000 Steps)</h3>
                     <span style="font-size: 0.72rem; color: var(--gold); font-weight: 800;">Step ${activeIndex}/5000</span>
                 </div>
-                <div class="duo-path-container path-backdrop-vocab">
+                <div class="duo-path-container ${bgClass}">
                     <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
                         ${nodesHtml}
                     </div>
@@ -891,14 +978,14 @@
                 return;
             }
 
-            const vocabItem = aviationVocabDatabase[(nodeNum - 1) % aviationVocabDatabase.length];
+            const vocabItem = getVocabItemForStep(nodeNum);
             const box = document.getElementById('simulation-box');
-            let timeLeft = 30;
+            let timeLeft = 35;
 
             box.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
                     <span style="font-size: 0.75rem; color: var(--gold); font-weight: 900;">VOCAB STEP ${nodeNum} / 5000</span>
-                    <span id="vocab-timer" style="font-size:0.8rem; color:var(--danger); font-weight:800;">⏱️ 30s</span>
+                    <span id="vocab-timer" style="font-size:0.8rem; color:var(--danger); font-weight:800;">⏱️ 35s</span>
                 </div>
                 <div style="background:var(--bg-deep); padding:1.4rem; border-radius:18px; border:1px solid var(--border-glow); text-align:center; margin-bottom:1rem;">
                     <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:6px;">Pronounce this Aviation Term in English:</span>
@@ -911,7 +998,7 @@
 
                     <div style="margin: 15px 0;">
                         <button onclick="startSpeechRecognitionForVocab(${nodeNum}, '${vocabItem.en}')" id="vocab-mic-btn" style="width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg, #38bdf8, #0284c7); border:3px solid #bae6fd; color:#020617; font-size:2rem; cursor:pointer; box-shadow:0 0 25px var(--accent-glow); display:inline-flex; justify-content:center; align-items:center; transition: transform 0.2s;">🎤</button>
-                        <div id="vocab-speech-status" style="font-size:0.8rem; color:var(--text-muted); margin-top:8px; font-weight:700;">Tap microphone and pronounce clearly</div>
+                        <div id="vocab-speech-status" style="font-size:0.8rem; color:var(--text-muted); margin-top:8px; font-weight:700;">Tap microphone and say the word (Lenient check)</div>
                     </div>
                 </div>
                 <div id="vocab-feedback" style="text-align:center; font-weight:800; font-size:0.85rem;"></div>
@@ -943,7 +1030,7 @@
             playSound('click');
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if(!SpeechRecognition) {
-                showToast('Speech recognition not supported in this browser. Simulating success.', false);
+                showToast('Speech recognition not supported in this browser. Auto-completing step.', false);
                 completeVocabNode(nodeNum);
                 return;
             }
@@ -951,7 +1038,7 @@
             const recognition = new SpeechRecognition();
             recognition.lang = 'en-US';
             recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
+            recognition.maxAlternatives = 3;
 
             const micBtn = document.getElementById('vocab-mic-btn');
             const statusEl = document.getElementById('vocab-speech-status');
@@ -960,19 +1047,25 @@
 
             recognition.onresult = async function(event) {
                 if(questionTimerInterval) clearInterval(questionTimerInterval);
-                const spokenText = event.results[0][0].transcript.trim().toLowerCase();
+                let recognizedWords = [];
+                for (let i = 0; i < event.results[0].length; i++) {
+                    recognizedWords.push(event.results[0][i].transcript.trim().toLowerCase());
+                }
                 const expected = expectedWord.toLowerCase();
                 
                 const transBox = document.getElementById('vocab-translation-box');
                 if(transBox) transBox.classList.remove('hidden');
 
-                if(spokenText.includes(expected) || expected.includes(spokenText)) {
-                    showToast('Pronunciation Correct! +30 XP ⭐');
-                    if(statusEl) statusEl.innerText = `Matched: "${spokenText}"`;
+                // Lenient accent check (checks if any alternative matches partially or fully)
+                let matched = recognizedWords.some(w => w.includes(expected) || expected.includes(w) || w.length > 2 && expected.startsWith(w.substring(0, 3)));
+
+                if(matched) {
+                    showToast('Pronunciation Accepted! +30 XP ⭐');
+                    if(statusEl) statusEl.innerText = `Matched!`;
                     setTimeout(() => completeVocabNode(nodeNum), 1200);
                 } else {
-                    showToast(`Mispronounced ("${spokenText}"). Heart lost ❤️-1`, true);
-                    if(statusEl) statusEl.innerText = `Heard: "${spokenText}" (Expected: ${expected})`;
+                    showToast(`Mispronounced ("${recognizedWords[0]}"). Heart lost ❤️-1`, true);
+                    if(statusEl) statusEl.innerText = `Heard: "${recognizedWords[0]}" (Target: ${expected})`;
                     const res = await fetch('/api/node/complete', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
@@ -987,7 +1080,7 @@
             };
 
             recognition.onerror = function() {
-                if(statusEl) statusEl.innerText = 'Speech recognition error. Tap mic to retry.';
+                if(statusEl) statusEl.innerText = 'Speech recognition error. Tap mic to retry or click again.';
                 if(micBtn) micBtn.style.background = 'linear-gradient(135deg, #38bdf8, #0284c7)';
             };
 
@@ -1047,15 +1140,7 @@
                 const icon = isCompleted ? '👑' : (statusClass === 'active' ? '🌐' : '🔒');
                 const isCurrentActive = (i === activeIndex);
                 
-                let companionEmoji = '🧯';
-                if(sessionUser.active_skin === 'Portable Oxygen Bottle') companionEmoji = '💨';
-                else if(sessionUser.active_skin === 'Emergency Megaphone') companionEmoji = '📢';
-                else if(sessionUser.active_skin === 'Cabin Flashlight') companionEmoji = '🔦';
-                else if(sessionUser.active_skin === 'Inflatable Life Vest') companionEmoji = '🦺';
-                else if(sessionUser.active_skin === 'Slide-Raft Unit') companionEmoji = '🛟';
-                else if(sessionUser.active_skin === 'Smoke Hood PBE') companionEmoji = '🪖';
-                else if(sessionUser.active_skin === 'Emergency Medical Kit') companionEmoji = '🩺';
-                else if(sessionUser.avatar_gender === 'hostess') companionEmoji = '👗';
+                let companionEmoji = sessionUser.active_skin === 'Captain Pilot Hat' ? '🧢' : (sessionUser.avatar_gender === 'hostess' ? '👗' : '🧯');
 
                 nodesHtml += `
                     <div class="duo-node-wrapper">
@@ -1068,12 +1153,14 @@
                 `;
             }
 
+            const bgClass = getRandomRoadmapBackgroundClass();
+
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
                     <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">🌐 Aviation English & ICAO Mastery Path</h3>
-                    <span style="font-size: 0.72rem; color: var(--success); font-weight: 800;">Equipment: ${sessionUser.active_skin}</span>
+                    <span style="font-size: 0.72rem; color: var(--success); font-weight: 800;">Skin: ${sessionUser.active_skin}</span>
                 </div>
-                <div class="duo-path-container path-backdrop-eng">
+                <div class="duo-path-container ${bgClass}">
                     <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
                         ${nodesHtml}
                     </div>
@@ -1194,12 +1281,35 @@
             `;
         }
 
-        /* ROADMAPS FOR YEAR 1 & YEAR 2 (RANDOMIZED ANTI-CHEAT) */
+        /* ROADMAPS FOR YEAR 1 & YEAR 2 (LOCKED UNTIL YEAR 1 FINISHED) */
         function launchRoadmap(yearKey) {
             playSound('click');
             const box = document.getElementById('simulation-box');
             const completedList = sessionUser.completed_nodes || [];
             
+            // Check if Year 2 is accessed before Year 1 is finished
+            if(yearKey === 'year2') {
+                let year1Finished = true;
+                for(let i = 1; i <= 100; i++) {
+                    if(!completedList.includes(`year1_node_${i}`)) {
+                        year1Finished = false;
+                        break;
+                    }
+                }
+                if(!year1Finished) {
+                    showToast('Complete all 100 nodes of First Year to unlock Second Year!', true);
+                    box.innerHTML = `
+                        <div style="text-align:center; padding: 2.5rem 1rem;">
+                            <div style="font-size: 3.5rem; margin-bottom: 1rem;">🔒</div>
+                            <h3 style="font-size: 1.2rem; color: var(--danger); font-weight: 900; margin-bottom: 0.5rem;">Second Year Path Locked</h3>
+                            <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">You must finish all 100 nodes of the <b>First Year Path</b> before unlocking Second Year EASA training.</p>
+                            <button class="btn-action" onclick="launchRoadmap('year1')" style="background:var(--accent); color:var(--bg-deep);">Go to First Year Path 📖</button>
+                        </div>
+                    `;
+                    return;
+                }
+            }
+
             let activeNodeIndex = 1;
             for(let i = 1; i <= 100; i++) {
                 if(completedList.includes(`${yearKey}_node_${i}`)) {
@@ -1219,15 +1329,7 @@
                 const icon = isCompleted ? '👑' : (statusClass === 'active' ? '✈' : '🔒');
                 const isCurrentActive = (i === activeNodeIndex);
                 
-                let companionEmoji = '🧯';
-                if(sessionUser.active_skin === 'Portable Oxygen Bottle') companionEmoji = '💨';
-                else if(sessionUser.active_skin === 'Emergency Megaphone') companionEmoji = '📢';
-                else if(sessionUser.active_skin === 'Cabin Flashlight') companionEmoji = '🔦';
-                else if(sessionUser.active_skin === 'Inflatable Life Vest') companionEmoji = '🦺';
-                else if(sessionUser.active_skin === 'Slide-Raft Unit') companionEmoji = '🛟';
-                else if(sessionUser.active_skin === 'Smoke Hood PBE') companionEmoji = '🪖';
-                else if(sessionUser.active_skin === 'Emergency Medical Kit') companionEmoji = '🩺';
-                else if(sessionUser.avatar_gender === 'hostess') companionEmoji = '👗';
+                let companionEmoji = sessionUser.active_skin === 'Captain Pilot Hat' ? '🧢' : (sessionUser.avatar_gender === 'hostess' ? '👗' : '🧯');
 
                 nodesHtml += `
                     <div class="duo-node-wrapper">
@@ -1240,15 +1342,15 @@
                 `;
             }
 
-            const backdropClass = yearKey === 'year1' ? 'path-backdrop-y1' : 'path-backdrop-y2';
+            const bgClass = getRandomRoadmapBackgroundClass();
             const yearDisplayNum = yearKey === 'year1' ? '1' : '2';
 
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
                     <h3 style="font-size: 1.05rem; color: var(--gold); font-weight: 900;">🏆 Year ${yearDisplayNum} Roadmap (Zig-Zag Path)</h3>
-                    <span style="font-size: 0.72rem; color: var(--accent);">Equipment: ${sessionUser.active_skin}</span>
+                    <span style="font-size: 0.72rem; color: var(--accent);">Skin: ${sessionUser.active_skin}</span>
                 </div>
-                <div class="duo-path-container ${backdropClass}">
+                <div class="duo-path-container ${bgClass}">
                     <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
                         ${nodesHtml}
                     </div>
@@ -1996,7 +2098,7 @@
                     <span style="font-size: 0.8rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
                 </div>
                 <div style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; scrollbar-width: thin;">
-                    ${data.skins.map(skin => {
+                    ${data.skins.filter(s => s.skin_name_en !== 'Smoke Hood PBE' && s.skin_name_en !== 'Slide-Raft Unit').map(skin => {
                         const skinName = activeLang === 'fr' ? skin.skin_name_fr : (activeLang === 'ar' ? skin.skin_name_ar : skin.skin_name_en);
                         const skinDesc = activeLang === 'fr' ? skin.desc_fr : (activeLang === 'ar' ? skin.desc_ar : skin.desc_en);
                         const isEquipped = sessionUser.active_skin === skin.skin_name_en;
