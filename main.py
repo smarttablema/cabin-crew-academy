@@ -11,7 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="29.0.0")
+app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="30.0.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -1784,7 +1784,7 @@ def serve_frontend():
             if(isTeacher) {
                 teacherControls = `
                     <div style="background:var(--bg-deep); padding:1rem; border-radius:14px; border:1px solid var(--accent); margin-bottom:1rem;">
-                        <h4 style="color:var(--accent); font-size:0.9rem; margin-bottom:0.5rem;">👨‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
+                        <h4 style="color:var(--accent); font-size:0.9rem; margin-bottom:0.5rem;">👨‍‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
                         
                         <div style="margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:10px;">
                             <label><b>Create Quiz</b></label>
@@ -2209,7 +2209,7 @@ def serve_frontend():
                         if(m.content.startsWith('blob:') || m.content.startsWith('http') || m.content.startsWith('data:')) {
                             if(m.content.includes('.pdf') || m.content.includes('pdf')) {
                                 contentHtml = `<a href="${m.content}" target="_blank" style="color:var(--accent); font-weight:800; text-decoration:underline;">📄 Download PDF Document</a>`;
-                            } else if(m.content.match(/\.(jpeg|jpg|png|gif)/i) || m.content.startsWith('data:image')) {
+                            } else if(m.content.includes('image') || m.content.startsWith('data:image')) {
                                 contentHtml = `<img src="${m.content}" style="max-width:180px; border-radius:8px;" />`;
                             } else {
                                 contentHtml = `<audio controls src="${m.content}" style="width:180px; height:32px;"></audio>`;
@@ -2348,7 +2348,7 @@ def serve_frontend():
                     if(m.content.startsWith('blob:') || m.content.startsWith('http') || m.content.startsWith('data:')) {
                         if(m.content.includes('pdf')) {
                             contentHtml = `<a href="${m.content}" target="_blank" style="color:var(--accent); font-weight:800; text-decoration:underline;">📄 Download PDF Document</a>`;
-                        } else if(m.content.startsWith('data:image')) {
+                        } else if(m.content.includes('image') || m.content.startsWith('data:image')) {
                             contentHtml = `<img src="${m.content}" style="max-width:180px; border-radius:8px;" />`;
                         } else {
                             contentHtml = `<audio controls src="${m.content}" style="width:180px; height:32px;"></audio>`;
@@ -2382,7 +2382,7 @@ def serve_frontend():
                         if(m.content.startsWith('blob:') || m.content.startsWith('http') || m.content.startsWith('data:')) {
                             if(m.content.includes('pdf')) {
                                 contentHtml = `<a href="${m.content}" target="_blank" style="color:var(--accent); font-weight:800; text-decoration:underline;">📄 Download PDF Document</a>`;
-                            } else if(m.content.startsWith('data:image')) {
+                            } else if(m.content.includes('image') || m.content.startsWith('data:image')) {
                                 contentHtml = `<img src="${m.content}" style="max-width:180px; border-radius:8px;" />`;
                             } else {
                                 contentHtml = `<audio controls src="${m.content}" style="width:180px; height:32px;"></audio>`;
@@ -2447,7 +2447,7 @@ def serve_frontend():
                     if(m.content.startsWith('blob:') || m.content.startsWith('http') || m.content.startsWith('data:')) {
                         if(m.content.includes('pdf')) {
                             contentHtml = `<a href="${m.content}" target="_blank" style="color:var(--accent); font-weight:800; text-decoration:underline;">📄 Download PDF Document</a>`;
-                        } else if(m.content.startsWith('data:image')) {
+                        } else if(m.content.includes('image') || m.content.startsWith('data:image')) {
                             contentHtml = `<img src="${m.content}" style="max-width:180px; border-radius:8px;" />`;
                         } else {
                             contentHtml = `<audio controls src="${m.content}" style="width:180px; height:32px;"></audio>`;
