@@ -10,8 +10,8 @@
         :root {
             --bg-deep: #020617;
             --surface: #0b0f19;
-            --surface-card: rgba(19, 27, 46, 0.88);
-            --surface-card-hover: rgba(28, 40, 68, 0.95);
+            --surface-card: rgba(19, 27, 46, 0.92);
+            --surface-card-hover: rgba(28, 40, 68, 0.98);
             --accent: #38bdf8;
             --accent-glow: rgba(56, 189, 248, 0.4);
             --success: #10b981;
@@ -42,7 +42,7 @@
             position: relative;
         }
 
-        .app-shell { width: 100%; max-width: 680px; background: rgba(11, 15, 25, 0.92); backdrop-filter: blur(18px); border-radius: 36px; padding: 2rem; border: 1px solid var(--border-glow); box-shadow: 0 45px 90px rgba(0, 0, 0, 0.95); position: relative; z-index: 2; }
+        .app-shell { width: 100%; max-width: 680px; background: rgba(11, 15, 25, 0.94); backdrop-filter: blur(20px); border-radius: 36px; padding: 2rem; border: 1px solid var(--border-glow); box-shadow: 0 45px 90px rgba(0, 0, 0, 0.95); position: relative; z-index: 2; }
         
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.4rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
         .brand-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem; color: var(--accent); text-shadow: 0 0 15px var(--accent-glow); }
@@ -80,12 +80,12 @@
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; min-height: 290px; }
         
-        /* RANDOMIZED AVIATION ROADMAP BACKGROUNDS */
-        .path-bg-1 { background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(15, 23, 42, 0.92) 100%), url('https://images.unsplash.com/photo-1519074069444-1ba4ea16d66c?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
-        .path-bg-2 { background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.92) 100%), url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
-        .path-bg-3 { background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(3, 105, 161, 0.82) 100%), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
-        .path-bg-4 { background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(88, 28, 135, 0.85) 100%), url('https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
-        .path-bg-5 { background: linear-gradient(135deg, rgba(2, 6, 23, 0.88) 0%, rgba(19, 78, 74, 0.85) 100%), url('https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
+        /* HIGH-END DYNAMIC AVIATION ROADMAP BACKGROUNDS */
+        .path-bg-sky { background: linear-gradient(135deg, rgba(2, 6, 23, 0.88) 0%, rgba(3, 105, 161, 0.82) 100%), url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
+        .path-bg-sunset { background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(194, 65, 12, 0.78) 100%), url('https://images.unsplash.com/photo-1519074069444-1ba4ea16d66c?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
+        .path-bg-night { background: linear-gradient(135deg, rgba(2, 6, 23, 0.92) 0%, rgba(30, 27, 75, 0.88) 100%), url('https://images.unsplash.com/photo-1506015391300-4802dc74de2e?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
+        .path-bg-aurora { background: linear-gradient(135deg, rgba(3, 7, 18, 0.9) 0%, rgba(6, 95, 70, 0.82) 100%), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
+        .path-bg-galaxy { background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(88, 28, 135, 0.85) 100%), url('https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
 
         .duo-path-container { 
             display: flex; 
@@ -289,29 +289,21 @@
         </div>
     </div>
 
-    <!-- DAILY SPINNING WHEEL MODAL -->
-    <div id="spinning-wheel-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.92); display:none; justify-content:center; align-items:center; z-index:5000;">
-        <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:440px; text-align:center; position:relative;">
-            <button onclick="closeSpinningWheelModal()" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-muted); font-size:1.3rem; cursor:pointer;">✕</button>
-            <h3 style="font-size:1.2rem; font-weight:900; color:var(--gold); margin-bottom:0.4rem;">🎡 Daily Aviation Spinning Wheel</h3>
-            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1.2rem;">Spin every 24 hours to win XP, hearts, or exclusive Pilot Hat skins!</p>
+    <!-- DAILY HIGH-END CANVAS SPINNING WHEEL MODAL -->
+    <div id="spinning-wheel-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.95); display:none; justify-content:center; align-items:center; z-index:5000;">
+        <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:32px; padding:2rem; width:90%; max-width:440px; text-align:center; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.9);">
+            <button onclick="closeSpinningWheelModal()" style="position:absolute; top:18px; right:18px; background:none; border:none; color:var(--text-muted); font-size:1.3rem; cursor:pointer;">✕</button>
+            <h3 style="font-size:1.25rem; font-weight:900; color:var(--gold); margin-bottom:0.3rem;">🎡 Daily Aviation Spinning Wheel</h3>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1.2rem;">Strictly 1 spin every 24 hours. Win XP, hearts, or exclusive Pilot Hat skins!</p>
             
-            <div style="position:relative; width:220px; height:220px; margin:0 auto 1.4 auto; border-radius:50%; border:6px solid var(--accent); background:linear-gradient(135deg, #0f172a, #1e293b); display:flex; justify-content:center; align-items:center; box-shadow:0 0 35px var(--accent-glow); overflow:hidden;" id="wheel-outer">
-                <div id="wheel-pointer" style="position:absolute; top:-10px; font-size:1.8rem; z-index:10; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));">🔻</div>
-                <div id="wheel-disc" style="width:100%; height:100%; border-radius:50%; position:relative; transition: transform 4s cubic-bezier(0.15, 0.95, 0.15, 1); display:flex; justify-content:center; align-items:center;">
-                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(0deg) translate(0, -70px);">100 XP ⭐</div>
-                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(45deg) translate(0, -70px);">Pilot Hat 🧢</div>
-                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(90deg) translate(0, -70px);">50 XP ⭐</div>
-                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(135deg) translate(0, -70px);">5 Hearts ❤</div>
-                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(180deg) translate(0, -70px);">25 XP ⭐</div>
-                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(225deg) translate(0, -70px);">0 XP 😢</div>
-                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(270deg) translate(0, -70px);">2 Hearts ❤</div>
-                    <div style="position:absolute; font-size:0.75rem; font-weight:900; color:white; transform: rotate(315deg) translate(0, -70px);">10 XP ⭐</div>
-                </div>
+            <div style="position:relative; width:260px; height:260px; margin:0 auto 1.2rem auto; display:flex; justify-content:center; align-items:center;">
+                <!-- Triangle Pointer -->
+                <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent; border-top:24px solid var(--warning); z-index:20; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.9);"></div>
+                <canvas id="wheelCanvas" width="260" height="260" style="border-radius:50%; box-shadow:0 0 35px rgba(56, 189, 248, 0.4); border:5px solid var(--accent); background:#0f172a;"></canvas>
             </div>
 
-            <div id="wheel-status-text" style="font-size:0.85rem; color:var(--text-muted); font-weight:700; margin-bottom:1rem;">Ready for your daily spin!</div>
-            <button class="btn-action" onclick="spinTheDailyWheel()" id="spin-wheel-btn" style="background:linear-gradient(135deg, #fbbf24, #d97706); color:#451a03; margin-top:0;">SPIN WHEEL 🎁</button>
+            <div id="wheel-status-text" style="font-size:0.85rem; color:var(--text-muted); font-weight:700; margin-bottom:1.1rem;">Ready for your daily spin!</div>
+            <button class="btn-action" onclick="spinTheDailyWheel()" id="spin-wheel-btn" style="background:linear-gradient(135deg, #fbbf24, #d97706); color:#451a03; margin-top:0; font-size:1rem; padding:0.9rem;">SPIN WHEEL 🎁</button>
         </div>
     </div>
 
@@ -410,7 +402,7 @@
                 phoneLbl: "Phone Number", passLbl: "Password", loginBtn: "Sign In to Simulator",
                 regNav: "Create Account", resetNav: "Forgot Password?",
                 regTitle: "Cadet & Instructor Enrollment", regSub: "Register your profile, choose your role, and design your avatar.",
-                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student", optTeacher: "👨‍‍🏫 Instructor / Teacher",
+                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student", optTeacher: "👨‍🏫 Instructor / Teacher",
                 regNameLbl: "Full Name", regUserLbl: "Unique Username", regPassLbl: "Password", regPinLbl: "Recovery PIN (4 digits)",
                 avatarStudioTitle: "🎨 Avatar Customization", avatarTypeLbl: "Avatar Type", optSteward: "👔 Steward", optHostess: "👗 Hostess",
                 completeRegBtn: "Complete Registration", backLogin: "Already have an account? Sign In",
@@ -738,70 +730,147 @@
             `;
         }
 
-        /* 24-HOUR DAILY SPINNING WHEEL */
+        /* HIGH-END CANVAS SPINNING WHEEL (STRICT 24H SECURITY LOCK & SECURE REWARDS) */
+        const wheelPrizes = [
+            { text: "100 XP ⭐", type: "xp", val: 100, color: "#0ea5e9" },
+            { text: "Pilot Hat 🧢", type: "skin", val: "Captain Pilot Hat", color: "#6366f1" },
+            { text: "50 XP ⭐", type: "xp", val: 50, color: "#10b981" },
+            { text: "5 Hearts ❤", type: "hearts", val: 5, color: "#f43f5e" },
+            { text: "25 XP ⭐", type: "xp", val: 25, color: "#f59e0b" },
+            { text: "0 XP 😢", type: "xp", val: 0, color: "#334155" },
+            { text: "2 Hearts ❤", type: "hearts", val: 2, color: "#e11d48" },
+            { text: "10 XP ⭐", type: "xp", val: 10, color: "#0284c7" }
+        ];
+
         function openSpinningWheelModal() {
             playSound('click');
             document.getElementById('spinning-wheel-modal').style.display = 'flex';
+            drawWheelCanvas(0);
+            checkSpinEligibility();
         }
+
         function closeSpinningWheelModal() {
             playSound('click');
             document.getElementById('spinning-wheel-modal').style.display = 'none';
         }
 
-        async function spinTheDailyWheel() {
-            playSound('click');
+        function drawWheelCanvas(currentAngle = 0) {
+            const canvas = document.getElementById('wheelCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const center = canvas.width / 2;
+            const radius = center - 5;
+            const sliceAngle = (2 * Math.PI) / wheelPrizes.length;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(center, center);
+            ctx.rotate(currentAngle);
+
+            for (let i = 0; i < wheelPrizes.length; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, i * sliceAngle, (i + 1) * sliceAngle);
+                ctx.closePath();
+                ctx.fillStyle = wheelPrizes[i].color;
+                ctx.fill();
+                ctx.strokeStyle = '#020617';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Draw text
+                ctx.save();
+                ctx.rotate(i * sliceAngle + sliceAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 11px "Plus Jakarta Sans", sans-serif';
+                ctx.fillText(wheelPrizes[i].text, radius - 12, 4);
+                ctx.restore();
+            }
+            ctx.restore();
+        }
+
+        function checkSpinEligibility() {
             const now = Date.now();
             const lastSpin = sessionUser.last_spin_timestamp || 0;
             const twentyFourHours = 24 * 60 * 60 * 1000;
+            const spinBtn = document.getElementById('spin-wheel-btn');
+            const statusEl = document.getElementById('wheel-status-text');
 
-            if(now - lastSpin < twentyFourHours) {
-                const remainingHours = Math.ceil((twentyFourHours - (now - lastSpin)) / (60 * 60 * 1000));
-                showToast(`Already spun today! Next spin available in ${remainingHours} hours.`, true);
+            if (now - lastSpin < twentyFourHours) {
+                const remainingMs = twentyFourHours - (now - lastSpin);
+                const remainingHours = Math.floor(remainingMs / (60 * 60 * 1000));
+                const remainingMins = Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000));
+                spinBtn.disabled = true;
+                spinBtn.style.opacity = '0.5';
+                statusEl.innerText = `🔒 Next spin available in ${remainingHours}h ${remainingMins}m (Strict 24h Lock)`;
+                return false;
+            } else {
+                spinBtn.disabled = false;
+                spinBtn.style.opacity = '1';
+                statusEl.innerText = `Ready for your daily spin! (1 spin per 24 hours)`;
+                return true;
+            }
+        }
+
+        async function spinTheDailyWheel() {
+            if (!checkSpinEligibility()) {
+                showToast('Strict Security: Only 1 spin allowed every 24 hours!', true);
                 return;
             }
 
-            const wheelDisc = document.getElementById('wheel-disc');
-            const statusEl = document.getElementById('wheel-status-text');
+            playSound('click');
             const spinBtn = document.getElementById('spin-wheel-btn');
             spinBtn.disabled = true;
-            statusEl.innerText = 'Spinning the wheel... 🎡';
+            const statusEl = document.getElementById('wheel-status-text');
+            statusEl.innerText = 'Spinning... Good luck, Captain! 🎡';
 
-            // 8 segments = 45 deg each
-            const winningDegs = [0, 45, 90, 135, 180, 225, 270, 315];
-            const randIdx = Math.floor(Math.random() * winningDegs.length);
-            const targetDeg = 360 * 6 + winningDegs[randIdx]; // 6 full rotations + prize angle
+            const winningIndex = Math.floor(Math.random() * wheelPrizes.length);
+            const sliceDeg = 360 / wheelPrizes.length;
+            // Target angle so pointer (at top, 270 deg) lands in winningIndex slice
+            const targetSliceCenter = winningIndex * sliceDeg + sliceDeg / 2;
+            const totalRotations = 360 * 6; 
+            const finalDeg = totalRotations + (270 - targetSliceCenter);
+            const finalRad = finalDeg * (Math.PI / 180);
 
-            wheelDisc.style.transform = `rotate(${targetDeg}deg)`;
+            let startTime = null;
+            const duration = 4000;
 
-            setTimeout(async () => {
-                const prizes = [
-                    { type: 'xp', val: 100, text: '🎉 You won 100 XP Stars! ⭐' },
-                    { type: 'skin', val: 'Captain Pilot Hat', text: '🎩 You won the Captain Pilot Hat skin!' },
-                    { type: 'xp', val: 50, text: '🎉 You won 50 XP Stars! ⭐' },
-                    { type: 'hearts', val: 5, text: '❤ You won 5 Hearts!' },
-                    { type: 'xp', val: 25, text: '🎉 You won 25 XP Stars! ⭐' },
-                    { type: 'xp', val: 0, text: '😢 Zero XP this time! Try again tomorrow.' },
-                    { type: 'hearts', val: 2, text: '❤ You won 2 Hearts!' },
-                    { type: 'xp', val: 10, text: '🎉 You won 10 XP Stars! ⭐' }
-                ];
-                const prize = prizes[randIdx];
-                statusEl.innerText = prize.text;
-                showToast(prize.text);
+            function animateSpin(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const elapsed = timestamp - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // Ease out cubic
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                const currentRad = easeProgress * finalRad;
 
-                // Update server/session state
-                const res = await fetch('/api/user/spin-wheel', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ phone_number: sessionUser.phone_number, prize_type: prize.type, prize_value: prize.val })
-                });
-                const data = await res.json();
-                if(res.ok) {
-                    sessionUser = data.user;
-                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                    updateDashboardUI();
+                drawWheelCanvas(currentRad);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    const prize = wheelPrizes[winningIndex];
+                    statusEl.innerText = `🎉 You won: ${prize.text}!`;
+                    showToast(`Congratulations! Won ${prize.text}!`);
+
+                    // Send secure reward update to server & session
+                    (async () => {
+                        const res = await fetch('/api/user/spin-wheel', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ phone_number: sessionUser.phone_number, prize_type: prize.type, prize_value: prize.val })
+                        });
+                        const data = await res.json();
+                        if(res.ok) {
+                            sessionUser = data.user;
+                            localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                            updateDashboardUI();
+                        }
+                        checkSpinEligibility();
+                    })();
                 }
-                spinBtn.disabled = false;
-            }, 4000);
+            }
+            requestAnimationFrame(animateSpin);
         }
 
         /* HEART RECOVERY LOUNGE */
@@ -891,7 +960,6 @@
             { en: "Dispatch", ar: "إرسال الرحلات" }, { en: "Payload", ar: "الحمولة النافعة" }, { en: "Pitch", ar: "زاوية الميل الرأسي" }
         ];
 
-        // Pseudo-random shuffler for 5,000 randomized vocabulary items
         function getVocabItemForStep(stepNum) {
             const index = (stepNum * 739 + 17) % aviationVocabDatabase.length;
             return aviationVocabDatabase[index];
@@ -917,7 +985,7 @@
         }
 
         function getRandomRoadmapBackgroundClass() {
-            const classes = ['path-bg-1', 'path-bg-2', 'path-bg-3', 'path-bg-4', 'path-bg-5'];
+            const classes = ['path-bg-sky', 'path-bg-sunset', 'path-bg-night', 'path-bg-aurora', 'path-bg-galaxy'];
             return classes[Math.floor(Math.random() * classes.length)];
         }
 
@@ -1056,7 +1124,6 @@
                 const transBox = document.getElementById('vocab-translation-box');
                 if(transBox) transBox.classList.remove('hidden');
 
-                // Lenient accent check (checks if any alternative matches partially or fully)
                 let matched = recognizedWords.some(w => w.includes(expected) || expected.includes(w) || w.length > 2 && expected.startsWith(w.substring(0, 3)));
 
                 if(matched) {
@@ -1080,7 +1147,7 @@
             };
 
             recognition.onerror = function() {
-                if(statusEl) statusEl.innerText = 'Speech recognition error. Tap mic to retry or click again.';
+                if(statusEl) statusEl.innerText = 'Speech recognition error. Tap mic to retry.';
                 if(micBtn) micBtn.style.background = 'linear-gradient(135deg, #38bdf8, #0284c7)';
             };
 
@@ -1192,7 +1259,7 @@
             box.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
                     <span style="font-size: 0.75rem; color: var(--gold); font-weight: 900;">NODE ${nodeNum} • QUESTION ${stepIdx+1} OF ${activeQuestionsStore.length}</span>
-                    <span id="dyn-timer" style="font-size:0.8rem; color:var(--danger); font-weight:800;">⏱️ 35s</span>
+                    <span id="dyn-timer" style="font-size:0.8rem; color:var(--danger); font-weight:800;">⏱️️ 35s</span>
                 </div>
                 <div style="background:var(--bg-deep); padding:1.2rem; border-radius:16px; border:1px solid var(--border-glow); margin-bottom:1rem;">
                     <b style="color:white; font-size:0.95rem; display:block; margin-bottom:12px;">${qObj.q}</b>
@@ -1287,7 +1354,6 @@
             const box = document.getElementById('simulation-box');
             const completedList = sessionUser.completed_nodes || [];
             
-            // Check if Year 2 is accessed before Year 1 is finished
             if(yearKey === 'year2') {
                 let year1Finished = true;
                 for(let i = 1; i <= 100; i++) {
@@ -1373,7 +1439,7 @@
             if(isTeacher) {
                 teacherControls = `
                     <div style="background:var(--bg-deep); padding:1rem; border-radius:14px; border:1px solid var(--accent); margin-bottom:1rem;">
-                        <h4 style="color:var(--accent); font-size:0.9rem; margin-bottom:0.5rem;">👨‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
+                        <h4 style="color:var(--accent); font-size:0.9rem; margin-bottom:0.5rem;">👨‍‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
                         
                         <div style="margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:10px;">
                             <label><b>Create Quiz</b></label>
