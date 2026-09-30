@@ -11,7 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="30.1.0")
+app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="30.2.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -769,21 +769,38 @@ def send_battle_invite(data: BattleInviteModel):
     cur = conn.cursor()
     match_id = f"match_{int(random.randint(100000, 999999))}"
     
-    sample_questions = [
-        {"q": "How is letter 'A' pronounced in ICAO standard telephony?", "options": ["Alpha", "Apple", "Adam"], "correct": 0},
-        {"q": "What is the correct ICAO pronunciation for number '9'?", "options": ["Niner", "Nine", "Nov"], "correct": 0},
-        {"q": "Which phonetic word represents letter 'S'?", "options": ["Sierra", "Sugar", "Sam"], "correct": 0},
-        {"q": "What is the primary phrase for seatbelt compliance check?", "options": ["Cabin crew, secure cabin for takeoff", "Please fasten belts", "Fasten seatbelts please"], "correct": 0},
-        {"q": "During turbulence, what command is issued to cabin crew?", "options": ["Crew, be seated and secure", "Continue service", "Stand by galley"], "correct": 0},
-        {"q": "How do you announce emergency slide arming?", "options": ["Cabin crew, arm slides and cross-check", "Open all doors", "Disarm doors"], "correct": 0},
-        {"q": "What command is shouted during rapid land evacuation?", "options": ["EFP, LEAVE BAGS, DOWN THE SLIDE!", "Please exit slowly", "Grab your luggage and jump"], "correct": 0},
-        {"q": "What urgent prefix is used for non-immediate safety urgency?", "options": ["PAN-PAN", "MAYDAY", "SECURITY"], "correct": 0}
+    raw_questions = [
+        {"q": "How is letter 'A' pronounced in ICAO standard telephony?", "options": ["Alpha", "Apple", "Adam", "Anchor"], "correct": 0},
+        {"q": "What is the correct ICAO pronunciation for number '9'?", "options": ["Nine", "Niner", "Nov", "Ninth"], "correct": 1},
+        {"q": "Which phonetic word represents letter 'S'?", "options": ["Sugar", "Sam", "Sierra", "Sun"], "correct": 2},
+        {"q": "What is the primary phrase for seatbelt compliance check?", "options": ["Please fasten belts", "Cabin crew, secure cabin for takeoff", "Fasten seatbelts please", "Check cabin belts"], "correct": 1},
+        {"q": "During turbulence, what command is issued to cabin crew?", "options": ["Continue service", "Crew, be seated and secure", "Stand by galley", "Secure meal carts"], "correct": 1},
+        {"q": "How do you announce emergency slide arming?", "options": ["Open all doors", "Disarm doors", "Cabin crew, arm slides and cross-check", "Check slides"], "correct": 2},
+        {"q": "What command is shouted during rapid land evacuation?", "options": ["Please exit slowly", "EFP, LEAVE BAGS, DOWN THE SLIDE!", "Grab your luggage and jump", "Walk to exit"], "correct": 1},
+        {"q": "What urgent prefix is used for non-immediate safety urgency?", "options": ["MAYDAY", "SECURITY", "PAN-PAN", "URGENT"], "correct": 2},
+        {"q": "How many times is MAYDAY repeated in distress calls?", options: ["Once", "Three times", "Two times", "Five times"], "correct": 1},
+        {"q": "What term describes sudden severe vertical air movement?", options: ["Wind shear / Turbulence", "Gentle breeze", "Thermal calm", "Air pocket"], "correct": 0}
     ]
+    
+    # Shuffle question order and shuffle options for true randomness
+    random.shuffle(raw_questions)
+    selected_raw = raw_questions[:8]
+    randomized_questions = []
+    for item in selected_raw:
+        opts = list(item["options"])
+        correct_text = opts[item["correct"]]
+        random.shuffle(opts)
+        new_correct_idx = opts.index(correct_text)
+        randomized_questions.append({
+            "q": item["q"],
+            "options": opts,
+            "correct": new_correct_idx
+        })
     
     import json
     cur.execute(
         "INSERT INTO aero_v22_battles (match_id, sender_username, sender_name, receiver_username, status, questions) VALUES (%s, %s, %s, %s, 'pending', %s) RETURNING *;",
-        (match_id, data.sender_username, data.sender_name, data.receiver_username, json.dumps(sample_questions))
+        (match_id, data.sender_username, data.sender_name, data.receiver_username, json.dumps(randomized_questions))
     )
     conn.commit()
     cur.close()
@@ -845,7 +862,7 @@ def cancel_battle(data: BattleCancelModel):
 def submit_battle_score(data: BattleSubmitModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT scores FROM aero_v22_battles WHERE match_id = %s;", (data.match_id,))
+    cur.execute("SELECT * FROM aero_v22_battles WHERE match_id = %s;", (data.match_id,))
     match = cur.fetchone()
     if not match:
         cur.close()
@@ -863,9 +880,12 @@ def submit_battle_score(data: BattleSubmitModel):
     result = "loss"
     if data.score > opponent_score:
         result = "win"
+        cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + 100 WHERE username = %s;", (data.username,))
     elif data.score == opponent_score:
         result = "draw"
-        
+        cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + 50 WHERE username = %s;", (data.username,))
+    
+    conn.commit()
     cur.close()
     conn.close()
     return {
