@@ -5,13 +5,14 @@ from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from datetime import date, datetime
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQdjcq6@ep-cold-lake-b1djlrzp-pooler.c-5.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="30.2.0")
+app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="30.3.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -36,6 +37,8 @@ def startup_db():
             streak INT DEFAULT 21,
             last_practice_date DATE,
             last_heart_loss_date DATE,
+            last_heart_refill_timestamp BIGINT DEFAULT 0,
+            last_spin_timestamp BIGINT DEFAULT 0,
             completed_nodes TEXT[] DEFAULT ARRAY[]::TEXT[],
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
@@ -320,7 +323,7 @@ def register(data: RegisterModel):
         if data.teacher_code != "112233":
             cur.close()
             conn.close()
-            raise HTTPException(status_code=403, detail="Invalid 6-digit teacher access code. Unauthorized registration.")
+            raise HTTPException(status_code=403, detail="Invalid 6-digit teacher access code.")
         assigned_role = "teacher"
         group_code = str(random.randint(1000, 9999))
 
@@ -359,7 +362,6 @@ def login(data: LoginModel):
         conn.close()
         raise HTTPException(status_code=401, detail="Invalid credentials.")
 
-    from datetime import date, timedelta
     today = date.today()
     last_prac = user["last_practice_date"]
     streak = user["streak"]
@@ -399,13 +401,20 @@ def refill_hearts(data: RefillHeartsModel):
         conn.close()
         raise HTTPException(status_code=404, detail="User not found.")
     
-    if user["xp_points"] < 50:
+    import time
+    now_ms = int(time.time() * 1000)
+    last_refill = user.get("last_heart_refill_timestamp") or 0
+    twenty_four_hours = 24 * 60 * 60 * 1000
+
+    if now_ms - last_refill < twenty_four_hours:
+        remaining_ms = twenty_four_hours - (now_ms - last_refill)
+        rem_hrs = int(remaining_ms // (3600 * 1000))
+        rem_mins = int((remaining_ms % (3600 * 1000)) // (60 * 1000))
         cur.close()
         conn.close()
-        raise HTTPException(status_code=400, detail="Not enough XP stars to refill hearts (Cost: 50 ⭐).")
+        raise HTTPException(status_code=400, detail=f"24-hour limit active! Next free 5 hearts refill in {rem_hrs}h {rem_mins}m.")
 
-    new_xp = user["xp_points"] - 50
-    cur.execute("UPDATE aero_v22_users SET hearts = 5, xp_points = %s WHERE phone_number = %s RETURNING *;", (new_xp, data.phone_number))
+    cur.execute("UPDATE aero_v22_users SET hearts = 5, last_heart_refill_timestamp = %s WHERE phone_number = %s RETURNING *;", (now_ms, data.phone_number))
     updated = cur.fetchone()
     conn.commit()
     cur.close()
@@ -509,44 +518,6 @@ def accept_friend_request(data: AcceptFriendModel):
     conn.close()
     return {"status": "success"}
 
-@app.post("/api/friend-groups/create")
-def create_friend_group(data: CreateFriendGroupModel):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO aero_v22_friend_groups (group_name, creator_username, members) VALUES (%s, %s, %s) RETURNING *;",
-        (data.group_name, data.creator_username, data.members)
-    )
-    grp = cur.fetchone()
-    conn.commit()
-    cur.close()
-    conn.close()
-    return {"status": "success", "group": grp}
-
-@app.get("/api/friend-groups/messages")
-def get_friend_group_messages(group_id: int):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v22_friend_group_messages WHERE group_id = %s ORDER BY id DESC LIMIT 50;", (group_id,))
-    msgs = cur.fetchall()
-    cur.close()
-    conn.close()
-    return {"messages": msgs[::-1]}
-
-@app.post("/api/friend-groups/send")
-def send_friend_group_message(data: FriendGroupMessageModel):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO aero_v22_friend_group_messages (group_id, sender_username, sender_name, content) VALUES (%s, %s, %s, %s) RETURNING *;",
-        (data.group_id, data.sender_username, data.sender_name, data.content)
-    )
-    msg = cur.fetchone()
-    conn.commit()
-    cur.close()
-    conn.close()
-    return {"status": "success", "message": msg}
-
 @app.get("/api/direct-messages/list")
 def get_direct_messages(user1: str, user2: str):
     conn = get_db_connection()
@@ -592,21 +563,6 @@ def get_group_info(group_code: str):
     conn.close()
     return {"group": grp, "members": members, "lessons": lessons, "exams": exams}
 
-@app.post("/api/lesson/create")
-def create_lesson(data: CreateLessonModel):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    import json
-    cur.execute(
-        "INSERT INTO aero_v22_lessons (group_code, teacher_username, title, content_html, quiz_data) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
-        (data.group_code, data.teacher_username, data.title, data.content_html, json.dumps(data.quiz_data))
-    )
-    lesson = cur.fetchone()
-    conn.commit()
-    cur.close()
-    conn.close()
-    return {"status": "success", "lesson": lesson}
-
 @app.post("/api/exam/create")
 def create_exam(data: CreateExamModel):
     conn = get_db_connection()
@@ -621,32 +577,6 @@ def create_exam(data: CreateExamModel):
     cur.close()
     conn.close()
     return {"status": "success", "exam": exam}
-
-@app.get("/api/teacher/analytics")
-def get_teacher_analytics(group_code: str):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT r.*, l.title as lesson_title 
-        FROM aero_v22_quiz_results r 
-        JOIN aero_v22_lessons l ON l.id = r.lesson_id 
-        WHERE l.group_code = %s 
-        ORDER BY r.completed_at DESC;
-    """, (group_code,))
-    quiz_results = cur.fetchall()
-
-    cur.execute("""
-        SELECT s.*, e.title as exam_title 
-        FROM aero_v22_exam_submissions s 
-        JOIN aero_v22_exams e ON e.id = s.exam_id 
-        WHERE e.group_code = %s 
-        ORDER BY s.submitted_at DESC;
-    """, (group_code,))
-    exam_submissions = cur.fetchall()
-
-    cur.close()
-    conn.close()
-    return {"quiz_results": quiz_results, "exam_submissions": exam_submissions}
 
 @app.post("/api/exam/submit")
 def submit_exam(data: SubmitExamModel):
@@ -663,29 +593,6 @@ def submit_exam(data: SubmitExamModel):
     conn.close()
     return {"status": "success", "submission": sub}
 
-@app.post("/api/quiz/submit")
-def submit_quiz(data: SubmitQuizModel):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v22_quiz_results WHERE lesson_id = %s AND student_username = %s;", (data.lesson_id, data.student_username))
-    existing = cur.fetchone()
-    if existing:
-        cur.execute(
-            "UPDATE aero_v22_quiz_results SET score = %s, total_questions = %s, attempts = attempts + 1, completed_at = CURRENT_TIMESTAMP WHERE id = %s RETURNING *;",
-            (data.score, data.total_questions, existing["id"])
-        )
-    else:
-        cur.execute(
-            "INSERT INTO aero_v22_quiz_results (lesson_id, student_username, student_name, score, total_questions, attempts) VALUES (%s, %s, %s, %s, %s, 1) RETURNING *;",
-            (data.lesson_id, data.student_username, data.student_name, data.score, data.total_questions)
-        )
-    res = cur.fetchone()
-    cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + 50 WHERE username = %s;", (data.student_username,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return {"status": "success", "result": res}
-
 @app.post("/api/node/complete")
 def complete_roadmap_node(data: NodeCompleteModel):
     conn = get_db_connection()
@@ -701,7 +608,6 @@ def complete_roadmap_node(data: NodeCompleteModel):
     hearts = user["hearts"]
     xp = user["xp_points"]
     streak = user["streak"]
-    from datetime import date
 
     if data.lost_heart:
         hearts = max(0, hearts - 1)
@@ -762,7 +668,6 @@ def buy_skin(data: BuySkinModel):
     conn.close()
     return {"status": "success", "user": updated}
 
-# --- 1V1 BATTLE ENDPOINTS ---
 @app.post("/api/battle/invite")
 def send_battle_invite(data: BattleInviteModel):
     conn = get_db_connection()
@@ -778,11 +683,10 @@ def send_battle_invite(data: BattleInviteModel):
         {"q": "How do you announce emergency slide arming?", "options": ["Open all doors", "Disarm doors", "Cabin crew, arm slides and cross-check", "Check slides"], "correct": 2},
         {"q": "What command is shouted during rapid land evacuation?", "options": ["Please exit slowly", "EFP, LEAVE BAGS, DOWN THE SLIDE!", "Grab your luggage and jump", "Walk to exit"], "correct": 1},
         {"q": "What urgent prefix is used for non-immediate safety urgency?", "options": ["MAYDAY", "SECURITY", "PAN-PAN", "URGENT"], "correct": 2},
-        {"q": "How many times is MAYDAY repeated in distress calls?", options: ["Once", "Three times", "Two times", "Five times"], "correct": 1},
-        {"q": "What term describes sudden severe vertical air movement?", options: ["Wind shear / Turbulence", "Gentle breeze", "Thermal calm", "Air pocket"], "correct": 0}
+        {"q": "How many times is MAYDAY repeated in distress calls?", "options": ["Once", "Three times", "Two times", "Five times"], "correct": 1},
+        {"q": "What term describes sudden severe vertical air movement?", "options": ["Wind shear / Turbulence", "Gentle breeze", "Thermal calm", "Air pocket"], "correct": 0}
     ]
     
-    # Shuffle question order and shuffle options for true randomness
     random.shuffle(raw_questions)
     selected_raw = raw_questions[:8]
     randomized_questions = []
