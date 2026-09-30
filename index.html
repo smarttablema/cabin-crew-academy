@@ -26,7 +26,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
         [dir="rtl"] * { font-family: 'Tajawal', sans-serif !important; }
         
-        /* RESTORED EXACT AIRPLANE / AVIATION SITE BACKGROUND */
         body { 
             background-color: #020617 !important;
             background-image: linear-gradient(rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 0.82)), url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1920&q=80') !important;
@@ -74,11 +73,11 @@
         .stats-dashboard { display: flex; justify-content: space-between; align-items: center; background: var(--surface-card); padding: 0.85rem 1.1rem; border-radius: 18px; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; cursor: pointer; }
         .stat-item { font-weight: 800; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; }
         
-        /* UNIFORM, PERFECTLY DESIGNED AVIATION COCKPIT BACKGROUNDS FOR EACH ICON/TILE */
+        /* EXACT USER-REQUESTED PRIVATE JET STAIRS IMAGE ON EACH DASHBOARD TILE ICON BACKGROUND */
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.1rem; }
-        .mode-tile { background: linear-gradient(rgba(2, 6, 23, 0.78), rgba(11, 15, 25, 0.92)), url('https://images.unsplash.com/photo-1583267746897-2cf41db0a738?auto=format&fit=crop&w=600&q=80') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+        .mode-tile { background: linear-gradient(rgba(2, 6, 23, 0.75), rgba(11, 15, 25, 0.90)), url('https://i.ibb.co.com/84j7qgQ/download.jpg') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
         .mode-tile:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 0 20px var(--accent-glow); }
-        .mode-tile h4 { font-size: 0.82rem; font-weight: 800; margin-top: 6px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .mode-tile h4 { font-size: 0.82rem; font-weight: 800; margin-top: 6px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.9); }
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; min-height: 290px; }
         
@@ -286,11 +285,15 @@
                     <span style="font-size: 1.4rem;">🎡</span>
                     <h4>Daily Spinning Wheel (24h)</h4>
                 </div>
+                <div class="mode-tile" onclick="start1v1BattleArena()">
+                    <span style="font-size: 1.4rem;">⚔️</span>
+                    <h4 id="tr-tile-1v1">1v1 Battle Arena (Live)</h4>
+                </div>
                 <div class="mode-tile" onclick="openStudyHub()">
                     <span style="font-size: 1.4rem;">📚</span>
                     <h4 id="tr-tile-study">Lessons, Quizzes & Exams Studio</h4>
                 </div>
-                <div class="mode-tile" onclick="openSocialHub()" style="grid-column: span 2;">
+                <div class="mode-tile" onclick="openSocialHub()">
                     <span style="font-size: 1.4rem;">💬</span>
                     <h4 id="tr-tile-social">Friends, Private Chat & Groups</h4>
                 </div>
@@ -298,7 +301,7 @@
 
             <div id="simulation-box" class="card-container">
                 <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;" id="tr-center-title">EASA Professional Training Center</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;" id="tr-center-desc">Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, <b>English Vocabulary</b>, or the <b>Daily Wheel</b> above to begin your training adventure.</p>
+                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;" id="tr-center-desc">Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, <b>English Vocabulary</b>, or the <b>1v1 Battle Arena</b> above to begin your training adventure.</p>
             </div>
             
             <div style="display: flex; gap: 10px;">
@@ -425,7 +428,7 @@
                 phoneLbl: "Phone Number", passLbl: "Password", loginBtn: "Sign In to Simulator",
                 regNav: "Create Account", resetNav: "Forgot Password?",
                 regTitle: "Cadet & Instructor Enrollment", regSub: "Register your profile (starts with 1,500 XP Stars ⭐), choose your role, and design your avatar.",
-                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student (Starts with 1,500 XP ⭐)", optTeacher: "👨‍🏫 Instructor / Teacher (Starts with 1,500 XP ⭐)",
+                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student (Starts with 1,500 XP ⭐)", optTeacher: "👨‍‍🏫 Instructor / Teacher (Starts with 1,500 XP ⭐)",
                 regNameLbl: "Full Name", regUserLbl: "Unique Username", regPassLbl: "Password", regPinLbl: "Recovery PIN (4 digits)",
                 avatarStudioTitle: "🎨 Avatar Customization", avatarTypeLbl: "Avatar Type", optSteward: "👔 Steward", optHostess: "👗 Hostess",
                 completeRegBtn: "Complete Registration (Claim 1,500 XP)", backLogin: "Already have an account? Sign In",
@@ -433,8 +436,8 @@
                 updateCredBtn: "Update Credentials", backLogin2: "Back to Sign In",
                 tileY1: "First Year Path (100 Nodes)", tileY2: "Second Year Path (Locked)", tileEng: "Aviation English & ICAO Mastery",
                 tileVocab: "English Vocabulary to Arabic (5k)",
-                tileStudy: "Lessons, Quizzes & Exams Studio", tileSocial: "Friends, Private Chat & Groups",
-                centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, <b>English Vocabulary</b>, or the <b>Daily Wheel</b> above to begin your training adventure.",
+                tile1v1: "1v1 Battle Arena (Live)", tileStudy: "Lessons, Quizzes & Exams Studio", tileSocial: "Friends, Private Chat & Groups",
+                centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, <b>English Vocabulary</b>, or the <b>1v1 Battle Arena</b> above to begin your training adventure.",
                 hubBtn: "← Hub", logoutBtn: "Logout 🚪",
                 modalAvatarTitle: "🎨 Edit Avatar", modalGenderLbl: "Gender / Style", saveAvatarBtn: "Save Avatar 💾",
                 settingsTitle: "⚙️ Academy Settings", langLbl: "Interface Language", passChangeLbl: "Change Password", updatePassBtn: "Update Password 🔒",
@@ -454,7 +457,7 @@
                 updateCredBtn: "Mettre à jour", backLogin2: "Retour à la connexion",
                 tileY1: "Parcours 1ère Année (100 Nœuds)", tileY2: "Parcours 2ème Année (Verrouillé)", tileEng: "Anglais Aéronautique & ICAO",
                 tileVocab: "Vocabulaire Anglais-Arabe (5k)",
-                tileStudy: "Studio Leçons, Quiz & Examens", tileSocial: "Amis, Chat Privé & Groupes",
+                tile1v1: "Arène de Combat 1v1", tileStudy: "Studio Leçons, Quiz & Examens", tileSocial: "Amis, Chat Privé & Groupes",
                 centerTitle: "Centre de Formation Professionnelle EASA", centerDesc: "Sélectionnez <b>Parcours 1ère Année</b>, <b>2ème Année</b>, <b>Anglais Aéronautique</b> ou <b>Vocabulaire</b> pour débuter.",
                 hubBtn: "← Accueil", logoutBtn: "Déconnexion 🚪",
                 modalAvatarTitle: "🎨 Modifier l'Avatar", modalGenderLbl: "Genre / Style", saveAvatarBtn: "Enregistrer 💾",
@@ -475,7 +478,7 @@
                 updateCredBtn: "تحديث بيانات الاعتماد", backLogin2: "العودة لتسجيل الدخول",
                 tileY1: "مسار السنة الأولى (100 نقطة)", tileY2: "مسار السنة الثانية (مغلق)", tileEng: "اللغة الإنجليزية للطيران وإيكاو",
                 tileVocab: "مفردات طيران إنجليزية إلى العربية (5k)",
-                tileStudy: "استوديو الدروس والاختبارات", tileSocial: "الأصدقاء والمحادثة الخاصة والمجموعات",
+                tile1v1: "حلبة تحدي 1 ضد 1", tileStudy: "استوديو الدروس والاختبارات", tileSocial: "الأصدقاء والمحادثة الخاصة والمجموعات",
                 centerTitle: "مركز تدريب الطيران الاحترافي EASA", centerDesc: "اختر مسار التعلم لعرض الخريطة المتعرجة مع أسئلة عشوائية مضادة للغش.",
                 hubBtn: "← الرئيسية", logoutBtn: "تسجيل الخروج 🚪",
                 modalAvatarTitle: "🎨 تعديل الرمزية", modalGenderLbl: "الجنس / النمط", saveAvatarBtn: "حفظ 💾",
@@ -567,6 +570,7 @@
                 document.getElementById('tr-tile-y2').innerText = t.tileY2;
                 document.getElementById('tr-tile-eng').innerText = t.tileEng;
                 document.getElementById('tr-tile-vocab').innerText = t.tileVocab;
+                document.getElementById('tr-tile-1v1').innerText = t.tile1v1;
                 document.getElementById('tr-tile-study').innerText = t.tileStudy;
                 document.getElementById('tr-tile-social').innerText = t.tileSocial;
                 document.getElementById('tr-center-title').innerText = t.centerTitle;
@@ -702,7 +706,6 @@
             const data = await res.json();
             if(res.ok) {
                 sessionUser = data.user;
-                // Guarantee minimum 1,500 XP for registered users if empty
                 if((sessionUser.xp_points || 0) < 1500 && sessionUser.completed_nodes?.length === 0) {
                     sessionUser.xp_points = 1500;
                 }
@@ -907,11 +910,9 @@
                     statusEl.innerText = `🎉 You won: ${prize.text}!`;
                     showToast(`Congratulations! Won ${prize.text}!`);
 
-                    // Set absolute local storage 24h lock timestamp
                     const lockKey = 'aero_wheel_lock_' + sessionUser.phone_number;
                     localStorage.setItem(lockKey, Date.now().toString());
 
-                    // Instantly update local balance so rewards show immediately without fail
                     if(prize.type === 'xp') {
                         sessionUser.xp_points = (sessionUser.xp_points || 0) + prize.val;
                     } else if(prize.type === 'hearts') {
