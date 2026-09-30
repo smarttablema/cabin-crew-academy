@@ -73,7 +73,7 @@
         .stats-dashboard { display: flex; justify-content: space-between; align-items: center; background: var(--surface-card); padding: 1rem 1.2rem; border-radius: 18px; border: 1px solid var(--border-glow); margin-bottom: 1.2rem; cursor: pointer; }
         .stat-item { font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
         
-        /* STRICTLY 100% AVIATION AIRCRAFT WING & SKY BACKGROUNDS FOR TILES */
+        /* 100% PURE AIRCRAFT WING & SKY BACKGROUNDS FOR TILES */
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 1.2rem; }
         .mode-tile { background: linear-gradient(rgba(2, 6, 23, 0.65), rgba(11, 15, 25, 0.88)), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=600&q=80') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 18px; padding: 1.2rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
         .mode-tile:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 0 22px var(--accent-glow); }
@@ -133,7 +133,9 @@
         .duo-node.active { background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: #020617; border: 4px solid #bae6fd; box-shadow: 0 10px 0 #0369a1, 0 0 28px var(--accent); }
         .duo-node.locked { background: #334155; color: #94a3b8; border: 4px solid #475569; box-shadow: 0 10px 0 #1e293b; opacity: 0.7; }
         
-        .companion-hopper { position: absolute; top: -38px; font-size: 2.2rem; animation: floatCompanion 1.5s infinite ease-in-out; z-index: 10; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8)); }
+        .companion-hopper { position: absolute; top: -45px; font-size: 2.2rem; animation: floatCompanion 1.5s infinite ease-in-out; z-index: 10; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9)); padding: 4px 8px; border-radius: 20px; }
+        .companion-hopper.fire-streak { background: radial-gradient(circle, rgba(249,115,22,0.4) 0%, transparent 70%); filter: drop-shadow(0 0 15px #f97316); }
+        .companion-hopper.ice-streak { background: radial-gradient(circle, rgba(56,189,248,0.4) 0%, transparent 70%); filter: drop-shadow(0 0 15px #38bdf8); }
         @keyframes floatCompanion { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
         .chat-container { display: flex; flex-direction: column; flex: 1; background: var(--bg-deep); border-radius: 18px; border: 1px solid var(--border-glow); overflow: hidden; margin-top: 0.5rem; }
@@ -344,7 +346,6 @@
             <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.4rem;">Strictly 1 spin every 24 hours. Win XP, hearts, or exclusive Pilot Hat skins!</p>
             
             <div style="position:relative; width:260px; height:260px; margin:0 auto 1.4rem auto; display:flex; justify-content:center; align-items:center;">
-                <!-- Triangle Pointer -->
                 <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent; border-top:24px solid var(--warning); z-index:20; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.9);"></div>
                 <canvas id="wheelCanvas" width="260" height="260" style="border-radius:50%; box-shadow:0 0 35px rgba(56, 189, 248, 0.4); border:5px solid var(--accent); background:#0f172a;"></canvas>
             </div>
@@ -519,6 +520,7 @@
             setLanguage(activeLang);
             toggleTeacherCodeContainer();
             if(sessionUser && sessionUser.phone_number) {
+                checkAutomatedHeartRefill();
                 await refreshUserData(false);
             }
 
@@ -532,6 +534,24 @@
             }
         };
 
+        /* AUTOMATED 24-HOUR HEART REFILL CHECKER */
+        function checkAutomatedHeartRefill() {
+            if(!sessionUser) return;
+            const now = Date.now();
+            const refillKey = 'aero_heart_refill_' + sessionUser.phone_number;
+            const lastRefill = parseInt(localStorage.getItem(refillKey) || sessionUser.last_heart_refill_timestamp || '0');
+            const twentyFourHours = 24 * 60 * 60 * 1000;
+
+            if (now - lastRefill >= twentyFourHours) {
+                sessionUser.hearts = 5;
+                const nowTs = now.toString();
+                localStorage.setItem(refillKey, nowTs);
+                sessionUser.last_heart_refill_timestamp = nowTs;
+                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                showToast('💖 Automated 24h Heart Refill: Hearts restored to 5!');
+            }
+        }
+
         async function refreshUserData(showNotification = true) {
             playSound('click');
             if(!sessionUser || !sessionUser.phone_number) return;
@@ -540,6 +560,7 @@
                 const data = await res.json();
                 if(res.ok && data.user) {
                     sessionUser = data.user;
+                    checkAutomatedHeartRefill();
                     localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                     updateDashboardUI();
                     if(showNotification) showToast('Balance & stats refreshed successfully! 🔄');
@@ -738,6 +759,7 @@
                 if((sessionUser.xp_points || 0) < 5000 && sessionUser.completed_nodes?.length === 0) {
                     sessionUser.xp_points = 5000;
                 }
+                checkAutomatedHeartRefill();
                 localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                 updateDashboardUI();
                 navigateTo('screen-dashboard');
@@ -784,10 +806,10 @@
             
             if(lastPrac && lastPrac < todayStr && streakVal > 0) {
                 streakBadge.style.color = 'var(--accent)';
-                streakNumEl.innerText = `${streakVal} 🧊`;
+                streakNumEl.innerText = `${streakVal} 🧊 (Freezing Streak)`;
             } else {
                 streakBadge.style.color = 'var(--success)';
-                streakNumEl.innerText = `${streakVal} 🔥`;
+                streakNumEl.innerText = `${streakVal} 🔥 (Active Fire Streak)`;
             }
 
             const roleText = sessionUser.role === 'teacher' ? 'Instructor / Teacher (Code: ' + sessionUser.group_code + ')' : 'Cadet / Student';
@@ -986,7 +1008,7 @@
                     <div style="width:85px;"></div>
                 </div>
                 <div style="max-width:480px; width:100%; margin: 0 auto; text-align:center; padding-top:1rem;">
-                    <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6;">You currently have <b>${sessionUser.hearts}/5 hearts</b>. Refill your hearts instantly using XP stars so you can continue your flight training.</p>
+                    <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6;">You currently have <b>${sessionUser.hearts}/5 hearts</b>. Refill your hearts instantly using XP stars or wait for the automatic 24-hour refill.</p>
                     
                     <div style="background:var(--surface-card); padding:1.8rem; border-radius:22px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
                         <div style="font-size:2.8rem; margin-bottom:10px;">⭐</div>
@@ -1113,9 +1135,14 @@
                 const icon = isCompleted ? '👑' : (statusClass === 'active' ? '🗣️' : '🔒');
                 const isCurrentActive = (i === activeIndex);
 
+                const todayStr = new Date().toISOString().split('T')[0];
+                const isFreezing = sessionUser.last_practice_date && sessionUser.last_practice_date < todayStr && (sessionUser.streak || 0) > 0;
+                const companionClass = isFreezing ? 'companion-hopper ice-streak' : 'companion-hopper fire-streak';
+                const companionEmoji = isFreezing ? '🧊 🎤' : '🔥 🎤';
+
                 nodesHtml += `
                     <div class="duo-node-wrapper">
-                        ${isCurrentActive ? `<div class="companion-hopper">🎤</div>` : ''}
+                        ${isCurrentActive ? `<div class="${companionClass}">${companionEmoji}</div>` : ''}
                         <div class="duo-node ${statusClass}" onclick="startVocabularyNode(${i}, '${statusClass}')">
                             <span style="font-size:1.35rem;">${icon}</span>
                             <span style="font-size:0.58rem; margin-top:-2px;">${i}</span>
@@ -1272,6 +1299,7 @@
             sessionUser.xp_points = data.xp;
             sessionUser.hearts = data.hearts;
             sessionUser.streak = data.streak;
+            sessionUser.last_practice_date = new Date().toISOString().split('T')[0];
             localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
             updateDashboardUI();
 
@@ -1315,11 +1343,15 @@
                 const icon = isCompleted ? '👑' : (statusClass === 'active' ? '🌐' : '🔒');
                 const isCurrentActive = (i === activeIndex);
                 
-                let companionEmoji = sessionUser.active_skin === 'Captain Pilot Hat' ? '🧢' : (sessionUser.avatar_gender === 'hostess' ? '👗' : '🧯');
+                const todayStr = new Date().toISOString().split('T')[0];
+                const isFreezing = sessionUser.last_practice_date && sessionUser.last_practice_date < todayStr && (sessionUser.streak || 0) > 0;
+                const companionClass = isFreezing ? 'companion-hopper ice-streak' : 'companion-hopper fire-streak';
+                let skinEmoji = sessionUser.active_skin === 'Captain Pilot Hat' ? '🧢' : (sessionUser.avatar_gender === 'hostess' ? '👗' : '🧯');
+                const companionEmoji = isFreezing ? `🧊 ${skinEmoji}` : `🔥 ${skinEmoji}`;
 
                 nodesHtml += `
                     <div class="duo-node-wrapper">
-                        ${isCurrentActive ? `<div class="companion-hopper">${companionEmoji}</div>` : ''}
+                        ${isCurrentActive ? `<div class="${companionClass}">${companionEmoji}</div>` : ''}
                         <div class="duo-node ${statusClass}" onclick="startDynamicNodeSession('english', ${i}, '${statusClass}')">
                             <span style="font-size:1.35rem;">${icon}</span>
                             <span style="font-size:0.58rem; margin-top:-2px;">${i}</span>
@@ -1418,7 +1450,7 @@
                 }, 900);
             } else {
                 fb.style.color = 'var(--danger)';
-                fb.innerText = 'Incorrect! Heart lost ❤️-1';
+                fb.innerText = 'Incorrect! Heart lost ❤️️-1';
                 const res = await fetch('/api/node/complete', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -1444,6 +1476,7 @@
             sessionUser.xp_points = data.xp;
             sessionUser.hearts = data.hearts;
             sessionUser.streak = data.streak;
+            sessionUser.last_practice_date = new Date().toISOString().split('T')[0];
             localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
             updateDashboardUI();
 
@@ -1516,11 +1549,15 @@
                 const icon = isCompleted ? '👑' : (statusClass === 'active' ? '✈' : '🔒');
                 const isCurrentActive = (i === activeNodeIndex);
                 
-                let companionEmoji = sessionUser.active_skin === 'Captain Pilot Hat' ? '🧢' : (sessionUser.avatar_gender === 'hostess' ? '👗' : '🧯');
+                const todayStr = new Date().toISOString().split('T')[0];
+                const isFreezing = sessionUser.last_practice_date && sessionUser.last_practice_date < todayStr && (sessionUser.streak || 0) > 0;
+                const companionClass = isFreezing ? 'companion-hopper ice-streak' : 'companion-hopper fire-streak';
+                let skinEmoji = sessionUser.active_skin === 'Captain Pilot Hat' ? '🧢' : (sessionUser.avatar_gender === 'hostess' ? '👗' : '🧯');
+                const companionEmoji = isFreezing ? `🧊 ${skinEmoji}` : `🔥 ${skinEmoji}`;
 
                 nodesHtml += `
                     <div class="duo-node-wrapper">
-                        ${isCurrentActive ? `<div class="companion-hopper">${companionEmoji}</div>` : ''}
+                        ${isCurrentActive ? `<div class="${companionClass}">${companionEmoji}</div>` : ''}
                         <div class="duo-node ${statusClass}" onclick="startDynamicNodeSession('${yearKey}', ${i}, '${statusClass}')">
                             <span style="font-size:1.35rem;">${icon}</span>
                             <span style="font-size:0.58rem; margin-top:-2px;">${i}</span>
@@ -1834,7 +1871,7 @@
             open1v1Lobby();
         }
 
-        /* TRUE 1V1 BATTLE ARENA LOBBY & ACCEPT/REJECT SYSTEM */
+        /* TRUE 1V1 BATTLE ARENA LOBBY & CORRECT API ROUTE */
         async function open1v1Lobby() {
             playSound('click');
             const box = document.getElementById('simulation-box');
@@ -1845,7 +1882,7 @@
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️ 1v1 Battle Arena</h3>
+                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️️ 1v1 Battle Arena</h3>
                     <span style="font-size: 0.78rem; color: var(--gold); font-weight: 800;">Duel</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
