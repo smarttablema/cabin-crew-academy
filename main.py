@@ -11,7 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="25.0.0")
+app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="26.0.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -28,7 +28,7 @@ def startup_db():
             recovery_pin VARCHAR(10),
             role VARCHAR(20) DEFAULT 'student',
             avatar_gender VARCHAR(20) DEFAULT 'steward',
-            active_skin VARCHAR(100) DEFAULT 'Standard Aviator Suit',
+            active_skin VARCHAR(100) DEFAULT 'Cabin Fire Extinguisher',
             group_code VARCHAR(50) DEFAULT '7842',
             friends TEXT[] DEFAULT ARRAY[]::TEXT[],
             xp_points INT DEFAULT 1500,
@@ -158,16 +158,19 @@ def startup_db():
         );
     """)
 
+    # Clear old skins and insert ONLY Wikipedia Cabin Crew Equipment Skins
+    cur.execute("DELETE FROM aero_v22_shop_skins;")
     cur.execute("""
         INSERT INTO aero_v22_shop_skins (category, tier_level, skin_name_en, skin_name_fr, skin_name_ar, cost, preview_svg, desc_en, desc_fr, desc_ar)
         VALUES 
-        ('equipment', 'Free', 'Standard Aviator Suit', 'Costume Aviateur Standard', 'بدلة طيار قياسية', 0, '👔', 'Clean cadet training uniform.', 'Uniforme d’entraînement propre.', 'زي تدريب نظيف للمتدربين.'),
-        ('equipment', 'Safety', 'Cabin Fire Extinguisher', 'Extincteur de Cabine', 'طفاية حريق المقصورة', 300, '🧯', 'Halon/Dry powder extinguisher for onboard electrical and galley fires.', 'Extincteur pour feux de cabine.', 'طفاية حريق مخصصة لحرائق المقصورة والمطبخ.'),
-        ('equipment', 'Safety', 'Portable Oxygen Bottle', 'Bouteille d’Oxygène Portable', 'أسوانة أكسجين محمولة', 450, '💨', 'First-aid medical oxygen supply unit with high-flow mask.', 'Unité d’oxygène médicale portable.', 'وحدة إمداد طبي بالأكسجين للحالات الطارئة.'),
-        ('equipment', 'Emergency', 'Emergency Megaphone', 'Mégaphone d’Urgence', 'مكبر صوت الطوارئ', 600, '📢', 'Battery-powered acoustic amplifier for crowd control and evacuation.', 'Amplificateur acoustique d’urgence.', 'مكبر صوت يعمل بالبطارية للتحكم في الحشود أثناء الإخلاء.'),
-        ('equipment', 'Safety', 'Cabin Flashlight', 'Lampe de Poche de Sécurité', 'مصباح طوارئ الكابينة', 250, '🔦', 'Heavy-duty rechargeable emergency LED flashlight.', 'Lampe de poche de secours.', 'مصباح يدوي قوي قابل لإعادة الشحن للطوارئ.'),
-        ('equipment', 'Survival', 'Inflatable Life Vest', 'Gilet de Sauvetage Gonflable', 'سترة نجاة قابلة للنفخ', 500, '🦺', 'Dual-chamber passenger and crew flotation vest with whistle and light.', 'Gilet de sauvetage double chambre.', 'سترة نجاة مزدوجة الغرفة مع صفارة ومصباح.'),
-        ('equipment', 'Emergency', 'Slide-Raft Unit', 'Toboggan-Radeau d’Évacuation', 'طوافة الانزلاق للإخلاء', 800, '🛟', 'Multi-person inflatable slide and emergency sea rescue raft.', 'Toboggan et radeau de sauvetage.', 'منزلق قابل للنفخ وطوافة إنقاذ بحري طارئة.')
+        ('safety', 'Essential', 'Cabin Fire Extinguisher', 'Extincteur de Cabine', 'طفاية حريق المقصورة', 0, '🧯', 'Halon/Dry powder extinguisher for onboard electrical and galley fires.', 'Extincteur pour feux de cabine.', 'طفاية حريق مخصصة لحرائق المقصورة والمطبخ.'),
+        ('safety', 'Medical', 'Portable Oxygen Bottle', 'Bouteille d’Oxygène Portable', 'أسطوانة أكسجين محمولة', 150, '💨', 'First-aid medical oxygen supply unit with high-flow mask.', 'Unité d’oxygène médicale portable.', 'وحدة إمداد طبي بالأكسجين للحالات الطارئة.'),
+        ('emergency', 'Evacuation', 'Emergency Megaphone', 'Mégaphone d’Urgence', 'مكبر صوت الطوارئ', 300, '📢', 'Battery-powered acoustic amplifier for crowd control and evacuation.', 'Amplificateur acoustique d’urgence.', 'مكبر صوت يعمل بالبطارية للتحكم في الحشود أثناء الإخلاء.'),
+        ('safety', 'Equipment', 'Cabin Flashlight', 'Lampe de Poche de Sécurité', 'مصباح طوارئ الكابينة', 200, '🔦', 'Heavy-duty rechargeable emergency LED flashlight.', 'Lampe de poche de secours.', 'مصباح يدوي قوي قابل لإعادة الشحن للطوارئ.'),
+        ('survival', 'Flotation', 'Inflatable Life Vest', 'Gilet de Sauvetage Gonflable', 'سترة نجاة قابلة للنفخ', 400, '🦺', 'Dual-chamber passenger and crew flotation vest with whistle and light.', 'Gilet de sauvetage double chambre.', 'سترة نجاة مزدوجة الغرفة مع صفارة ومصباح.'),
+        ('emergency', 'Marine', 'Slide-Raft Unit', 'Toboggan-Radeau d’Évacuation', 'طوافة الانزلاق للإخلاء', 600, '🛟', 'Multi-person inflatable slide and emergency sea rescue raft.', 'Toboggan et radeau de sauvetage.', 'منزلق قابل للنفخ وطوافة إنقاذ بحري طارئة.'),
+        ('safety', 'Protection', 'Smoke Hood PBE', 'Cagoule Anti-Fumée PBE', 'قناع الدخان واقي الحريق', 500, '🪖', 'Protective Breathing Equipment smoke hood for firefighting.', 'Équipement de protection respiratoire anti-fumée.', 'معدات الحماية التنفسية لمقاومة الدخان والحريق.'),
+        ('medical', 'FirstAid', 'Emergency Medical Kit', 'Trousse de Secours Médicale', 'حقيبة الإسعافات الأولية الطارئة', 450, '🩺', 'Comprehensive onboard medical response kit for crew use.', 'Trousse médicale d’urgence à bord.', 'حقيبة استجابة طبية شاملة على متن الطائرة للطاقم.')
         ON CONFLICT DO NOTHING;
     """)
 
@@ -815,18 +818,18 @@ def serve_frontend():
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; min-height: 290px; }
         
-        /* PROFESSIONALLY DESIGNED DISTINCT AVIATION BACKDROPS & SCROLLBAR HIDING */
+        /* DISTINCT, HIGH-DEFINITION PROFESSIONAL AVIATION PATH BACKGROUNDS & SCROLLBAR HIDING */
         .path-backdrop-y1 {
-            background: linear-gradient(135deg, rgba(2, 6, 23, 0.88) 0%, rgba(15, 23, 42, 0.94) 100%), 
-                        url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200') center/cover no-repeat !important;
+            background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(15, 23, 42, 0.92) 100%), 
+                        url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important;
         }
         .path-backdrop-y2 {
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(30, 41, 59, 0.94) 100%), 
-                        url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=1200') center/cover no-repeat !important;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.92) 100%), 
+                        url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important;
         }
         .path-backdrop-eng {
-            background: linear-gradient(135deg, rgba(2, 6, 23, 0.88) 0%, rgba(3, 105, 161, 0.82) 100%), 
-                        url('https://images.unsplash.com/photo-1519074069444-1ba4ea16d66c?w=1200') center/cover no-repeat !important;
+            background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(3, 105, 161, 0.82) 100%), 
+                        url('https://images.unsplash.com/photo-1519074069444-1ba4ea16d66c?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important;
         }
 
         .duo-path-container { 
@@ -916,7 +919,7 @@ def serve_frontend():
             <h2 id="tr-reg-title">Cadet & Instructor Enrollment</h2>
             <p class="sub-desc" id="tr-reg-sub">Register your profile, choose your role, and design your avatar.</p>
             
-            <div class="avatar-preview-box" id="reg-avatar-preview">👔</div>
+            <div class="avatar-preview-box" id="reg-avatar-preview">🧯</div>
 
             <label id="tr-reg-role-lbl">Register As</label>
             <select id="reg-role" onchange="toggleTeacherCodeContainer()">
@@ -948,8 +951,8 @@ def serve_frontend():
             
             <label id="tr-avatar-type-lbl">Avatar Type</label>
             <select id="reg-gender" onchange="updateRegAvatarPreview()">
-                <option value="steward" id="tr-opt-steward">👔 Steward</option>
-                <option value="hostess" id="tr-opt-hostess">👗 Hostess</option>
+                <option value="steward">👔 Steward</option>
+                <option value="hostess">👗 Hostess</option>
             </select>
             
             <button class="btn-action" onclick="submitRegister()" style="background: #10b981; color: white;" id="tr-complete-reg-btn">Complete Registration</button>
@@ -1014,7 +1017,7 @@ def serve_frontend():
 
             <div id="simulation-box" class="card-container">
                 <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;" id="tr-center-title">EASA Professional Training Center</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;" id="tr-center-desc">Select <b>First Year Path</b>, <b>Second Year Path</b>, or <b>Aviation English</b> above to begin your randomized anti-cheat learning adventure with your equipped skin companion.</p>
+                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;" id="tr-center-desc">Select <b>First Year Path</b>, <b>Second Year Path</b>, or <b>Aviation English</b> above to begin your randomized anti-cheat learning adventure with your equipped equipment companion.</p>
             </div>
             
             <div style="display: flex; gap: 10px;">
@@ -1077,6 +1080,7 @@ def serve_frontend():
         let audioChunks = [];
         let activeLang = localStorage.getItem('aero_lang') || 'en';
         let dmPollingInterval = null;
+        let groupMsgPollingInterval = null;
         let questionTimerInterval = null;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1276,6 +1280,7 @@ def serve_frontend():
         function navigateTo(id) {
             playSound('click');
             if(dmPollingInterval) clearInterval(dmPollingInterval);
+            if(groupMsgPollingInterval) clearInterval(groupMsgPollingInterval);
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             ['screen-login', 'screen-register', 'screen-reset', 'screen-dashboard'].forEach(s => {
                 const el = document.getElementById(s);
@@ -1311,12 +1316,12 @@ def serve_frontend():
         function updateRegAvatarPreview() {
             playSound('click');
             const gender = document.getElementById('reg-gender').value;
-            document.getElementById('reg-avatar-preview').innerText = gender === 'hostess' ? '👗' : '👔';
+            document.getElementById('reg-avatar-preview').innerText = gender === 'hostess' ? '👗' : '🧯';
         }
         function updateModalAvatarPreview() {
             playSound('click');
             const gender = document.getElementById('mod-gender').value;
-            document.getElementById('modal-avatar-preview').innerText = gender === 'hostess' ? '👗' : '👔';
+            document.getElementById('modal-avatar-preview').innerText = gender === 'hostess' ? '👗' : '🧯';
         }
 
         async function submitRegister() {
@@ -1460,7 +1465,7 @@ def serve_frontend():
             }
         }
 
-        /* MASTER RANDOMIZED QUESTION POOLS (ANTI-CHEAT) */
+        /* MASTER RANDOMIZED QUESTION POOLS (TRUE ANTI-CHEAT SHUFFLE) */
         const masterQuestionPools = {
             english: [
                 { q: "How is letter 'A' pronounced in ICAO standard telephony?", options: ["Alpha", "Apple", "Adam"], correct: 0 },
@@ -1489,7 +1494,7 @@ def serve_frontend():
             year2: [
                 { q: "What is CRM in aviation crew training?", options: ["Crew Resource Management", "Cabin Routine Maintenance", "Cockpit Radio Monitoring"], correct: 0 },
                 { q: "What is the minimum crew rest requirement during long-haul duty rotations?", options: ["Mandatory scheduled rest period", "No rest required", "Optional coffee break"], correct: 0 },
-                { q: "What does 'TACON' or emergency transponder squawk code 7700 signify?", options: ["Emergency / Distress", "Hijacking", "Radio failure"], correct: 0 },
+                { q: "What does emergency transponder squawk code 7700 signify?", options: ["Emergency / Distress", "Hijacking", "Radio failure"], correct: 0 },
                 { q: "How should dangerous goods (DG) spills in cabin be handled?", options: ["Isolate area, use spill kit, notify captain", "Wash down galley drain", "Ignore until landing"], correct: 0 },
                 { q: "What is the procedure for suspected bomb threat inflight?", options: ["Search LRT (Least Risk Bomb Location), notify flight deck", "Open emergency door", "Announce publicly to passengers"], correct: 0 }
             ]
@@ -1497,17 +1502,15 @@ def serve_frontend():
 
         function getRandomQuizQuestions(poolKey, count = 3) {
             const pool = [...masterQuestionPools[poolKey]];
-            // Shuffle pool
+            // True random Fisher-Yates shuffle
             for (let i = pool.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [pool[i], pool[j]] = [pool[j], pool[i]];
             }
             const selected = pool.slice(0, Math.min(count, pool.length));
-            // Deep copy and shuffle options for each selected question
             return selected.map(item => {
                 let opts = [...item.options];
                 let correctText = opts[item.correct];
-                // Shuffle options
                 for (let i = opts.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [opts[i], opts[j]] = [opts[j], opts[i]];
@@ -1540,13 +1543,14 @@ def serve_frontend():
                 const icon = isCompleted ? '👑' : (statusClass === 'active' ? '🌐' : '🔒');
                 const isCurrentActive = (i === activeIndex);
                 
-                let companionEmoji = '👔';
-                if(sessionUser.active_skin === 'Cabin Fire Extinguisher') companionEmoji = '🧯';
-                else if(sessionUser.active_skin === 'Portable Oxygen Bottle') companionEmoji = '💨';
+                let companionEmoji = '🧯';
+                if(sessionUser.active_skin === 'Portable Oxygen Bottle') companionEmoji = '💨';
                 else if(sessionUser.active_skin === 'Emergency Megaphone') companionEmoji = '📢';
                 else if(sessionUser.active_skin === 'Cabin Flashlight') companionEmoji = '🔦';
                 else if(sessionUser.active_skin === 'Inflatable Life Vest') companionEmoji = '🦺';
                 else if(sessionUser.active_skin === 'Slide-Raft Unit') companionEmoji = '🛟';
+                else if(sessionUser.active_skin === 'Smoke Hood PBE') companionEmoji = '🪖';
+                else if(sessionUser.active_skin === 'Emergency Medical Kit') companionEmoji = '🩺';
                 else if(sessionUser.avatar_gender === 'hostess') companionEmoji = '👗';
 
                 nodesHtml += `
@@ -1563,7 +1567,7 @@ def serve_frontend():
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
                     <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">🌐 Aviation English & ICAO Mastery Path</h3>
-                    <span style="font-size: 0.72rem; color: var(--success); font-weight: 800;">Skin: ${sessionUser.active_skin}</span>
+                    <span style="font-size: 0.72rem; color: var(--success); font-weight: 800;">Equipment: ${sessionUser.active_skin}</span>
                 </div>
                 <div class="duo-path-container path-backdrop-eng">
                     <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
@@ -1580,7 +1584,6 @@ def serve_frontend():
                 openHeartRecoveryLounge();
                 return;
             }
-            // Generate completely randomized questions for this specific session
             const randomizedQuestions = getRandomQuizQuestions(poolKey, 3);
             renderDynamicStep(poolKey, nodeNum, randomizedQuestions, 0);
         }
@@ -1648,7 +1651,7 @@ def serve_frontend():
                 }, 900);
             } else {
                 fb.style.color = 'var(--danger)';
-                fb.innerText = 'Incorrect! Heart lost ❤️️-1';
+                fb.innerText = 'Incorrect! Heart lost ❤️-1';
                 const res = await fetch('/api/node/complete', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -1714,13 +1717,14 @@ def serve_frontend():
                 const icon = isCompleted ? '👑' : (statusClass === 'active' ? '✈' : '🔒');
                 const isCurrentActive = (i === activeNodeIndex);
                 
-                let companionEmoji = '👔';
-                if(sessionUser.active_skin === 'Cabin Fire Extinguisher') companionEmoji = '🧯';
-                else if(sessionUser.active_skin === 'Portable Oxygen Bottle') companionEmoji = '💨';
+                let companionEmoji = '🧯';
+                if(sessionUser.active_skin === 'Portable Oxygen Bottle') companionEmoji = '💨';
                 else if(sessionUser.active_skin === 'Emergency Megaphone') companionEmoji = '📢';
                 else if(sessionUser.active_skin === 'Cabin Flashlight') companionEmoji = '🔦';
                 else if(sessionUser.active_skin === 'Inflatable Life Vest') companionEmoji = '🦺';
                 else if(sessionUser.active_skin === 'Slide-Raft Unit') companionEmoji = '🛟';
+                else if(sessionUser.active_skin === 'Smoke Hood PBE') companionEmoji = '🪖';
+                else if(sessionUser.active_skin === 'Emergency Medical Kit') companionEmoji = '🩺';
                 else if(sessionUser.avatar_gender === 'hostess') companionEmoji = '👗';
 
                 nodesHtml += `
@@ -1739,7 +1743,7 @@ def serve_frontend():
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
                     <h3 style="font-size: 1.05rem; color: var(--gold); font-weight: 900;">🏆 Year ${yearNum} Roadmap (Zig-Zag Path)</h3>
-                    <span style="font-size: 0.72rem; color: var(--accent);">Skin: ${sessionUser.active_skin}</span>
+                    <span style="font-size: 0.72rem; color: var(--accent);">Equipment: ${sessionUser.active_skin}</span>
                 </div>
                 <div class="duo-path-container ${backdropClass}">
                     <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
@@ -2184,7 +2188,7 @@ def serve_frontend():
                 if(stream) {
                     stream.innerHTML = msgs.map(m => {
                         let contentHtml = m.content;
-                        if(m.content.startsWith('blob:') || m.content.startsWith('http')) {
+                        if(m.content.startsWith('blob:') || m.content.startsWith('http') || m.content.startsWith('data:')) {
                             if(m.content.includes('.pdf') || m.content.includes('pdf')) {
                                 contentHtml = `<a href="${m.content}" target="_blank" style="color:var(--accent); font-weight:800; text-decoration:underline;">📄 Download PDF Document</a>`;
                             } else if(m.content.match(/\.(jpeg|jpg|png|gif)/i) || m.content.startsWith('data:image')) {
@@ -2212,8 +2216,8 @@ def serve_frontend():
                 <div class="chat-container">
                     <div class="chat-messages" id="chat-msg-stream"></div>
                     <div class="chat-input-bar">
-                        <button onclick="startVoiceRecording()" id="btn-mic" title="Record Audio" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">🎤</button>
-                        <label title="Attach File / PDF / Photo" style="cursor:pointer; font-size:1.1rem; margin-bottom:0;">📎<input type="file" id="chat-file-input" onchange="handleFileUpload(event)" style="display:none;" accept="image/*,.pdf,.doc,.docx" /></label>
+                        <button onclick="startVoiceRecording('direct')" id="btn-mic" title="Record Audio" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">🎤</button>
+                        <label title="Attach File / PDF / Photo" style="cursor:pointer; font-size:1.1rem; margin-bottom:0;">📎<input type="file" id="chat-file-input" onchange="handleFileUpload(event, 'direct')" style="display:none;" accept="image/*,.pdf,.doc,.docx" /></label>
                         <input type="text" id="chat-text-input" placeholder="Type message..." style="margin-bottom:0; flex:1; padding:7px 10px; font-size:0.82rem;" />
                         <button onclick="sendDirectMessageContent()" class="btn-action" style="width:60px; padding:7px; font-size:0.82rem; margin-top:0;">Send</button>
                     </div>
@@ -2221,7 +2225,7 @@ def serve_frontend():
                         <span style="font-size:0.78rem; color:var(--danger); font-weight:800;">🔴 Recording Voice Note...</span>
                         <div style="display:flex; gap:6px;">
                             <button onclick="cancelVoiceRecording()" style="padding:4px 10px; border-radius:8px; border:none; background:var(--danger); color:white; font-size:0.75rem; font-weight:700; cursor:pointer;">Cancel</button>
-                            <button onclick="stopAndSendVoiceRecording()" style="padding:4px 10px; border-radius:8px; border:none; background:var(--success); color:white; font-size:0.75rem; font-weight:700; cursor:pointer;">Stop & Send 🚀</button>
+                            <button onclick="stopAndSendVoiceRecording('direct')" style="padding:4px 10px; border-radius:8px; border:none; background:var(--success); color:white; font-size:0.75rem; font-weight:700; cursor:pointer;">Stop & Send 🚀</button>
                         </div>
                     </div>
                 </div>
@@ -2231,52 +2235,74 @@ def serve_frontend():
             dmPollingInterval = setInterval(fetchAndRenderMessages, 2500);
         }
 
-        function handleFileUpload(event) {
+        function handleFileUpload(event, mode, groupId = null, groupTitle = null) {
             const file = event.target.files[0];
             if(!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                sendDirectMessageContent(e.target.result);
+                if(mode === 'direct') {
+                    sendDirectMessageContent(e.target.result);
+                } else {
+                    sendFriendGroupMsgContent(groupId, groupTitle, e.target.result);
+                }
                 showToast('File attached & sent!');
             };
             reader.readAsDataURL(file);
         }
 
-        async function startVoiceRecording() {
+        async function startVoiceRecording(mode, groupId = null, groupTitle = null) {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
+                let options = { mimeType: 'audio/webm' };
+                if (!MediaRecorder.isTypeSupported('audio/webm')) {
+                    options = { mimeType: 'audio/mp4' };
+                }
+                mediaRecorder = new MediaRecorder(stream, options);
                 audioChunks = [];
                 mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
                 mediaRecorder.start();
                 showToast('Recording voice note...');
-                document.getElementById('voice-recording-controls').classList.remove('hidden');
-                document.getElementById('btn-mic').style.color = 'var(--danger)';
+                const controls = document.getElementById('voice-recording-controls');
+                if(controls) controls.classList.remove('hidden');
+                const micBtn = document.getElementById('btn-mic');
+                if(micBtn) micBtn.style.color = 'var(--danger)';
             } catch(e) {
-                showToast('Microphone unavailable', true);
+                showToast('Microphone unavailable or permission denied', true);
             }
         }
 
         function cancelVoiceRecording() {
             if(mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
             audioChunks = [];
-            document.getElementById('voice-recording-controls').classList.add('hidden');
-            document.getElementById('btn-mic').style.color = 'var(--accent)';
+            const controls = document.getElementById('voice-recording-controls');
+            if(controls) controls.classList.add('hidden');
+            const micBtn = document.getElementById('btn-mic');
+            if(micBtn) micBtn.style.color = 'var(--accent)';
             showToast('Voice recording cancelled', true);
         }
 
-        async function stopAndSendVoiceRecording() {
+        async function stopAndSendVoiceRecording(mode, groupId = null, groupTitle = null) {
             if(mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    sendDirectMessageContent(audioUrl);
-                    showToast('Voice note sent!');
+                    const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.onload = async function(e) {
+                        const base64Audio = e.target.result;
+                        if(mode === 'direct') {
+                            await sendDirectMessageContent(base64Audio);
+                        } else {
+                            await sendFriendGroupMsgContent(groupId, groupTitle, base64Audio);
+                        }
+                        showToast('Voice note sent!');
+                    };
+                    reader.readAsDataURL(audioBlob);
                 };
                 mediaRecorder.stop();
             }
-            document.getElementById('voice-recording-controls').classList.add('hidden');
-            document.getElementById('btn-mic').style.color = 'var(--accent)';
+            const controls = document.getElementById('voice-recording-controls');
+            if(controls) controls.classList.add('hidden');
+            const micBtn = document.getElementById('btn-mic');
+            if(micBtn) micBtn.style.color = 'var(--accent)';
         }
 
         async function sendDirectMessageContent(contentOverride = null) {
@@ -2322,10 +2348,36 @@ def serve_frontend():
         async function openFriendGroupChat(groupId, title) {
             playSound('click');
             if(dmPollingInterval) clearInterval(dmPollingInterval);
+            if(groupMsgPollingInterval) clearInterval(groupMsgPollingInterval);
             const box = document.getElementById('simulation-box');
-            const res = await fetch(`/api/friend-groups/messages?group_id=${groupId}`);
-            const data = await res.json();
-            const msgs = data.messages || [];
+
+            async function fetchAndRenderGroupMessages() {
+                const res = await fetch(`/api/friend-groups/messages?group_id=${groupId}`);
+                const data = await res.json();
+                const msgs = data.messages || [];
+                const stream = document.getElementById('chat-msg-stream');
+                if(stream) {
+                    stream.innerHTML = msgs.map(m => {
+                        let contentHtml = m.content;
+                        if(m.content.startsWith('blob:') || m.content.startsWith('http') || m.content.startsWith('data:')) {
+                            if(m.content.includes('pdf')) {
+                                contentHtml = `<a href="${m.content}" target="_blank" style="color:var(--accent); font-weight:800; text-decoration:underline;">📄 Download PDF Document</a>`;
+                            } else if(m.content.startsWith('data:image')) {
+                                contentHtml = `<img src="${m.content}" style="max-width:180px; border-radius:8px;" />`;
+                            } else {
+                                contentHtml = `<audio controls src="${m.content}" style="width:180px; height:32px;"></audio>`;
+                            }
+                        }
+                        return `
+                            <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
+                                <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
+                                <div>${contentHtml}</div>
+                            </div>
+                        `;
+                    }).join('');
+                    stream.scrollTop = stream.scrollHeight;
+                }
+            }
 
             box.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
@@ -2333,37 +2385,63 @@ def serve_frontend():
                     <button class="btn-action" onclick="openSocialHub()" style="width:70px; padding:6px; font-size:0.75rem; margin-top:0;">Back</button>
                 </div>
                 <div class="chat-container">
-                    <div class="chat-messages" id="chat-msg-stream">
-                        ${msgs.map(m => `
-                            <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
-                                <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
-                                <div>${m.content.startsWith('blob:') || m.content.startsWith('http') ? `<audio controls src="${m.content}" style="width:180px; height:32px;"></audio>` : m.content}</div>
-                            </div>
-                        `).join('')}
-                    </div>
+                    <div class="chat-messages" id="chat-msg-stream"></div>
                     <div class="chat-input-bar">
-                        <button onclick="startVoiceRecording()" id="btn-mic" title="Record Audio" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">🎤</button>
-                        <label title="Attach File / PDF / Photo" style="cursor:pointer; font-size:1.1rem; margin-bottom:0;">📎<input type="file" id="chat-file-input" onchange="handleFileUpload(event)" style="display:none;" accept="image/*,.pdf,.doc,.docx" /></label>
+                        <button onclick="startVoiceRecording('group', ${groupId}, '${title}')" id="btn-mic" title="Record Audio" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">🎤</button>
+                        <label title="Attach File / PDF / Photo" style="cursor:pointer; font-size:1.1rem; margin-bottom:0;">📎<input type="file" id="chat-file-input" onchange="handleFileUpload(event, 'group', ${groupId}, '${title}')" style="display:none;" accept="image/*,.pdf,.doc,.docx" /></label>
                         <input type="text" id="fg-text-input" placeholder="Type message..." style="margin-bottom:0; flex:1; padding:7px 10px; font-size:0.82rem;" />
                         <button onclick="sendFriendGroupMsgContent(${groupId}, '${title}')" class="btn-action" style="width:60px; padding:7px; font-size:0.82rem; margin-top:0;">Send</button>
                     </div>
+                    <div id="voice-recording-controls" class="hidden" style="display:flex; justify-content:space-between; align-items:center; padding:6px 12px; background:var(--surface-card-hover); border-top:1px solid var(--border);">
+                        <span style="font-size:0.78rem; color:var(--danger); font-weight:800;">🔴 Recording Voice Note...</span>
+                        <div style="display:flex; gap:6px;">
+                            <button onclick="cancelVoiceRecording()" style="padding:4px 10px; border-radius:8px; border:none; background:var(--danger); color:white; font-size:0.75rem; font-weight:700; cursor:pointer;">Cancel</button>
+                            <button onclick="stopAndSendVoiceRecording('group', ${groupId}, '${title}')" style="padding:4px 10px; border-radius:8px; border:none; background:var(--success); color:white; font-size:0.75rem; font-weight:700; cursor:pointer;">Stop & Send 🚀</button>
+                        </div>
+                    </div>
                 </div>
             `;
-            const stream = document.getElementById('chat-msg-stream');
-            stream.scrollTop = stream.scrollHeight;
+            await fetchAndRenderGroupMessages();
+            groupMsgPollingInterval = setInterval(fetchAndRenderGroupMessages, 2500);
         }
 
-        async function sendFriendGroupMsgContent(groupId, title) {
+        async function sendFriendGroupMsgContent(groupId, title, contentOverride = null) {
             playSound('click');
             const input = document.getElementById('fg-text-input');
-            const content = input ? input.value.trim() : '';
+            const content = contentOverride || (input ? input.value.trim() : '');
             if(!content) return;
             await fetch('/api/friend-groups/send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ group_id: groupId, sender_username: sessionUser.username, sender_name: sessionUser.full_name, content })
             });
-            openFriendGroupChat(groupId, title);
+            if(!contentOverride && input) input.value = '';
+            
+            const res = await fetch(`/api/friend-groups/messages?group_id=${groupId}`);
+            const data = await res.json();
+            const msgs = data.messages || [];
+            const stream = document.getElementById('chat-msg-stream');
+            if(stream) {
+                stream.innerHTML = msgs.map(m => {
+                    let contentHtml = m.content;
+                    if(m.content.startsWith('blob:') || m.content.startsWith('http') || m.content.startsWith('data:')) {
+                        if(m.content.includes('pdf')) {
+                            contentHtml = `<a href="${m.content}" target="_blank" style="color:var(--accent); font-weight:800; text-decoration:underline;">📄 Download PDF Document</a>`;
+                        } else if(m.content.startsWith('data:image')) {
+                            contentHtml = `<img src="${m.content}" style="max-width:180px; border-radius:8px;" />`;
+                        } else {
+                            contentHtml = `<audio controls src="${m.content}" style="width:180px; height:32px;"></audio>`;
+                        }
+                    }
+                    return `
+                        <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
+                            <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
+                            <div>${contentHtml}</div>
+                        </div>
+                    `;
+                }).join('');
+                stream.scrollTop = stream.scrollHeight;
+            }
         }
 
         /* MODALS & BOUTIQUE */
