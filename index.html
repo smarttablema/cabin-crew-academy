@@ -400,7 +400,6 @@
         let battleTimerInterval = null;
         let battleInvitePollingInterval = null;
         let activeMatchId = null;
-        let lastKnownMsgCount = 0;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
@@ -1415,7 +1414,7 @@
                 }, 900);
             } else {
                 fb.style.color = 'var(--danger)';
-                fb.innerText = 'Incorrect! Heart lost ❤️️-1';
+                fb.innerText = 'Incorrect! Heart lost ❤-1';
                 const res = await fetch('/api/node/complete', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -1760,7 +1759,7 @@
                     <span style="font-size: 0.78rem; color: var(--gold); font-weight: 800;">Duel</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
-                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6;">Select a friend below to challenge them. They will receive an <b>Accept / Reject</b> invitation popup. Once accepted, you both take the <b>exact same 8 questions</b>. Winner claims <b>100 XP Stars ⭐</b>!</p>
+                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6;">Select a friend below to challenge them. They will receive an <b>Accept / Reject</b> invitation popup. Once accepted, you both take the <b>exact same randomized questions</b>. Winner claims <b>100 XP Stars ⭐</b>!</p>
                     
                     <h4 style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.6rem; font-weight:800;">Choose Friend to Challenge (${socialData.friends.length})</h4>
                     <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:2rem;">
@@ -1924,7 +1923,7 @@
 
             contentEl.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
-                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔️ 1v1 BATTLE • Q${battleCurrentIdx+1} / 8</span>
+                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔️️ 1v1 BATTLE • Q${battleCurrentIdx+1} / 8</span>
                     <span id="modal-battle-timer" style="font-size:0.88rem; color:var(--danger); font-weight:800;">⏱ 30s</span>
                 </div>
                 <div style="background:var(--bg-deep); padding:1.4rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.2rem; text-align:left;">
@@ -1981,12 +1980,10 @@
             let rewardMsg = '';
 
             if(data.result === 'win') {
-                sessionUser.xp_points = (sessionUser.xp_points || 0) + 100;
                 outcomeTitle = 'Victory in 1v1 Battle! 🏆';
                 outcomeColor = 'var(--gold)';
                 rewardMsg = 'You won the battle and earned <b>+100 XP Stars ⭐</b>!';
             } else if(data.result === 'draw') {
-                sessionUser.xp_points = (sessionUser.xp_points || 0) + 50;
                 outcomeTitle = 'It\'s a Draw! 🤝';
                 outcomeColor = 'var(--warning)';
                 rewardMsg = 'Both players tied! Each received <b>+50 XP Stars ⭐</b>!';
@@ -1996,8 +1993,7 @@
                 rewardMsg = `You scored ${battleScore}/8, opponent scored ${data.opponent_score}/8. Good effort!`;
             }
 
-            localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-            updateDashboardUI();
+            await refreshUserData(false);
 
             const contentEl = document.getElementById('battle-modal-content');
             contentEl.innerHTML = `
