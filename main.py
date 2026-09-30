@@ -10,7 +10,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy", version="19.0.0")
+app = FastAPI(title="Aero Crew Academy", version="20.0.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -18,7 +18,7 @@ def startup_db():
     cur = conn.cursor()
     
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v19_users (
+        CREATE TABLE IF NOT EXISTS aero_v20_users (
             id SERIAL PRIMARY KEY,
             phone_number VARCHAR(20) UNIQUE,
             username VARCHAR(50) UNIQUE,
@@ -33,6 +33,7 @@ def startup_db():
             xp_points INT DEFAULT 1500,
             hearts INT DEFAULT 5,
             streak INT DEFAULT 21,
+            last_practice_date DATE,
             last_heart_loss_date DATE,
             completed_nodes TEXT[] DEFAULT ARRAY[]::TEXT[],
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -40,7 +41,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v19_friend_requests (
+        CREATE TABLE IF NOT EXISTS aero_v20_friend_requests (
             id SERIAL PRIMARY KEY,
             sender_username VARCHAR(50),
             receiver_username VARCHAR(50),
@@ -50,7 +51,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v19_friend_groups (
+        CREATE TABLE IF NOT EXISTS aero_v20_friend_groups (
             id SERIAL PRIMARY KEY,
             group_name VARCHAR(100),
             creator_username VARCHAR(50),
@@ -60,7 +61,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v19_direct_messages (
+        CREATE TABLE IF NOT EXISTS aero_v20_direct_messages (
             id SERIAL PRIMARY KEY,
             sender_username VARCHAR(50),
             receiver_username VARCHAR(50),
@@ -71,7 +72,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v19_friend_group_messages (
+        CREATE TABLE IF NOT EXISTS aero_v20_friend_group_messages (
             id SERIAL PRIMARY KEY,
             group_id INT,
             sender_username VARCHAR(50),
@@ -82,7 +83,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v19_groups (
+        CREATE TABLE IF NOT EXISTS aero_v20_groups (
             id SERIAL PRIMARY KEY,
             group_name VARCHAR(100),
             group_code VARCHAR(10) UNIQUE,
@@ -92,7 +93,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v19_lessons (
+        CREATE TABLE IF NOT EXISTS aero_v20_lessons (
             id SERIAL PRIMARY KEY,
             group_code VARCHAR(50),
             teacher_username VARCHAR(50),
@@ -104,7 +105,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v19_exams (
+        CREATE TABLE IF NOT EXISTS aero_v20_exams (
             id SERIAL PRIMARY KEY,
             group_code VARCHAR(50),
             teacher_username VARCHAR(50),
@@ -115,7 +116,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v19_exam_submissions (
+        CREATE TABLE IF NOT EXISTS aero_v20_exam_submissions (
             id SERIAL PRIMARY KEY,
             exam_id INT,
             student_username VARCHAR(50),
@@ -128,7 +129,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v19_quiz_results (
+        CREATE TABLE IF NOT EXISTS aero_v20_quiz_results (
             id SERIAL PRIMARY KEY,
             lesson_id INT,
             student_username VARCHAR(50),
@@ -141,7 +142,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v19_chat_messages (
+        CREATE TABLE IF NOT EXISTS aero_v20_chat_messages (
             id SERIAL PRIMARY KEY,
             group_code VARCHAR(50),
             sender_username VARCHAR(50),
@@ -154,7 +155,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v19_shop_skins (
+        CREATE TABLE IF NOT EXISTS aero_v20_shop_skins (
             id SERIAL PRIMARY KEY,
             category VARCHAR(20),
             tier_level VARCHAR(30),
@@ -170,7 +171,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        INSERT INTO aero_v19_shop_skins (category, tier_level, skin_name_en, skin_name_fr, skin_name_ar, cost, preview_svg, desc_en, desc_fr, desc_ar)
+        INSERT INTO aero_v20_shop_skins (category, tier_level, skin_name_en, skin_name_fr, skin_name_ar, cost, preview_svg, desc_en, desc_fr, desc_ar)
         VALUES 
         ('steward', 'Free', 'Standard Aviator Suit', 'Costume Aviateur Standard', 'بدلة طيار قياسية', 0, '👔', 'Clean cadet training uniform.', 'Uniforme d’entraînement propre.', 'زي تدريب نظيف للمتدربين.'),
         ('steward', 'Professional', 'Senior Purser Uniform', 'Uniforme Chef de Cabine', 'بدلة كبير المضيفين', 500, '🎖️👔', 'Tailored navy suit with supervisor epaulets.', 'Costume marine sur mesure.', 'بدلة بحرية مفصلة مع شارات إشرافية.'),
@@ -180,7 +181,7 @@ def startup_db():
     """)
 
     cur.execute("""
-        INSERT INTO aero_v19_groups (group_name, group_code, teacher_username)
+        INSERT INTO aero_v20_groups (group_name, group_code, teacher_username)
         VALUES ('EASA Alpha Professional Flight 1', '7842', 'instructor_boss')
         ON CONFLICT (group_code) DO NOTHING;
     """)
@@ -295,14 +296,14 @@ class FriendGroupMessageModel(BaseModel):
 def register(data: RegisterModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v19_users WHERE phone_number = %s OR username = %s;", (data.phone_number, data.username))
+    cur.execute("SELECT * FROM aero_v20_users WHERE phone_number = %s OR username = %s;", (data.phone_number, data.username))
     if cur.fetchone():
         cur.close()
         conn.close()
         raise HTTPException(status_code=400, detail="Phone number or username already taken.")
     
     cur.execute(
-        """INSERT INTO aero_v19_users (phone_number, username, full_name, password, recovery_pin, role, avatar_gender, group_code) 
+        """INSERT INTO aero_v20_users (phone_number, username, full_name, password, recovery_pin, role, avatar_gender, group_code) 
            VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;""",
         (data.phone_number, data.username, data.full_name, data.password, data.recovery_pin, data.role, data.avatar_gender, data.group_code)
     )
@@ -316,36 +317,35 @@ def register(data: RegisterModel):
 def login(data: LoginModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v19_users WHERE phone_number = %s AND password = %s;", (data.phone_number, data.password))
+    cur.execute("SELECT * FROM aero_v20_users WHERE phone_number = %s AND password = %s;", (data.phone_number, data.password))
     user = cur.fetchone()
     if not user:
         cur.close()
         conn.close()
         raise HTTPException(status_code=401, detail="Invalid credentials.")
 
-    from datetime import date
+    from datetime import date, timedelta
     today = date.today()
-    hearts = user["hearts"]
+    last_prac = user["last_practice_date"]
     streak = user["streak"]
-    last_loss = user["last_heart_loss_date"]
 
-    if hearts <= 0 and last_loss and last_loss < today:
+    if last_prac and last_prac < today - timedelta(days=1):
         streak = 0
-        hearts = 5
-        cur.execute("UPDATE aero_v19_users SET streak = 0, hearts = 5 WHERE id = %s;", (user["id"],))
-        conn.commit()
-        user["streak"] = 0
-        user["hearts"] = 5
+    elif not last_prac:
+        streak = 0
+
+    cur.execute("UPDATE aero_v20_users SET streak = %s WHERE id = %s RETURNING *;", (streak, user["id"]))
+    updated_user = cur.fetchone()
 
     cur.close()
     conn.close()
-    return {"status": "success", "user": user}
+    return {"status": "success", "user": updated_user}
 
 @app.post("/api/user/refill-hearts")
 def refill_hearts(data: RefillHeartsModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v19_users WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT * FROM aero_v20_users WHERE phone_number = %s;", (data.phone_number,))
     user = cur.fetchone()
     if not user:
         cur.close()
@@ -358,7 +358,7 @@ def refill_hearts(data: RefillHeartsModel):
         raise HTTPException(status_code=400, detail="Not enough XP stars to refill hearts (Cost: 50 ⭐).")
 
     new_xp = user["xp_points"] - 50
-    cur.execute("UPDATE aero_v19_users SET hearts = 5, xp_points = %s WHERE phone_number = %s RETURNING *;", (new_xp, data.phone_number))
+    cur.execute("UPDATE aero_v20_users SET hearts = 5, xp_points = %s WHERE phone_number = %s RETURNING *;", (new_xp, data.phone_number))
     updated = cur.fetchone()
     conn.commit()
     cur.close()
@@ -369,7 +369,7 @@ def refill_hearts(data: RefillHeartsModel):
 def update_avatar(data: AvatarUpdateModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("UPDATE aero_v19_users SET avatar_gender = %s WHERE phone_number = %s RETURNING *;", (data.avatar_gender, data.phone_number))
+    cur.execute("UPDATE aero_v20_users SET avatar_gender = %s WHERE phone_number = %s RETURNING *;", (data.avatar_gender, data.phone_number))
     user = cur.fetchone()
     conn.commit()
     cur.close()
@@ -380,13 +380,13 @@ def update_avatar(data: AvatarUpdateModel):
 def change_password(data: PasswordChangeModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v19_users WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT * FROM aero_v20_users WHERE phone_number = %s;", (data.phone_number,))
     user = cur.fetchone()
     if not user or user["recovery_pin"] != data.recovery_pin:
         cur.close()
         conn.close()
         raise HTTPException(status_code=400, detail="Invalid recovery PIN.")
-    cur.execute("UPDATE aero_v19_users SET password = %s WHERE phone_number = %s;", (data.new_password, data.phone_number))
+    cur.execute("UPDATE aero_v20_users SET password = %s WHERE phone_number = %s;", (data.new_password, data.phone_number))
     conn.commit()
     cur.close()
     conn.close()
@@ -396,14 +396,14 @@ def change_password(data: PasswordChangeModel):
 def send_friend_request(data: FriendRequestModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v19_users WHERE username = %s;", (data.receiver_username,))
+    cur.execute("SELECT * FROM aero_v20_users WHERE username = %s;", (data.receiver_username,))
     target = cur.fetchone()
     if not target:
         cur.close()
         conn.close()
         raise HTTPException(status_code=404, detail="User not found.")
     cur.execute(
-        "INSERT INTO aero_v19_friend_requests (sender_username, receiver_username) VALUES (%s, %s) RETURNING *;",
+        "INSERT INTO aero_v20_friend_requests (sender_username, receiver_username) VALUES (%s, %s) RETURNING *;",
         (data.sender_username, data.receiver_username)
     )
     req = cur.fetchone()
@@ -416,7 +416,7 @@ def send_friend_request(data: FriendRequestModel):
 def get_friends_list(username: str):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT friends, username, full_name, avatar_gender FROM aero_v19_users WHERE username = %s;", (username,))
+    cur.execute("SELECT friends, username, full_name, avatar_gender FROM aero_v20_users WHERE username = %s;", (username,))
     u = cur.fetchone()
     if not u:
         cur.close()
@@ -425,13 +425,13 @@ def get_friends_list(username: str):
     friend_usernames = u["friends"] or []
     friends_data = []
     if friend_usernames:
-        cur.execute("SELECT username, full_name, avatar_gender, xp_points FROM aero_v19_users WHERE username = ANY(%s);", (friend_usernames,))
+        cur.execute("SELECT username, full_name, avatar_gender, xp_points FROM aero_v20_users WHERE username = ANY(%s);", (friend_usernames,))
         friends_data = cur.fetchall()
     
-    cur.execute("SELECT * FROM aero_v19_friend_requests WHERE receiver_username = %s AND status = 'pending';", (username,))
+    cur.execute("SELECT * FROM aero_v20_friend_requests WHERE receiver_username = %s AND status = 'pending';", (username,))
     incoming_requests = cur.fetchall()
 
-    cur.execute("SELECT * FROM aero_v19_friend_groups WHERE %s = ANY(members) OR creator_username = %s;", (username, username))
+    cur.execute("SELECT * FROM aero_v20_friend_groups WHERE %s = ANY(members) OR creator_username = %s;", (username, username))
     friend_groups = cur.fetchall()
 
     cur.close()
@@ -442,20 +442,20 @@ def get_friends_list(username: str):
 def accept_friend_request(data: AcceptFriendModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("UPDATE aero_v19_friend_requests SET status = 'accepted' WHERE sender_username = %s AND receiver_username = %s;", (data.friend_username, data.username))
+    cur.execute("UPDATE aero_v20_friend_requests SET status = 'accepted' WHERE sender_username = %s AND receiver_username = %s;", (data.friend_username, data.username))
     
-    cur.execute("SELECT friends FROM aero_v19_users WHERE username = %s;", (data.username,))
+    cur.execute("SELECT friends FROM aero_v20_users WHERE username = %s;", (data.username,))
     u1 = cur.fetchone()
     f1 = u1["friends"] or []
     if data.friend_username not in f1: f1.append(data.friend_username)
-    cur.execute("UPDATE aero_v19_users SET friends = %s WHERE username = %s;", (f1, data.username))
+    cur.execute("UPDATE aero_v20_users SET friends = %s WHERE username = %s;", (f1, data.username))
 
-    cur.execute("SELECT friends FROM aero_v19_users WHERE username = %s;", (data.friend_username,))
+    cur.execute("SELECT friends FROM aero_v20_users WHERE username = %s;", (data.friend_username,))
     u2 = cur.fetchone()
     if u2:
         f2 = u2["friends"] or []
         if data.username not in f2: f2.append(data.username)
-        cur.execute("UPDATE aero_v19_users SET friends = %s WHERE username = %s;", (f2, data.friend_username))
+        cur.execute("UPDATE aero_v20_users SET friends = %s WHERE username = %s;", (f2, data.friend_username))
 
     conn.commit()
     cur.close()
@@ -467,7 +467,7 @@ def create_friend_group(data: CreateFriendGroupModel):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO aero_v19_friend_groups (group_name, creator_username, members) VALUES (%s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_v20_friend_groups (group_name, creator_username, members) VALUES (%s, %s, %s) RETURNING *;",
         (data.group_name, data.creator_username, data.members)
     )
     grp = cur.fetchone()
@@ -480,7 +480,7 @@ def create_friend_group(data: CreateFriendGroupModel):
 def get_friend_group_messages(group_id: int):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v19_friend_group_messages WHERE group_id = %s ORDER BY id DESC LIMIT 50;", (group_id,))
+    cur.execute("SELECT * FROM aero_v20_friend_group_messages WHERE group_id = %s ORDER BY id DESC LIMIT 50;", (group_id,))
     msgs = cur.fetchall()
     cur.close()
     conn.close()
@@ -491,7 +491,7 @@ def send_friend_group_message(data: FriendGroupMessageModel):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO aero_v19_friend_group_messages (group_id, sender_username, sender_name, content) VALUES (%s, %s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_v20_friend_group_messages (group_id, sender_username, sender_name, content) VALUES (%s, %s, %s, %s) RETURNING *;",
         (data.group_id, data.sender_username, data.sender_name, data.content)
     )
     msg = cur.fetchone()
@@ -505,7 +505,7 @@ def get_direct_messages(user1: str, user2: str):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("""
-        SELECT * FROM aero_v19_direct_messages 
+        SELECT * FROM aero_v20_direct_messages 
         WHERE (sender_username = %s AND receiver_username = %s) 
            OR (sender_username = %s AND receiver_username = %s)
         ORDER BY id DESC LIMIT 50;
@@ -520,7 +520,7 @@ def send_direct_message(data: DirectMessageModel):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO aero_v19_direct_messages (sender_username, receiver_username, sender_name, content) VALUES (%s, %s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_v20_direct_messages (sender_username, receiver_username, sender_name, content) VALUES (%s, %s, %s, %s) RETURNING *;",
         (data.sender_username, data.receiver_username, data.sender_name, data.content)
     )
     msg = cur.fetchone()
@@ -533,13 +533,13 @@ def send_direct_message(data: DirectMessageModel):
 def create_group(data: CreateGroupModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v19_groups WHERE group_code = %s;", (data.group_code,))
+    cur.execute("SELECT * FROM aero_v20_groups WHERE group_code = %s;", (data.group_code,))
     if cur.fetchone():
         cur.close()
         conn.close()
         raise HTTPException(status_code=400, detail="Group code already exists.")
     cur.execute(
-        "INSERT INTO aero_v19_groups (group_name, group_code, teacher_username) VALUES (%s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_v20_groups (group_name, group_code, teacher_username) VALUES (%s, %s, %s) RETURNING *;",
         (data.group_name, data.group_code, data.teacher_username)
     )
     grp = cur.fetchone()
@@ -552,13 +552,13 @@ def create_group(data: CreateGroupModel):
 def get_group_info(group_code: str):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v19_groups WHERE group_code = %s;", (group_code,))
+    cur.execute("SELECT * FROM aero_v20_groups WHERE group_code = %s;", (group_code,))
     grp = cur.fetchone()
-    cur.execute("SELECT username, full_name, role, avatar_gender, xp_points FROM aero_v19_users WHERE group_code = %s;", (group_code,))
+    cur.execute("SELECT username, full_name, role, avatar_gender, xp_points FROM aero_v20_users WHERE group_code = %s;", (group_code,))
     members = cur.fetchall()
-    cur.execute("SELECT * FROM aero_v19_lessons WHERE group_code = %s ORDER BY id DESC;", (group_code,))
+    cur.execute("SELECT * FROM aero_v20_lessons WHERE group_code = %s ORDER BY id DESC;", (group_code,))
     lessons = cur.fetchall()
-    cur.execute("SELECT * FROM aero_v19_exams WHERE group_code = %s ORDER BY id DESC;", (group_code,))
+    cur.execute("SELECT * FROM aero_v20_exams WHERE group_code = %s ORDER BY id DESC;", (group_code,))
     exams = cur.fetchall()
     cur.close()
     conn.close()
@@ -570,7 +570,7 @@ def create_lesson(data: CreateLessonModel):
     cur = conn.cursor()
     import json
     cur.execute(
-        "INSERT INTO aero_v19_lessons (group_code, teacher_username, title, content_html, quiz_data) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_v20_lessons (group_code, teacher_username, title, content_html, quiz_data) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
         (data.group_code, data.teacher_username, data.title, data.content_html, json.dumps(data.quiz_data))
     )
     lesson = cur.fetchone()
@@ -585,7 +585,7 @@ def create_exam(data: CreateExamModel):
     cur = conn.cursor()
     import json
     cur.execute(
-        "INSERT INTO aero_v19_exams (group_code, teacher_username, title, exam_data) VALUES (%s, %s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_v20_exams (group_code, teacher_username, title, exam_data) VALUES (%s, %s, %s, %s) RETURNING *;",
         (data.group_code, data.teacher_username, data.title, json.dumps(data.exam_data))
     )
     exam = cur.fetchone()
@@ -600,8 +600,8 @@ def get_teacher_analytics(group_code: str):
     cur = conn.cursor()
     cur.execute("""
         SELECT r.*, l.title as lesson_title 
-        FROM aero_v19_quiz_results r 
-        JOIN aero_v19_lessons l ON l.id = r.lesson_id 
+        FROM aero_v20_quiz_results r 
+        JOIN aero_v20_lessons l ON l.id = r.lesson_id 
         WHERE l.group_code = %s 
         ORDER BY r.completed_at DESC;
     """, (group_code,))
@@ -609,8 +609,8 @@ def get_teacher_analytics(group_code: str):
 
     cur.execute("""
         SELECT s.*, e.title as exam_title 
-        FROM aero_v19_exam_submissions s 
-        JOIN aero_v19_exams e ON e.id = s.exam_id 
+        FROM aero_v20_exam_submissions s 
+        JOIN aero_v20_exams e ON e.id = s.exam_id 
         WHERE e.group_code = %s 
         ORDER BY s.submitted_at DESC;
     """, (group_code,))
@@ -625,11 +625,11 @@ def submit_exam(data: SubmitExamModel):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO aero_v19_exam_submissions (exam_id, student_username, student_name, score, total_questions, time_spent_seconds) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_v20_exam_submissions (exam_id, student_username, student_name, score, total_questions, time_spent_seconds) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;",
         (data.exam_id, data.student_username, data.student_name, data.score, data.total_questions, data.time_spent_seconds)
     )
     sub = cur.fetchone()
-    cur.execute("UPDATE aero_v19_users SET xp_points = xp_points + 100 WHERE username = %s;", (data.student_username,))
+    cur.execute("UPDATE aero_v20_users SET xp_points = xp_points + 100 WHERE username = %s;", (data.student_username,))
     conn.commit()
     cur.close()
     conn.close()
@@ -639,20 +639,20 @@ def submit_exam(data: SubmitExamModel):
 def submit_quiz(data: SubmitQuizModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v19_quiz_results WHERE lesson_id = %s AND student_username = %s;", (data.lesson_id, data.student_username))
+    cur.execute("SELECT * FROM aero_v20_quiz_results WHERE lesson_id = %s AND student_username = %s;", (data.lesson_id, data.student_username))
     existing = cur.fetchone()
     if existing:
         cur.execute(
-            "UPDATE aero_v19_quiz_results SET score = %s, total_questions = %s, attempts = attempts + 1, completed_at = CURRENT_TIMESTAMP WHERE id = %s RETURNING *;",
+            "UPDATE aero_v20_quiz_results SET score = %s, total_questions = %s, attempts = attempts + 1, completed_at = CURRENT_TIMESTAMP WHERE id = %s RETURNING *;",
             (data.score, data.total_questions, existing["id"])
         )
     else:
         cur.execute(
-            "INSERT INTO aero_v19_quiz_results (lesson_id, student_username, student_name, score, total_questions, attempts) VALUES (%s, %s, %s, %s, %s, 1) RETURNING *;",
+            "INSERT INTO aero_v20_quiz_results (lesson_id, student_username, student_name, score, total_questions, attempts) VALUES (%s, %s, %s, %s, %s, 1) RETURNING *;",
             (data.lesson_id, data.student_username, data.student_name, data.score, data.total_questions)
         )
     res = cur.fetchone()
-    cur.execute("UPDATE aero_v19_users SET xp_points = xp_points + 50 WHERE username = %s;", (data.student_username,))
+    cur.execute("UPDATE aero_v20_users SET xp_points = xp_points + 50 WHERE username = %s;", (data.student_username,))
     conn.commit()
     cur.close()
     conn.close()
@@ -662,7 +662,7 @@ def submit_quiz(data: SubmitQuizModel):
 def get_chat_messages(group_code: str):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v19_chat_messages WHERE group_code = %s ORDER BY id DESC LIMIT 50;", (group_code,))
+    cur.execute("SELECT * FROM aero_v20_chat_messages WHERE group_code = %s ORDER BY id DESC LIMIT 50;", (group_code,))
     msgs = cur.fetchall()
     cur.close()
     conn.close()
@@ -673,7 +673,7 @@ def send_chat_message(data: ChatMessageModel):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO aero_v19_chat_messages (group_code, sender_username, sender_name, sender_avatar_config, msg_type, content) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_v20_chat_messages (group_code, sender_username, sender_name, sender_avatar_config, msg_type, content) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;",
         (data.group_code, data.sender_username, data.sender_name, data.sender_avatar_config, data.msg_type, data.content)
     )
     msg = cur.fetchone()
@@ -686,7 +686,7 @@ def send_chat_message(data: ChatMessageModel):
 def complete_roadmap_node(data: NodeCompleteModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT completed_nodes, xp_points, hearts FROM aero_v19_users WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT completed_nodes, xp_points, hearts, streak FROM aero_v20_users WHERE phone_number = %s;", (data.phone_number,))
     user = cur.fetchone()
     if not user:
         cur.close()
@@ -696,37 +696,41 @@ def complete_roadmap_node(data: NodeCompleteModel):
     nodes = user["completed_nodes"] or []
     hearts = user["hearts"]
     xp = user["xp_points"]
+    streak = user["streak"]
     from datetime import date
 
     if data.lost_heart:
         hearts = max(0, hearts - 1)
-        cur.execute("UPDATE aero_v19_users SET hearts = %s, last_heart_loss_date = %s WHERE phone_number = %s;", (hearts, date.today(), data.phone_number))
+        cur.execute("UPDATE aero_v20_users SET hearts = %s, last_heart_loss_date = %s WHERE phone_number = %s;", (hearts, date.today(), data.phone_number))
         conn.commit()
         cur.close()
         conn.close()
-        return {"status": "success", "completed_nodes": nodes, "xp": xp, "hearts": hearts}
+        return {"status": "success", "completed_nodes": nodes, "xp": xp, "hearts": hearts, "streak": streak}
 
     if hearts <= 0:
         cur.close()
         conn.close()
-        raise HTTPException(status_code=400, detail="Out of hearts! Visit the Recovery Lounge to refill hearts before continuing.")
+        raise HTTPException(status_code=400, detail="Out of hearts! Visit the Heart Recovery Lounge.")
+
+    today = date.today()
+    streak += 1
 
     if data.node_id not in nodes:
         nodes.append(data.node_id)
-        cur.execute("UPDATE aero_v19_users SET completed_nodes = %s, xp_points = xp_points + 30 WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts;", (nodes, data.phone_number))
+        cur.execute("UPDATE aero_v20_users SET completed_nodes = %s, xp_points = xp_points + 30, streak = %s, last_practice_date = %s WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts, streak;", (nodes, streak, today, data.phone_number))
     else:
-        cur.execute("UPDATE aero_v19_users SET completed_nodes = %s WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts;", (nodes, data.phone_number))
+        cur.execute("UPDATE aero_v20_users SET streak = %s, last_practice_date = %s WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts, streak;", (streak, today, data.phone_number))
     res = cur.fetchone()
     conn.commit()
     cur.close()
     conn.close()
-    return {"status": "success", "completed_nodes": res["completed_nodes"], "xp": res["xp_points"], "hearts": res["hearts"]}
+    return {"status": "success", "completed_nodes": res["completed_nodes"], "xp": res["xp_points"], "hearts": res["hearts"], "streak": res["streak"]}
 
 @app.get("/api/shop/skins")
 def get_skins():
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v19_shop_skins ORDER BY cost ASC;")
+    cur.execute("SELECT * FROM aero_v20_shop_skins ORDER BY cost ASC;")
     skins = cur.fetchall()
     cur.close()
     conn.close()
@@ -736,7 +740,7 @@ def get_skins():
 def buy_skin(data: BuySkinModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v19_users WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT * FROM aero_v20_users WHERE phone_number = %s;", (data.phone_number,))
     user = cur.fetchone()
     if not user:
         cur.close()
@@ -747,7 +751,7 @@ def buy_skin(data: BuySkinModel):
         conn.close()
         raise HTTPException(status_code=400, detail="Not enough XP stars!")
     new_xp = user["xp_points"] - data.cost
-    cur.execute("UPDATE aero_v19_users SET xp_points = %s, active_skin = %s WHERE phone_number = %s RETURNING *;", (new_xp, data.skin_name, data.phone_number))
+    cur.execute("UPDATE aero_v20_users SET xp_points = %s, active_skin = %s WHERE phone_number = %s RETURNING *;", (new_xp, data.skin_name, data.phone_number))
     updated = cur.fetchone()
     conn.commit()
     cur.close()
@@ -786,8 +790,8 @@ def serve_frontend():
         [dir="rtl"] * { font-family: 'Tajawal', sans-serif !important; }
         
         body { 
-            background: radial-gradient(circle at 50% 20%, #0f172a 0%, #020617 70%), url('https://images.unsplash.com/photo-1506015391300-4802dc74de2e?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
-            background-size: cover;
+            background: radial-gradient(circle at 50% 20%, #0f172a 0%, #020617 70%), url('https://images.unsplash.com/photo-1506015391300-4802dc74de2e?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed !important;
+            background-size: cover !important;
             color: var(--text-main); 
             display: flex; 
             justify-content: center; 
@@ -882,7 +886,7 @@ def serve_frontend():
                 <div class="header-controls hidden" id="dash-header-icons">
                     <div class="header-icon-btn" onclick="openAvatarStudio()" title="Avatar">👤</div>
                     <div class="header-icon-btn" onclick="openShop()" title="Boutique">🎁</div>
-                    <div class="header-icon-btn" onclick="openSettingsModal()" title="Settings">⚙️️</div>
+                    <div class="header-icon-btn" onclick="openSettingsModal()" title="Settings">⚙️</div>
                 </div>
             </div>
         </div>
@@ -975,7 +979,7 @@ def serve_frontend():
                 <div style="display: flex; gap: 8px;">
                     <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">1500</span></div>
                     <div class="stat-item" style="color: var(--danger);">❤ <span id="dash-hearts">5</span></div>
-                    <div class="stat-item" style="color: var(--success);">🔥 <span id="dash-streak">21</span></div>
+                    <div class="stat-item" style="color: var(--success);" id="dash-streak-badge">🔥 <span id="dash-streak">21</span></div>
                 </div>
             </div>
 
@@ -1055,7 +1059,7 @@ def serve_frontend():
     </div>
 
     <script>
-        let sessionUser = JSON.parse(localStorage.getItem('aero_crew_user_pro19') || 'null');
+        let sessionUser = JSON.parse(localStorage.getItem('aero_crew_user_pro20') || 'null');
         let groupInfo = { group: null, members: [], lessons: [], exams: [] };
         let socialData = { friends: [], incoming_requests: [], friend_groups: [] };
         let activeRoadmapYear = 1;
@@ -1063,6 +1067,7 @@ def serve_frontend():
         let audioChunks = [];
         let activeLang = localStorage.getItem('aero_lang') || 'en';
         let dmPollingInterval = null;
+        let questionTimerInterval = null;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
@@ -1248,6 +1253,7 @@ def serve_frontend():
         function navigateTo(id) {
             playSound('click');
             if(dmPollingInterval) clearInterval(dmPollingInterval);
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             ['screen-login', 'screen-register', 'screen-reset', 'screen-dashboard'].forEach(s => {
                 const el = document.getElementById(s);
                 if(el) el.classList.add('hidden');
@@ -1319,7 +1325,7 @@ def serve_frontend():
             const data = await res.json();
             if(res.ok) {
                 sessionUser = data.user;
-                localStorage.setItem('aero_crew_user_pro19', JSON.stringify(sessionUser));
+                localStorage.setItem('aero_crew_user_pro20', JSON.stringify(sessionUser));
                 updateDashboardUI();
                 navigateTo('screen-dashboard');
                 fetchGroupData();
@@ -1334,7 +1340,22 @@ def serve_frontend():
             document.getElementById('dash-name').innerText = sessionUser.full_name;
             document.getElementById('dash-xp').innerText = sessionUser.xp_points;
             document.getElementById('dash-hearts').innerText = sessionUser.hearts;
-            document.getElementById('dash-streak').innerText = sessionUser.streak;
+            
+            const streakVal = sessionUser.streak || 0;
+            const streakBadge = document.getElementById('dash-streak-badge');
+            const streakNumEl = document.getElementById('dash-streak');
+            
+            const todayStr = new Date().toISOString().split('T')[0];
+            const lastPrac = sessionUser.last_practice_date;
+            
+            if(lastPrac && lastPrac < todayStr && streakVal > 0) {
+                streakBadge.style.color = 'var(--accent)';
+                streakNumEl.innerText = `${streakVal} 🧊`;
+            } else {
+                streakBadge.style.color = 'var(--success)';
+                streakNumEl.innerText = `${streakVal} 🔥`;
+            }
+
             const roleText = sessionUser.role === 'teacher' ? 'Instructor / Teacher (Code: ' + sessionUser.group_code + ')' : 'Cadet / Student';
             document.getElementById('dash-role-badge').innerText = roleText;
             document.getElementById('settings-my-username').innerText = '@' + sessionUser.username;
@@ -1342,7 +1363,7 @@ def serve_frontend():
 
         function logoutUser() {
             playSound('click');
-            localStorage.removeItem('aero_crew_user_pro19');
+            localStorage.removeItem('aero_crew_user_pro20');
             sessionUser = null;
             navigateTo('screen-login');
             showToast('Logged out successfully.');
@@ -1356,6 +1377,7 @@ def serve_frontend():
 
         function resetToMenu() {
             playSound('click');
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             const t = dict[activeLang];
             document.getElementById('simulation-box').innerHTML = `
                 <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;">${t.centerTitle}</h3>
@@ -1372,7 +1394,7 @@ def serve_frontend():
                     <h3 style="font-size:1.1rem; color:var(--danger); font-weight:900;">❤ Heart Recovery Lounge</h3>
                     <button class="btn-action" onclick="resetToMenu()" style="width:70px; padding:4px; font-size:0.75rem; margin-top:0;">Back</button>
                 </div>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.2rem;">You currently have <b>${sessionUser.hearts}/5 hearts</b>. If your hearts reach 0, your roadmap progression is locked until recovery. You can instantly refill your hearts using your earned XP stars or wait for the automatic daily reset.</p>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.2rem;">You currently have <b>${sessionUser.hearts}/5 hearts</b>. Refill your hearts instantly using XP stars so you can continue your flight training.</p>
                 
                 <div style="background:var(--bg-deep); padding:1.2rem; border-radius:16px; border:1px solid var(--border-glow); text-align:center; margin-bottom:1rem;">
                     <div style="font-size:2.2rem; margin-bottom:6px;">⭐</div>
@@ -1393,7 +1415,7 @@ def serve_frontend():
             const data = await res.json();
             if(res.ok) {
                 sessionUser = data.user;
-                localStorage.setItem('aero_crew_user_pro19', JSON.stringify(sessionUser));
+                localStorage.setItem('aero_crew_user_pro20', JSON.stringify(sessionUser));
                 updateDashboardUI();
                 showToast('Hearts fully restored to 5! ❤️');
                 resetToMenu();
@@ -1402,7 +1424,7 @@ def serve_frontend():
             }
         }
 
-        /* DUOLINGO ROADMAP WITH MANDATORY SEQUENTIAL 3-STEP FLOW */
+        /* ROADMAP WITH 30-SECOND TIMER & XP REWARDS */
         function launchRoadmap(yearNum) {
             playSound('click');
             activeRoadmapYear = yearNum;
@@ -1425,7 +1447,7 @@ def serve_frontend():
                 if(isCompleted) statusClass = 'completed';
                 else if(i === 1 || completedList.includes(`y${yearNum}_node_${i-1}`)) statusClass = 'active';
 
-                const icon = isCompleted ? '👑' : (statusClass === 'active' ? '✈️' : '🔒');
+                const icon = isCompleted ? '👑' : (statusClass === 'active' ? '✈️️' : '🔒');
                 const isCurrentActive = (i === activeNodeIndex);
                 const companionEmoji = sessionUser.avatar_gender === 'hostess' ? '👗' : '👔';
 
@@ -1443,7 +1465,7 @@ def serve_frontend():
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
                     <h3 style="font-size: 1.05rem; color: var(--gold); font-weight: 900;">🏆 Year ${yearNum} Roadmap (100 Checkpoints)</h3>
-                    <span style="font-size: 0.72rem; color: var(--accent);">Sequential 3-Step Path</span>
+                    <span style="font-size: 0.72rem; color: var(--accent);">30s Timer & +30 XP Path</span>
                 </div>
                 <div class="duo-path-container">
                     <div style="display:flex; flex-direction:column; align-items:center; gap:24px; width:100%;">
@@ -1465,7 +1487,7 @@ def serve_frontend():
             playSound('click');
             if(status === 'locked') { showToast('Complete previous checkpoints first!', true); return; }
             if(sessionUser.hearts <= 0) { 
-                showToast('Out of hearts! Open the Heart Recovery Lounge above.', true); 
+                showToast('Out of hearts! Open Heart Recovery Lounge.', true); 
                 openHeartRecoveryLounge();
                 return; 
             }
@@ -1475,16 +1497,19 @@ def serve_frontend():
         }
 
         function renderCheckpointStep(yearNum, nodeNum, questions, stepIdx) {
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             if(stepIdx >= questions.length) {
                 completeSequentialCheckpoint(yearNum, nodeNum);
                 return;
             }
             const qObj = questions[stepIdx];
             const box = document.getElementById('simulation-box');
+            let timeLeft = 30;
+
             box.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
                     <span style="font-size: 0.75rem; color: var(--gold); font-weight: 900;">CHECKPOINT ${nodeNum} • STEP ${stepIdx+1} OF ${questions.length}</span>
-                    <button class="btn-action" onclick="launchRoadmap(${yearNum})" style="width:70px; padding:4px; font-size:0.7rem; margin-top:0;">Exit</button>
+                    <span id="q-timer" style="font-size:0.8rem; color:var(--danger); font-weight:800;">⏱️ 30s</span>
                 </div>
                 <div style="background:var(--bg-deep); padding:1.2rem; border-radius:16px; border:1px solid var(--border-glow); margin-bottom:1rem;">
                     <b style="color:white; font-size:0.95rem; display:block; margin-bottom:12px;">${qObj.q}</b>
@@ -1496,21 +1521,46 @@ def serve_frontend():
                 </div>
                 <div id="step-feedback" style="text-align:center; font-weight:800; font-size:0.85rem;"></div>
             `;
+
+            questionTimerInterval = setInterval(async () => {
+                timeLeft--;
+                const timerEl = document.getElementById('q-timer');
+                if(timerEl) timerEl.innerText = `⏱️ ${timeLeft}s`;
+                if(timeLeft <= 0) {
+                    clearInterval(questionTimerInterval);
+                    showToast('Time expired! Heart lost ❤️-1', true);
+                    const res = await fetch('/api/node/complete', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: `y${yearNum}_node_${nodeNum}`, lost_heart: true })
+                    });
+                    const data = await res.json();
+                    sessionUser.hearts = data.hearts;
+                    localStorage.setItem('aero_crew_user_pro20', JSON.stringify(sessionUser));
+                    updateDashboardUI();
+                    if(sessionUser.hearts <= 0) {
+                        openHeartRecoveryLounge();
+                    } else {
+                        renderCheckpointStep(yearNum, nodeNum, questions, stepIdx); // retry step
+                    }
+                }
+            }, 1000);
         }
 
         async function verifySequentialAnswer(yearNum, nodeNum, isCorrect, stepIdx, questionsJson) {
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             const fb = document.getElementById('step-feedback');
             const questions = typeof questionsJson === 'string' ? JSON.parse(questionsJson.replace(/&quot;/g, '"')) : questionsJson;
 
             if(isCorrect) {
                 fb.style.color = 'var(--success)';
-                fb.innerText = 'Correct! Advancing to next step...';
+                fb.innerText = 'Correct! Advancing...';
                 setTimeout(() => {
                     renderCheckpointStep(yearNum, nodeNum, questions, stepIdx + 1);
-                }, 1000);
+                }, 900);
             } else {
                 fb.style.color = 'var(--danger)';
-                fb.innerText = 'Incorrect answer! Heart lost ❤️-1';
+                fb.innerText = 'Incorrect! Heart lost ❤️-1';
                 const res = await fetch('/api/node/complete', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -1518,11 +1568,11 @@ def serve_frontend():
                 });
                 const data = await res.json();
                 sessionUser.hearts = data.hearts;
-                localStorage.setItem('aero_crew_user_pro19', JSON.stringify(sessionUser));
+                localStorage.setItem('aero_crew_user_pro20', JSON.stringify(sessionUser));
                 updateDashboardUI();
                 if(sessionUser.hearts <= 0) {
-                    showToast('All hearts lost! Roadmap locked.', true);
-                    setTimeout(() => openHeartRecoveryLounge(), 1500);
+                    showToast('All hearts lost!', true);
+                    openHeartRecoveryLounge();
                 }
             }
         }
@@ -1538,15 +1588,16 @@ def serve_frontend():
             sessionUser.completed_nodes = data.completed_nodes;
             sessionUser.xp_points = data.xp;
             sessionUser.hearts = data.hearts;
-            localStorage.setItem('aero_crew_user_pro19', JSON.stringify(sessionUser));
+            sessionUser.streak = data.streak;
+            localStorage.setItem('aero_crew_user_pro20', JSON.stringify(sessionUser));
             updateDashboardUI();
 
             const box = document.getElementById('simulation-box');
             box.innerHTML = `
                 <div style="text-align:center; padding: 2rem 0;">
                     <div style="font-size: 3.5rem; margin-bottom: 1rem;">👑</div>
-                    <h3 style="font-size: 1.3rem; color: var(--gold); font-weight: 900; margin-bottom: 0.5rem;">Congratulations, Captain!</h3>
-                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">You successfully completed all 3 sequential steps for Checkpoint ${nodeNum}!</p>
+                    <h3 style="font-size: 1.3rem; color: var(--gold); font-weight: 900; margin-bottom: 0.5rem;">Checkpoint Completed!</h3>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">You earned <b>+30 XP Stars</b> ⭐ and kept your streak alive!</p>
                     <button class="btn-action" onclick="launchRoadmap(${yearNum})" style="background:var(--success); color:white;">Continue Journey ✈️</button>
                 </div>
             `;
@@ -1812,7 +1863,7 @@ def serve_frontend():
                 <div style="max-height:200px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; margin-bottom:1rem;" id="quiz-questions-form">
                     ${questions.map((q, idx) => `
                         <div style="background:var(--bg-deep); padding:10px; border-radius:12px;">
-                            <label style="color:white; font-size:0.85rem;">Q${idx+1}:${q.question}</label>
+                            <label style="color:white; font-size:0.85rem;">Q${idx+1}: ${q.question}</label>
                             <input type="text" class="quiz-answer-input" data-correct="${q.correct}" placeholder="Your answer..." style="margin-bottom:0;" />
                         </div>
                     `).join('')}
@@ -1839,7 +1890,7 @@ def serve_frontend():
             }
         }
 
-        /* FRIENDS & SOCIAL HUB */
+        /* FRIENDS & SOCIAL HUB WITH PDF/IMAGE ATTACHMENTS & VOICE NOTES */
         async function openSocialHub() {
             playSound('click');
             const res = await fetch('/api/friends/list?username=' + sessionUser.username);
@@ -1985,12 +2036,24 @@ def serve_frontend():
                 const msgs = data.messages || [];
                 const stream = document.getElementById('chat-msg-stream');
                 if(stream) {
-                    stream.innerHTML = msgs.map(m => `
-                        <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
-                            <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
-                            <div>${m.content.startsWith('blob:') || m.content.startsWith('http') ? `<audio controls src="${m.content}" style="width:180px; height:32px;"></audio>` : m.content}</div>
-                        </div>
-                    `).join('');
+                    stream.innerHTML = msgs.map(m => {
+                        let contentHtml = m.content;
+                        if(m.content.startsWith('blob:') || m.content.startsWith('http')) {
+                            if(m.content.includes('.pdf') || m.content.includes('pdf')) {
+                                contentHtml = `<a href="${m.content}" target="_blank" style="color:var(--accent); font-weight:800; text-decoration:underline;">📄 Download PDF Document</a>`;
+                            } else if(m.content.match(/\\.(jpeg|jpg|png|gif)/i) || m.content.startsWith('data:image')) {
+                                contentHtml = `<img src="${m.content}" style="max-width:180px; border-radius:8px;" />`;
+                            } else {
+                                contentHtml = `<audio controls src="${m.content}" style="width:180px; height:32px;"></audio>`;
+                            }
+                        }
+                        return `
+                            <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
+                                <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
+                                <div>${contentHtml}</div>
+                            </div>
+                        `;
+                    }).join('');
                     stream.scrollTop = stream.scrollHeight;
                 }
             }
@@ -2004,6 +2067,7 @@ def serve_frontend():
                     <div class="chat-messages" id="chat-msg-stream"></div>
                     <div class="chat-input-bar">
                         <button onclick="startVoiceRecording()" id="btn-mic" title="Record Audio" style="background:none; border:none; color:var(--accent); font-size:1.1rem; cursor:pointer;">🎤</button>
+                        <label title="Attach File / PDF / Photo" style="cursor:pointer; font-size:1.1rem; margin-bottom:0;">📎<input type="file" id="chat-file-input" onchange="handleFileUpload(event)" style="display:none;" accept="image/*,.pdf,.doc,.docx" /></label>
                         <input type="text" id="chat-text-input" placeholder="Type message..." style="margin-bottom:0; flex:1; padding:7px 10px; font-size:0.82rem;" />
                         <button onclick="sendDirectMessageContent()" class="btn-action" style="width:60px; padding:7px; font-size:0.82rem; margin-top:0;">Send</button>
                     </div>
@@ -2019,6 +2083,17 @@ def serve_frontend():
             await fetchAndRenderMessages();
             if(dmPollingInterval) clearInterval(dmPollingInterval);
             dmPollingInterval = setInterval(fetchAndRenderMessages, 2500);
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                sendDirectMessageContent(e.target.result);
+                showToast('File attached & sent!');
+            };
+            reader.readAsDataURL(file);
         }
 
         async function startVoiceRecording() {
@@ -2076,12 +2151,24 @@ def serve_frontend():
             const msgs = data.messages || [];
             const stream = document.getElementById('chat-msg-stream');
             if(stream) {
-                stream.innerHTML = msgs.map(m => `
-                    <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
-                        <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
-                        <div>${m.content.startsWith('blob:') || m.content.startsWith('http') ? `<audio controls src="${m.content}" style="width:180px; height:32px;"></audio>` : m.content}</div>
-                    </div>
-                `).join('');
+                stream.innerHTML = msgs.map(m => {
+                    let contentHtml = m.content;
+                    if(m.content.startsWith('blob:') || m.content.startsWith('http') || m.content.startsWith('data:')) {
+                        if(m.content.includes('pdf')) {
+                            contentHtml = `<a href="${m.content}" target="_blank" style="color:var(--accent); font-weight:800; text-decoration:underline;">📄 Download PDF Document</a>`;
+                        } else if(m.content.startsWith('data:image')) {
+                            contentHtml = `<img src="${m.content}" style="max-width:180px; border-radius:8px;" />`;
+                        } else {
+                            contentHtml = `<audio controls src="${m.content}" style="width:180px; height:32px;"></audio>`;
+                        }
+                    }
+                    return `
+                        <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
+                            <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
+                            <div>${contentHtml}</div>
+                        </div>
+                    `;
+                }).join('');
                 stream.scrollTop = stream.scrollHeight;
             }
         }
@@ -2145,7 +2232,7 @@ def serve_frontend():
             const data = await res.json();
             if(res.ok) {
                 sessionUser = data.user;
-                localStorage.setItem('aero_crew_user_pro19', JSON.stringify(sessionUser));
+                localStorage.setItem('aero_crew_user_pro20', JSON.stringify(sessionUser));
                 updateDashboardUI();
                 closeAvatarStudio();
                 showToast('Avatar updated!');
@@ -2199,12 +2286,12 @@ def serve_frontend():
             const res = await fetch('/api/shop/buy', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.phone_number ? JSON.stringify({ phone_number: sessionUser.phone_number, skin_name: skinName, cost }) : ''
+                body: JSON.stringify({ phone_number: sessionUser.phone_number, skin_name: skinName, cost })
             });
             const data = await res.json();
             if(res.ok) {
                 sessionUser = data.user;
-                localStorage.setItem('aero_crew_user_pro19', JSON.stringify(sessionUser));
+                localStorage.setItem('aero_crew_user_pro20', JSON.stringify(sessionUser));
                 updateDashboardUI();
                 showToast('Equipped ' + skinName + ' successfully!');
                 openShop();
