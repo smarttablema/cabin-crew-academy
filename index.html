@@ -1415,7 +1415,7 @@
                 }, 900);
             } else {
                 fb.style.color = 'var(--danger)';
-                fb.innerText = 'Incorrect! Heart lost ❤️-1';
+                fb.innerText = 'Incorrect! Heart lost ❤️️-1';
                 const res = await fetch('/api/node/complete', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -1820,7 +1820,7 @@
                 fetch('/api/battle/cancel', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ match_id: activeMatchId })
+                    body: JSON.stringify({ match_id: String(activeMatchId) })
                 });
             }
             activeMatchId = null;
@@ -1832,7 +1832,7 @@
             const pollTimer = setInterval(async () => {
                 if(!activeMatchId) { clearInterval(pollTimer); return; }
                 try {
-                    const res = await fetch('/api/battle/status?match_id=' + matchId);
+                    const res = await fetch('/api/battle/status?match_id=' + encodeURIComponent(matchId));
                     const data = await res.json();
                     if(data.status === 'accepted') {
                         clearInterval(pollTimer);
@@ -1853,7 +1853,7 @@
             battleInvitePollingInterval = setInterval(async () => {
                 if(!sessionUser) return;
                 try {
-                    const res = await fetch('/api/battle/incoming?username=' + sessionUser.username);
+                    const res = await fetch('/api/battle/incoming?username=' + encodeURIComponent(sessionUser.username));
                     const data = await res.json();
                     if(data.invite) {
                         playSound('success');
@@ -1877,8 +1877,8 @@
                     <p style="font-size:0.92rem; color:white; margin-bottom:1.6rem; line-height:1.6;"><b>${invite.sender_name}</b> (@${invite.sender_username}) challenged you to a live 1v1 Duel for 100 XP Stars ⭐!</p>
                     
                     <div style="display:flex; gap:12px;">
-                        <button class="btn-action" onclick="respondBattleInvite(${invite.match_id}, false)" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0; padding:1.1rem;">Reject ❌</button>
-                        <button class="btn-action" onclick="respondBattleInvite(${invite.match_id}, true)" style="background:var(--success); color:white; margin-top:0; padding:1.1rem;">Accept Battle ⚔️</button>
+                        <button class="btn-action" onclick="respondBattleInvite('${invite.match_id}', false)" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0; padding:1.1rem;">Reject ❌</button>
+                        <button class="btn-action" onclick="respondBattleInvite('${invite.match_id}', true)" style="background:var(--success); color:white; margin-top:0; padding:1.1rem;">Accept Battle ⚔️</button>
                     </div>
                 </div>
             `;
@@ -1889,7 +1889,7 @@
             const res = await fetch('/api/battle/respond', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ match_id: matchId, accept })
+                body: JSON.stringify({ match_id: String(matchId), accept: accept })
             });
             const data = await res.json();
             if(accept && res.ok) {
@@ -1925,7 +1925,7 @@
             contentEl.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
                     <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔️ 1v1 BATTLE • Q${battleCurrentIdx+1} / 8</span>
-                    <span id="modal-battle-timer" style="font-size:0.88rem; color:var(--danger); font-weight:800;">⏱️️ 30s</span>
+                    <span id="modal-battle-timer" style="font-size:0.88rem; color:var(--danger); font-weight:800;">⏱ 30s</span>
                 </div>
                 <div style="background:var(--bg-deep); padding:1.4rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.2rem; text-align:left;">
                     <b style="color:white; font-size:1rem; display:block; margin-bottom:14px; line-height:1.5;">${qObj.q}</b>
@@ -1972,7 +1972,7 @@
             const res = await fetch('/api/battle/submit', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ match_id: activeMatchId, username: sessionUser.username, score: battleScore })
+                body: JSON.stringify({ match_id: String(activeMatchId), username: sessionUser.username, score: battleScore })
             });
             const data = await res.json();
             
@@ -2019,7 +2019,7 @@
             box.classList.add('feature-fullscreen-view');
 
             async function fetchAndRenderMessages() {
-                const res = await fetch(`/api/direct-messages/list?user1=${sessionUser.username}&user2=${friendUsername}`);
+                const res = await fetch(`/api/direct-messages/list?user1=${encodeURIComponent(sessionUser.username)}&user2=${encodeURIComponent(friendUsername)}`);
                 const data = await res.json();
                 const msgs = data.messages || [];
                 
