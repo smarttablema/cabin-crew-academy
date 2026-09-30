@@ -11,7 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="30.0.0")
+app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="30.1.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -139,6 +139,19 @@ def startup_db():
             total_questions INT,
             attempts INT DEFAULT 1,
             completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS aero_v22_battles (
+            match_id VARCHAR(50) PRIMARY KEY,
+            sender_username VARCHAR(50),
+            sender_name VARCHAR(100),
+            receiver_username VARCHAR(50),
+            status VARCHAR(20) DEFAULT 'pending',
+            questions JSONB,
+            scores JSONB DEFAULT '{}'::jsonb,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
 
@@ -277,6 +290,23 @@ class FriendGroupMessageModel(BaseModel):
     sender_username: str
     sender_name: str
     content: str
+
+class BattleInviteModel(BaseModel):
+    sender_username: str
+    sender_name: str
+    receiver_username: str
+
+class BattleRespondModel(BaseModel):
+    match_id: str
+    accept: bool
+
+class BattleSubmitModel(BaseModel):
+    match_id: str
+    username: str
+    score: int
+
+class BattleCancelModel(BaseModel):
+    match_id: str
 
 @app.post("/api/register")
 def register(data: RegisterModel):
@@ -731,6 +761,119 @@ def buy_skin(data: BuySkinModel):
     cur.close()
     conn.close()
     return {"status": "success", "user": updated}
+
+# --- 1V1 BATTLE ENDPOINTS ---
+@app.post("/api/battle/invite")
+def send_battle_invite(data: BattleInviteModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    match_id = f"match_{int(random.randint(100000, 999999))}"
+    
+    sample_questions = [
+        {"q": "How is letter 'A' pronounced in ICAO standard telephony?", "options": ["Alpha", "Apple", "Adam"], "correct": 0},
+        {"q": "What is the correct ICAO pronunciation for number '9'?", "options": ["Niner", "Nine", "Nov"], "correct": 0},
+        {"q": "Which phonetic word represents letter 'S'?", "options": ["Sierra", "Sugar", "Sam"], "correct": 0},
+        {"q": "What is the primary phrase for seatbelt compliance check?", "options": ["Cabin crew, secure cabin for takeoff", "Please fasten belts", "Fasten seatbelts please"], "correct": 0},
+        {"q": "During turbulence, what command is issued to cabin crew?", "options": ["Crew, be seated and secure", "Continue service", "Stand by galley"], "correct": 0},
+        {"q": "How do you announce emergency slide arming?", "options": ["Cabin crew, arm slides and cross-check", "Open all doors", "Disarm doors"], "correct": 0},
+        {"q": "What command is shouted during rapid land evacuation?", "options": ["EFP, LEAVE BAGS, DOWN THE SLIDE!", "Please exit slowly", "Grab your luggage and jump"], "correct": 0},
+        {"q": "What urgent prefix is used for non-immediate safety urgency?", "options": ["PAN-PAN", "MAYDAY", "SECURITY"], "correct": 0}
+    ]
+    
+    import json
+    cur.execute(
+        "INSERT INTO aero_v22_battles (match_id, sender_username, sender_name, receiver_username, status, questions) VALUES (%s, %s, %s, %s, 'pending', %s) RETURNING *;",
+        (match_id, data.sender_username, data.sender_name, data.receiver_username, json.dumps(sample_questions))
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"match_id": match_id, "status": "sent"}
+
+@app.get("/api/battle/incoming")
+def get_incoming_battle(username: str):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM aero_v22_battles WHERE receiver_username = %s AND status = 'pending' ORDER BY created_at DESC LIMIT 1;", (username,))
+    invite = cur.fetchone()
+    cur.close()
+    conn.close()
+    return {"invite": invite}
+
+@app.post("/api/battle/respond")
+def respond_battle_invite(data: BattleRespondModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM aero_v22_battles WHERE match_id = %s;", (data.match_id,))
+    match = cur.fetchone()
+    if not match:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Match not found")
+        
+    new_status = "accepted" if data.accept else "rejected"
+    cur.execute("UPDATE aero_v22_battles SET status = %s WHERE match_id = %s RETURNING *;", (new_status, data.match_id))
+    updated = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": new_status, "questions": updated["questions"]}
+
+@app.get("/api/battle/status")
+def get_battle_status(match_id: str):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM aero_v22_battles WHERE match_id = %s;", (match_id,))
+    match = cur.fetchone()
+    cur.close()
+    conn.close()
+    if not match:
+        return {"status": "not_found"}
+    return {"status": match["status"], "questions": match.get("questions", [])}
+
+@app.post("/api/battle/cancel")
+def cancel_battle(data: BattleCancelModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE aero_v22_battles SET status = 'canceled' WHERE match_id = %s;", (data.match_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "canceled"}
+
+@app.post("/api/battle/submit")
+def submit_battle_score(data: BattleSubmitModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT scores FROM aero_v22_battles WHERE match_id = %s;", (data.match_id,))
+    match = cur.fetchone()
+    if not match:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Match not found")
+        
+    scores = match["scores"] or {}
+    scores[data.username] = data.score
+    
+    import json
+    cur.execute("UPDATE aero_v22_battles SET scores = %s WHERE match_id = %s;", (json.dumps(scores), data.match_id))
+    conn.commit()
+    
+    opponent_score = random.randint(2, 6)
+    result = "loss"
+    if data.score > opponent_score:
+        result = "win"
+    elif data.score == opponent_score:
+        result = "draw"
+        
+    cur.close()
+    conn.close()
+    return {
+        "status": "completed",
+        "your_score": data.score,
+        "opponent_score": opponent_score,
+        "result": result
+    }
 
 @app.get("/")
 def serve_frontend():
