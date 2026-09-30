@@ -11,7 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="26.0.0")
+app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="27.0.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -158,7 +158,6 @@ def startup_db():
         );
     """)
 
-    # Clear old skins and insert ONLY Wikipedia Cabin Crew Equipment Skins
     cur.execute("DELETE FROM aero_v22_shop_skins;")
     cur.execute("""
         INSERT INTO aero_v22_shop_skins (category, tier_level, skin_name_en, skin_name_fr, skin_name_ar, cost, preview_svg, desc_en, desc_fr, desc_ar)
@@ -818,7 +817,6 @@ def serve_frontend():
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; min-height: 290px; }
         
-        /* DISTINCT, HIGH-DEFINITION PROFESSIONAL AVIATION PATH BACKGROUNDS & SCROLLBAR HIDING */
         .path-backdrop-y1 {
             background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(15, 23, 42, 0.92) 100%), 
                         url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important;
@@ -929,7 +927,7 @@ def serve_frontend():
 
             <div id="teacher-code-box" class="hidden" style="background: rgba(56, 189, 248, 0.08); padding: 12px; border-radius: 14px; border: 1px dashed var(--accent); margin-bottom: 1rem;">
                 <label style="color: var(--accent);">🔒 6-Digit Teacher Verification Code</label>
-                <input type="password" id="reg-teacher-code" placeholder="Enter code (112233)" maxlength="6" style="letter-spacing: 3px; text-align: center; margin-bottom:0;" />
+                <input type="password" id="reg-teacher-code" placeholder="Enter 6-digit teacher code" maxlength="6" style="letter-spacing: 3px; text-align: center; margin-bottom:0;" />
             </div>
 
             <label id="tr-reg-name-lbl">Full Name</label>
@@ -993,11 +991,11 @@ def serve_frontend():
             </div>
 
             <div class="mode-grid">
-                <div class="mode-tile" onclick="launchRoadmap(1)">
+                <div class="mode-tile" onclick="launchRoadmap('year1')">
                     <span style="font-size: 1.4rem;">📖</span>
                     <h4 id="tr-tile-y1">First Year Path (100 Nodes)</h4>
                 </div>
-                <div class="mode-tile" onclick="launchRoadmap(2)">
+                <div class="mode-tile" onclick="launchRoadmap('year2')">
                     <span style="font-size: 1.4rem;">🏆</span>
                     <h4 id="tr-tile-y2">Second Year Path (100 Nodes)</h4>
                 </div>
@@ -1075,7 +1073,6 @@ def serve_frontend():
         let sessionUser = JSON.parse(localStorage.getItem('aero_crew_user_pro22') || 'null');
         let groupInfo = { group: null, members: [], lessons: [], exams: [] };
         let socialData = { friends: [], incoming_requests: [], friend_groups: [] };
-        let activeRoadmapYear = 1;
         let mediaRecorder = null;
         let audioChunks = [];
         let activeLang = localStorage.getItem('aero_lang') || 'en';
@@ -1502,7 +1499,6 @@ def serve_frontend():
 
         function getRandomQuizQuestions(poolKey, count = 3) {
             const pool = [...masterQuestionPools[poolKey]];
-            // True random Fisher-Yates shuffle
             for (let i = pool.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -1621,7 +1617,7 @@ def serve_frontend():
                 if(timeLeft <= 0) {
                     clearInterval(questionTimerInterval);
                     showToast('Time expired! Heart lost ❤️-1', true);
-                    const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `y${poolKey}_node_${nodeNum}`;
+                    const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `${poolKey}_node_${nodeNum}`;
                     const res = await fetch('/api/node/complete', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
@@ -1641,7 +1637,7 @@ def serve_frontend():
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             const fb = document.getElementById('dyn-feedback');
             const questions = typeof questionsJson === 'string' ? JSON.parse(questionsJson.replace(/&quot;/g, '"')) : questionsJson;
-            const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `y${poolKey}_node_${nodeNum}`;
+            const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `${poolKey}_node_${nodeNum}`;
 
             if(isCorrect) {
                 fb.style.color = 'var(--success)';
@@ -1666,7 +1662,7 @@ def serve_frontend():
         }
 
         async function completeDynamicNode(poolKey, nodeNum) {
-            const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `y${poolKey}_node_${nodeNum}`;
+            const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `${poolKey}_node_${nodeNum}`;
             const res = await fetch('/api/node/complete', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -1686,21 +1682,21 @@ def serve_frontend():
                     <div style="font-size: 3.5rem; margin-bottom: 1rem;">👑</div>
                     <h3 style="font-size: 1.3rem; color: var(--gold); font-weight: 900; margin-bottom: 0.5rem;">Node Completed!</h3>
                     <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">You earned <b>+30 XP Stars</b> ⭐ and kept your streak alive!</p>
-                    <button class="btn-action" onclick="${poolKey === 'english' ? 'launchAviationEnglishRoadmap()' : 'launchRoadmap(' + poolKey + ')'}" style="background:var(--success); color:white;">Continue Journey ✈</button>
+                    <button class="btn-action" onclick="${poolKey === 'english' ? 'launchAviationEnglishRoadmap()' : 'launchRoadmap(\'' + poolKey + '\')'}" style="background:var(--success); color:white;">Continue Journey ✈</button>
                 </div>
             `;
         }
 
         /* ROADMAPS FOR YEAR 1 & YEAR 2 (RANDOMIZED ANTI-CHEAT) */
-        function launchRoadmap(yearNum) {
+        function launchRoadmap(yearKey) {
             playSound('click');
-            activeRoadmapYear = yearNum;
+            activeRoadmapYear = yearKey;
             const box = document.getElementById('simulation-box');
             const completedList = sessionUser.completed_nodes || [];
             
             let activeNodeIndex = 1;
             for(let i = 1; i <= 100; i++) {
-                if(completedList.includes(`y${yearNum}_node_${i}`)) {
+                if(completedList.includes(`${yearKey}_node_${i}`)) {
                     activeNodeIndex = i + 1;
                 }
             }
@@ -1708,11 +1704,11 @@ def serve_frontend():
 
             let nodesHtml = '';
             for(let i = 1; i <= 100; i++) {
-                const nodeId = `y${yearNum}_node_${i}`;
+                const nodeId = `${yearKey}_node_${i}`;
                 const isCompleted = completedList.includes(nodeId);
                 let statusClass = 'locked';
                 if(isCompleted) statusClass = 'completed';
-                else if(i === 1 || completedList.includes(`y${yearNum}_node_${i-1}`)) statusClass = 'active';
+                else if(i === 1 || completedList.includes(`${yearKey}_node_${i-1}`)) statusClass = 'active';
 
                 const icon = isCompleted ? '👑' : (statusClass === 'active' ? '✈' : '🔒');
                 const isCurrentActive = (i === activeNodeIndex);
@@ -1730,7 +1726,7 @@ def serve_frontend():
                 nodesHtml += `
                     <div class="duo-node-wrapper">
                         ${isCurrentActive ? `<div class="companion-hopper">${companionEmoji}</div>` : ''}
-                        <div class="duo-node ${statusClass}" onclick="startDynamicNodeSession(${yearNum}, ${i}, '${statusClass}')">
+                        <div class="duo-node ${statusClass}" onclick="startDynamicNodeSession('${yearKey}', ${i}, '${statusClass}')">
                             <span style="font-size:1.3rem;">${icon}</span>
                             <span style="font-size:0.55rem; margin-top:-2px;">${i}</span>
                         </div>
@@ -1738,11 +1734,12 @@ def serve_frontend():
                 `;
             }
 
-            const backdropClass = yearNum === 1 ? 'path-backdrop-y1' : 'path-backdrop-y2';
+            const backdropClass = yearKey === 'year1' ? 'path-backdrop-y1' : 'path-backdrop-y2';
+            const yearDisplayNum = yearKey === 'year1' ? '1' : '2';
 
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                    <h3 style="font-size: 1.05rem; color: var(--gold); font-weight: 900;">🏆 Year ${yearNum} Roadmap (Zig-Zag Path)</h3>
+                    <h3 style="font-size: 1.05rem; color: var(--gold); font-weight: 900;">🏆 Year ${yearDisplayNum} Roadmap (Zig-Zag Path)</h3>
                     <span style="font-size: 0.72rem; color: var(--accent);">Equipment: ${sessionUser.active_skin}</span>
                 </div>
                 <div class="duo-path-container ${backdropClass}">
@@ -2490,7 +2487,7 @@ def serve_frontend():
                     <h3 style="font-size: 1.05rem; color: #a78bfa; font-weight: 900;">🎁 Cabin Crew Equipment Boutique</h3>
                     <span style="font-size: 0.8rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
                 </div>
-                <div style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: none;">
+                <div style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; scrollbar-width: thin;">
                     ${data.skins.map(skin => {
                         const skinName = activeLang === 'fr' ? skin.skin_name_fr : (activeLang === 'ar' ? skin.skin_name_ar : skin.skin_name_en);
                         const skinDesc = activeLang === 'fr' ? skin.desc_fr : (activeLang === 'ar' ? skin.desc_ar : skin.desc_en);
