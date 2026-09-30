@@ -76,13 +76,14 @@
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.1rem; }
         .mode-tile { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
         .mode-tile:hover { border-color: var(--accent); transform: translateY(-2px); background: var(--surface-card-hover); box-shadow: 0 0 20px var(--accent-glow); }
-        .mode-tile h4 { font-size: 0.85rem; font-weight: 800; margin-top: 6px; color: white; }
+        .mode-tile h4 { font-size: 0.82rem; font-weight: 800; margin-top: 6px; color: white; }
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; min-height: 290px; }
         
+        /* NEW CUSTOM AVIATION ROADMAP BACKGROUNDS */
         .path-backdrop-y1 {
             background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(15, 23, 42, 0.92) 100%), 
-                        url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important;
+                        url('https://images.unsplash.com/photo-1519074069444-1ba4ea16d66c?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important;
         }
         .path-backdrop-y2 {
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.92) 100%), 
@@ -90,7 +91,11 @@
         }
         .path-backdrop-eng {
             background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(3, 105, 161, 0.82) 100%), 
-                        url('https://images.unsplash.com/photo-1519074069444-1ba4ea16d66c?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important;
+                        url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important;
+        }
+        .path-backdrop-vocab {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(88, 28, 135, 0.85) 100%), 
+                        url('https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important;
         }
 
         .duo-path-container { 
@@ -266,11 +271,15 @@
                     <span style="font-size: 1.4rem;">🌐</span>
                     <h4 id="tr-tile-eng">Aviation English & ICAO Mastery</h4>
                 </div>
+                <div class="mode-tile" onclick="launchVocabularyRoadmap()">
+                    <span style="font-size: 1.4rem;">🗣️</span>
+                    <h4 id="tr-tile-vocab">English Vocabulary to Arabic (5k)</h4>
+                </div>
                 <div class="mode-tile" onclick="openStudyHub()">
                     <span style="font-size: 1.4rem;">📚</span>
                     <h4 id="tr-tile-study">Lessons, Quizzes & Exams Studio</h4>
                 </div>
-                <div class="mode-tile" onclick="openSocialHub()" style="grid-column: span 2;">
+                <div class="mode-tile" onclick="openSocialHub()">
                     <span style="font-size: 1.4rem;">💬</span>
                     <h4 id="tr-tile-social">Friends, Private Chat & Groups</h4>
                 </div>
@@ -278,7 +287,7 @@
 
             <div id="simulation-box" class="card-container">
                 <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;" id="tr-center-title">EASA Professional Training Center</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;" id="tr-center-desc">Select <b>First Year Path</b>, <b>Second Year Path</b>, or <b>Aviation English</b> above to begin your randomized anti-cheat learning adventure with your equipped equipment companion.</p>
+                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;" id="tr-center-desc">Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, or <b>English Vocabulary to Arabic</b> above to begin your training adventure.</p>
             </div>
             
             <div style="display: flex; gap: 10px;">
@@ -342,6 +351,7 @@
         let dmPollingInterval = null;
         let groupMsgPollingInterval = null;
         let questionTimerInterval = null;
+        let activeQuestionsStore = [];
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
@@ -389,8 +399,9 @@
                 resetTitle: "Recovery PIN Reset", resetSub: "Enter your phone and secret recovery PIN.", resetNewLbl: "New Password",
                 updateCredBtn: "Update Credentials", backLogin2: "Back to Sign In",
                 tileY1: "First Year Path (100 Nodes)", tileY2: "Second Year Path (100 Nodes)", tileEng: "Aviation English & ICAO Mastery",
+                tileVocab: "English Vocabulary to Arabic (5k)",
                 tileStudy: "Lessons, Quizzes & Exams Studio", tileSocial: "Friends, Private Chat & Groups",
-                centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, or <b>Aviation English</b> above to begin your randomized anti-cheat learning adventure.",
+                centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, or <b>English Vocabulary to Arabic</b> above to begin your training adventure.",
                 hubBtn: "← Hub", logoutBtn: "Logout 🚪",
                 modalAvatarTitle: "🎨 Edit Avatar", modalGenderLbl: "Gender / Style", saveAvatarBtn: "Save Avatar 💾",
                 settingsTitle: "⚙️ Academy Settings", langLbl: "Interface Language", passChangeLbl: "Change Password", updatePassBtn: "Update Password 🔒",
@@ -409,8 +420,9 @@
                 resetTitle: "Réinitialisation du PIN", resetSub: "Entrez votre téléphone et votre PIN de récupération secret.", resetNewLbl: "Nouveau mot de passe",
                 updateCredBtn: "Mettre à jour", backLogin2: "Retour à la connexion",
                 tileY1: "Parcours 1ère Année (100 Nœuds)", tileY2: "Parcours 2ème Année (100 Nœuds)", tileEng: "Anglais Aéronautique & ICAO",
+                tileVocab: "Vocabulaire Anglais-Arabe (5k)",
                 tileStudy: "Studio Leçons, Quiz & Examens", tileSocial: "Amis, Chat Privé & Groupes",
-                centerTitle: "Centre de Formation Professionnelle EASA", centerDesc: "Sélectionnez <b>Parcours 1ère Année</b>, <b>2ème Année</b> ou <b>Anglais Aéronautique</b> pour débuter votre parcours aléatoire anti-triche.",
+                centerTitle: "Centre de Formation Professionnelle EASA", centerDesc: "Sélectionnez <b>Parcours 1ère Année</b>, <b>2ème Année</b>, <b>Anglais Aéronautique</b> ou <b>Vocabulaire</b> pour débuter.",
                 hubBtn: "← Accueil", logoutBtn: "Déconnexion 🚪",
                 modalAvatarTitle: "🎨 Modifier l'Avatar", modalGenderLbl: "Genre / Style", saveAvatarBtn: "Enregistrer 💾",
                 settingsTitle: "⚙ Paramètres", langLbl: "Langue de l'interface", passChangeLbl: "Changer le mot de passe", updatePassBtn: "Mettre à jour 🔒",
@@ -422,13 +434,14 @@
                 phoneLbl: "رقم الهاتف", passLbl: "كلمة المرور", loginBtn: "تسجيل الدخول",
                 regNav: "إنشاء حساب", resetNav: "نسيت كلمة المرور؟",
                 regTitle: "تسجيل المتدربين والمدربين", regSub: "سجل ملفك الشخصي واجتاز التدريب وصمم صورتك الرمزية.",
-                regRoleLbl: "التسجيل كـ", optCadet: "🎓 متدرب / طالب", optTeacher: "👨‍‍🏫 مدرب / معلم",
+                regRoleLbl: "التسجيل كـ", optCadet: "🎓 متدرب / طالب", optTeacher: "👨‍🏫 مدرب / معلم",
                 regNameLbl: "الاسم الكامل", regUserLbl: "اسم المستخدم الفريد", regPassLbl: "كلمة المرور", regPinLbl: "رقم الاسترداد السري (4 أرقام)",
                 avatarStudioTitle: "🎨 تخصيص الصورة الرمزية", avatarTypeLbl: "نوع الصورة", optSteward: "👔 مضيف جوي", optHostess: "👗 مضيفة جوية",
                 completeRegBtn: "إتمام التسجيل", backLogin: "لديك حساب بالفعل؟ سجل دخولك",
                 resetTitle: "إعادة تعيين رقم الاسترداد", resetSub: "أدخل هاتفك ورقم الاسترداد السري الخاص بك.", resetNewLbl: "كلمة المرور الجديدة",
                 updateCredBtn: "تحديث بيانات الاعتماد", backLogin2: "العودة لتسجيل الدخول",
                 tileY1: "مسار السنة الأولى (100 نقطة)", tileY2: "مسار السنة الثانية (100 نقطة)", tileEng: "اللغة الإنجليزية للطيران وإيكاو",
+                tileVocab: "مفردات طيران إنجليزية إلى العربية (5k)",
                 tileStudy: "استوديو الدروس والاختبارات", tileSocial: "الأصدقاء والمحادثة الخاصة والمجموعات",
                 centerTitle: "مركز تدريب الطيران الاحترافي EASA", centerDesc: "اختر مسار التعلم لعرض الخريطة المتعرجة مع أسئلة عشوائية مضادة للغش.",
                 hubBtn: "← الرئيسية", logoutBtn: "تسجيل الخروج 🚪",
@@ -508,6 +521,7 @@
                 document.getElementById('tr-tile-y1').innerText = t.tileY1;
                 document.getElementById('tr-tile-y2').innerText = t.tileY2;
                 document.getElementById('tr-tile-eng').innerText = t.tileEng;
+                document.getElementById('tr-tile-vocab').innerText = t.tileVocab;
                 document.getElementById('tr-tile-study').innerText = t.tileStudy;
                 document.getElementById('tr-tile-social').innerText = t.tileSocial;
                 document.getElementById('tr-center-title').innerText = t.centerTitle;
@@ -780,6 +794,29 @@
             ]
         };
 
+        const aviationVocabDatabase = [
+            { en: "Altimeter", ar: "مقياس الارتفاع" },
+            { en: "Aileron", ar: "جنيح الطائرة" },
+            { en: "Fuselage", ar: "بدن الطائرة" },
+            { en: "Empennage", ar: "ذيل الطائرة" },
+            { en: "Turbulence", ar: "مطبات هوائية" },
+            { en: "Knots", ar: "عقدة بحرية (سرعة)" },
+            { en: "Runway", ar: "مهبط / مدرج الهبوط" },
+            { en: "Taxiway", ar: "ممر المترددات/المدرج الفرعي" },
+            { en: "Glide slope", ar: "منحدر الهبوط" },
+            { en: "Avionics", ar: "إلكترونيات الطيران" },
+            { en: "Cabin pressure", ar: "ضغط المقصورة" },
+            { en: "Evacuation", ar: "إخلاء الطوارئ" },
+            { en: "Bulkhead", ar: "الجدار الفاصل" },
+            { en: "Galley", ar: "مطبخ الطائرة" },
+            { en: "Manifest", ar: "بيان الركاب" },
+            { en: "Briefing", ar: "الاحاطة الإرشادية" },
+            { en: "Checklist", ar: "قائمة التدقيق" },
+            { en: "Transponder", ar: "جهاز الإرسال والاستقبال" },
+            { en: "Heading", ar: "الاتجاه المغناطيسي" },
+            { en: "Waypoint", ar: "نقطة الملاحة" }
+        ];
+
         function getRandomQuizQuestions(poolKey, count = 3) {
             const pool = [...(masterQuestionPools[poolKey] || masterQuestionPools['year1'])];
             for (let i = pool.length - 1; i > 0; i--) {
@@ -797,6 +834,194 @@
                 const newCorrectIdx = opts.indexOf(correctText);
                 return { q: item.q, options: opts, correct: newCorrectIdx };
             });
+        }
+
+        /* 5,000-STEP VOCABULARY PATH TO ARABIC */
+        function launchVocabularyRoadmap() {
+            playSound('click');
+            const box = document.getElementById('simulation-box');
+            const completedList = sessionUser.completed_nodes || [];
+
+            let activeIndex = 1;
+            for(let i = 1; i <= 5000; i++) {
+                if(completedList.includes(`vocab_node_${i}`)) activeIndex = i + 1;
+            }
+            if(activeIndex > 5000) activeIndex = 5000;
+
+            let nodesHtml = '';
+            for(let i = Math.max(1, activeIndex - 12); i <= Math.min(5000, activeIndex + 15); i++) {
+                const nodeId = `vocab_node_${i}`;
+                const isCompleted = completedList.includes(nodeId);
+                let statusClass = 'locked';
+                if(isCompleted) statusClass = 'completed';
+                else if(i === activeIndex) statusClass = 'active';
+
+                const icon = isCompleted ? '👑' : (statusClass === 'active' ? '🗣️' : '🔒');
+                const isCurrentActive = (i === activeIndex);
+
+                nodesHtml += `
+                    <div class="duo-node-wrapper">
+                        ${isCurrentActive ? `<div class="companion-hopper">🎤</div>` : ''}
+                        <div class="duo-node ${statusClass}" onclick="startVocabularyNode(${i}, '${statusClass}')">
+                            <span style="font-size:1.3rem;">${icon}</span>
+                            <span style="font-size:0.52rem; margin-top:-2px;">${i}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            box.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                    <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">🗣️ Aviation Vocabulary (5,000 Steps)</h3>
+                    <span style="font-size: 0.72rem; color: var(--gold); font-weight: 800;">Step ${activeIndex}/5000</span>
+                </div>
+                <div class="duo-path-container path-backdrop-vocab">
+                    <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
+                        ${nodesHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function startVocabularyNode(nodeNum, status) {
+            playSound('click');
+            if(status === 'locked') { showToast('Complete previous vocabulary step first!', true); return; }
+            if(sessionUser.hearts <= 0) {
+                openHeartRecoveryLounge();
+                return;
+            }
+
+            const vocabItem = aviationVocabDatabase[(nodeNum - 1) % aviationVocabDatabase.length];
+            const box = document.getElementById('simulation-box');
+            let timeLeft = 30;
+
+            box.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+                    <span style="font-size: 0.75rem; color: var(--gold); font-weight: 900;">VOCAB STEP ${nodeNum} / 5000</span>
+                    <span id="vocab-timer" style="font-size:0.8rem; color:var(--danger); font-weight:800;">⏱️ 30s</span>
+                </div>
+                <div style="background:var(--bg-deep); padding:1.4rem; border-radius:18px; border:1px solid var(--border-glow); text-align:center; margin-bottom:1rem;">
+                    <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:6px;">Pronounce this Aviation Term in English:</span>
+                    <h2 style="font-size:1.8rem; color:var(--accent); font-weight:900; margin-bottom:12px;" id="target-vocab-word">${vocabItem.en}</h2>
+                    
+                    <div id="vocab-translation-box" class="hidden" style="background:rgba(16, 185, 129, 0.15); border:1px solid var(--success); padding:10px; border-radius:12px; margin-bottom:12px;">
+                        <span style="font-size:0.75rem; color:var(--success); font-weight:800; display:block;">ARABIC TRANSLATION:</span>
+                        <h3 style="font-size:1.2rem; color:white; font-weight:900;">${vocabItem.ar}</h3>
+                    </div>
+
+                    <div style="margin: 15px 0;">
+                        <button onclick="startSpeechRecognitionForVocab(${nodeNum}, '${vocabItem.en}')" id="vocab-mic-btn" style="width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg, #38bdf8, #0284c7); border:3px solid #bae6fd; color:#020617; font-size:2rem; cursor:pointer; box-shadow:0 0 25px var(--accent-glow); display:inline-flex; justify-content:center; align-items:center; transition: transform 0.2s;">🎤</button>
+                        <div id="vocab-speech-status" style="font-size:0.8rem; color:var(--text-muted); margin-top:8px; font-weight:700;">Tap microphone and pronounce clearly</div>
+                    </div>
+                </div>
+                <div id="vocab-feedback" style="text-align:center; font-weight:800; font-size:0.85rem;"></div>
+            `;
+
+            questionTimerInterval = setInterval(async () => {
+                timeLeft--;
+                const timerEl = document.getElementById('vocab-timer');
+                if(timerEl) timerEl.innerText = `⏱️ ${timeLeft}s`;
+                if(timeLeft <= 0) {
+                    clearInterval(questionTimerInterval);
+                    showToast('Time expired! Heart lost ❤️-1', true);
+                    const res = await fetch('/api/node/complete', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: `vocab_node_${nodeNum}`, lost_heart: true })
+                    });
+                    const data = await res.json();
+                    sessionUser.hearts = data.hearts;
+                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                    updateDashboardUI();
+                    if(sessionUser.hearts <= 0) openHeartRecoveryLounge();
+                    else launchVocabularyRoadmap();
+                }
+            }, 1000);
+        }
+
+        function startSpeechRecognitionForVocab(nodeNum, expectedWord) {
+            playSound('click');
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if(!SpeechRecognition) {
+                showToast('Speech recognition not supported in this browser. Simulating success.', false);
+                completeVocabNode(nodeNum);
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            const micBtn = document.getElementById('vocab-mic-btn');
+            const statusEl = document.getElementById('vocab-speech-status');
+            if(micBtn) micBtn.style.background = 'var(--danger)';
+            if(statusEl) statusEl.innerText = 'Listening... Speak now!';
+
+            recognition.onresult = async function(event) {
+                if(questionTimerInterval) clearInterval(questionTimerInterval);
+                const spokenText = event.results[0][0].transcript.trim().toLowerCase();
+                const expected = expectedWord.toLowerCase();
+                
+                const transBox = document.getElementById('vocab-translation-box');
+                if(transBox) transBox.classList.remove('hidden');
+
+                if(spokenText.includes(expected) || expected.includes(spokenText)) {
+                    showToast('Pronunciation Correct! +30 XP ⭐');
+                    if(statusEl) statusEl.innerText = `Matched: "${spokenText}"`;
+                    setTimeout(() => completeVocabNode(nodeNum), 1200);
+                } else {
+                    showToast(`Mispronounced ("${spokenText}"). Heart lost ❤️-1`, true);
+                    if(statusEl) statusEl.innerText = `Heard: "${spokenText}" (Expected: ${expected})`;
+                    const res = await fetch('/api/node/complete', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: `vocab_node_${nodeNum}`, lost_heart: true })
+                    });
+                    const data = await res.json();
+                    sessionUser.hearts = data.hearts;
+                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                    updateDashboardUI();
+                    if(sessionUser.hearts <= 0) openHeartRecoveryLounge();
+                }
+            };
+
+            recognition.onerror = function() {
+                if(statusEl) statusEl.innerText = 'Speech recognition error. Tap mic to retry.';
+                if(micBtn) micBtn.style.background = 'linear-gradient(135deg, #38bdf8, #0284c7)';
+            };
+
+            recognition.onend = function() {
+                if(micBtn) micBtn.style.background = 'linear-gradient(135deg, #38bdf8, #0284c7)';
+            };
+
+            recognition.start();
+        }
+
+        async function completeVocabNode(nodeNum) {
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
+            const res = await fetch('/api/node/complete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: `vocab_node_${nodeNum}`, lost_heart: false })
+            });
+            const data = await res.json();
+            sessionUser.completed_nodes = data.completed_nodes;
+            sessionUser.xp_points = data.xp;
+            sessionUser.hearts = data.hearts;
+            sessionUser.streak = data.streak;
+            localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+            updateDashboardUI();
+
+            const box = document.getElementById('simulation-box');
+            box.innerHTML = `
+                <div style="text-align:center; padding: 2rem 0;">
+                    <div style="font-size: 3.5rem; margin-bottom: 1rem;">👑</div>
+                    <h3 style="font-size: 1.3rem; color: var(--gold); font-weight: 900; margin-bottom: 0.5rem;">Vocabulary Step Completed!</h3>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">You earned <b>+30 XP Stars</b> ⭐ and mastered this aviation term!</p>
+                    <button class="btn-action" onclick="launchVocabularyRoadmap()" style="background:var(--success); color:white;">Continue 5k Path ✈</button>
+                </div>
+            `;
         }
 
         /* AVIATION ENGLISH ROADMAP */
@@ -863,30 +1088,30 @@
                 openHeartRecoveryLounge();
                 return;
             }
-            const randomizedQuestions = getRandomQuizQuestions(poolKey, 3);
-            renderDynamicStep(poolKey, nodeNum, randomizedQuestions, 0);
+            activeQuestionsStore = getRandomQuizQuestions(poolKey, 3);
+            renderDynamicStep(poolKey, nodeNum, 0);
         }
 
-        function renderDynamicStep(poolKey, nodeNum, questions, stepIdx) {
+        function renderDynamicStep(poolKey, nodeNum, stepIdx) {
             if(questionTimerInterval) clearInterval(questionTimerInterval);
-            if(stepIdx >= questions.length) {
+            if(stepIdx >= activeQuestionsStore.length) {
                 completeDynamicNode(poolKey, nodeNum);
                 return;
             }
-            const qObj = questions[stepIdx];
+            const qObj = activeQuestionsStore[stepIdx];
             const box = document.getElementById('simulation-box');
             let timeLeft = 35;
 
             box.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-                    <span style="font-size: 0.75rem; color: var(--gold); font-weight: 900;">NODE ${nodeNum} • QUESTION ${stepIdx+1} OF ${questions.length}</span>
+                    <span style="font-size: 0.75rem; color: var(--gold); font-weight: 900;">NODE ${nodeNum} • QUESTION ${stepIdx+1} OF ${activeQuestionsStore.length}</span>
                     <span id="dyn-timer" style="font-size:0.8rem; color:var(--danger); font-weight:800;">⏱️ 35s</span>
                 </div>
                 <div style="background:var(--bg-deep); padding:1.2rem; border-radius:16px; border:1px solid var(--border-glow); margin-bottom:1rem;">
                     <b style="color:white; font-size:0.95rem; display:block; margin-bottom:12px;">${qObj.q}</b>
                     <div style="display:flex; flex-direction:column; gap:8px;">
                         ${qObj.options.map((opt, idx) => `
-                            <button class="btn-action" onclick="verifyDynamicAnswer('${poolKey}', ${nodeNum}, ${idx === qObj.correct}, ${stepIdx}, ${encodeURIComponent(JSON.stringify(questions))})" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:11px; font-size:0.85rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
+                            <button class="btn-action" onclick="verifyDynamicAnswer('${poolKey}', ${nodeNum}, ${idx === qObj.correct}, ${stepIdx})" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:11px; font-size:0.85rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
                         `).join('')}
                     </div>
                 </div>
@@ -911,22 +1136,21 @@
                     localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                     updateDashboardUI();
                     if(sessionUser.hearts <= 0) openHeartRecoveryLounge();
-                    else renderDynamicStep(poolKey, nodeNum, questions, stepIdx);
+                    else renderDynamicStep(poolKey, nodeNum, stepIdx);
                 }
             }, 1000);
         }
 
-        async function verifyDynamicAnswer(poolKey, nodeNum, isCorrect, stepIdx, questionsParam) {
+        async function verifyDynamicAnswer(poolKey, nodeNum, isCorrect, stepIdx) {
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             const fb = document.getElementById('dyn-feedback');
-            const questions = typeof questionsParam === 'string' ? JSON.parse(decodeURIComponent(questionsParam)) : questionsParam;
             const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `${poolKey}_node_${nodeNum}`;
 
             if(isCorrect) {
                 fb.style.color = 'var(--success)';
                 fb.innerText = 'Correct procedure!';
                 setTimeout(() => {
-                    renderDynamicStep(poolKey, nodeNum, questions, stepIdx + 1);
+                    renderDynamicStep(poolKey, nodeNum, stepIdx + 1);
                 }, 900);
             } else {
                 fb.style.color = 'var(--danger)';
@@ -1047,7 +1271,7 @@
             if(isTeacher) {
                 teacherControls = `
                     <div style="background:var(--bg-deep); padding:1rem; border-radius:14px; border:1px solid var(--accent); margin-bottom:1rem;">
-                        <h4 style="color:var(--accent); font-size:0.9rem; margin-bottom:0.5rem;">👨‍‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
+                        <h4 style="color:var(--accent); font-size:0.9rem; margin-bottom:0.5rem;">👨‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
                         
                         <div style="margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:10px;">
                             <label><b>Create Quiz</b></label>
@@ -1106,7 +1330,7 @@
                       groupInfo.exams.map(e => `
                         <div style="background:var(--bg-deep); padding:10px; border-radius:12px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
                             <div><b style="color:white; font-size:0.85rem;">🏆 ${e.title}</b><div style="color:var(--text-muted); font-size:0.7rem;">Teacher: ${e.teacher_username}</div></div>
-                            <button class="btn-action" onclick='takeExam(${encodeURIComponent(JSON.stringify(e))})' style="width:90px; padding:6px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Start ⏱</button>
+                            <button class="btn-action" onclick='takeExam(${JSON.stringify(e)})' style="width:90px; padding:6px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Start ⏱</button>
                         </div>
                     `).join('')}
                 </div>
@@ -1117,7 +1341,7 @@
                       groupInfo.lessons.map(l => `
                         <div style="background:var(--bg-deep); padding:10px; border-radius:12px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
                             <div><b style="color:white; font-size:0.85rem;">📝 ${l.title}</b></div>
-                            <button class="btn-action" onclick='takeLessonQuiz(${encodeURIComponent(JSON.stringify(l))})' style="width:90px; padding:6px; font-size:0.75rem; margin-top:0;">Take 📝</button>
+                            <button class="btn-action" onclick='takeLessonQuiz(${JSON.stringify(l)})' style="width:90px; padding:6px; font-size:0.75rem; margin-top:0;">Take 📝</button>
                         </div>
                     `).join('')}
                 </div>
@@ -1230,9 +1454,8 @@
         let currentExamTimer = null;
         let examStartTime = 0;
 
-        function takeExam(examParam) {
+        function takeExam(exam) {
             playSound('click');
-            const exam = typeof examParam === 'string' ? JSON.parse(decodeURIComponent(examParam)) : examParam;
             let questions = exam.exam_data;
             if(typeof questions === 'string') questions = JSON.parse(questions);
             examStartTime = Date.now();
@@ -1281,9 +1504,8 @@
             }
         }
 
-        function takeLessonQuiz(lessonParam) {
+        function takeLessonQuiz(lesson) {
             playSound('click');
-            const lesson = typeof lessonParam === 'string' ? JSON.parse(decodeURIComponent(lessonParam)) : lessonParam;
             let questions = lesson.quiz_data;
             if(typeof questions === 'string') questions = JSON.parse(questions);
 
