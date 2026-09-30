@@ -74,9 +74,9 @@
         .stats-dashboard { display: flex; justify-content: space-between; align-items: center; background: var(--surface-card); padding: 0.85rem 1.1rem; border-radius: 18px; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; cursor: pointer; }
         .stat-item { font-weight: 800; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; }
         
-        /* PROFESSIONAL AIRCRAFT & AVIATION CABIN CREW TILE BACKGROUNDS */
+        /* UNIFORM, PERFECTLY DESIGNED AVIATION COCKPIT BACKGROUNDS FOR EACH ICON/TILE */
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.1rem; }
-        .mode-tile { background: linear-gradient(rgba(2, 6, 23, 0.82), rgba(11, 15, 25, 0.92)), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=600&q=80') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+        .mode-tile { background: linear-gradient(rgba(2, 6, 23, 0.78), rgba(11, 15, 25, 0.92)), url('https://images.unsplash.com/photo-1583267746897-2cf41db0a738?auto=format&fit=crop&w=600&q=80') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
         .mode-tile:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 0 20px var(--accent-glow); }
         .mode-tile h4 { font-size: 0.82rem; font-weight: 800; margin-top: 6px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 
@@ -190,14 +190,14 @@
         <!-- REGISTER SCREEN -->
         <div id="screen-register" class="hidden">
             <h2 id="tr-reg-title">Cadet & Instructor Enrollment</h2>
-            <p class="sub-desc" id="tr-reg-sub">Register your profile, choose your role, and design your avatar.</p>
+            <p class="sub-desc" id="tr-reg-sub">Register your profile (starts with 1,500 XP Stars ⭐), choose your role, and design your avatar.</p>
             
             <div class="avatar-preview-box" id="reg-avatar-preview">🧯</div>
 
             <label id="tr-reg-role-lbl">Register As</label>
             <select id="reg-role" onchange="toggleTeacherCodeContainer()">
-                <option value="student" id="tr-opt-cadet">🎓 Cadet / Student</option>
-                <option value="teacher" id="tr-opt-teacher">👨‍🏫 Instructor / Teacher</option>
+                <option value="student" id="tr-opt-cadet">🎓 Cadet / Student (Starts with 1,500 XP ⭐)</option>
+                <option value="teacher" id="tr-opt-teacher">👨‍🏫 Instructor / Teacher (Starts with 1,500 XP ⭐)</option>
             </select>
 
             <div id="teacher-code-box" class="hidden" style="background: rgba(56, 189, 248, 0.08); padding: 12px; border-radius: 14px; border: 1px dashed var(--accent); margin-bottom: 1rem;">
@@ -228,7 +228,7 @@
                 <option value="hostess">👗 Hostess</option>
             </select>
             
-            <button class="btn-action" onclick="submitRegister()" style="background: #10b981; color: white;" id="tr-complete-reg-btn">Complete Registration</button>
+            <button class="btn-action" onclick="submitRegister()" style="background: #10b981; color: white;" id="tr-complete-reg-btn">Complete Registration (Claim 1,500 XP)</button>
             
             <div class="footer-nav">
                 <span onclick="navigateTo('screen-login')" id="tr-back-login">Already have an account? Sign In</span>
@@ -424,11 +424,11 @@
                 loginTitle: "Cabin Crew Portal", loginSub: "Access accredited EASA/ICAO curriculum & live groups.",
                 phoneLbl: "Phone Number", passLbl: "Password", loginBtn: "Sign In to Simulator",
                 regNav: "Create Account", resetNav: "Forgot Password?",
-                regTitle: "Cadet & Instructor Enrollment", regSub: "Register your profile, choose your role, and design your avatar.",
-                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student", optTeacher: "👨‍🏫 Instructor / Teacher",
+                regTitle: "Cadet & Instructor Enrollment", regSub: "Register your profile (starts with 1,500 XP Stars ⭐), choose your role, and design your avatar.",
+                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student (Starts with 1,500 XP ⭐)", optTeacher: "👨‍🏫 Instructor / Teacher (Starts with 1,500 XP ⭐)",
                 regNameLbl: "Full Name", regUserLbl: "Unique Username", regPassLbl: "Password", regPinLbl: "Recovery PIN (4 digits)",
                 avatarStudioTitle: "🎨 Avatar Customization", avatarTypeLbl: "Avatar Type", optSteward: "👔 Steward", optHostess: "👗 Hostess",
-                completeRegBtn: "Complete Registration", backLogin: "Already have an account? Sign In",
+                completeRegBtn: "Complete Registration (Claim 1,500 XP)", backLogin: "Already have an account? Sign In",
                 resetTitle: "Recovery PIN Reset", resetSub: "Enter your phone and secret recovery PIN.", resetNewLbl: "New Password",
                 updateCredBtn: "Update Credentials", backLogin2: "Back to Sign In",
                 tileY1: "First Year Path (100 Nodes)", tileY2: "Second Year Path (Locked)", tileEng: "Aviation English & ICAO Mastery",
@@ -445,11 +445,11 @@
                 loginTitle: "Portail du Personnel de Cabine", loginSub: "Accédez au programme EASA/ICAO et aux groupes.",
                 phoneLbl: "Numéro de téléphone", passLbl: "Mot de passe", loginBtn: "Se connecter",
                 regNav: "Créer un compte", resetNav: "Mot de passe oublié ?",
-                regTitle: "Inscription Cadet & Instructeur", regSub: "Enregistrez votre profil, choisissez votre rôle et votre avatar.",
-                regRoleLbl: "S'inscrire en tant que", optCadet: "🎓 Cadet / Étudiant", optTeacher: "👨‍🏫 Instructeur / Professeur",
+                regTitle: "Inscription Cadet & Instructeur", regSub: "Enregistrez votre profil (débute avec 1,500 XP Stars ⭐), choisissez votre rôle et votre avatar.",
+                regRoleLbl: "S'inscrire en tant que", optCadet: "🎓 Cadet / Étudiant (1,500 XP ⭐)", optTeacher: "👨‍🏫 Instructeur / Professeur (1,500 XP ⭐)",
                 regNameLbl: "Nom complet", regUserLbl: "Nom d'utilisateur unique", regPassLbl: "Mot de passe", regPinLbl: "PIN de récupération (4 chiffres)",
                 avatarStudioTitle: "🎨 Personnalisation d'Avatar", avatarTypeLbl: "Type d'avatar", optSteward: "👔 Steward", optHostess: "👗 Hôtesse",
-                completeRegBtn: "Terminer l'inscription", backLogin: "Déjà un compte ? Se connecter",
+                completeRegBtn: "Terminer l'inscription (1,500 XP)", backLogin: "Déjà un compte ? Se connecter",
                 resetTitle: "Réinitialisation du PIN", resetSub: "Entrez votre téléphone et votre PIN de récupération secret.", resetNewLbl: "Nouveau mot de passe",
                 updateCredBtn: "Mettre à jour", backLogin2: "Retour à la connexion",
                 tileY1: "Parcours 1ère Année (100 Nœuds)", tileY2: "Parcours 2ème Année (Verrouillé)", tileEng: "Anglais Aéronautique & ICAO",
@@ -466,11 +466,11 @@
                 loginTitle: "بوابة طاقم الطائرة", loginSub: "الوصول إلى مناهج EASA والمجموعات الحية المعتمدة.",
                 phoneLbl: "رقم الهاتف", passLbl: "كلمة المرور", loginBtn: "تسجيل الدخول",
                 regNav: "إنشاء حساب", resetNav: "نسيت كلمة المرور؟",
-                regTitle: "تسجيل المتدربين والمدربين", regSub: "سجل ملفك الشخصي واجتاز التدريب وصمم صورتك الرمزية.",
-                regRoleLbl: "التسجيل كـ", optCadet: "🎓 متدرب / طالب", optTeacher: "👨‍🏫 مدرب / معلم",
+                regTitle: "تسجيل المتدربين والمدربين", regSub: "سجل ملفك الشخصي (يبدأ بـ 1500 نقطة XP ⭐) واجتاز التدريب وصمم صورتك الرمزية.",
+                regRoleLbl: "التسجيل كـ", optCadet: "🎓 متدرب / طالب (يبدأ بـ 1500 نقطة XP ⭐)", optTeacher: "👨‍🏫 مدرب / معلم (يبدأ بـ 1500 نقطة XP ⭐)",
                 regNameLbl: "الاسم الكامل", regUserLbl: "اسم المستخدم الفريد", regPassLbl: "كلمة المرور", regPinLbl: "رقم الاسترداد السري (4 أرقام)",
                 avatarStudioTitle: "🎨 تخصيص الصورة الرمزية", avatarTypeLbl: "نوع الصورة", optSteward: "👔 مضيف جوي", optHostess: "👗 مضيفة جوية",
-                completeRegBtn: "إتمام التسجيل", backLogin: "لديك حساب بالفعل؟ سجل دخولك",
+                completeRegBtn: "إتمام التسجيل (احصل على 1500 نقطة XP)", backLogin: "لديك حساب بالفعل؟ سجل دخولك",
                 resetTitle: "إعادة تعيين رقم الاسترداد", resetSub: "أدخل هاتفك ورقم الاسترداد السري الخاص بك.", resetNewLbl: "كلمة المرور الجديدة",
                 updateCredBtn: "تحديث بيانات الاعتماد", backLogin2: "العودة لتسجيل الدخول",
                 tileY1: "مسار السنة الأولى (100 نقطة)", tileY2: "مسار السنة الثانية (مغلق)", tileEng: "اللغة الإنجليزية للطيران وإيكاو",
@@ -677,11 +677,11 @@
             const res = await fetch('/api/register', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ full_name, username, phone_number, password, recovery_pin, role, teacher_code, avatar_gender, group_code })
+                body: JSON.stringify({ full_name, username, phone_number, password, recovery_pin, role, teacher_code, avatar_gender, group_code, xp_points: 1500 })
             });
             const data = await res.json();
             if(res.ok) {
-                showToast('Registration successful! Please sign in.');
+                showToast('Registration successful with 1,500 XP Stars! Please sign in.');
                 navigateTo('screen-login');
             } else {
                 showToast(data.detail || 'Registration failed', true);
@@ -702,6 +702,10 @@
             const data = await res.json();
             if(res.ok) {
                 sessionUser = data.user;
+                // Guarantee minimum 1,500 XP for registered users if empty
+                if((sessionUser.xp_points || 0) < 1500 && sessionUser.completed_nodes?.length === 0) {
+                    sessionUser.xp_points = 1500;
+                }
                 localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                 updateDashboardUI();
                 navigateTo('screen-dashboard');
@@ -782,7 +786,7 @@
             `;
         }
 
-        /* BULLETPROOF SPINNING WHEEL WITH IMMEDIATE BALANCE REWARD PAYOUT */
+        /* BULLETPROOF SPINNING WHEEL WITH INSTANT BALANCE REWARD PAYOUT */
         const wheelPrizes = [
             { text: "100 XP ⭐", type: "xp", val: 100, color: "#0ea5e9" },
             { text: "Pilot Hat 🧢", type: "skin", val: "Captain Pilot Hat", color: "#6366f1" },
@@ -1798,7 +1802,7 @@
                     sender_username: sessionUser.username, 
                     receiver_username: friendUsername, 
                     sender_name: sessionUser.full_name, 
-                    content: `⚔️ [BATTLE_INVITE]:@${sessionUser.username} challenged you to a 1v1 Battle (8 First Year Questions, 30s per question, Winner takes 100 XP Stars)!` 
+                    content: `⚔️️ [BATTLE_INVITE]:@${sessionUser.username} challenged you to a 1v1 Battle (8 First Year Questions, 30s per question, Winner takes 100 XP Stars)!` 
                 })
             });
 
