@@ -10,7 +10,7 @@
         :root {
             --bg-deep: #020617;
             --surface: #0b0f19;
-            --surface-card: rgba(19, 27, 46, 0.94);
+            --surface-card: rgba(11, 15, 25, 0.94);
             --surface-card-hover: rgba(28, 40, 68, 0.98);
             --accent: #38bdf8;
             --accent-glow: rgba(56, 189, 248, 0.4);
@@ -28,7 +28,7 @@
         
         body { 
             background-color: #020617 !important;
-            background-image: linear-gradient(rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 0.82)), url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1920&q=80') !important;
+            background-image: linear-gradient(rgba(2, 6, 23, 0.65), rgba(2, 6, 23, 0.78)), url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1920&q=80') !important;
             background-repeat: no-repeat !important;
             background-position: center center !important;
             background-attachment: fixed !important;
@@ -44,6 +44,19 @@
 
         .app-shell { width: 100%; max-width: 680px; background: rgba(11, 15, 25, 0.95); backdrop-filter: blur(20px); border-radius: 36px; padding: 2rem; border: 1px solid var(--border-glow); box-shadow: 0 45px 90px rgba(0, 0, 0, 0.95); position: relative; z-index: 2; }
         
+        /* FULL SCREEN MOBILE OVERRIDE VIEW */
+        .app-shell.fullscreen-mode {
+            position: fixed !important;
+            inset: 0 !important;
+            max-width: 100% !important;
+            height: 100vh !important;
+            border-radius: 0 !important;
+            padding: 1.5rem !important;
+            overflow-y: auto !important;
+            z-index: 4000 !important;
+            background: rgba(2, 6, 23, 0.98) !important;
+        }
+
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.4rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
         .brand-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem; color: var(--accent); text-shadow: 0 0 15px var(--accent-glow); }
         .brand-title img { width: 34px; height: 34px; }
@@ -73,23 +86,23 @@
         .stats-dashboard { display: flex; justify-content: space-between; align-items: center; background: var(--surface-card); padding: 0.85rem 1.1rem; border-radius: 18px; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; cursor: pointer; }
         .stat-item { font-weight: 800; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; }
         
-        /* EXACT PRIVATE JET STAIRS PHOTO EMBEDDED RELIABLY IN EVERY TILE BACKGROUND */
+        /* GORGEOUS AIRCRAFT/AIRPLANE BACKGROUNDS FOR TILES & FULLSCREEN */
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.1rem; }
-        .mode-tile { background: linear-gradient(rgba(2, 6, 23, 0.72), rgba(11, 15, 25, 0.88)), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=600&q=80') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+        .mode-tile { background: linear-gradient(rgba(2, 6, 23, 0.65), rgba(11, 15, 25, 0.88)), url('https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=600&q=80') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
         .mode-tile:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 0 20px var(--accent-glow); }
         .mode-tile h4 { font-size: 0.82rem; font-weight: 800; margin-top: 6px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.9); }
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; min-height: 290px; }
         
-        .path-bg-cockpit { background: linear-gradient(135deg, rgba(2, 6, 23, 0.88) 0%, rgba(3, 105, 161, 0.82) 100%), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
-        .path-bg-cabin { background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(14, 116, 144, 0.78) 100%), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
+        .path-bg-cockpit { background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(3, 105, 161, 0.75) 100%), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
+        .path-bg-cabin { background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(14, 116, 144, 0.72) 100%), url('https://images.unsplash.com/photo-1500835556837-99ac94a94552?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
 
         .duo-path-container { 
             display: flex; 
             flex-direction: column; 
             gap: 24px; 
             padding: 20px 10px; 
-            max-height: 360px; 
+            max-height: 420px; 
             overflow-y: auto; 
             border-radius: 18px; 
             border: 1px solid var(--border-glow);
@@ -111,7 +124,7 @@
         .companion-hopper { position: absolute; top: -34px; font-size: 2rem; animation: floatCompanion 1.5s infinite ease-in-out; z-index: 10; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7)); }
         @keyframes floatCompanion { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
-        .chat-container { display: flex; flex-direction: column; height: 340px; background: var(--bg-deep); border-radius: 16px; border: 1px solid var(--border-glow); overflow: hidden; }
+        .chat-container { display: flex; flex-direction: column; height: 380px; background: var(--bg-deep); border-radius: 16px; border: 1px solid var(--border-glow); overflow: hidden; }
         .chat-messages { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; scrollbar-width: none; }
         .chat-messages::-webkit-scrollbar { display: none; }
         .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 0.84rem; line-height: 1.4; }
@@ -130,23 +143,23 @@
     <div id="custom-confirm-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.92); display:none; justify-content:center; align-items:center; z-index:7000;">
         <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:380px; text-align:center; box-shadow:0 25px 60px rgba(0,0,0,0.9);">
             <div style="font-size:3rem; margin-bottom:10px;">⚠️</div>
-            <h3 id="custom-confirm-title" style="font-size:1.15rem; font-weight:900; color:white; margin-bottom:0.5rem;">Delete Group?</h3>
-            <p id="custom-confirm-desc" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.4rem; line-height:1.5;">This action is permanent and will remove the group and all its message history for all members.</p>
+            <h3 id="custom-confirm-title" style="font-size:1.15rem; font-weight:900; color:white; margin-bottom:0.5rem;">Delete?</h3>
+            <p id="custom-confirm-desc" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.4rem; line-height:1.5;">This action is permanent.</p>
             <div style="display:flex; gap:10px;">
                 <button class="btn-action" onclick="closeCustomConfirm(false)" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0;">Cancel</button>
-                <button class="btn-action" onclick="closeCustomConfirm(true)" style="background:var(--danger); color:white; margin-top:0;">Delete 🗑️</button>
+                <button class="btn-action" onclick="closeCustomConfirm(true)" style="background:var(--danger); color:white; margin-top:0;">Confirm 🗑️</button>
             </div>
         </div>
     </div>
 
-    <!-- 1V1 BATTLE CHALLENGE & CANCELLATION MODAL LOBBY -->
+    <!-- LIVE 1V1 INVITATION & CHALLENGE MODAL -->
     <div id="battle-arena-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.95); display:none; justify-content:center; align-items:center; z-index:8000;">
         <div style="background:var(--surface-card); border:1px solid var(--accent); border-radius:28px; padding:2rem; width:90%; max-width:440px; text-align:center; box-shadow:0 0 40px var(--accent-glow);">
             <div id="battle-modal-content"></div>
         </div>
     </div>
 
-    <div class="app-shell">
+    <div class="app-shell" id="main-app-shell">
         <div class="top-header">
             <div class="brand-title">
                 <img src="https://img.icons8.com/color/48/airplane-take-off.png" alt="Logo">
@@ -388,6 +401,8 @@
         let battleCurrentIdx = 0;
         let battleScore = 0;
         let battleTimerInterval = null;
+        let battleInvitePollingInterval = null;
+        let activeMatchId = null;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
@@ -439,7 +454,7 @@
                 tile1v1: "1v1 Battle Arena (Challenge)", tileStudy: "Lessons, Quizzes & Exams Studio", tileSocial: "Friends, Private Chat & Groups",
                 centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, <b>English Vocabulary</b>, or the <b>1v1 Battle Arena</b> above to begin your training adventure.",
                 hubBtn: "← Hub", logoutBtn: "Logout 🚪",
-                modalAvatarTitle: "🎨 Edit Avatar", modalGenderLbl: "Gender / Style", saveAvatarBtn: "Save Avatar 💾",
+                modalAvatarTitle: "🎨 Edit Avatar", modalGenderLbl: "Genre / Style", saveAvatarBtn: "Save Avatar 💾",
                 settingsTitle: "⚙️ Academy Settings", langLbl: "Interface Language", passChangeLbl: "Change Password", updatePassBtn: "Update Password 🔒",
                 myUsernameLbl: "My Username"
             },
@@ -498,6 +513,7 @@
                 updateDashboardUI();
                 navigateTo('screen-dashboard');
                 fetchGroupData();
+                startBattleInvitePolling();
             } else {
                 navigateTo('screen-login');
             }
@@ -639,6 +655,8 @@
                     langBar.classList.remove('hidden');
                 }
             }
+            // Reset mobile full screen shell on navigation
+            document.getElementById('main-app-shell').classList.remove('fullscreen-mode');
         }
 
         function toggleTeacherCodeContainer() {
@@ -713,6 +731,7 @@
                 updateDashboardUI();
                 navigateTo('screen-dashboard');
                 fetchGroupData();
+                startBattleInvitePolling();
                 showToast('Welcome aboard, Captain ' + sessionUser.full_name + '!');
             } else {
                 showToast(data.detail || 'Invalid phone or password', true);
@@ -769,6 +788,7 @@
             playSound('click');
             localStorage.removeItem('aero_crew_user_pro22');
             sessionUser = null;
+            if(battleInvitePollingInterval) clearInterval(battleInvitePollingInterval);
             navigateTo('screen-login');
             showToast('Logged out successfully.');
         }
@@ -782,14 +802,15 @@
         function resetToMenu() {
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
+            document.getElementById('main-app-shell').classList.remove('fullscreen-mode');
             const t = dict[activeLang];
             document.getElementById('simulation-box').innerHTML = `
-                <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;">${t.centerTitle}</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">${t.centerDesc}</p>
+                <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;" id="tr-center-title">${t.centerTitle}</h3>
+                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;" id="tr-center-desc">${t.centerDesc}</p>
             `;
         }
 
-        /* BULLETPROOF SPINNING WHEEL WITH INSTANT BALANCE REWARD PAYOUT */
+        /* BULLETPROOF SPINNING WHEEL WITH UNIVERSAL ACCOUNT LOCK */
         const wheelPrizes = [
             { text: "100 XP ⭐", type: "xp", val: 100, color: "#0ea5e9" },
             { text: "Pilot Hat 🧢", type: "skin", val: "Captain Pilot Hat", color: "#6366f1" },
@@ -803,6 +824,7 @@
 
         function openSpinningWheelModal() {
             playSound('click');
+            document.getElementById('main-app-shell').classList.add('fullscreen-mode');
             document.getElementById('spinning-wheel-modal').style.display = 'flex';
             drawWheelCanvas(0);
             checkSpinEligibility();
@@ -811,6 +833,7 @@
         function closeSpinningWheelModal() {
             playSound('click');
             document.getElementById('spinning-wheel-modal').style.display = 'none';
+            resetToMenu();
         }
 
         function drawWheelCanvas(currentAngle = 0) {
@@ -851,7 +874,7 @@
         function checkSpinEligibility() {
             const now = Date.now();
             const lockKey = 'aero_wheel_lock_' + (sessionUser ? sessionUser.phone_number : 'guest');
-            const lastSpin = parseInt(localStorage.getItem(lockKey) || '0');
+            const lastSpin = parseInt(localStorage.getItem(lockKey) || (sessionUser && sessionUser.last_spin_timestamp ? sessionUser.last_spin_timestamp : '0'));
             const twentyFourHours = 24 * 60 * 60 * 1000;
             const spinBtn = document.getElementById('spin-wheel-btn');
             const statusEl = document.getElementById('wheel-status-text');
@@ -862,7 +885,7 @@
                 const remainingMins = Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000));
                 spinBtn.disabled = true;
                 spinBtn.style.opacity = '0.5';
-                statusEl.innerText = `🔒 Next spin available in ${remainingHours}h ${remainingMins}m (24h Cooldown Active)`;
+                statusEl.innerText = `🔒 Next spin available in ${remainingHours}h ${remainingMins}m (24h Account Cooldown)`;
                 return false;
             } else {
                 spinBtn.disabled = false;
@@ -874,7 +897,7 @@
 
         async function spinTheDailyWheel() {
             if (!checkSpinEligibility()) {
-                showToast('Strict Security: Only 1 spin allowed every 24 hours!', true);
+                showToast('Strict Security: Only 1 spin allowed every 24 hours across devices!', true);
                 return;
             }
 
@@ -910,8 +933,10 @@
                     statusEl.innerText = `🎉 You won: ${prize.text}!`;
                     showToast(`Congratulations! Won ${prize.text}!`);
 
+                    const nowTs = Date.now().toString();
                     const lockKey = 'aero_wheel_lock_' + sessionUser.phone_number;
-                    localStorage.setItem(lockKey, Date.now().toString());
+                    localStorage.setItem(lockKey, nowTs);
+                    sessionUser.last_spin_timestamp = nowTs;
 
                     if(prize.type === 'xp') {
                         sessionUser.xp_points = (sessionUser.xp_points || 0) + prize.val;
@@ -1055,9 +1080,10 @@
             return classes[Math.floor(Math.random() * classes.length)];
         }
 
-        /* 5,000-STEP VOCABULARY PATH TO ARABIC */
+        /* 5,000-STEP VOCABULARY PATH TO ARABIC (FULLSCREEN MOBILE) */
         function launchVocabularyRoadmap() {
             playSound('click');
+            document.getElementById('main-app-shell').classList.add('fullscreen-mode');
             const box = document.getElementById('simulation-box');
             const completedList = sessionUser.completed_nodes || [];
 
@@ -1093,7 +1119,8 @@
 
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                    <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">🗣️ Aviation Vocabulary (5,000 Steps)</h3>
+                    <button class="btn-action" onclick="resetToMenu()" style="width:75px; padding:4px 8px; font-size:0.75rem; margin-top:0;">← Menu</button>
+                    <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">🗣️ Aviation Vocabulary (5k)</h3>
                     <span style="font-size: 0.72rem; color: var(--gold); font-weight: 800;">Step ${activeIndex}/5000</span>
                 </div>
                 <div class="duo-path-container ${bgClass}">
@@ -1118,6 +1145,7 @@
 
             box.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+                    <button class="btn-action" onclick="launchVocabularyRoadmap()" style="width:75px; padding:4px 8px; font-size:0.75rem; margin-top:0;">← Back</button>
                     <span style="font-size: 0.75rem; color: var(--gold); font-weight: 900;">VOCAB STEP ${nodeNum} / 5000</span>
                     <span id="vocab-timer" style="font-size:0.8rem; color:var(--danger); font-weight:800;">⏱️ 35s</span>
                 </div>
@@ -1244,15 +1272,16 @@
                 <div style="text-align:center; padding: 2rem 0;">
                     <div style="font-size: 3.5rem; margin-bottom: 1rem;">👑</div>
                     <h3 style="font-size: 1.3rem; color: var(--gold); font-weight: 900; margin-bottom: 0.5rem;">Vocabulary Step Completed!</h3>
-                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">You earned <b>+30 XP Stars</b> ⭐ and mastered this aviation term!</p>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">You earned <b>+30 XP Stars</b> ⭐ and mastered this term!</p>
                     <button class="btn-action" onclick="launchVocabularyRoadmap()" style="background:var(--success); color:white;">Continue 5k Path ✈</button>
                 </div>
             `;
         }
 
-        /* AVIATION ENGLISH ROADMAP */
+        /* AVIATION ENGLISH ROADMAP (FULLSCREEN MOBILE) */
         function launchAviationEnglishRoadmap() {
             playSound('click');
+            document.getElementById('main-app-shell').classList.add('fullscreen-mode');
             const box = document.getElementById('simulation-box');
             const completedList = sessionUser.completed_nodes || [];
 
@@ -1290,7 +1319,8 @@
 
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                    <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">🌐 Aviation English & ICAO Mastery Path</h3>
+                    <button class="btn-action" onclick="resetToMenu()" style="width:75px; padding:4px 8px; font-size:0.75rem; margin-top:0;">← Menu</button>
+                    <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">🌐 Aviation English & ICAO</h3>
                     <span style="font-size: 0.72rem; color: var(--success); font-weight: 800;">Skin: ${sessionUser.active_skin}</span>
                 </div>
                 <div class="duo-path-container ${bgClass}">
@@ -1324,7 +1354,8 @@
 
             box.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-                    <span style="font-size: 0.75rem; color: var(--gold); font-weight: 900;">NODE ${nodeNum} • QUESTION ${stepIdx+1} OF ${activeQuestionsStore.length}</span>
+                    <button class="btn-action" onclick="${poolKey === 'english' ? 'launchAviationEnglishRoadmap()' : 'launchRoadmap(\'' + poolKey + '\')'}" style="width:75px; padding:4px 8px; font-size:0.75rem; margin-top:0;">← Back</button>
+                    <span style="font-size: 0.75rem; color: var(--gold); font-weight: 900;">NODE ${nodeNum} • Q${stepIdx+1}/${activeQuestionsStore.length}</span>
                     <span id="dyn-timer" style="font-size:0.8rem; color:var(--danger); font-weight:800;">⏱ 35s</span>
                 </div>
                 <div style="background:var(--bg-deep); padding:1.2rem; border-radius:16px; border:1px solid var(--border-glow); margin-bottom:1rem;">
@@ -1414,9 +1445,10 @@
             `;
         }
 
-        /* ROADMAPS FOR YEAR 1 & YEAR 2 */
+        /* ROADMAPS FOR YEAR 1 & YEAR 2 (FULLSCREEN MOBILE) */
         function launchRoadmap(yearKey) {
             playSound('click');
+            document.getElementById('main-app-shell').classList.add('fullscreen-mode');
             const box = document.getElementById('simulation-box');
             const completedList = sessionUser.completed_nodes || [];
             
@@ -1432,6 +1464,7 @@
                     showToast('Complete all 100 nodes of First Year to unlock Second Year!', true);
                     box.innerHTML = `
                         <div style="text-align:center; padding: 2.5rem 1rem;">
+                            <button class="btn-action" onclick="resetToMenu()" style="width:75px; padding:4px 8px; font-size:0.75rem; margin-bottom:1rem;">← Menu</button>
                             <div style="font-size: 3.5rem; margin-bottom: 1rem;">🔒</div>
                             <h3 style="font-size: 1.2rem; color: var(--danger); font-weight: 900; margin-bottom: 0.5rem;">Second Year Path Locked</h3>
                             <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">You must finish all 100 nodes of the <b>First Year Path</b> before unlocking Second Year EASA training.</p>
@@ -1479,7 +1512,8 @@
 
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                    <h3 style="font-size: 1.05rem; color: var(--gold); font-weight: 900;">🏆 Year ${yearDisplayNum} Roadmap (Zig-Zag Path)</h3>
+                    <button class="btn-action" onclick="resetToMenu()" style="width:75px; padding:4px 8px; font-size:0.75rem; margin-top:0;">← Menu</button>
+                    <h3 style="font-size: 1.05rem; color: var(--gold); font-weight: 900;">🏆 Year ${yearDisplayNum} Roadmap</h3>
                     <span style="font-size: 0.72rem; color: var(--accent);">Skin: ${sessionUser.active_skin}</span>
                 </div>
                 <div class="duo-path-container ${bgClass}">
@@ -1490,9 +1524,10 @@
             `;
         }
 
-        /* STUDY & EXAMS STUDIO */
+        /* STUDY & EXAMS STUDIO (FULLSCREEN MOBILE) */
         async function openStudyHub() {
             playSound('click');
+            document.getElementById('main-app-shell').classList.add('fullscreen-mode');
             const codeInput = document.getElementById('student-join-code-input');
             const codeToFetch = sessionUser.role === 'teacher' ? sessionUser.group_code : (codeInput ? codeInput.value.trim() : sessionUser.group_code);
             
@@ -1505,7 +1540,7 @@
             if(isTeacher) {
                 teacherControls = `
                     <div style="background:var(--bg-deep); padding:1rem; border-radius:14px; border:1px solid var(--accent); margin-bottom:1rem;">
-                        <h4 style="color:var(--accent); font-size:0.9rem; margin-bottom:0.5rem;">👨‍‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
+                        <h4 style="color:var(--accent); font-size:0.9rem; margin-bottom:0.5rem;">👨‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
                         
                         <div style="margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:10px;">
                             <label><b>Create Quiz</b></label>
@@ -1539,12 +1574,13 @@
 
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                    <button class="btn-action" onclick="resetToMenu()" style="width:75px; padding:4px 8px; font-size:0.75rem; margin-top:0;">← Menu</button>
                     <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">📚 Study & Exams Studio</h3>
                     <span style="font-size: 0.72rem; color: var(--success); font-weight: 800;">Code: ${codeToFetch}</span>
                 </div>
                 ${teacherControls}
                 <h4 style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem; text-transform:uppercase;">Official Exams (${groupInfo.exams.length})</h4>
-                <div style="max-height:140px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:1rem; scrollbar-width:none;">
+                <div style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:1rem; scrollbar-width:none;">
                     ${groupInfo.exams.length === 0 ? '<div style="color:var(--text-muted); font-size:0.8rem; text-align:center;">No exams found.</div>' :
                       groupInfo.exams.map(e => `
                         <div style="background:var(--bg-deep); padding:10px; border-radius:12px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
@@ -1619,6 +1655,7 @@
             if(typeof questions === 'string') questions = JSON.parse(questions);
             const box = document.getElementById('simulation-box');
             box.innerHTML = `
+                <button class="btn-action" onclick="openStudyHub()" style="width:75px; padding:4px 8px; font-size:0.75rem; margin-bottom:10px;">← Back</button>
                 <h3 style="font-size:1.05rem; color:var(--warning); font-weight:900; margin-bottom:0.5rem;">⏱️ ${exam.title}</h3>
                 <div style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; margin-bottom:1rem; scrollbar-width:none;">
                     ${questions.map((q, idx) => `
@@ -1648,17 +1685,19 @@
             }
         }
 
-        /* FRIENDS, SOCIAL HUB & 1V1 CHALLENGE MATCHMAKING LOBBY WITH CANCEL */
+        /* FRIENDS & SOCIAL HUB (FULLSCREEN MOBILE) */
         async function openSocialHub() {
             playSound('click');
+            document.getElementById('main-app-shell').classList.add('fullscreen-mode');
             const res = await fetch('/api/friends/list?username=' + sessionUser.username);
             socialData = await res.json();
             const box = document.getElementById('simulation-box');
 
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                    <button class="btn-action" onclick="resetToMenu()" style="width:75px; padding:4px 8px; font-size:0.75rem; margin-top:0;">← Menu</button>
                     <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">💬 Friends & Social Hub</h3>
-                    <span style="font-size: 0.72rem; color: var(--success); font-weight: 800;">Social Network</span>
+                    <span style="font-size: 0.72rem; color: var(--success); font-weight: 800;">Network</span>
                 </div>
                 
                 <div style="background:var(--bg-deep); padding:0.9rem; border-radius:14px; border:1px solid var(--border-glow); margin-bottom:1rem;">
@@ -1674,7 +1713,7 @@
                     <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:1rem;">
                         ${socialData.incoming_requests.map(req => `
                             <div style="background:var(--bg-deep); padding:8px 12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-size:0.85rem; color:white;"><b>@${req.sender_username}</b> sent you a request</span>
+                                <span style="font-size:0.85rem; color:white;"><b>@${req.sender_username}</b> sent request</span>
                                 <button class="btn-action" onclick="acceptFriend('${req.sender_username}')" style="width:80px; padding:6px; font-size:0.75rem; background:var(--success); color:white; margin-top:0;">Accept</button>
                             </div>
                         `).join('')}
@@ -1683,16 +1722,16 @@
 
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
                     <h4 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase;">My Friends (${socialData.friends.length})</h4>
-                    <button class="btn-action" onclick="openCreateFriendGroup()" style="width:130px; padding:4px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">+ Create Friend Group</button>
+                    <button class="btn-action" onclick="openCreateFriendGroup()" style="width:130px; padding:4px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">+ Create Group</button>
                 </div>
-                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:1rem; scrollbar-width:none;">
-                    ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.75rem; text-align:center;">No friends added yet. Go to Social Hub or add friends to challenge them!</div>' :
+                <div style="max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:1rem; scrollbar-width:none;">
+                    ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.75rem; text-align:center;">No friends added yet.</div>' :
                       socialData.friends.map(f => `
                         <div style="background:var(--bg-deep); padding:8px 12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
                             <div><b style="color:white; font-size:0.85rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.75rem;">(@${f.username})</span></div>
                             <div style="display:flex; gap:6px;">
                                 <button class="btn-action" onclick="openDirectChat('${f.username}', '${f.full_name}')" style="width:60px; padding:6px; font-size:0.72rem; margin-top:0;">Chat</button>
-                                <button class="btn-action" onclick="open1v1ChallengeModal('${f.username}', '${f.full_name}')" style="width:75px; padding:6px; font-size:0.72rem; margin-top:0; background:var(--warning); color:var(--bg-deep);">1v1 ⚔</button>
+                                <button class="btn-action" onclick="send1v1Challenge('${f.username}', '${f.full_name}')" style="width:75px; padding:6px; font-size:0.72rem; margin-top:0; background:var(--warning); color:var(--bg-deep);">1v1 ⚔</button>
                             </div>
                         </div>
                     `).join('')}
@@ -1728,8 +1767,8 @@
             const box = document.getElementById('simulation-box');
             box.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+                    <button class="btn-action" onclick="openSocialHub()" style="width:75px; padding:4px 8px; font-size:0.75rem; margin-top:0;">← Back</button>
                     <h3 style="font-size:1.05rem; color:var(--warning); font-weight:900;">👥 Create Friend Group</h3>
-                    <button class="btn-action" onclick="openSocialHub()" style="width:70px; padding:6px; font-size:0.75rem; margin-top:0;">Back</button>
                 </div>
                 <label>Group Name</label>
                 <input type="text" id="fg-name" placeholder="e.g. Flight Cadets Study" />
@@ -1759,54 +1798,35 @@
             if(res.ok) { showToast('Group created!'); openSocialHub(); }
         }
 
-        function promptDeleteFriendGroup(groupId, groupName) {
-            showCustomConfirm(
-                `Delete "${groupName}"?`,
-                `As group admin, deleting this group will permanently remove it and all chat messages.`,
-                async function(confirmed) {
-                    if(confirmed) {
-                        const res = await fetch('/api/friend-groups/delete', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({ group_id: groupId, username: sessionUser.username })
-                        });
-                        if(res.ok) { showToast('Group deleted!'); openSocialHub(); }
-                        else { showToast('Only admin can delete this group', true); }
-                    }
-                }
-            );
-        }
-
-        /* 1V1 BATTLE LOBBY AND CANCELLATION FLOW */
+        /* TRUE 1V1 BATTLE ARENA LOBBY & ACCEPT/REJECT SYSTEM */
         async function open1v1Lobby() {
             playSound('click');
+            document.getElementById('main-app-shell').classList.add('fullscreen-mode');
             const res = await fetch('/api/friends/list?username=' + sessionUser.username);
             socialData = await res.json();
             const box = document.getElementById('simulation-box');
 
             box.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
-                    <h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">⚔️ 1v1 Battle Arena Lobby</h3>
-                    <button class="btn-action" onclick="resetToMenu()" style="width:70px; padding:6px; font-size:0.75rem; margin-top:0;">Back</button>
+                    <button class="btn-action" onclick="resetToMenu()" style="width:75px; padding:4px 8px; font-size:0.75rem; margin-top:0;">← Menu</button>
+                    <h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">⚔️ 1v1 Battle Arena</h3>
                 </div>
-                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Select a friend from your list below to challenge them to a live 1v1 duel (8 First Year Questions, 30s timer per question, Winner claims 100 XP Stars ⭐).</p>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Select a friend below to challenge them. They will receive an <b>Accept / Reject</b> invitation popup. Once accepted, you both take the <b>exact same 8 questions</b>. Winner claims <b>100 XP Stars ⭐</b> (or 50 XP each on a draw).</p>
                 
                 <h4 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.4rem;">Choose Friend to Challenge (${socialData.friends.length})</h4>
-                <div style="max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:1rem; scrollbar-width:none;">
-                    ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.8rem; text-align:center; padding:1rem;">No friends added yet. Go to <b>Friends & Social Hub</b> first to add friends!</div>' :
+                <div style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:1rem; scrollbar-width:none;">
+                    ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.8rem; text-align:center; padding:1rem;">No friends added yet. Go to <b>Friends & Social Hub</b> first!</div>' :
                       socialData.friends.map(f => `
                         <div style="background:var(--bg-deep); padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border-glow);">
                             <div><b style="color:white; font-size:0.9rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.75rem;">(@${f.username})</span></div>
-                            <button class="btn-action" onclick="open1v1ChallengeModal('${f.username}', '${f.full_name}')" style="width:90px; padding:6px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Challenge ⚔️</button>
+                            <button class="btn-action" onclick="send1v1Challenge('${f.username}', '${f.full_name}')" style="width:90px; padding:6px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Challenge ⚔️</button>
                         </div>
                     `).join('')}
                 </div>
             `;
         }
 
-        let currentBattleTimeout = null;
-
-        function open1v1ChallengeModal(friendUsername, friendFullName) {
+        async function send1v1Challenge(friendUsername, friendFullName) {
             playSound('click');
             const modal = document.getElementById('battle-arena-modal');
             const contentEl = document.getElementById('battle-modal-content');
@@ -1814,47 +1834,124 @@
 
             contentEl.innerHTML = `
                 <div style="text-align:center; padding: 1rem 0;">
-                    <div style="font-size: 3rem; margin-bottom: 10px;">⚔️️</div>
-                    <h3 style="font-size: 1.2rem; color:var(--accent); font-weight:900; margin-bottom:0.5rem;">Challenging ${friendFullName} (@${friendUsername})</h3>
-                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.4rem;">Waiting for opponent to accept battle invitation...</p>
+                    <div style="font-size: 3rem; margin-bottom: 10px;">⚔</div>
+                    <h3 style="font-size: 1.2rem; color:var(--accent); font-weight:900; margin-bottom:0.5rem;">Challenging ${friendFullName}</h3>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.4rem;">Pending invitation sent to @${friendUsername}. Waiting for them to accept...</p>
                     
-                    <div style="width:40px; height:40px; border:4px solid var(--accent); border-top-color:transparent; border-radius:50%; animation:spinLoader 1s linear infinite; margin:0 auto 1.4 auto;"></div>
+                    <div style="width:40px; height:40px; border:4px solid var(--accent); border-top-color:transparent; border-radius:50%; animation:spinLoader 1s linear infinite; margin:0 auto 1.4rem auto;"></div>
                     
                     <button class="btn-action" onclick="cancel1v1Challenge()" style="background:var(--danger); color:white; margin-top:0;">Cancel Invitation ❌</button>
                 </div>
             `;
 
-            // Send invitation notification via Direct Messages API
-            fetch('/api/direct-messages/send', {
+            const res = await fetch('/api/battle/invite', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ 
-                    sender_username: sessionUser.username, 
-                    receiver_username: friendUsername, 
-                    sender_name: sessionUser.full_name, 
-                    content: `⚔ [BATTLE_INVITE]:@${sessionUser.username} challenged you to a 1v1 Battle!` 
-                })
+                body: JSON.stringify({ sender_username: sessionUser.username, sender_name: sessionUser.full_name, receiver_username: friendUsername })
             });
-
-            // Simulate opponent acceptance after 3 seconds unless canceled
-            currentBattleTimeout = setTimeout(() => {
-                showToast(`@${friendUsername} accepted your challenge! Starting 1v1 Arena...`);
-                start1v1BattleArena();
-            }, 3500);
+            const data = await res.json();
+            if(res.ok) {
+                activeMatchId = data.match_id;
+                pollBattleAcceptance(activeMatchId);
+            } else {
+                showToast(data.detail || 'Failed to send challenge', true);
+                modal.style.display = 'none';
+            }
         }
 
         function cancel1v1Challenge() {
             playSound('click');
-            if(currentBattleTimeout) clearTimeout(currentBattleTimeout);
+            if(activeMatchId) {
+                fetch('/api/battle/cancel', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ match_id: activeMatchId })
+                });
+            }
+            activeMatchId = null;
             document.getElementById('battle-arena-modal').style.display = 'none';
-            showToast('1v1 challenge invitation canceled.', true);
+            showToast('1v1 challenge canceled.', true);
         }
 
-        function start1v1BattleArena() {
-            if(currentBattleTimeout) clearTimeout(currentBattleTimeout);
-            battleQuestions = getRandomQuizQuestions('year1', 8);
+        function pollBattleAcceptance(matchId) {
+            const pollTimer = setInterval(async () => {
+                if(!activeMatchId) { clearInterval(pollTimer); return; }
+                try {
+                    const res = await fetch('/api/battle/status?match_id=' + matchId);
+                    const data = await res.json();
+                    if(data.status === 'accepted') {
+                        clearInterval(pollTimer);
+                        activeQuestionsStore = data.questions;
+                        showToast('Opponent accepted! Starting 1v1 Arena...');
+                        start1v1BattleWithQuestions(data.questions, matchId);
+                    } else if(data.status === 'rejected' || data.status === 'canceled') {
+                        clearInterval(pollTimer);
+                        document.getElementById('battle-arena-modal').style.display = 'none';
+                        showToast('Battle invitation was rejected or canceled.', true);
+                    }
+                } catch(e) {}
+            }, 2000);
+        }
+
+        // Global background polling for incoming 1v1 battle invites
+        function startBattleInvitePolling() {
+            if(battleInvitePollingInterval) clearInterval(battleInvitePollingInterval);
+            battleInvitePollingInterval = setInterval(async () => {
+                if(!sessionUser) return;
+                try {
+                    const res = await fetch('/api/battle/incoming?username=' + sessionUser.username);
+                    const data = await res.json();
+                    if(data.invite) {
+                        showIncomingBattleModal(data.invite);
+                    }
+                } catch(e) {}
+            }, 3000);
+        }
+
+        function showIncomingBattleModal(invite) {
+            const modal = document.getElementById('battle-arena-modal');
+            if(modal.style.display === 'flex') return; // Don't interrupt if already in modal
+            modal.style.display = 'flex';
+            activeMatchId = invite.match_id;
+
+            const contentEl = document.getElementById('battle-modal-content');
+            contentEl.innerHTML = `
+                <div style="text-align:center; padding: 1rem 0;">
+                    <div style="font-size: 3.5rem; margin-bottom: 10px;">⚔️</div>
+                    <h3 style="font-size: 1.2rem; color:var(--gold); font-weight:900; margin-bottom:0.5rem;">Incoming 1v1 Challenge!</h3>
+                    <p style="font-size:0.9rem; color:white; margin-bottom:1.4rem;"><b>${invite.sender_name}</b> (@${invite.sender_username}) challenged you to a live 1v1 Duel for 100 XP Stars ⭐!</p>
+                    
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-action" onclick="respondBattleInvite(${invite.match_id}, false)" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0;">Reject ❌</button>
+                        <button class="btn-action" onclick="respondBattleInvite(${invite.match_id}, true)" style="background:var(--success); color:white; margin-top:0;">Accept Battle ⚔️</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function respondBattleInvite(matchId, accept) {
+            playSound('click');
+            const res = await fetch('/api/battle/respond', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ match_id: matchId, accept })
+            });
+            const data = await res.json();
+            if(accept && res.ok) {
+                activeQuestionsStore = data.questions;
+                showToast('Battle accepted! Starting Arena...');
+                start1v1BattleWithQuestions(data.questions, matchId);
+            } else {
+                document.getElementById('battle-arena-modal').style.display = 'none';
+                showToast('Battle invitation declined.', true);
+            }
+        }
+
+        function start1v1BattleWithQuestions(questions, matchId) {
+            battleQuestions = questions;
             battleCurrentIdx = 0;
             battleScore = 0;
+            activeMatchId = matchId;
             document.getElementById('battle-arena-modal').style.display = 'flex';
             renderBattleQuestionModal();
         }
@@ -1917,32 +2014,43 @@
         }
 
         async function finish1v1BattleModal() {
-            const opponentScore = Math.floor(Math.random() * 5) + 3;
-            const won = battleScore >= opponentScore;
+            // Submit final score to backend and compute outcome
+            const res = await fetch('/api/battle/submit', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ match_id: activeMatchId, username: sessionUser.username, score: battleScore })
+            });
+            const data = await res.json();
+            
+            let outcomeTitle = 'Battle Concluded';
+            let outcomeColor = 'white';
             let rewardMsg = '';
 
-            if(won) {
+            if(data.result === 'win') {
                 sessionUser.xp_points = (sessionUser.xp_points || 0) + 100;
-                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                updateDashboardUI();
-                try {
-                    await fetch('/api/user/spin-wheel', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ phone_number: sessionUser.phone_number, prize_type: 'xp', prize_value: 100 })
-                    });
-                } catch(e) {}
+                outcomeTitle = 'Victory in 1v1 Battle! 🏆';
+                outcomeColor = 'var(--gold)';
                 rewardMsg = 'You won the battle and earned <b>+100 XP Stars ⭐</b> (Persistently saved)!';
+            } else if(data.result === 'draw') {
+                sessionUser.xp_points = (sessionUser.xp_points || 0) + 50;
+                outcomeTitle = 'It\'s a Draw! 🤝';
+                outcomeColor = 'var(--warning)';
+                rewardMsg = 'Both players tied! Each received <b>+50 XP Stars ⭐</b>!';
             } else {
-                rewardMsg = `You scored ${battleScore}/8, opponent scored ${opponentScore}/8. Good effort!`;
+                outcomeTitle = 'Defeat in Battle ✈️';
+                outcomeColor = 'var(--danger)';
+                rewardMsg = `You scored ${battleScore}/8, opponent scored ${data.opponent_score}/8. Good effort!`;
             }
+
+            localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+            updateDashboardUI();
 
             const contentEl = document.getElementById('battle-modal-content');
             contentEl.innerHTML = `
                 <div style="text-align:center; padding: 1.5rem 0;">
-                    <div style="font-size: 3.5rem; margin-bottom: 1rem;">${won ? '🏆' : '🤝'}</div>
-                    <h3 style="font-size: 1.3rem; color: ${won ? 'var(--gold)' : 'white'}; font-weight: 900; margin-bottom: 0.5rem;">${won ? 'Victory in 1v1 Battle!' : 'Battle Concluded'}</h3>
-                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">Your Score: <b>${battleScore}/8</b> | Opponent Score: <b>${opponentScore}/8</b><br><br>${rewardMsg}</p>
+                    <div style="font-size: 3.5rem; margin-bottom: 1rem;">${data.result === 'win' ? '🏆' : (data.result === 'draw' ? '🤝' : '✈️')}</div>
+                    <h3 style="font-size: 1.3rem; color: ${outcomeColor}; font-weight: 900; margin-bottom: 0.5rem;">${outcomeTitle}</h3>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">Your Score: <b>${battleScore}/8</b> | Opponent Score: <b>${data.opponent_score}/8</b><br><br>${rewardMsg}</p>
                     <button class="btn-action" onclick="document.getElementById('battle-arena-modal').style.display='none'; refreshUserData(false);" style="background:var(--success); color:white;">Close Arena 🚀</button>
                 </div>
             `;
@@ -1961,26 +2069,20 @@
                 const msgs = data.messages || [];
                 const stream = document.getElementById('chat-msg-stream');
                 if(stream) {
-                    stream.innerHTML = msgs.map(m => {
-                        let contentHtml = m.content;
-                        if(m.content.includes('[BATTLE_INVITE]')) {
-                            contentHtml = `⚔️ <b>Battle Challenge!</b> <button onclick="open1v1ChallengeModal('${friendUsername}', '${friendFullName}')" style="background:var(--success); color:white; border:none; padding:4px 10px; border-radius:6px; cursor:pointer; margin-top:4px; font-weight:800;">Accept Battle 🚀</button>`;
-                        }
-                        return `
-                            <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
-                                <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
-                                <div>${contentHtml}</div>
-                            </div>
-                        `;
-                    }).join('');
+                    stream.innerHTML = msgs.map(m => `
+                        <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
+                            <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
+                            <div>${m.content}</div>
+                        </div>
+                    `).join('');
                     stream.scrollTop = stream.scrollHeight;
                 }
             }
 
             box.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+                    <button class="btn-action" onclick="openSocialHub()" style="width:75px; padding:4px 8px; font-size:0.75rem; margin-top:0;">← Back</button>
                     <h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">💬 Chat with ${friendFullName}</h3>
-                    <button class="btn-action" onclick="openSocialHub()" style="width:70px; padding:6px; font-size:0.75rem; margin-top:0;">Back</button>
                 </div>
                 <div class="chat-container">
                     <div class="chat-messages" id="chat-msg-stream"></div>
@@ -2008,61 +2110,17 @@
             input.value = '';
         }
 
-        async function openFriendGroupChat(groupId, title) {
-            playSound('click');
-            if(dmPollingInterval) clearInterval(dmPollingInterval);
-            if(groupMsgPollingInterval) clearInterval(groupMsgPollingInterval);
-            const box = document.getElementById('simulation-box');
-
-            async function fetchAndRenderGroupMessages() {
-                const res = await fetch(`/api/friend-groups/messages?group_id=${groupId}`);
-                const data = await res.json();
-                const msgs = data.messages || [];
-                const stream = document.getElementById('chat-msg-stream');
-                if(stream) {
-                    stream.innerHTML = msgs.map(m => `
-                        <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
-                            <div style="font-size:0.68rem; font-weight:800; color:var(--accent); margin-bottom:2px;">${m.sender_name}</div>
-                            <div>${m.content}</div>
-                        </div>
-                    `).join('');
-                    stream.scrollTop = stream.scrollHeight;
-                }
-            }
-
-            box.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-                    <h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">💬 Group: ${title}</h3>
-                    <button class="btn-action" onclick="openSocialHub()" style="width:70px; padding:6px; font-size:0.75rem; margin-top:0;">Back</button>
-                </div>
-                <div class="chat-container">
-                    <div class="chat-messages" id="chat-msg-stream"></div>
-                    <div class="chat-input-bar">
-                        <input type="text" id="fg-text-input" placeholder="Type message..." style="margin-bottom:0; flex:1; padding:7px 10px; font-size:0.82rem;" />
-                        <button onclick="sendFriendGroupMsgContent(${groupId})" class="btn-action" style="width:60px; padding:7px; font-size:0.82rem; margin-top:0;">Send</button>
-                    </div>
-                </div>
-            `;
-            await fetchAndRenderGroupMessages();
-            groupMsgPollingInterval = setInterval(fetchAndRenderGroupMessages, 2500);
+        /* MODALS & BOUTIQUE (FULLSCREEN MOBILE) */
+        function openAvatarStudio() { 
+            playSound('click'); 
+            document.getElementById('main-app-shell').classList.add('fullscreen-mode');
+            document.getElementById('avatar-studio-modal').style.display = 'flex'; 
         }
-
-        async function sendFriendGroupMsgContent(groupId) {
-            playSound('click');
-            const input = document.getElementById('fg-text-input');
-            const content = input ? input.value.trim() : '';
-            if(!content) return;
-            await fetch('/api/friend-groups/send', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ group_id: groupId, sender_username: sessionUser.username, sender_name: sessionUser.full_name, content })
-            });
-            input.value = '';
+        function closeAvatarStudio() { 
+            playSound('click'); 
+            document.getElementById('avatar-studio-modal').style.display = 'none'; 
+            resetToMenu();
         }
-
-        /* MODALS & BOUTIQUE */
-        function openAvatarStudio() { playSound('click'); document.getElementById('avatar-studio-modal').style.display = 'flex'; }
-        function closeAvatarStudio() { playSound('click'); document.getElementById('avatar-studio-modal').style.display = 'none'; }
         async function saveAvatarChanges() {
             playSound('click');
             const avatar_gender = document.getElementById('mod-gender').value;
@@ -2080,8 +2138,16 @@
                 showToast('Avatar updated!');
             }
         }
-        function openSettingsModal() { playSound('click'); document.getElementById('settings-modal').style.display = 'flex'; }
-        function closeSettingsModal() { playSound('click'); document.getElementById('settings-modal').style.display = 'none'; }
+        function openSettingsModal() { 
+            playSound('click'); 
+            document.getElementById('main-app-shell').classList.add('fullscreen-mode');
+            document.getElementById('settings-modal').style.display = 'flex'; 
+        }
+        function closeSettingsModal() { 
+            playSound('click'); 
+            document.getElementById('settings-modal').style.display = 'none'; 
+            resetToMenu();
+        }
         async function submitPasswordChangeModal() {
             playSound('click');
             const recovery_pin = document.getElementById('set-pin').value.trim();
@@ -2098,15 +2164,17 @@
 
         async function openShop() {
             playSound('click');
+            document.getElementById('main-app-shell').classList.add('fullscreen-mode');
             const res = await fetch('/api/shop/skins');
             const data = await res.json();
             const box = document.getElementById('simulation-box');
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                    <button class="btn-action" onclick="resetToMenu()" style="width:75px; padding:4px 8px; font-size:0.75rem; margin-top:0;">← Menu</button>
                     <h3 style="font-size: 1.05rem; color: #a78bfa; font-weight: 900;">🎁 Cabin Crew Equipment Boutique</h3>
                     <span style="font-size: 0.8rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
                 </div>
-                <div style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                <div style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
                     ${data.skins.filter(s => s.skin_name_en !== 'Smoke Hood PBE' && s.skin_name_en !== 'Slide-Raft Unit').map(skin => {
                         const isEquipped = sessionUser.active_skin === skin.skin_name_en;
                         return `
