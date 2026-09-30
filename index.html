@@ -128,6 +128,19 @@
 <body>
     <div id="toast" class="toast-popup">Notification</div>
 
+    <!-- CUSTOM PROFESSIONAL CONFIRMATION MODAL -->
+    <div id="custom-confirm-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.92); display:none; justify-content:center; align-items:center; z-index:7000;">
+        <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:380px; text-align:center; box-shadow:0 25px 60px rgba(0,0,0,0.9);">
+            <div style="font-size:3rem; margin-bottom:10px;">⚠️</div>
+            <h3 id="custom-confirm-title" style="font-size:1.15rem; font-weight:900; color:white; margin-bottom:0.5rem;">Delete Group?</h3>
+            <p id="custom-confirm-desc" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.4rem; line-height:1.5;">This action is permanent and will remove the group and all its message history for all members.</p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-action" onclick="closeCustomConfirm(false)" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0;">Cancel</button>
+                <button class="btn-action" onclick="closeCustomConfirm(true)" style="background:var(--danger); color:white; margin-top:0;">Delete 🗑️</button>
+            </div>
+        </div>
+    </div>
+
     <div class="app-shell">
         <div class="top-header">
             <div class="brand-title">
@@ -360,8 +373,8 @@
         let groupMsgPollingInterval = null;
         let questionTimerInterval = null;
         let activeQuestionsStore = [];
+        let pendingConfirmCallback = null;
 
-        // UI Sound effects enabled (application sounds kept intact, audio chat options removed)
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             if(!audioCtx) return;
@@ -570,6 +583,23 @@
             t.style.background = isError ? 'var(--danger)' : 'var(--success)';
             t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        function showCustomConfirm(title, desc, callback) {
+            playSound('click');
+            document.getElementById('custom-confirm-title').innerText = title;
+            document.getElementById('custom-confirm-desc').innerText = desc;
+            pendingConfirmCallback = callback;
+            document.getElementById('custom-confirm-modal').style.display = 'flex';
+        }
+
+        function closeCustomConfirm(result) {
+            playSound('click');
+            document.getElementById('custom-confirm-modal').style.display = 'none';
+            if(pendingConfirmCallback) {
+                pendingConfirmCallback(result);
+                pendingConfirmCallback = null;
+            }
         }
 
         function navigateTo(id) {
@@ -824,7 +854,6 @@
         }
 
         async function spinTheDailyWheel() {
-            // Re-verify strictly from server/session state
             await refreshUserData(false);
             if (!checkSpinEligibility()) {
                 showToast('Strict Security: Only 1 spin allowed every 24 hours!', true);
@@ -870,7 +899,7 @@
                             body: JSON.stringify({ phone_number: sessionUser.phone_number, prize_type: prize.type, prize_value: prize.val })
                         });
                         const data = await res.json();
-                        if(res.ok) {
+                        if(res.ok && data.user) {
                             sessionUser = data.user;
                             localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                             updateDashboardUI();
@@ -1775,7 +1804,7 @@
                             <div><b style="color:white; font-size:0.85rem;">👥 ${g.group_name}</b> <span style="color:var(--text-muted); font-size:0.7rem;">(Admin: @${g.creator_username})</span></div>
                             <div style="display:flex; gap:6px;">
                                 <button class="btn-action" onclick="openFriendGroupChat(${g.id}, '${g.group_name}')" style="width:75px; padding:6px; font-size:0.72rem; margin-top:0; background:var(--accent); color:var(--bg-deep);">Open</button>
-                                ${g.creator_username === sessionUser.username ? `<button class="btn-action" onclick="deleteFriendGroup(${g.id})" style="width:30px; padding:6px; font-size:0.72rem; margin-top:0; background:var(--danger); color:white;" title="Delete Group">🗑️</button>` : ''}
+                                ${g.creator_username === sessionUser.username ? `<button class="btn-action" onclick="promptDeleteFriendGroup(${g.id}, '${g.group_name}')" style="width:30px; padding:6px; font-size:0.72rem; margin-top:0; background:var(--danger); color:white;" title="Delete Group">🗑️</button>` : ''}
                             </div>
                         </div>
                     `).join('')}
@@ -1854,20 +1883,26 @@
             }
         }
 
-        async function deleteFriendGroup(groupId) {
-            playSound('click');
-            if(!confirm('Are you sure you want to completely delete this group?')) return;
-            const res = await fetch('/api/friend-groups/delete', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ group_id: groupId, username: sessionUser.username })
-            });
-            if(res.ok) {
-                showToast('Group deleted successfully!');
-                openSocialHub();
-            } else {
-                showToast('Only the group admin can delete this group', true);
-            }
+        function promptDeleteFriendGroup(groupId, groupName) {
+            showCustomConfirm(
+                `Delete "${groupName}"?`,
+                `As the group admin, deleting this group will permanently remove it and all associated chat messages.`,
+                async function(confirmed) {
+                    if(confirmed) {
+                        const res = await fetch('/api/friend-groups/delete', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ group_id: groupId, username: sessionUser.username })
+                        });
+                        if(res.ok) {
+                            showToast('Group deleted successfully!');
+                            openSocialHub();
+                        } else {
+                            showToast('Only the group admin can delete this group', true);
+                        }
+                    }
+                }
+            );
         }
 
         let activeChatFriendUser = null;
