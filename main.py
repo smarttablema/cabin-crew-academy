@@ -1,4 +1,5 @@
 import os
+import random
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI, HTTPException
@@ -10,7 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="22.0.0")
+app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="23.0.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -142,19 +143,6 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v22_chat_messages (
-            id SERIAL PRIMARY KEY,
-            group_code VARCHAR(50),
-            sender_username VARCHAR(50),
-            sender_name VARCHAR(100),
-            sender_avatar_config TEXT,
-            msg_type VARCHAR(20) DEFAULT 'text',
-            content TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    """)
-
-    cur.execute("""
         CREATE TABLE IF NOT EXISTS aero_v22_shop_skins (
             id SERIAL PRIMARY KEY,
             category VARCHAR(20),
@@ -199,6 +187,7 @@ class RegisterModel(BaseModel):
     role: str = 'student'
     avatar_gender: str = 'steward'
     group_code: str = '7842'
+    teacher_code: str = None  # Secure 6-digit verification code
 
 class LoginModel(BaseModel):
     phone_number: str
@@ -288,6 +277,19 @@ class FriendGroupMessageModel(BaseModel):
 def register(data: RegisterModel):
     conn = get_db_connection()
     cur = conn.cursor()
+    
+    assigned_role = "student"
+    group_code = data.group_code
+    
+    # Secure Teacher Registration Validation Check
+    if data.role == "teacher":
+        if data.teacher_code != "112233":
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=403, detail="Invalid 6-digit teacher access code. Unauthorized registration.")
+        assigned_role = "teacher"
+        group_code = str(random.randint(1000, 9999))
+
     cur.execute("SELECT * FROM aero_v22_users WHERE phone_number = %s OR username = %s;", (data.phone_number, data.username))
     if cur.fetchone():
         cur.close()
@@ -296,10 +298,17 @@ def register(data: RegisterModel):
     
     cur.execute(
         """INSERT INTO aero_v22_users (phone_number, username, full_name, password, recovery_pin, role, avatar_gender, group_code) 
-           VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;""",
-        (data.phone_number, data.username, data.full_name, data.password, data.recovery_pin, data.role, data.avatar_gender, data.group_code)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;""",
+        (data.phone_number, data.username, data.full_name, data.password, data.recovery_pin, assigned_role, data.avatar_gender, group_code)
     )
     user = cur.fetchone()
+
+    if assigned_role == "teacher":
+        cur.execute(
+            "INSERT INTO aero_v22_groups (group_name, group_code, teacher_username) VALUES (%s, %s, %s) ON CONFLICT (group_code) DO NOTHING;",
+            (f"{data.full_name}'s Flight Academy Group", group_code, data.username)
+        )
+
     conn.commit()
     cur.close()
     conn.close()
@@ -532,25 +541,6 @@ def send_direct_message(data: DirectMessageModel):
     cur.close()
     conn.close()
     return {"status": "success", "message": msg}
-
-@app.post("/api/group/create")
-def create_group(data: CreateGroupModel):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v22_groups WHERE group_code = %s;", (data.group_code,))
-    if cur.fetchone():
-        cur.close()
-        conn.close()
-        raise HTTPException(status_code=400, detail="Group code already exists.")
-    cur.execute(
-        "INSERT INTO aero_v22_groups (group_name, group_code, teacher_username) VALUES (%s, %s, %s) RETURNING *;",
-        (data.group_name, data.group_code, data.teacher_username)
-    )
-    grp = cur.fetchone()
-    conn.commit()
-    cur.close()
-    conn.close()
-    return {"status": "success", "group": grp}
 
 @app.get("/api/group/info")
 def get_group_info(group_code: str):
@@ -823,15 +813,35 @@ def serve_frontend():
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; min-height: 290px; }
         
-        .duo-path-container { display: flex; flex-direction: column; align-items: center; gap: 28px; padding: 20px 0; max-height: 340px; overflow-y: auto; }
-        .duo-node-wrapper { display: flex; flex-direction: column; align-items: center; position: relative; }
-        .duo-node { width: 68px; height: 68px; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 1.1rem; cursor: pointer; position: relative; box-shadow: 0 8px 0 rgba(0,0,0,0.4); transition: transform 0.2s; }
+        /* ZIG-ZAG PATH CONTAINER WITH AVIATION THEMED BACKDROPS */
+        .path-backdrop-y1 {
+            background: linear-gradient(135deg, rgba(2, 6, 23, 0.90) 0%, rgba(15, 23, 42, 0.95) 100%), 
+                        url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200') center/cover no-repeat !important;
+        }
+        .path-backdrop-y2 {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 41, 59, 0.95) 100%), 
+                        url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=1200') center/cover no-repeat !important;
+        }
+        .path-backdrop-eng {
+            background: linear-gradient(135deg, rgba(2, 6, 23, 0.90) 0%, rgba(3, 105, 161, 0.85) 100%), 
+                        url('https://images.unsplash.com/photo-1519074069444-1ba4ea16d66c?w=1200') center/cover no-repeat !important;
+        }
+
+        .duo-path-container { display: flex; flex-direction: column; gap: 24px; padding: 20px 10px; max-height: 360px; overflow-y: auto; border-radius: 18px; border: 1px solid var(--border-glow); }
+        .duo-node-wrapper { display: flex; width: 100%; position: relative; }
+        
+        /* Zig-zag alignment: alternate left and right */
+        .duo-node-wrapper:nth-child(odd) { justify-content: flex-start; padding-left: 18%; }
+        .duo-node-wrapper:nth-child(even) { justify-content: flex-end; padding-right: 18%; }
+
+        .duo-node { width: 68px; height: 68px; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 1.1rem; cursor: pointer; position: relative; box-shadow: 0 8px 0 rgba(0,0,0,0.4); transition: transform 0.2s; z-index: 2; }
         .duo-node:hover { transform: scale(1.1); }
         .duo-node.completed { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); color: #451a03; border: 4px solid #fef3c7; box-shadow: 0 8px 0 #b45309, 0 0 20px rgba(251,191,36,0.5); }
         .duo-node.active { background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: #020617; border: 4px solid #bae6fd; box-shadow: 0 8px 0 #0369a1, 0 0 25px var(--accent); }
         .duo-node.locked { background: #334155; color: #94a3b8; border: 4px solid #475569; box-shadow: 0 8px 0 #1e293b; opacity: 0.7; }
-        .companion-hopper { position: absolute; top: -28px; font-size: 1.8rem; animation: floatCompanion 1.5s infinite ease-in-out; z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
-        @keyframes floatCompanion { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        
+        .companion-hopper { position: absolute; top: -34px; font-size: 2rem; animation: floatCompanion 1.5s infinite ease-in-out; z-index: 10; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7)); }
+        @keyframes floatCompanion { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
         .chat-container { display: flex; flex-direction: column; height: 340px; background: var(--bg-deep); border-radius: 16px; border: 1px solid var(--border-glow); overflow: hidden; }
         .chat-messages { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
@@ -862,7 +872,7 @@ def serve_frontend():
                 <div class="header-controls hidden" id="dash-header-icons">
                     <div class="header-icon-btn" onclick="openAvatarStudio()" title="Avatar">👤</div>
                     <div class="header-icon-btn" onclick="openShop()" title="Boutique">🎁</div>
-                    <div class="header-icon-btn" onclick="openSettingsModal()" title="Settings">⚙️</div>
+                    <div class="header-icon-btn" onclick="openSettingsModal()" title="Settings">⚙️️</div>
                 </div>
             </div>
         </div>
@@ -886,7 +896,7 @@ def serve_frontend():
             </div>
         </div>
 
-        <!-- REGISTER SCREEN -->
+        <!-- REGISTER SCREEN (WITH SECURE TEACHER CODE TOGGLE) -->
         <div id="screen-register" class="hidden">
             <h2 id="tr-reg-title">Cadet & Instructor Enrollment</h2>
             <p class="sub-desc" id="tr-reg-sub">Register your profile, choose your role, and design your avatar.</p>
@@ -894,10 +904,16 @@ def serve_frontend():
             <div class="avatar-preview-box" id="reg-avatar-preview">👔</div>
 
             <label id="tr-reg-role-lbl">Register As</label>
-            <select id="reg-role">
+            <select id="reg-role" onchange="toggleTeacherCodeContainer()">
                 <option value="student" id="tr-opt-cadet">🎓 Cadet / Student</option>
                 <option value="teacher" id="tr-opt-teacher">👨‍🏫 Instructor / Teacher</option>
             </select>
+
+            <!-- Secret Teacher Code Box (Revealed only if Teacher role is selected) -->
+            <div id="teacher-code-box" class="hidden" style="background: rgba(56, 189, 248, 0.08); padding: 12px; border-radius: 14px; border: 1px dashed var(--accent); margin-bottom: 1rem;">
+                <label style="color: var(--accent);">🔒 6-Digit Teacher Verification Code</label>
+                <input type="password" id="reg-teacher-code" placeholder="Enter code (112233)" maxlength="6" style="letter-spacing: 3px; text-align: center; margin-bottom:0;" />
+            </div>
 
             <label id="tr-reg-name-lbl">Full Name</label>
             <input type="text" id="reg-name" placeholder="First & Last Name" />
@@ -968,7 +984,7 @@ def serve_frontend():
                     <span style="font-size: 1.4rem;">🏆</span>
                     <h4 id="tr-tile-y2">Second Year Path (100+ Nodes)</h4>
                 </div>
-                <div class="mode-tile" onclick="openAviationEnglishHub()">
+                <div class="mode-tile" onclick="launchAviationEnglishRoadmap()">
                     <span style="font-size: 1.4rem;">🌐</span>
                     <h4 id="tr-tile-eng">Aviation English & ICAO Mastery</h4>
                 </div>
@@ -984,7 +1000,7 @@ def serve_frontend():
 
             <div id="simulation-box" class="card-container">
                 <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;" id="tr-center-title">EASA Professional Training Center</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;" id="tr-center-desc">Select <b>First Year Path</b>, <b>Second Year Path</b>, or <b>Aviation English</b> above to begin your 200+ level learning adventure with your animated avatar companion, or open the <b>Studio</b> to access multi-question quizzes, official exams, and social study rooms.</p>
+                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;" id="tr-center-desc">Select <b>First Year Path</b>, <b>Second Year Path</b>, or <b>Aviation English</b> above to begin your learning adventure with your equipped skin avatar companion in zig-zag path layout, or open the <b>Studio</b> to access multi-question quizzes and official exams.</p>
             </div>
             
             <div style="display: flex; gap: 10px;">
@@ -1096,7 +1112,7 @@ def serve_frontend():
                 updateCredBtn: "Update Credentials", backLogin2: "Back to Sign In",
                 tileY1: "First Year Path (100+ Nodes)", tileY2: "Second Year Path (100+ Nodes)", tileEng: "Aviation English & ICAO Mastery",
                 tileStudy: "Lessons, Quizzes & Exams Studio", tileSocial: "Friends, Private Chat & Groups",
-                centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, or <b>Aviation English</b> above to begin your 200+ level learning adventure with your animated avatar companion, or open the <b>Studio</b> to access multi-question quizzes, official exams, and social study rooms.",
+                centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, or <b>Aviation English</b> above to begin your learning adventure with your equipped skin avatar companion in zig-zag path layout, or open the <b>Studio</b>.",
                 hubBtn: "← Hub", logoutBtn: "Logout 🚪",
                 modalAvatarTitle: "🎨 Edit Avatar", modalGenderLbl: "Gender / Style", saveAvatarBtn: "Save Avatar 💾",
                 settingsTitle: "⚙️ Academy Settings", langLbl: "Interface Language", passChangeLbl: "Change Password", updatePassBtn: "Update Password 🔒",
@@ -1108,7 +1124,7 @@ def serve_frontend():
                 phoneLbl: "Numéro de téléphone", passLbl: "Mot de passe", loginBtn: "Se connecter",
                 regNav: "Créer un compte", resetNav: "Mot de passe oublié ?",
                 regTitle: "Inscription Cadet & Instructeur", regSub: "Enregistrez votre profil, choisissez votre rôle et votre avatar.",
-                regRoleLbl: "S'inscrire en tant que", optCadet: "🎓 Cadet / Étudiant", optTeacher: "👨‍‍🏫 Instructeur / Professeur",
+                regRoleLbl: "S'inscrire en tant que", optCadet: "🎓 Cadet / Étudiant", optTeacher: "👨‍🏫 Instructeur / Professeur",
                 regNameLbl: "Nom complet", regUserLbl: "Nom d'utilisateur unique", regPassLbl: "Mot de passe", regPinLbl: "PIN de récupération (4 chiffres)",
                 avatarStudioTitle: "🎨 Personnalisation d'Avatar", avatarTypeLbl: "Type d'avatar", optSteward: "👔 Steward", optHostess: "👗 Hôtesse",
                 completeRegBtn: "Terminer l'inscription", backLogin: "Déjà un compte ? Se connecter",
@@ -1116,7 +1132,7 @@ def serve_frontend():
                 updateCredBtn: "Mettre à jour", backLogin2: "Retour à la connexion",
                 tileY1: "Parcours 1ère Année (100+ Nœuds)", tileY2: "Parcours 2ème Année (100+ Nœuds)", tileEng: "Anglais Aéronautique & ICAO",
                 tileStudy: "Studio Leçons, Quiz & Examens", tileSocial: "Amis, Chat Privé & Groupes",
-                centerTitle: "Centre de Formation Professionnelle EASA", centerDesc: "Sélectionnez <b>Parcours 1ère Année</b>, <b>2ème Année</b> ou <b>Anglais Aéronautique</b> pour débuter votre aventure Duolingo avec votre avatar, ou ouvrez le <b>Studio</b>.",
+                centerTitle: "Centre de Formation Professionnelle EASA", centerDesc: "Sélectionnez <b>Parcours 1ère Année</b>, <b>2ème Année</b> ou <b>Anglais Aéronautique</b> pour débuter votre aventure avec votre avatar.",
                 hubBtn: "← Accueil", logoutBtn: "Déconnexion 🚪",
                 modalAvatarTitle: "🎨 Modifier l'Avatar", modalGenderLbl: "Genre / Style", saveAvatarBtn: "Enregistrer 💾",
                 settingsTitle: "⚙️ Paramètres", langLbl: "Langue de l'interface", passChangeLbl: "Changer le mot de passe", updatePassBtn: "Mettre à jour 🔒",
@@ -1136,7 +1152,7 @@ def serve_frontend():
                 updateCredBtn: "تحديث بيانات الاعتماد", backLogin2: "العودة لتسجيل الدخول",
                 tileY1: "مسار السنة الأولى (100+ نقطة)", tileY2: "مسار السنة الثانية (100+ نقطة)", tileEng: "اللغة الإنجليزية للطيران وإيكاو",
                 tileStudy: "استوديو الدروس والاختبارات", tileSocial: "الأصدقاء والمحادثة الخاصة والمجموعات",
-                centerTitle: "مركز تدريب الطيران الاحترافي EASA", centerDesc: "اختر <b>مسار السنة الأولى</b> أو <b>الثانية</b> أو <b>اللغة الإنجليزية للطيران</b> لبدء مغامرة التعلم بأسلوب Duolingo مع رفيقك الرمزية المتحرك.",
+                centerTitle: "مركز تدريب الطيران الاحترافي EASA", centerDesc: "اختر مسار التعلم لعرض الخريطة المتعرجة وتجربة الرمزية الخاصة بك.",
                 hubBtn: "← الرئيسية", logoutBtn: "تسجيل الخروج 🚪",
                 modalAvatarTitle: "🎨 تعديل الرمزية", modalGenderLbl: "الجنس / النمط", saveAvatarBtn: "حفظ 💾",
                 settingsTitle: "⚙️ إعدادات الأكاديمية", langLbl: "لغة الواجهة", passChangeLbl: "تغيير كلمة المرور", updatePassBtn: "تحديث كلمة المرور 🔒",
@@ -1265,6 +1281,17 @@ def serve_frontend():
             }
         }
 
+        function toggleTeacherCodeContainer() {
+            const role = document.getElementById('reg-role').value;
+            const box = document.getElementById('teacher-code-box');
+            if(role === 'teacher') {
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
+                document.getElementById('reg-teacher-code').value = '';
+            }
+        }
+
         function updateRegAvatarPreview() {
             playSound('click');
             const gender = document.getElementById('reg-gender').value;
@@ -1284,15 +1311,16 @@ def serve_frontend():
             const password = document.getElementById('reg-pass').value.trim();
             const recovery_pin = document.getElementById('reg-pin').value.trim();
             const role = document.getElementById('reg-role').value;
+            const teacher_code = document.getElementById('reg-teacher-code').value.trim();
             const avatar_gender = document.getElementById('reg-gender').value;
-            const group_code = role === 'teacher' ? Math.floor(1000 + Math.random() * 9000).toString() : '7842';
+            const group_code = '7842';
 
             if(!full_name || !username || !phone_number || !password || !recovery_pin) { showToast('Complete all fields', true); return; }
 
             const res = await fetch('/api/register', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ full_name, username, phone_number, password, recovery_pin, role, avatar_gender, group_code })
+                body: JSON.stringify({ full_name, username, phone_number, password, recovery_pin, role, teacher_code, avatar_gender, group_code })
             });
             const data = await res.json();
             if(res.ok) {
@@ -1416,66 +1444,96 @@ def serve_frontend():
             }
         }
 
-        /* AVIATION ENGLISH & ICAO MASTERY MODULE */
-        function openAviationEnglishHub() {
+        /* TRANSFORMED AVIATION ENGLISH ZIG-ZAG PATH */
+        function launchAviationEnglishRoadmap() {
             playSound('click');
             const box = document.getElementById('simulation-box');
-            const lessons = [
-                { id: 'eng_1', title: 'Module 1: Standard ICAO Phonetocs (Alpha, Bravo, Charlie...)', desc: 'Master clear spelling for registration codes and emergency clearance.' },
-                { id: 'eng_2', title: 'Module 2: Cabin Announcements & PA System Mastery', desc: 'Standard boarding, safety demonstration, and turbulence briefing protocols.' },
-                { id: 'eng_3', title: 'Module 3: Emergency Command Phraseology (Mayday / Pan-Pan)', desc: 'Evacuation commands, crowd control terminology, and flight deck coordination.' },
-                { id: 'eng_4', title: 'Module 4: Meteorology & Aviation Weather Vocabulary', desc: 'Reporting turbulence, wind shear, icing conditions, and visibility limits.' }
+            const completedList = sessionUser.completed_nodes || [];
+            const modules = [
+                { id: 'eng_mod_1', title: 'Module 1: Standard ICAO Phonetocs (Alpha, Bravo...)', desc: 'Master clear spelling for registration codes and emergency clearance.' },
+                { id: 'eng_mod_2', title: 'Module 2: Cabin Announcements & PA System', desc: 'Standard boarding, safety demonstration, and turbulence briefing.' },
+                { id: 'eng_mod_3', title: 'Module 3: Emergency Phraseology (Mayday / Pan-Pan)', desc: 'Evacuation commands, crowd control terminology, and flight deck coordination.' },
+                { id: 'eng_mod_4', title: 'Module 4: Meteorology & Weather Vocabulary', desc: 'Reporting turbulence, wind shear, icing conditions, and visibility limits.' }
             ];
 
-            box.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
-                    <h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">🌐 Aviation English & ICAO Mastery</h3>
-                    <button class="btn-action" onclick="resetToMenu()" style="width:70px; padding:6px; font-size:0.75rem; margin-top:0;">Back</button>
-                </div>
-                <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem;">Professional aviation English is vital for safety. Complete these interactive modules to earn +50 XP Stars ⭐ per module.</p>
-                <div style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;">
-                    ${lessons.map(l => `
-                        <div style="background:var(--bg-deep); padding:10px 14px; border-radius:12px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
-                            <div><b style="color:white; font-size:0.85rem;">${l.title}</b><div style="color:var(--text-muted); font-size:0.7rem;">${l.desc}</div></div>
-                            <button class="btn-action" onclick="startEnglishModule('${l.id}', '${l.title}')" style="width:90px; padding:6px; font-size:0.75rem; background:var(--success); color:white; margin-top:0;">Study 🚀</button>
+            let activeIndex = 1;
+            modules.forEach((m, idx) => {
+                if(completedList.includes(m.id)) activeIndex = idx + 2;
+            });
+            if(activeIndex > modules.length) activeIndex = modules.length;
+
+            let nodesHtml = '';
+            modules.forEach((m, idx) => {
+                const nodeNum = idx + 1;
+                const isCompleted = completedList.includes(m.id);
+                let statusClass = 'locked';
+                if(isCompleted) statusClass = 'completed';
+                else if(nodeNum === 1 || completedList.includes(modules[idx-1].id)) statusClass = 'active';
+
+                const icon = isCompleted ? '👑' : (statusClass === 'active' ? '🌐' : '🔒');
+                const isCurrentActive = (nodeNum === activeIndex);
+                const companionEmoji = sessionUser.active_skin === 'Senior Purser Uniform' ? '🎖️👔' : (sessionUser.active_skin === 'Lead Purser Silk Scarf' ? '🧣💎' : (sessionUser.avatar_gender === 'hostess' ? '👗' : '👔'));
+
+                nodesHtml += `
+                    <div class="duo-node-wrapper">
+                        ${isCurrentActive ? `<div class="companion-hopper">${companionEmoji}</div>` : ''}
+                        <div class="duo-node ${statusClass}" onclick="startEnglishCheckpoint('${m.id}', '${m.title}', '${statusClass}')">
+                            <span style="font-size:1.3rem;">${icon}</span>
+                            <span style="font-size:0.55rem; margin-top:-2px;">M${nodeNum}</span>
                         </div>
-                    `).join('')}
+                    </div>
+                `;
+            });
+
+            box.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                    <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">🌐 Aviation English & ICAO Mastery Path</h3>
+                    <span style="font-size: 0.72rem; color: var(--success); font-weight: 800;">Equipped Skin: ${sessionUser.active_skin}</span>
+                </div>
+                <div class="duo-path-container path-backdrop-eng">
+                    <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
+                        ${nodesHtml}
+                    </div>
                 </div>
             `;
         }
 
-        function startEnglishModule(modId, modTitle) {
+        function startEnglishCheckpoint(modId, modTitle, status) {
             playSound('click');
+            if(status === 'locked') { showToast('Complete previous English modules first!', true); return; }
             const box = document.getElementById('simulation-box');
             box.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
                     <h3 style="font-size:1rem; color:var(--gold); font-weight:900;">📖 ${modTitle}</h3>
-                    <button class="btn-action" onclick="openAviationEnglishHub()" style="width:70px; padding:6px; font-size:0.75rem; margin-top:0;">Back</button>
+                    <button class="btn-action" onclick="launchAviationEnglishRoadmap()" style="width:70px; padding:6px; font-size:0.75rem; margin-top:0;">Back</button>
                 </div>
                 <div style="background:var(--bg-deep); padding:1.2rem; border-radius:16px; border:1px solid var(--border-glow); margin-bottom:1rem; font-size:0.88rem; line-height:1.6; color:white;">
                     <p style="margin-bottom:10px;"><b>ICAO Standard:</b> In international civil aviation, precise phrasing eliminates ambiguity. For example, use <b>"AFFIRMATIVE"</b> instead of yes, and <b>"NEGATIVE"</b> instead of no.</p>
-                    <p><b>Cabin Safety Command:</b> During an emergency evacuation, shouting <i>"EFP, LEAVE BAGS, DOWN THE SLIDE!"</i> with authority ensures 100% passenger compliance in under 90 seconds.</p>
+                    <p><b>Cabin Safety Command:</b> During an emergency evacuation, shouting <i>"EFP, LEAVE BAGS, DOWN THE SLIDE!"</i> with authority ensures 100% passenger compliance under 90 seconds.</p>
                 </div>
-                <button class="btn-action" onclick="completeEnglishModule()" style="background:var(--success); color:white;">Complete Module (+50 XP ⭐)</button>
+                <button class="btn-action" onclick="completeEnglishModuleNode('${modId}')" style="background:var(--success); color:white;">Complete Checkpoint (+30 XP ⭐)</button>
             `;
         }
 
-        async function completeEnglishModule() {
+        async function completeEnglishModuleNode(modId) {
             playSound('click');
             const res = await fetch('/api/node/complete', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: 'eng_module_completed', lost_heart: false })
+                body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: modId, lost_heart: false })
             });
             const data = await res.json();
+            sessionUser.completed_nodes = data.completed_nodes;
             sessionUser.xp_points = data.xp;
+            sessionUser.hearts = data.hearts;
+            sessionUser.streak = data.streak;
             localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
             updateDashboardUI();
-            showToast('Aviation English module mastered! +30 XP ⭐');
-            openAviationEnglishHub();
+            showToast('English module mastered! +30 XP ⭐');
+            launchAviationEnglishRoadmap();
         }
 
-        /* ROADMAP WITH 30-SECOND TIMER & XP REWARDS */
+        /* ROADMAPS WITH ZIG-ZAG LAYOUT & EQUIPPED SKIN AVATAR */
         function launchRoadmap(yearNum) {
             playSound('click');
             activeRoadmapYear = yearNum;
@@ -1500,7 +1558,7 @@ def serve_frontend():
 
                 const icon = isCompleted ? '👑' : (statusClass === 'active' ? '✈' : '🔒');
                 const isCurrentActive = (i === activeNodeIndex);
-                const companionEmoji = sessionUser.avatar_gender === 'hostess' ? '👗' : '👔';
+                const companionEmoji = sessionUser.active_skin === 'Senior Purser Uniform' ? '🎖️👔' : (sessionUser.active_skin === 'Lead Purser Silk Scarf' ? '🧣💎' : (sessionUser.avatar_gender === 'hostess' ? '👗' : '👔'));
 
                 nodesHtml += `
                     <div class="duo-node-wrapper">
@@ -1513,13 +1571,15 @@ def serve_frontend():
                 `;
             }
 
+            const backdropClass = yearNum === 1 ? 'path-backdrop-y1' : 'path-backdrop-y2';
+
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                    <h3 style="font-size: 1.05rem; color: var(--gold); font-weight: 900;">🏆 Year ${yearNum} Roadmap (100 Checkpoints)</h3>
-                    <span style="font-size: 0.72rem; color: var(--accent);">30s Timer & +30 XP Path</span>
+                    <h3 style="font-size: 1.05rem; color: var(--gold); font-weight: 900;">🏆 Year ${yearNum} Roadmap (Zig-Zag Path)</h3>
+                    <span style="font-size: 0.72rem; color: var(--accent);">Skin: ${sessionUser.active_skin}</span>
                 </div>
-                <div class="duo-path-container">
-                    <div style="display:flex; flex-direction:column; align-items:center; gap:24px; width:100%;">
+                <div class="duo-path-container ${backdropClass}">
+                    <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
                         ${nodesHtml}
                     </div>
                 </div>
@@ -1728,7 +1788,7 @@ def serve_frontend():
                       groupInfo.exams.map(e => `
                         <div style="background:var(--bg-deep); padding:10px; border-radius:12px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
                             <div><b style="color:white; font-size:0.85rem;">🏆 ${e.title}</b><div style="color:var(--text-muted); font-size:0.7rem;">Teacher: ${e.teacher_username}</div></div>
-                            <button class="btn-action" onclick='takeExam(${JSON.stringify(e)})' style="width:90px; padding:6px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Start ⏱️</button>
+                            <button class="btn-action" onclick='takeExam(${JSON.stringify(e)})' style="width:90px; padding:6px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Start ⏱️️</button>
                         </div>
                     `).join('')}
                 </div>
@@ -1941,7 +2001,7 @@ def serve_frontend():
             }
         }
 
-        /* FRIENDS & SOCIAL HUB WITH PDF/IMAGE ATTACHMENTS & VOICE NOTES */
+        /* FRIENDS & SOCIAL HUB */
         async function openSocialHub() {
             playSound('click');
             const res = await fetch('/api/friends/list?username=' + sessionUser.username);
@@ -2092,7 +2152,7 @@ def serve_frontend():
                         if(m.content.startsWith('blob:') || m.content.startsWith('http')) {
                             if(m.content.includes('.pdf') || m.content.includes('pdf')) {
                                 contentHtml = `<a href="${m.content}" target="_blank" style="color:var(--accent); font-weight:800; text-decoration:underline;">📄 Download PDF Document</a>`;
-                            } else if(m.content.match(/\\.(jpeg|jpg|png|gif)/i) || m.content.startsWith('data:image')) {
+                            } else if(m.content.match(/\.(jpeg|jpg|png|gif)/i) || m.content.startsWith('data:image')) {
                                 contentHtml = `<img src="${m.content}" style="max-width:180px; border-radius:8px;" />`;
                             } else {
                                 contentHtml = `<audio controls src="${m.content}" style="width:180px; height:32px;"></audio>`;
