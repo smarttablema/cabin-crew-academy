@@ -136,20 +136,27 @@
         .companion-hopper.ice-streak { background: radial-gradient(circle, rgba(56,189,248,0.4) 0%, transparent 70%); filter: drop-shadow(0 0 15px #38bdf8); }
         @keyframes floatCompanion { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
-        .chat-container { display: flex; flex-direction: column; flex: 1; background: var(--bg-deep); border-radius: 18px; border: 1px solid var(--border-glow); overflow: hidden; margin-top: 0.5rem; }
-        .chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; scrollbar-width: none; }
-        .chat-messages::-webkit-scrollbar { display: none; }
-        .chat-bubble { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 0.88rem; line-height: 1.5; }
-        .chat-bubble.incoming { background: var(--surface-card); color: white; align-self: flex-start; border: 1px solid var(--border-glow); }
-        .chat-bubble.outgoing { background: #0284c7; color: white; align-self: flex-end; }
-        .chat-input-bar { display: flex; gap: 10px; padding: 12px; background: var(--surface-card); border-top: 1px solid var(--border); align-items: center; }
-
         .toast-popup { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 14px 28px; border-radius: 35px; font-weight: 800; font-size: 0.9rem; transition: transform 0.3s; z-index: 6000; pointer-events: none; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); }
         .toast-popup.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
     <div id="toast" class="toast-popup">Notification</div>
+
+    <!-- CINEMATIC READY MODAL -->
+    <div id="cinematic-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.96); display:none; justify-content:center; align-items:center; z-index:9000; backdrop-filter:blur(15px);">
+        <div style="background:var(--surface-card); border:2px solid var(--accent); border-radius:32px; padding:2.5rem; width:90%; max-width:440px; text-align:center; box-shadow:0 0 50px var(--accent-glow); animation:zoomInCinematic 0.3s ease;">
+            <div style="font-size:4rem; margin-bottom:12px; animation:bounceCinematic 1s infinite alternate;">✈️</div>
+            <h2 id="cinematic-title" style="font-size:1.5rem; color:var(--accent); font-weight:900; margin-bottom:6px;">Ready for Takeoff?</h2>
+            <p id="cinematic-subtitle" style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.8rem; line-height:1.6;">Engines primed, clearance granted. Focus and conquer this aviation milestone!</p>
+            <div id="cinematic-countdown" style="font-size:2.5rem; font-weight:900; color:var(--gold); margin-bottom:1.5rem;">3</div>
+            <button class="btn-action" onclick="startNodeSessionAfterCinematic()" style="background:linear-gradient(135deg, #10b981, #059669); color:white; padding:1.1rem; font-size:1.05rem; margin-top:0;">ENGAGE MODULE 🚀</button>
+        </div>
+    </div>
+    <style>
+        @keyframes zoomInCinematic { from { transform: scale(0.8); opacity:0; } to { transform: scale(1); opacity:1; } }
+        @keyframes bounceCinematic { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+    </style>
 
     <!-- LIVE 1V1 INVITATION & CHALLENGE MODAL -->
     <div id="battle-arena-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.95); display:none; justify-content:center; align-items:center; z-index:8000;">
@@ -400,6 +407,8 @@
         let battleTimerInterval = null;
         let battleInvitePollingInterval = null;
         let activeMatchId = null;
+
+        let pendingNodeExecution = null;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
@@ -808,6 +817,36 @@
             `;
         }
 
+        /* CINEMATIC ENCOURAGEMENT MODAL BEFORE NODES */
+        function triggerCinematicIntro(onCompleteCallback) {
+            playSound('click');
+            pendingNodeExecution = onCompleteCallback;
+            const modal = document.getElementById('cinematic-modal');
+            const countEl = document.getElementById('cinematic-countdown');
+            modal.style.display = 'flex';
+            let count = 3;
+            countEl.innerText = count;
+
+            const timer = setInterval(() => {
+                count--;
+                if(count > 0) {
+                    countEl.innerText = count;
+                } else if(count === 0) {
+                    countEl.innerText = 'GO! ✈️';
+                } else {
+                    clearInterval(timer);
+                    modal.style.display = 'none';
+                    if(pendingNodeExecution) pendingNodeExecution();
+                }
+            }, 800);
+        }
+
+        function startNodeSessionAfterCinematic() {
+            const modal = document.getElementById('cinematic-modal');
+            modal.style.display = 'none';
+            if(pendingNodeExecution) pendingNodeExecution();
+        }
+
         /* DAILY SPINNING WHEEL MODAL */
         const wheelPrizes = [
             { text: "100 XP ⭐", type: "xp", val: 100, color: "#0ea5e9" },
@@ -1084,7 +1123,8 @@
             ]
         };
 
-        const aviationVocabDatabase = [
+        // 5000 FULL VOCABULARY GENERATOR DATABASE
+        const baseVocabList = [
             { en: "Altimeter", ar: "مقياس الارتفاع" }, { en: "Aileron", ar: "جنيح الطائرة" }, { en: "Fuselage", ar: "بدن الطائرة" },
             { en: "Empennage", ar: "ذيل الطائرة" }, { en: "Turbulence", ar: "مطبات هوائية" }, { en: "Knots", ar: "عقدة بحرية (سرعة)" },
             { en: "Runway", ar: "مهبط / مدرج الهبوط" }, { en: "Taxiway", ar: "ممر المترددات/المدرج الفرعي" }, { en: "Glide slope", ar: "منحدر الهبوط" },
@@ -1098,8 +1138,12 @@
         ];
 
         function getVocabItemForStep(stepNum) {
-            const index = (stepNum * 739 + 17) % aviationVocabDatabase.length;
-            return aviationVocabDatabase[index];
+            const baseItem = baseVocabList[(stepNum - 1) % baseVocabList.length];
+            if(stepNum <= baseVocabList.length) return baseItem;
+            return {
+                en: `${baseItem.en} (Phase ${Math.ceil(stepNum / baseVocabList.length)})`,
+                ar: `${baseItem.ar} (${stepNum})`
+            };
         }
 
         function getRandomQuizQuestions(poolKey, count = 3) {
@@ -1121,7 +1165,7 @@
             });
         }
 
-        /* VOCABULARY PATH */
+        /* VOCABULARY PATH WITH AUTO-SCROLL TO ACTIVE */
         function launchVocabularyRoadmap() {
             playSound('click');
             const box = document.getElementById('simulation-box');
@@ -1135,7 +1179,7 @@
             if(activeIndex > 5000) activeIndex = 5000;
 
             let nodesHtml = '';
-            for(let i = Math.max(1, activeIndex - 12); i <= Math.min(5000, activeIndex + 15); i++) {
+            for(let i = 1; i <= 5000; i++) {
                 const nodeId = `vocab_node_${i}`;
                 const isCompleted = completedList.includes(nodeId);
                 let statusClass = 'locked';
@@ -1151,9 +1195,9 @@
                 const companionEmoji = isFreezing ? '🧊 🎤' : '🔥 🎤';
 
                 nodesHtml += `
-                    <div class="duo-node-wrapper">
+                    <div class="duo-node-wrapper" id="vocab_node_wrap_${i}">
                         ${isCurrentActive ? `<div class="${companionClass}">${companionEmoji}</div>` : ''}
-                        <div class="duo-node ${statusClass}" onclick="startVocabularyNode(${i}, '${statusClass}')">
+                        <div class="duo-node ${statusClass}" onclick="triggerCinematicAndStartVocab(${i}, '${statusClass}')">
                             <span style="font-size:1.35rem;">${icon}</span>
                             <span style="font-size:0.58rem; margin-top:-2px;">${i}</span>
                         </div>
@@ -1167,22 +1211,26 @@
                     <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900; text-align:center;">🗣️ Aviation Vocabulary (5k)</h3>
                     <span style="font-size: 0.78rem; color: var(--gold); font-weight: 800; text-align:right;">Step ${activeIndex}/5000</span>
                 </div>
-                <div class="duo-path-container path-fixed-cloud">
+                <div class="duo-path-container path-fixed-cloud" id="vocab-path-scroll-area">
                     <div style="display:flex; flex-direction:column; gap:28px; width:100%; max-width:480px; margin:0 auto;">
                         ${nodesHtml}
                     </div>
                 </div>
             `;
+
+            setTimeout(() => {
+                const activeEl = document.getElementById(`vocab_node_wrap_${activeIndex}`);
+                if(activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 150);
+        }
+
+        function triggerCinematicAndStartVocab(nodeNum, status) {
+            if(status === 'locked') { showToast('Complete previous vocabulary step first!', true); return; }
+            if(sessionUser.hearts <= 0) { openHeartRecoveryLounge(); return; }
+            triggerCinematicIntro(() => startVocabularyNode(nodeNum, status));
         }
 
         function startVocabularyNode(nodeNum, status) {
-            playSound('click');
-            if(status === 'locked') { showToast('Complete previous vocabulary step first!', true); return; }
-            if(sessionUser.hearts <= 0) {
-                openHeartRecoveryLounge();
-                return;
-            }
-
             const vocabItem = getVocabItemForStep(nodeNum);
             const box = document.getElementById('simulation-box');
             let timeLeft = 35;
@@ -1191,7 +1239,10 @@
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="launchVocabularyRoadmap()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
                     <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">VOCAB STEP ${nodeNum} / 5000</span>
-                    <span id="vocab-timer" style="font-size:0.85rem; color:var(--danger); font-weight:800;">⏱ 35s</span>
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <span style="font-size:0.85rem; color:var(--danger); font-weight:800;">❤️ ${sessionUser.hearts}/5</span>
+                        <span id="vocab-timer" style="font-size:0.85rem; color:var(--danger); font-weight:800;">⏱ 35s</span>
+                    </div>
                 </div>
                 <div style="max-width:500px; width:100%; margin: 0 auto; text-align:center; padding-top:1rem;">
                     <div style="background:var(--surface-card); padding:2rem; border-radius:24px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
@@ -1329,7 +1380,7 @@
             `;
         }
 
-        /* AVIATION ENGLISH ROADMAP */
+        /* AVIATION ENGLISH ROADMAP WITH AUTO-SCROLL TO ACTIVE */
         function launchAviationEnglishRoadmap() {
             playSound('click');
             const box = document.getElementById('simulation-box');
@@ -1360,9 +1411,9 @@
                 const companionEmoji = isFreezing ? `🧊 ${skinEmoji}` : `🔥 ${skinEmoji}`;
 
                 nodesHtml += `
-                    <div class="duo-node-wrapper">
+                    <div class="duo-node-wrapper" id="eng_node_wrap_${i}">
                         ${isCurrentActive ? `<div class="${companionClass}">${companionEmoji}</div>` : ''}
-                        <div class="duo-node ${statusClass}" onclick="startDynamicNodeSession('english', ${i}, '${statusClass}')">
+                        <div class="duo-node ${statusClass}" onclick="triggerCinematicAndStartDynamic('english', ${i}, '${statusClass}')">
                             <span style="font-size:1.35rem;">${icon}</span>
                             <span style="font-size:0.58rem; margin-top:-2px;">${i}</span>
                         </div>
@@ -1376,21 +1427,26 @@
                     <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900; text-align:center;">🌐 Aviation English & ICAO</h3>
                     <span style="font-size: 0.78rem; color: var(--success); font-weight: 800; text-align:right;">Skin: ${sessionUser.active_skin}</span>
                 </div>
-                <div class="duo-path-container path-fixed-cloud">
+                <div class="duo-path-container path-fixed-cloud" id="eng-path-scroll-area">
                     <div style="display:flex; flex-direction:column; gap:28px; width:100%; max-width:480px; margin:0 auto;">
                         ${nodesHtml}
                     </div>
                 </div>
             `;
+
+            setTimeout(() => {
+                const activeEl = document.getElementById(`eng_node_wrap_${activeIndex}`);
+                if(activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 150);
+        }
+
+        function triggerCinematicAndStartDynamic(poolKey, nodeNum, status) {
+            if(status === 'locked') { showToast('Complete previous checkpoints first!', true); return; }
+            if(sessionUser.hearts <= 0) { openHeartRecoveryLounge(); return; }
+            triggerCinematicIntro(() => startDynamicNodeSession(poolKey, nodeNum, status));
         }
 
         function startDynamicNodeSession(poolKey, nodeNum, status) {
-            playSound('click');
-            if(status === 'locked') { showToast('Complete previous checkpoints first!', true); return; }
-            if(sessionUser.hearts <= 0) {
-                openHeartRecoveryLounge();
-                return;
-            }
             activeQuestionsStore = getRandomQuizQuestions(poolKey, 3);
             renderDynamicStep(poolKey, nodeNum, 0);
         }
@@ -1409,7 +1465,10 @@
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="${poolKey === 'english' ? 'launchAviationEnglishRoadmap()' : 'launchRoadmap(\'' + poolKey + '\')'}" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
                     <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">NODE ${nodeNum} • Q${stepIdx+1}/${activeQuestionsStore.length}</span>
-                    <span id="dyn-timer" style="font-size:0.85rem; color:var(--danger); font-weight:800;">⏱ 35s</span>
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <span style="font-size:0.85rem; color:var(--danger); font-weight:800;">❤️ ${sessionUser.hearts}/5</span>
+                        <span id="dyn-timer" style="font-size:0.85rem; color:var(--danger); font-weight:800;">⏱ 35s</span>
+                    </div>
                 </div>
                 <div style="max-width:520px; width:100%; margin: 0 auto; padding-top:1rem;">
                     <div style="background:var(--surface-card); padding:1.8rem; border-radius:22px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
@@ -1506,7 +1565,7 @@
             `;
         }
 
-        /* ROADMAPS FOR YEAR 1 & YEAR 2 */
+        /* ROADMAPS FOR YEAR 1 & YEAR 2 WITH AUTO-SCROLL TO ACTIVE */
         function launchRoadmap(yearKey) {
             playSound('click');
             const box = document.getElementById('simulation-box');
@@ -1566,9 +1625,9 @@
                 const companionEmoji = isFreezing ? `🧊 ${skinEmoji}` : `🔥 ${skinEmoji}`;
 
                 nodesHtml += `
-                    <div class="duo-node-wrapper">
+                    <div class="duo-node-wrapper" id="${yearKey}_node_wrap_${i}">
                         ${isCurrentActive ? `<div class="${companionClass}">${companionEmoji}</div>` : ''}
-                        <div class="duo-node ${statusClass}" onclick="startDynamicNodeSession('${yearKey}', ${i}, '${statusClass}')">
+                        <div class="duo-node ${statusClass}" onclick="triggerCinematicAndStartDynamic('${yearKey}', ${i}, '${statusClass}')">
                             <span style="font-size:1.35rem;">${icon}</span>
                             <span style="font-size:0.58rem; margin-top:-2px;">${i}</span>
                         </div>
@@ -1584,12 +1643,17 @@
                     <h3 style="font-size: 1.1rem; color: var(--gold); font-weight: 900; text-align:center;">🏆 Year ${yearDisplayNum} Roadmap</h3>
                     <span style="font-size: 0.78rem; color: var(--accent); text-align:right;">Skin: ${sessionUser.active_skin}</span>
                 </div>
-                <div class="duo-path-container path-fixed-cloud">
+                <div class="duo-path-container path-fixed-cloud" id="${yearKey}-path-scroll-area">
                     <div style="display:flex; flex-direction:column; gap:28px; width:100%; max-width:480px; margin:0 auto;">
                         ${nodesHtml}
                     </div>
                 </div>
             `;
+
+            setTimeout(() => {
+                const activeEl = document.getElementById(`${yearKey}_node_wrap_${activeNodeIndex}`);
+                if(activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 150);
         }
 
         /* STUDY & EXAMS STUDIO */
