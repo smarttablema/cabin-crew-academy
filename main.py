@@ -11,7 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="23.0.0")
+app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="25.0.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -161,10 +161,13 @@ def startup_db():
     cur.execute("""
         INSERT INTO aero_v22_shop_skins (category, tier_level, skin_name_en, skin_name_fr, skin_name_ar, cost, preview_svg, desc_en, desc_fr, desc_ar)
         VALUES 
-        ('steward', 'Free', 'Standard Aviator Suit', 'Costume Aviateur Standard', 'بدلة طيار قياسية', 0, '👔', 'Clean cadet training uniform.', 'Uniforme d’entraînement propre.', 'زي تدريب نظيف للمتدربين.'),
-        ('steward', 'Professional', 'Senior Purser Uniform', 'Uniforme Chef de Cabine', 'بدلة كبير المضيفين', 500, '🎖️👔', 'Tailored navy suit with supervisor epaulets.', 'Costume marine sur mesure.', 'بدلة بحرية مفصلة مع شارات إشرافية.'),
-        ('hostess', 'Free', 'Standard Hostess Attire', 'Tenue Hôtesse Standard', 'زي مضيفة قياسي', 0, '👗', 'Standard elegant academy skirt suit.', 'Tailleur jupe élégant.', 'بدلة تنورة أنيقة قياسية للأكاديمية.'),
-        ('hostess', 'Professional', 'Lead Purser Silk Scarf', 'Foulard en Soie Chef de Cabine', 'وشاح حريري لكبير المضيفين', 500, '🧣💎', 'Signature silk scarf and platinum wing brooch.', 'Foulard en soie et broche.', 'وشاح حريري مميز وبروش من الذهب الأبيض.')
+        ('equipment', 'Free', 'Standard Aviator Suit', 'Costume Aviateur Standard', 'بدلة طيار قياسية', 0, '👔', 'Clean cadet training uniform.', 'Uniforme d’entraînement propre.', 'زي تدريب نظيف للمتدربين.'),
+        ('equipment', 'Safety', 'Cabin Fire Extinguisher', 'Extincteur de Cabine', 'طفاية حريق المقصورة', 300, '🧯', 'Halon/Dry powder extinguisher for onboard electrical and galley fires.', 'Extincteur pour feux de cabine.', 'طفاية حريق مخصصة لحرائق المقصورة والمطبخ.'),
+        ('equipment', 'Safety', 'Portable Oxygen Bottle', 'Bouteille d’Oxygène Portable', 'أسوانة أكسجين محمولة', 450, '💨', 'First-aid medical oxygen supply unit with high-flow mask.', 'Unité d’oxygène médicale portable.', 'وحدة إمداد طبي بالأكسجين للحالات الطارئة.'),
+        ('equipment', 'Emergency', 'Emergency Megaphone', 'Mégaphone d’Urgence', 'مكبر صوت الطوارئ', 600, '📢', 'Battery-powered acoustic amplifier for crowd control and evacuation.', 'Amplificateur acoustique d’urgence.', 'مكبر صوت يعمل بالبطارية للتحكم في الحشود أثناء الإخلاء.'),
+        ('equipment', 'Safety', 'Cabin Flashlight', 'Lampe de Poche de Sécurité', 'مصباح طوارئ الكابينة', 250, '🔦', 'Heavy-duty rechargeable emergency LED flashlight.', 'Lampe de poche de secours.', 'مصباح يدوي قوي قابل لإعادة الشحن للطوارئ.'),
+        ('equipment', 'Survival', 'Inflatable Life Vest', 'Gilet de Sauvetage Gonflable', 'سترة نجاة قابلة للنفخ', 500, '🦺', 'Dual-chamber passenger and crew flotation vest with whistle and light.', 'Gilet de sauvetage double chambre.', 'سترة نجاة مزدوجة الغرفة مع صفارة ومصباح.'),
+        ('equipment', 'Emergency', 'Slide-Raft Unit', 'Toboggan-Radeau d’Évacuation', 'طوافة الانزلاق للإخلاء', 800, '🛟', 'Multi-person inflatable slide and emergency sea rescue raft.', 'Toboggan et radeau de sauvetage.', 'منزلق قابل للنفخ وطوافة إنقاذ بحري طارئة.')
         ON CONFLICT DO NOTHING;
     """)
 
@@ -187,7 +190,7 @@ class RegisterModel(BaseModel):
     role: str = 'student'
     avatar_gender: str = 'steward'
     group_code: str = '7842'
-    teacher_code: str = None  # Secure 6-digit verification code
+    teacher_code: str = None
 
 class LoginModel(BaseModel):
     phone_number: str
@@ -281,7 +284,6 @@ def register(data: RegisterModel):
     assigned_role = "student"
     group_code = data.group_code
     
-    # Secure Teacher Registration Validation Check
     if data.role == "teacher":
         if data.teacher_code != "112233":
             cur.close()
@@ -813,24 +815,36 @@ def serve_frontend():
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; min-height: 290px; }
         
-        /* ZIG-ZAG PATH CONTAINER WITH AVIATION THEMED BACKDROPS */
+        /* PROFESSIONALLY DESIGNED DISTINCT AVIATION BACKDROPS & SCROLLBAR HIDING */
         .path-backdrop-y1 {
-            background: linear-gradient(135deg, rgba(2, 6, 23, 0.90) 0%, rgba(15, 23, 42, 0.95) 100%), 
+            background: linear-gradient(135deg, rgba(2, 6, 23, 0.88) 0%, rgba(15, 23, 42, 0.94) 100%), 
                         url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200') center/cover no-repeat !important;
         }
         .path-backdrop-y2 {
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.90) 0%, rgba(30, 41, 59, 0.95) 100%), 
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(30, 41, 59, 0.94) 100%), 
                         url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=1200') center/cover no-repeat !important;
         }
         .path-backdrop-eng {
-            background: linear-gradient(135deg, rgba(2, 6, 23, 0.90) 0%, rgba(3, 105, 161, 0.85) 100%), 
+            background: linear-gradient(135deg, rgba(2, 6, 23, 0.88) 0%, rgba(3, 105, 161, 0.82) 100%), 
                         url('https://images.unsplash.com/photo-1519074069444-1ba4ea16d66c?w=1200') center/cover no-repeat !important;
         }
 
-        .duo-path-container { display: flex; flex-direction: column; gap: 24px; padding: 20px 10px; max-height: 360px; overflow-y: auto; border-radius: 18px; border: 1px solid var(--border-glow); }
+        .duo-path-container { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 24px; 
+            padding: 20px 10px; 
+            max-height: 360px; 
+            overflow-y: auto; 
+            border-radius: 18px; 
+            border: 1px solid var(--border-glow);
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .duo-path-container::-webkit-scrollbar { display: none; }
+
         .duo-node-wrapper { display: flex; width: 100%; position: relative; }
         
-        /* Zig-zag alignment: alternate left and right */
         .duo-node-wrapper:nth-child(odd) { justify-content: flex-start; padding-left: 18%; }
         .duo-node-wrapper:nth-child(even) { justify-content: flex-end; padding-right: 18%; }
 
@@ -844,7 +858,8 @@ def serve_frontend():
         @keyframes floatCompanion { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
         .chat-container { display: flex; flex-direction: column; height: 340px; background: var(--bg-deep); border-radius: 16px; border: 1px solid var(--border-glow); overflow: hidden; }
-        .chat-messages { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .chat-messages { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; scrollbar-width: none; }
+        .chat-messages::-webkit-scrollbar { display: none; }
         .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 0.84rem; line-height: 1.4; }
         .chat-bubble.incoming { background: var(--surface-card); color: white; align-self: flex-start; }
         .chat-bubble.outgoing { background: #0284c7; color: white; align-self: flex-end; }
@@ -872,7 +887,7 @@ def serve_frontend():
                 <div class="header-controls hidden" id="dash-header-icons">
                     <div class="header-icon-btn" onclick="openAvatarStudio()" title="Avatar">👤</div>
                     <div class="header-icon-btn" onclick="openShop()" title="Boutique">🎁</div>
-                    <div class="header-icon-btn" onclick="openSettingsModal()" title="Settings">⚙️️</div>
+                    <div class="header-icon-btn" onclick="openSettingsModal()" title="Settings">⚙</div>
                 </div>
             </div>
         </div>
@@ -896,7 +911,7 @@ def serve_frontend():
             </div>
         </div>
 
-        <!-- REGISTER SCREEN (WITH SECURE TEACHER CODE TOGGLE) -->
+        <!-- REGISTER SCREEN -->
         <div id="screen-register" class="hidden">
             <h2 id="tr-reg-title">Cadet & Instructor Enrollment</h2>
             <p class="sub-desc" id="tr-reg-sub">Register your profile, choose your role, and design your avatar.</p>
@@ -909,7 +924,6 @@ def serve_frontend():
                 <option value="teacher" id="tr-opt-teacher">👨‍🏫 Instructor / Teacher</option>
             </select>
 
-            <!-- Secret Teacher Code Box (Revealed only if Teacher role is selected) -->
             <div id="teacher-code-box" class="hidden" style="background: rgba(56, 189, 248, 0.08); padding: 12px; border-radius: 14px; border: 1px dashed var(--accent); margin-bottom: 1rem;">
                 <label style="color: var(--accent);">🔒 6-Digit Teacher Verification Code</label>
                 <input type="password" id="reg-teacher-code" placeholder="Enter code (112233)" maxlength="6" style="letter-spacing: 3px; text-align: center; margin-bottom:0;" />
@@ -978,11 +992,11 @@ def serve_frontend():
             <div class="mode-grid">
                 <div class="mode-tile" onclick="launchRoadmap(1)">
                     <span style="font-size: 1.4rem;">📖</span>
-                    <h4 id="tr-tile-y1">First Year Path (100+ Nodes)</h4>
+                    <h4 id="tr-tile-y1">First Year Path (100 Nodes)</h4>
                 </div>
                 <div class="mode-tile" onclick="launchRoadmap(2)">
                     <span style="font-size: 1.4rem;">🏆</span>
-                    <h4 id="tr-tile-y2">Second Year Path (100+ Nodes)</h4>
+                    <h4 id="tr-tile-y2">Second Year Path (100 Nodes)</h4>
                 </div>
                 <div class="mode-tile" onclick="launchAviationEnglishRoadmap()">
                     <span style="font-size: 1.4rem;">🌐</span>
@@ -1000,7 +1014,7 @@ def serve_frontend():
 
             <div id="simulation-box" class="card-container">
                 <h3 style="font-size: 1.15rem; margin-bottom: 0.6rem; color: var(--accent); font-weight: 800;" id="tr-center-title">EASA Professional Training Center</h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;" id="tr-center-desc">Select <b>First Year Path</b>, <b>Second Year Path</b>, or <b>Aviation English</b> above to begin your learning adventure with your equipped skin avatar companion in zig-zag path layout, or open the <b>Studio</b> to access multi-question quizzes and official exams.</p>
+                <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;" id="tr-center-desc">Select <b>First Year Path</b>, <b>Second Year Path</b>, or <b>Aviation English</b> above to begin your randomized anti-cheat learning adventure with your equipped skin companion.</p>
             </div>
             
             <div style="display: flex; gap: 10px;">
@@ -1110,9 +1124,9 @@ def serve_frontend():
                 completeRegBtn: "Complete Registration", backLogin: "Already have an account? Sign In",
                 resetTitle: "Recovery PIN Reset", resetSub: "Enter your phone and secret recovery PIN.", resetNewLbl: "New Password",
                 updateCredBtn: "Update Credentials", backLogin2: "Back to Sign In",
-                tileY1: "First Year Path (100+ Nodes)", tileY2: "Second Year Path (100+ Nodes)", tileEng: "Aviation English & ICAO Mastery",
+                tileY1: "First Year Path (100 Nodes)", tileY2: "Second Year Path (100 Nodes)", tileEng: "Aviation English & ICAO Mastery",
                 tileStudy: "Lessons, Quizzes & Exams Studio", tileSocial: "Friends, Private Chat & Groups",
-                centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, or <b>Aviation English</b> above to begin your learning adventure with your equipped skin avatar companion in zig-zag path layout, or open the <b>Studio</b>.",
+                centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, or <b>Aviation English</b> above to begin your randomized anti-cheat learning adventure.",
                 hubBtn: "← Hub", logoutBtn: "Logout 🚪",
                 modalAvatarTitle: "🎨 Edit Avatar", modalGenderLbl: "Gender / Style", saveAvatarBtn: "Save Avatar 💾",
                 settingsTitle: "⚙️ Academy Settings", langLbl: "Interface Language", passChangeLbl: "Change Password", updatePassBtn: "Update Password 🔒",
@@ -1130,12 +1144,12 @@ def serve_frontend():
                 completeRegBtn: "Terminer l'inscription", backLogin: "Déjà un compte ? Se connecter",
                 resetTitle: "Réinitialisation du PIN", resetSub: "Entrez votre téléphone et votre PIN de récupération secret.", resetNewLbl: "Nouveau mot de passe",
                 updateCredBtn: "Mettre à jour", backLogin2: "Retour à la connexion",
-                tileY1: "Parcours 1ère Année (100+ Nœuds)", tileY2: "Parcours 2ème Année (100+ Nœuds)", tileEng: "Anglais Aéronautique & ICAO",
+                tileY1: "Parcours 1ère Année (100 Nœuds)", tileY2: "Parcours 2ème Année (100 Nœuds)", tileEng: "Anglais Aéronautique & ICAO",
                 tileStudy: "Studio Leçons, Quiz & Examens", tileSocial: "Amis, Chat Privé & Groupes",
-                centerTitle: "Centre de Formation Professionnelle EASA", centerDesc: "Sélectionnez <b>Parcours 1ère Année</b>, <b>2ème Année</b> ou <b>Anglais Aéronautique</b> pour débuter votre aventure avec votre avatar.",
+                centerTitle: "Centre de Formation Professionnelle EASA", centerDesc: "Sélectionnez <b>Parcours 1ère Année</b>, <b>2ème Année</b> ou <b>Anglais Aéronautique</b> pour débuter votre parcours aléatoire anti-triche.",
                 hubBtn: "← Accueil", logoutBtn: "Déconnexion 🚪",
                 modalAvatarTitle: "🎨 Modifier l'Avatar", modalGenderLbl: "Genre / Style", saveAvatarBtn: "Enregistrer 💾",
-                settingsTitle: "⚙️ Paramètres", langLbl: "Langue de l'interface", passChangeLbl: "Changer le mot de passe", updatePassBtn: "Mettre à jour 🔒",
+                settingsTitle: "⚙ Paramètres", langLbl: "Langue de l'interface", passChangeLbl: "Changer le mot de passe", updatePassBtn: "Mettre à jour 🔒",
                 myUsernameLbl: "Mon Nom d'utilisateur"
             },
             ar: {
@@ -1150,9 +1164,9 @@ def serve_frontend():
                 completeRegBtn: "إتمام التسجيل", backLogin: "لديك حساب بالفعل؟ سجل دخولك",
                 resetTitle: "إعادة تعيين رقم الاسترداد", resetSub: "أدخل هاتفك ورقم الاسترداد السري الخاص بك.", resetNewLbl: "كلمة المرور الجديدة",
                 updateCredBtn: "تحديث بيانات الاعتماد", backLogin2: "العودة لتسجيل الدخول",
-                tileY1: "مسار السنة الأولى (100+ نقطة)", tileY2: "مسار السنة الثانية (100+ نقطة)", tileEng: "اللغة الإنجليزية للطيران وإيكاو",
+                tileY1: "مسار السنة الأولى (100 نقطة)", tileY2: "مسار السنة الثانية (100 نقطة)", tileEng: "اللغة الإنجليزية للطيران وإيكاو",
                 tileStudy: "استوديو الدروس والاختبارات", tileSocial: "الأصدقاء والمحادثة الخاصة والمجموعات",
-                centerTitle: "مركز تدريب الطيران الاحترافي EASA", centerDesc: "اختر مسار التعلم لعرض الخريطة المتعرجة وتجربة الرمزية الخاصة بك.",
+                centerTitle: "مركز تدريب الطيران الاحترافي EASA", centerDesc: "اختر مسار التعلم لعرض الخريطة المتعرجة مع أسئلة عشوائية مضادة للغش.",
                 hubBtn: "← الرئيسية", logoutBtn: "تسجيل الخروج 🚪",
                 modalAvatarTitle: "🎨 تعديل الرمزية", modalGenderLbl: "الجنس / النمط", saveAvatarBtn: "حفظ 💾",
                 settingsTitle: "⚙️ إعدادات الأكاديمية", langLbl: "لغة الواجهة", passChangeLbl: "تغيير كلمة المرور", updatePassBtn: "تحديث كلمة المرور 🔒",
@@ -1162,6 +1176,7 @@ def serve_frontend():
 
         window.onload = async function() {
             setLanguage(activeLang);
+            toggleTeacherCodeContainer();
             if(sessionUser && sessionUser.phone_number) {
                 try {
                     const res = await fetch('/api/user/refresh?phone_number=' + encodeURIComponent(sessionUser.phone_number));
@@ -1282,9 +1297,10 @@ def serve_frontend():
         }
 
         function toggleTeacherCodeContainer() {
-            const role = document.getElementById('reg-role').value;
+            const roleEl = document.getElementById('reg-role');
             const box = document.getElementById('teacher-code-box');
-            if(role === 'teacher') {
+            if(!roleEl || !box) return;
+            if(roleEl.value === 'teacher') {
                 box.classList.remove('hidden');
             } else {
                 box.classList.add('hidden');
@@ -1444,51 +1460,110 @@ def serve_frontend():
             }
         }
 
-        /* TRANSFORMED AVIATION ENGLISH ZIG-ZAG PATH */
+        /* MASTER RANDOMIZED QUESTION POOLS (ANTI-CHEAT) */
+        const masterQuestionPools = {
+            english: [
+                { q: "How is letter 'A' pronounced in ICAO standard telephony?", options: ["Alpha", "Apple", "Adam"], correct: 0 },
+                { q: "What is the correct ICAO pronunciation for number '9'?", options: ["Niner", "Nine", "Nov"], correct: 0 },
+                { q: "Which phonetic word represents letter 'S'?", options: ["Sierra", "Sugar", "Sam"], correct: 0 },
+                { q: "What is the primary phrase for seatbelt compliance check?", options: ["Cabin crew, secure cabin for takeoff", "Please fasten belts", "Fasten seatbelts please"], correct: 0 },
+                { q: "During turbulence, what command is issued to cabin crew?", options: ["Crew, be seated and secure", "Continue service", "Stand by galley"], correct: 0 },
+                { q: "How do you announce emergency slide arming?", options: ["Cabin crew, arm slides and cross-check", "Open all doors", "Disarm doors"], correct: 0 },
+                { q: "What command is shouted during rapid land evacuation?", options: ["EFP, LEAVE BAGS, DOWN THE SLIDE!", "Please exit slowly", "Grab your luggage and jump"], correct: 0 },
+                { q: "What urgent prefix is used for non-immediate safety urgency?", options: ["PAN-PAN", "MAYDAY", "SECURITY"], correct: 0 },
+                { q: "How many times is MAYDAY repeated in distress calls?", options: ["Three times", "Once", "Five times"], correct: 0 },
+                { q: "What term describes sudden severe vertical air movement?", options: ["Wind shear / Turbulence", "Gentle breeze", "Thermal calm"], correct: 0 },
+                { q: "What is the weather report acronym provided to pilots?", options: ["METAR", "RADAR", "SONAR"], correct: 0 },
+                { q: "What condition requires anti-icing fluid application?", options: ["Freezing fog and frost", "Sunny skies", "High humidity"], correct: 0 }
+            ],
+            year1: [
+                { q: "What is the mandatory crew action prior to door arming?", options: ["Arm cross-check and report", "Open emergency exit", "Deplane passengers"], correct: 0 },
+                { q: "In case of cabin depressurization, what is your immediate action?", options: ["Secure oxygen mask and be seated", "Serve beverages", "Call flight deck"], correct: 0 },
+                { q: "Who gives the final authorization for aircraft pushback?", options: ["Captain / Flight Deck", "Passenger", "Baggage loader"], correct: 0 },
+                { q: "What safety equipment is required during firefighting in cabin?", options: ["Smoke goggles & PBE (Smoke Hood)", "Sunglasses", "Surgical mask"], correct: 0 },
+                { q: "What is the pre-flight briefing acronym for crew coordination?", options: ["SEP / Briefing", "GPS", "FMS"], correct: 0 },
+                { q: "Where are life vests typically stowed for passengers?", options: ["Underneath or beside passenger seats", "In overhead bins", "In the cockpit"], correct: 0 },
+                { q: "What color is the emergency evacuation slide inflation cylinder pressure gauge indicator?", options: ["Green / Operating range", "Red only", "Black"], correct: 0 },
+                { q: "Which department oversees airline crew regulatory compliance in Europe?", options: ["EASA", "NASA", "FIFA"], correct: 0 }
+            ],
+            year2: [
+                { q: "What is CRM in aviation crew training?", options: ["Crew Resource Management", "Cabin Routine Maintenance", "Cockpit Radio Monitoring"], correct: 0 },
+                { q: "What is the minimum crew rest requirement during long-haul duty rotations?", options: ["Mandatory scheduled rest period", "No rest required", "Optional coffee break"], correct: 0 },
+                { q: "What does 'TACON' or emergency transponder squawk code 7700 signify?", options: ["Emergency / Distress", "Hijacking", "Radio failure"], correct: 0 },
+                { q: "How should dangerous goods (DG) spills in cabin be handled?", options: ["Isolate area, use spill kit, notify captain", "Wash down galley drain", "Ignore until landing"], correct: 0 },
+                { q: "What is the procedure for suspected bomb threat inflight?", options: ["Search LRT (Least Risk Bomb Location), notify flight deck", "Open emergency door", "Announce publicly to passengers"], correct: 0 }
+            ]
+        };
+
+        function getRandomQuizQuestions(poolKey, count = 3) {
+            const pool = [...masterQuestionPools[poolKey]];
+            // Shuffle pool
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+            const selected = pool.slice(0, Math.min(count, pool.length));
+            // Deep copy and shuffle options for each selected question
+            return selected.map(item => {
+                let opts = [...item.options];
+                let correctText = opts[item.correct];
+                // Shuffle options
+                for (let i = opts.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [opts[i], opts[j]] = [opts[j], opts[i]];
+                }
+                const newCorrectIdx = opts.indexOf(correctText);
+                return { q: item.q, options: opts, correct: newCorrectIdx };
+            });
+        }
+
+        /* AVIATION ENGLISH ROADMAP */
         function launchAviationEnglishRoadmap() {
             playSound('click');
             const box = document.getElementById('simulation-box');
             const completedList = sessionUser.completed_nodes || [];
-            const modules = [
-                { id: 'eng_mod_1', title: 'Module 1: Standard ICAO Phonetocs (Alpha, Bravo...)', desc: 'Master clear spelling for registration codes and emergency clearance.' },
-                { id: 'eng_mod_2', title: 'Module 2: Cabin Announcements & PA System', desc: 'Standard boarding, safety demonstration, and turbulence briefing.' },
-                { id: 'eng_mod_3', title: 'Module 3: Emergency Phraseology (Mayday / Pan-Pan)', desc: 'Evacuation commands, crowd control terminology, and flight deck coordination.' },
-                { id: 'eng_mod_4', title: 'Module 4: Meteorology & Weather Vocabulary', desc: 'Reporting turbulence, wind shear, icing conditions, and visibility limits.' }
-            ];
 
             let activeIndex = 1;
-            modules.forEach((m, idx) => {
-                if(completedList.includes(m.id)) activeIndex = idx + 2;
-            });
-            if(activeIndex > modules.length) activeIndex = modules.length;
+            for(let i = 1; i <= 100; i++) {
+                if(completedList.includes(`eng_node_${i}`)) activeIndex = i + 1;
+            }
+            if(activeIndex > 100) activeIndex = 100;
 
             let nodesHtml = '';
-            modules.forEach((m, idx) => {
-                const nodeNum = idx + 1;
-                const isCompleted = completedList.includes(m.id);
+            for(let i = 1; i <= 100; i++) {
+                const nodeId = `eng_node_${i}`;
+                const isCompleted = completedList.includes(nodeId);
                 let statusClass = 'locked';
                 if(isCompleted) statusClass = 'completed';
-                else if(nodeNum === 1 || completedList.includes(modules[idx-1].id)) statusClass = 'active';
+                else if(i === 1 || completedList.includes(`eng_node_${i-1}`)) statusClass = 'active';
 
                 const icon = isCompleted ? '👑' : (statusClass === 'active' ? '🌐' : '🔒');
-                const isCurrentActive = (nodeNum === activeIndex);
-                const companionEmoji = sessionUser.active_skin === 'Senior Purser Uniform' ? '🎖️👔' : (sessionUser.active_skin === 'Lead Purser Silk Scarf' ? '🧣💎' : (sessionUser.avatar_gender === 'hostess' ? '👗' : '👔'));
+                const isCurrentActive = (i === activeIndex);
+                
+                let companionEmoji = '👔';
+                if(sessionUser.active_skin === 'Cabin Fire Extinguisher') companionEmoji = '🧯';
+                else if(sessionUser.active_skin === 'Portable Oxygen Bottle') companionEmoji = '💨';
+                else if(sessionUser.active_skin === 'Emergency Megaphone') companionEmoji = '📢';
+                else if(sessionUser.active_skin === 'Cabin Flashlight') companionEmoji = '🔦';
+                else if(sessionUser.active_skin === 'Inflatable Life Vest') companionEmoji = '🦺';
+                else if(sessionUser.active_skin === 'Slide-Raft Unit') companionEmoji = '🛟';
+                else if(sessionUser.avatar_gender === 'hostess') companionEmoji = '👗';
 
                 nodesHtml += `
                     <div class="duo-node-wrapper">
                         ${isCurrentActive ? `<div class="companion-hopper">${companionEmoji}</div>` : ''}
-                        <div class="duo-node ${statusClass}" onclick="startEnglishCheckpoint('${m.id}', '${m.title}', '${statusClass}')">
+                        <div class="duo-node ${statusClass}" onclick="startDynamicNodeSession('english', ${i}, '${statusClass}')">
                             <span style="font-size:1.3rem;">${icon}</span>
-                            <span style="font-size:0.55rem; margin-top:-2px;">M${nodeNum}</span>
+                            <span style="font-size:0.55rem; margin-top:-2px;">${i}</span>
                         </div>
                     </div>
                 `;
-            });
+            }
 
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
                     <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">🌐 Aviation English & ICAO Mastery Path</h3>
-                    <span style="font-size: 0.72rem; color: var(--success); font-weight: 800;">Equipped Skin: ${sessionUser.active_skin}</span>
+                    <span style="font-size: 0.72rem; color: var(--success); font-weight: 800;">Skin: ${sessionUser.active_skin}</span>
                 </div>
                 <div class="duo-path-container path-backdrop-eng">
                     <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
@@ -1498,29 +1573,101 @@ def serve_frontend():
             `;
         }
 
-        function startEnglishCheckpoint(modId, modTitle, status) {
+        function startDynamicNodeSession(poolKey, nodeNum, status) {
             playSound('click');
-            if(status === 'locked') { showToast('Complete previous English modules first!', true); return; }
-            const box = document.getElementById('simulation-box');
-            box.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-                    <h3 style="font-size:1rem; color:var(--gold); font-weight:900;">📖 ${modTitle}</h3>
-                    <button class="btn-action" onclick="launchAviationEnglishRoadmap()" style="width:70px; padding:6px; font-size:0.75rem; margin-top:0;">Back</button>
-                </div>
-                <div style="background:var(--bg-deep); padding:1.2rem; border-radius:16px; border:1px solid var(--border-glow); margin-bottom:1rem; font-size:0.88rem; line-height:1.6; color:white;">
-                    <p style="margin-bottom:10px;"><b>ICAO Standard:</b> In international civil aviation, precise phrasing eliminates ambiguity. For example, use <b>"AFFIRMATIVE"</b> instead of yes, and <b>"NEGATIVE"</b> instead of no.</p>
-                    <p><b>Cabin Safety Command:</b> During an emergency evacuation, shouting <i>"EFP, LEAVE BAGS, DOWN THE SLIDE!"</i> with authority ensures 100% passenger compliance under 90 seconds.</p>
-                </div>
-                <button class="btn-action" onclick="completeEnglishModuleNode('${modId}')" style="background:var(--success); color:white;">Complete Checkpoint (+30 XP ⭐)</button>
-            `;
+            if(status === 'locked') { showToast('Complete previous checkpoints first!', true); return; }
+            if(sessionUser.hearts <= 0) {
+                openHeartRecoveryLounge();
+                return;
+            }
+            // Generate completely randomized questions for this specific session
+            const randomizedQuestions = getRandomQuizQuestions(poolKey, 3);
+            renderDynamicStep(poolKey, nodeNum, randomizedQuestions, 0);
         }
 
-        async function completeEnglishModuleNode(modId) {
-            playSound('click');
+        function renderDynamicStep(poolKey, nodeNum, questions, stepIdx) {
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
+            if(stepIdx >= questions.length) {
+                completeDynamicNode(poolKey, nodeNum);
+                return;
+            }
+            const qObj = questions[stepIdx];
+            const box = document.getElementById('simulation-box');
+            let timeLeft = 35;
+
+            box.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+                    <span style="font-size: 0.75rem; color: var(--gold); font-weight: 900;">NODE ${nodeNum} • QUESTION ${stepIdx+1} OF ${questions.length}</span>
+                    <span id="dyn-timer" style="font-size:0.8rem; color:var(--danger); font-weight:800;">⏱️ 35s</span>
+                </div>
+                <div style="background:var(--bg-deep); padding:1.2rem; border-radius:16px; border:1px solid var(--border-glow); margin-bottom:1rem;">
+                    <b style="color:white; font-size:0.95rem; display:block; margin-bottom:12px;">${qObj.q}</b>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        ${qObj.options.map((opt, idx) => `
+                            <button class="btn-action" onclick="verifyDynamicAnswer('${poolKey}', ${nodeNum}, ${idx === qObj.correct}, ${stepIdx}, ${JSON.stringify(questions).replace(/"/g, '&quot;')})" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:11px; font-size:0.85rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
+                        `).join('')}
+                    </div>
+                </div>
+                <div id="dyn-feedback" style="text-align:center; font-weight:800; font-size:0.85rem;"></div>
+            `;
+
+            questionTimerInterval = setInterval(async () => {
+                timeLeft--;
+                const timerEl = document.getElementById('dyn-timer');
+                if(timerEl) timerEl.innerText = `⏱️ ${timeLeft}s`;
+                if(timeLeft <= 0) {
+                    clearInterval(questionTimerInterval);
+                    showToast('Time expired! Heart lost ❤️-1', true);
+                    const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `y${poolKey}_node_${nodeNum}`;
+                    const res = await fetch('/api/node/complete', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: nodeId, lost_heart: true })
+                    });
+                    const data = await res.json();
+                    sessionUser.hearts = data.hearts;
+                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                    updateDashboardUI();
+                    if(sessionUser.hearts <= 0) openHeartRecoveryLounge();
+                    else renderDynamicStep(poolKey, nodeNum, questions, stepIdx);
+                }
+            }, 1000);
+        }
+
+        async function verifyDynamicAnswer(poolKey, nodeNum, isCorrect, stepIdx, questionsJson) {
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
+            const fb = document.getElementById('dyn-feedback');
+            const questions = typeof questionsJson === 'string' ? JSON.parse(questionsJson.replace(/&quot;/g, '"')) : questionsJson;
+            const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `y${poolKey}_node_${nodeNum}`;
+
+            if(isCorrect) {
+                fb.style.color = 'var(--success)';
+                fb.innerText = 'Correct procedure!';
+                setTimeout(() => {
+                    renderDynamicStep(poolKey, nodeNum, questions, stepIdx + 1);
+                }, 900);
+            } else {
+                fb.style.color = 'var(--danger)';
+                fb.innerText = 'Incorrect! Heart lost ❤️️-1';
+                const res = await fetch('/api/node/complete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: nodeId, lost_heart: true })
+                });
+                const data = await res.json();
+                sessionUser.hearts = data.hearts;
+                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                updateDashboardUI();
+                if(sessionUser.hearts <= 0) openHeartRecoveryLounge();
+            }
+        }
+
+        async function completeDynamicNode(poolKey, nodeNum) {
+            const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `y${poolKey}_node_${nodeNum}`;
             const res = await fetch('/api/node/complete', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: modId, lost_heart: false })
+                body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: nodeId, lost_heart: false })
             });
             const data = await res.json();
             sessionUser.completed_nodes = data.completed_nodes;
@@ -1529,11 +1676,19 @@ def serve_frontend():
             sessionUser.streak = data.streak;
             localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
             updateDashboardUI();
-            showToast('English module mastered! +30 XP ⭐');
-            launchAviationEnglishRoadmap();
+
+            const box = document.getElementById('simulation-box');
+            box.innerHTML = `
+                <div style="text-align:center; padding: 2rem 0;">
+                    <div style="font-size: 3.5rem; margin-bottom: 1rem;">👑</div>
+                    <h3 style="font-size: 1.3rem; color: var(--gold); font-weight: 900; margin-bottom: 0.5rem;">Node Completed!</h3>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">You earned <b>+30 XP Stars</b> ⭐ and kept your streak alive!</p>
+                    <button class="btn-action" onclick="${poolKey === 'english' ? 'launchAviationEnglishRoadmap()' : 'launchRoadmap(' + poolKey + ')'}" style="background:var(--success); color:white;">Continue Journey ✈</button>
+                </div>
+            `;
         }
 
-        /* ROADMAPS WITH ZIG-ZAG LAYOUT & EQUIPPED SKIN AVATAR */
+        /* ROADMAPS FOR YEAR 1 & YEAR 2 (RANDOMIZED ANTI-CHEAT) */
         function launchRoadmap(yearNum) {
             playSound('click');
             activeRoadmapYear = yearNum;
@@ -1558,12 +1713,20 @@ def serve_frontend():
 
                 const icon = isCompleted ? '👑' : (statusClass === 'active' ? '✈' : '🔒');
                 const isCurrentActive = (i === activeNodeIndex);
-                const companionEmoji = sessionUser.active_skin === 'Senior Purser Uniform' ? '🎖️👔' : (sessionUser.active_skin === 'Lead Purser Silk Scarf' ? '🧣💎' : (sessionUser.avatar_gender === 'hostess' ? '👗' : '👔'));
+                
+                let companionEmoji = '👔';
+                if(sessionUser.active_skin === 'Cabin Fire Extinguisher') companionEmoji = '🧯';
+                else if(sessionUser.active_skin === 'Portable Oxygen Bottle') companionEmoji = '💨';
+                else if(sessionUser.active_skin === 'Emergency Megaphone') companionEmoji = '📢';
+                else if(sessionUser.active_skin === 'Cabin Flashlight') companionEmoji = '🔦';
+                else if(sessionUser.active_skin === 'Inflatable Life Vest') companionEmoji = '🦺';
+                else if(sessionUser.active_skin === 'Slide-Raft Unit') companionEmoji = '🛟';
+                else if(sessionUser.avatar_gender === 'hostess') companionEmoji = '👗';
 
                 nodesHtml += `
                     <div class="duo-node-wrapper">
                         ${isCurrentActive ? `<div class="companion-hopper">${companionEmoji}</div>` : ''}
-                        <div class="duo-node ${statusClass}" onclick="startSequentialCheckpoint(${yearNum}, ${i}, '${statusClass}')">
+                        <div class="duo-node ${statusClass}" onclick="startDynamicNodeSession(${yearNum}, ${i}, '${statusClass}')">
                             <span style="font-size:1.3rem;">${icon}</span>
                             <span style="font-size:0.55rem; margin-top:-2px;">${i}</span>
                         </div>
@@ -1582,134 +1745,6 @@ def serve_frontend():
                     <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
                         ${nodesHtml}
                     </div>
-                </div>
-            `;
-        }
-
-        const checkpointQuestionsBank = {
-            1: [
-                { q: "Step 1/3: What is the mandatory crew action prior to door arming?", options: ["Arm cross-check and report", "Open emergency exit", "Deplane passengers"], correct: 0 },
-                { q: "Step 2/3: In case of cabin depressurization, what is your immediate action?", options: ["Secure oxygen mask and be seated", "Serve beverages", "Call flight deck"], correct: 0 },
-                { q: "Step 3/3: Who gives the final authorization for aircraft pushback?", options: ["Captain / Flight Deck", "Passenger", "Baggage loader"], correct: 0 }
-            ]
-        };
-
-        function startSequentialCheckpoint(yearNum, nodeNum, status) {
-            playSound('click');
-            if(status === 'locked') { showToast('Complete previous checkpoints first!', true); return; }
-            if(sessionUser.hearts <= 0) { 
-                showToast('Out of hearts! Open Heart Recovery Lounge.', true); 
-                openHeartRecoveryLounge();
-                return; 
-            }
-            
-            const questions = checkpointQuestionsBank[1];
-            renderCheckpointStep(yearNum, nodeNum, questions, 0);
-        }
-
-        function renderCheckpointStep(yearNum, nodeNum, questions, stepIdx) {
-            if(questionTimerInterval) clearInterval(questionTimerInterval);
-            if(stepIdx >= questions.length) {
-                completeSequentialCheckpoint(yearNum, nodeNum);
-                return;
-            }
-            const qObj = questions[stepIdx];
-            const box = document.getElementById('simulation-box');
-            let timeLeft = 30;
-
-            box.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-                    <span style="font-size: 0.75rem; color: var(--gold); font-weight: 900;">CHECKPOINT ${nodeNum} • STEP ${stepIdx+1} OF ${questions.length}</span>
-                    <span id="q-timer" style="font-size:0.8rem; color:var(--danger); font-weight:800;">⏱️ 30s</span>
-                </div>
-                <div style="background:var(--bg-deep); padding:1.2rem; border-radius:16px; border:1px solid var(--border-glow); margin-bottom:1rem;">
-                    <b style="color:white; font-size:0.95rem; display:block; margin-bottom:12px;">${qObj.q}</b>
-                    <div style="display:flex; flex-direction:column; gap:8px;">
-                        ${qObj.options.map((opt, idx) => `
-                            <button class="btn-action" onclick="verifySequentialAnswer(${yearNum}, ${nodeNum}, ${idx === qObj.correct}, ${stepIdx}, ${JSON.stringify(questions).replace(/"/g, '&quot;')})" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:11px; font-size:0.85rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
-                        `).join('')}
-                    </div>
-                </div>
-                <div id="step-feedback" style="text-align:center; font-weight:800; font-size:0.85rem;"></div>
-            `;
-
-            questionTimerInterval = setInterval(async () => {
-                timeLeft--;
-                const timerEl = document.getElementById('q-timer');
-                if(timerEl) timerEl.innerText = `⏱️ ${timeLeft}s`;
-                if(timeLeft <= 0) {
-                    clearInterval(questionTimerInterval);
-                    showToast('Time expired! Heart lost ❤️-1', true);
-                    const res = await fetch('/api/node/complete', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: `y${yearNum}_node_${nodeNum}`, lost_heart: true })
-                    });
-                    const data = await res.json();
-                    sessionUser.hearts = data.hearts;
-                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                    updateDashboardUI();
-                    if(sessionUser.hearts <= 0) {
-                        openHeartRecoveryLounge();
-                    } else {
-                        renderCheckpointStep(yearNum, nodeNum, questions, stepIdx);
-                    }
-                }
-            }, 1000);
-        }
-
-        async function verifySequentialAnswer(yearNum, nodeNum, isCorrect, stepIdx, questionsJson) {
-            if(questionTimerInterval) clearInterval(questionTimerInterval);
-            const fb = document.getElementById('step-feedback');
-            const questions = typeof questionsJson === 'string' ? JSON.parse(questionsJson.replace(/&quot;/g, '"')) : questionsJson;
-
-            if(isCorrect) {
-                fb.style.color = 'var(--success)';
-                fb.innerText = 'Correct! Advancing...';
-                setTimeout(() => {
-                    renderCheckpointStep(yearNum, nodeNum, questions, stepIdx + 1);
-                }, 900);
-            } else {
-                fb.style.color = 'var(--danger)';
-                fb.innerText = 'Incorrect! Heart lost ❤️-1';
-                const res = await fetch('/api/node/complete', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: `y${yearNum}_node_${nodeNum}`, lost_heart: true })
-                });
-                const data = await res.json();
-                sessionUser.hearts = data.hearts;
-                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                updateDashboardUI();
-                if(sessionUser.hearts <= 0) {
-                    showToast('All hearts lost!', true);
-                    openHeartRecoveryLounge();
-                }
-            }
-        }
-
-        async function completeSequentialCheckpoint(yearNum, nodeNum) {
-            const nodeId = `y${yearNum}_node_${nodeNum}`;
-            const res = await fetch('/api/node/complete', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: nodeId, lost_heart: false })
-            });
-            const data = await res.json();
-            sessionUser.completed_nodes = data.completed_nodes;
-            sessionUser.xp_points = data.xp;
-            sessionUser.hearts = data.hearts;
-            sessionUser.streak = data.streak;
-            localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-            updateDashboardUI();
-
-            const box = document.getElementById('simulation-box');
-            box.innerHTML = `
-                <div style="text-align:center; padding: 2rem 0;">
-                    <div style="font-size: 3.5rem; margin-bottom: 1rem;">👑</div>
-                    <h3 style="font-size: 1.3rem; color: var(--gold); font-weight: 900; margin-bottom: 0.5rem;">Checkpoint Completed!</h3>
-                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">You earned <b>+30 XP Stars</b> ⭐ and kept your streak alive!</p>
-                    <button class="btn-action" onclick="launchRoadmap(${yearNum})" style="background:var(--success); color:white;">Continue Journey ✈️</button>
                 </div>
             `;
         }
@@ -1783,18 +1818,18 @@ def serve_frontend():
                 ${teacherControls}
                 
                 <h4 style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem; text-transform:uppercase;">Official Exams (${groupInfo.exams.length})</h4>
-                <div style="max-height:120px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:1rem;" id="exams-list">
+                <div style="max-height:120px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:1rem; scrollbar-width:none;" id="exams-list">
                     ${groupInfo.exams.length === 0 ? '<div style="color:var(--text-muted); font-size:0.8rem; text-align:center;">No exams found for this code.</div>' :
                       groupInfo.exams.map(e => `
                         <div style="background:var(--bg-deep); padding:10px; border-radius:12px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
                             <div><b style="color:white; font-size:0.85rem;">🏆 ${e.title}</b><div style="color:var(--text-muted); font-size:0.7rem;">Teacher: ${e.teacher_username}</div></div>
-                            <button class="btn-action" onclick='takeExam(${JSON.stringify(e)})' style="width:90px; padding:6px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Start ⏱️️</button>
+                            <button class="btn-action" onclick='takeExam(${JSON.stringify(e)})' style="width:90px; padding:6px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Start ⏱</button>
                         </div>
                     `).join('')}
                 </div>
 
                 <h4 style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem; text-transform:uppercase;">Quizzes (${groupInfo.lessons.length})</h4>
-                <div style="max-height:120px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;" id="lessons-list">
+                <div style="max-height:120px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; scrollbar-width:none;" id="lessons-list">
                     ${groupInfo.lessons.length === 0 ? '<div style="color:var(--text-muted); font-size:0.8rem; text-align:center;">No quizzes found for this code.</div>' :
                       groupInfo.lessons.map(l => `
                         <div style="background:var(--bg-deep); padding:10px; border-radius:12px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
@@ -1887,7 +1922,7 @@ def serve_frontend():
                     <button class="btn-action" onclick="openStudyHub()" style="width:70px; padding:6px; font-size:0.75rem; margin-top:0;">Back</button>
                 </div>
                 <h4 style="font-size:0.8rem; color:var(--accent); margin-bottom:0.4rem;">Official Exam Submissions</h4>
-                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:10px;">
+                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:10px; scrollbar-width:none;">
                     ${data.exam_submissions.length === 0 ? '<div style="color:var(--text-muted); font-size:0.75rem;">No exam attempts yet.</div>' :
                       data.exam_submissions.map(s => `
                         <div style="background:var(--bg-deep); padding:8px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
@@ -1897,7 +1932,7 @@ def serve_frontend():
                     `).join('')}
                 </div>
                 <h4 style="font-size:0.8rem; color:var(--accent); margin-bottom:0.4rem;">Quiz Submissions</h4>
-                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;">
+                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; scrollbar-width:none;">
                     ${data.quiz_results.length === 0 ? '<div style="color:var(--text-muted); font-size:0.75rem;">No quiz attempts yet.</div>' :
                       data.quiz_results.map(r => `
                         <div style="background:var(--bg-deep); padding:8px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
@@ -1924,7 +1959,7 @@ def serve_frontend():
                     <h3 style="font-size:1.05rem; color:var(--warning); font-weight:900;">⏱️ ${exam.title}</h3>
                     <span id="exam-timer" style="color:var(--danger); font-weight:800; font-size:0.85rem;">Time: 0s</span>
                 </div>
-                <div style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; margin-bottom:1rem;">
+                <div style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; margin-bottom:1rem; scrollbar-width:none;">
                     ${questions.map((q, idx) => `
                         <div style="background:var(--bg-deep); padding:10px; border-radius:12px;">
                             <label style="color:white; font-size:0.85rem;">Q${idx+1}: ${q.question}</label>
@@ -1971,7 +2006,7 @@ def serve_frontend():
             box.innerHTML = `
                 <h3 style="font-size:1.05rem; color:var(--accent); font-weight:900; margin-bottom:0.5rem;">📝 ${lesson.title}</h3>
                 <div style="background:var(--bg-deep); padding:10px; border-radius:10px; font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem;">${lesson.content_html}</div>
-                <div style="max-height:200px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; margin-bottom:1rem;" id="quiz-questions-form">
+                <div style="max-height:200px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; margin-bottom:1rem; scrollbar-width:none;" id="quiz-questions-form">
                     ${questions.map((q, idx) => `
                         <div style="background:var(--bg-deep); padding:10px; border-radius:12px;">
                             <label style="color:white; font-size:0.85rem;">Q${idx+1}: ${q.question}</label>
@@ -2038,7 +2073,7 @@ def serve_frontend():
                     <h4 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase;">My Friends (${socialData.friends.length})</h4>
                     <button class="btn-action" onclick="openCreateFriendGroup()" style="width:130px; padding:4px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">+ Create Friend Group</button>
                 </div>
-                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:1rem;" id="friends-list-box">
+                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:1rem; scrollbar-width:none;" id="friends-list-box">
                     ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.75rem; text-align:center;">No friends added yet.</div>' :
                       socialData.friends.map(f => `
                         <div style="background:var(--bg-deep); padding:8px 12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
@@ -2049,7 +2084,7 @@ def serve_frontend():
                 </div>
 
                 <h4 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.4rem;">My Friend Groups (${socialData.friend_groups.length})</h4>
-                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;" id="friend-groups-box">
+                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; scrollbar-width:none;" id="friend-groups-box">
                     ${socialData.friend_groups.length === 0 ? '<div style="color:var(--text-muted); font-size:0.75rem; text-align:center;">No friend groups created yet.</div>' :
                       socialData.friend_groups.map(g => `
                         <div style="background:var(--bg-deep); padding:8px 12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
@@ -2102,7 +2137,7 @@ def serve_frontend():
                 <label>Group Name</label>
                 <input type="text" id="fg-name" placeholder="e.g. Flight Cadets Study" />
                 <label>Select Friends to Include</label>
-                <div style="max-height:140px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:1rem;" id="fg-members-list">
+                <div style="max-height:140px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:1rem; scrollbar-width:none;" id="fg-members-list">
                     ${socialData.friends.map(f => `
                         <label style="font-size:0.85rem; color:white; display:flex; align-items:center; gap:8px; text-transform:none;">
                             <input type="checkbox" value="${f.username}" class="fg-member-checkbox" style="width:auto; margin-bottom:0;" /> ${f.full_name} (@${f.username})
@@ -2374,10 +2409,10 @@ def serve_frontend():
             const box = document.getElementById('simulation-box');
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                    <h3 style="font-size: 1.05rem; color: #a78bfa; font-weight: 900;" id="tr-boutique-title">🎁 Boutique</h3>
+                    <h3 style="font-size: 1.05rem; color: #a78bfa; font-weight: 900;">🎁 Cabin Crew Equipment Boutique</h3>
                     <span style="font-size: 0.8rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
                 </div>
-                <div style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                <div style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: none;">
                     ${data.skins.map(skin => {
                         const skinName = activeLang === 'fr' ? skin.skin_name_fr : (activeLang === 'ar' ? skin.skin_name_ar : skin.skin_name_en);
                         const skinDesc = activeLang === 'fr' ? skin.desc_fr : (activeLang === 'ar' ? skin.desc_ar : skin.desc_en);
@@ -2394,6 +2429,7 @@ def serve_frontend():
                 </div>
             `;
         }
+
         async function buySkin(skinName, cost) {
             playSound('click');
             const res = await fetch('/api/shop/buy', {
