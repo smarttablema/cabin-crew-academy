@@ -12,7 +12,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQd
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="30.4.0")
+app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="31.0.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -44,7 +44,6 @@ def startup_db():
         );
     """)
 
-    # Safe column migrations if table already existed
     try:
         cur.execute("ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS last_heart_refill_timestamp BIGINT DEFAULT 0;")
         cur.execute("ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS last_spin_timestamp BIGINT DEFAULT 0;")
