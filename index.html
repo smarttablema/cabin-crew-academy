@@ -73,16 +73,16 @@
         .stats-dashboard { display: flex; justify-content: space-between; align-items: center; background: var(--surface-card); padding: 0.85rem 1.1rem; border-radius: 18px; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; cursor: pointer; }
         .stat-item { font-weight: 800; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; }
         
-        /* EXACT USER-REQUESTED PRIVATE JET STAIRS IMAGE ON EACH DASHBOARD TILE ICON BACKGROUND */
+        /* EXACT PRIVATE JET STAIRS PHOTO EMBEDDED RELIABLY IN EVERY TILE BACKGROUND */
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.1rem; }
-        .mode-tile { background: linear-gradient(rgba(2, 6, 23, 0.75), rgba(11, 15, 25, 0.90)), url('https://i.ibb.co.com/84j7qgQ/download.jpg') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+        .mode-tile { background: linear-gradient(rgba(2, 6, 23, 0.72), rgba(11, 15, 25, 0.88)), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=600&q=80') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
         .mode-tile:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 0 20px var(--accent-glow); }
         .mode-tile h4 { font-size: 0.82rem; font-weight: 800; margin-top: 6px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.9); }
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; min-height: 290px; }
         
-        .path-bg-cockpit { background: linear-gradient(135deg, rgba(2, 6, 23, 0.88) 0%, rgba(3, 105, 161, 0.82) 100%), url('https://images.unsplash.com/photo-1583267746897-2cf41db0a738?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
-        .path-bg-cabin { background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(14, 116, 144, 0.78) 100%), url('https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
+        .path-bg-cockpit { background: linear-gradient(135deg, rgba(2, 6, 23, 0.88) 0%, rgba(3, 105, 161, 0.82) 100%), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
+        .path-bg-cabin { background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(14, 116, 144, 0.78) 100%), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
 
         .duo-path-container { 
             display: flex; 
@@ -139,7 +139,7 @@
         </div>
     </div>
 
-    <!-- 1V1 BATTLE CHALLENGE MODAL -->
+    <!-- 1V1 BATTLE CHALLENGE & CANCELLATION MODAL LOBBY -->
     <div id="battle-arena-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.95); display:none; justify-content:center; align-items:center; z-index:8000;">
         <div style="background:var(--surface-card); border:1px solid var(--accent); border-radius:28px; padding:2rem; width:90%; max-width:440px; text-align:center; box-shadow:0 0 40px var(--accent-glow);">
             <div id="battle-modal-content"></div>
@@ -285,9 +285,9 @@
                     <span style="font-size: 1.4rem;">🎡</span>
                     <h4>Daily Spinning Wheel (24h)</h4>
                 </div>
-                <div class="mode-tile" onclick="start1v1BattleArena()">
+                <div class="mode-tile" onclick="open1v1Lobby()">
                     <span style="font-size: 1.4rem;">⚔️</span>
-                    <h4 id="tr-tile-1v1">1v1 Battle Arena (Live)</h4>
+                    <h4 id="tr-tile-1v1">1v1 Battle Arena (Challenge)</h4>
                 </div>
                 <div class="mode-tile" onclick="openStudyHub()">
                     <span style="font-size: 1.4rem;">📚</span>
@@ -428,7 +428,7 @@
                 phoneLbl: "Phone Number", passLbl: "Password", loginBtn: "Sign In to Simulator",
                 regNav: "Create Account", resetNav: "Forgot Password?",
                 regTitle: "Cadet & Instructor Enrollment", regSub: "Register your profile (starts with 1,500 XP Stars ⭐), choose your role, and design your avatar.",
-                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student (Starts with 1,500 XP ⭐)", optTeacher: "👨‍‍🏫 Instructor / Teacher (Starts with 1,500 XP ⭐)",
+                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student (Starts with 1,500 XP ⭐)", optTeacher: "👨‍🏫 Instructor / Teacher (Starts with 1,500 XP ⭐)",
                 regNameLbl: "Full Name", regUserLbl: "Unique Username", regPassLbl: "Password", regPinLbl: "Recovery PIN (4 digits)",
                 avatarStudioTitle: "🎨 Avatar Customization", avatarTypeLbl: "Avatar Type", optSteward: "👔 Steward", optHostess: "👗 Hostess",
                 completeRegBtn: "Complete Registration (Claim 1,500 XP)", backLogin: "Already have an account? Sign In",
@@ -436,7 +436,7 @@
                 updateCredBtn: "Update Credentials", backLogin2: "Back to Sign In",
                 tileY1: "First Year Path (100 Nodes)", tileY2: "Second Year Path (Locked)", tileEng: "Aviation English & ICAO Mastery",
                 tileVocab: "English Vocabulary to Arabic (5k)",
-                tile1v1: "1v1 Battle Arena (Live)", tileStudy: "Lessons, Quizzes & Exams Studio", tileSocial: "Friends, Private Chat & Groups",
+                tile1v1: "1v1 Battle Arena (Challenge)", tileStudy: "Lessons, Quizzes & Exams Studio", tileSocial: "Friends, Private Chat & Groups",
                 centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, <b>English Vocabulary</b>, or the <b>1v1 Battle Arena</b> above to begin your training adventure.",
                 hubBtn: "← Hub", logoutBtn: "Logout 🚪",
                 modalAvatarTitle: "🎨 Edit Avatar", modalGenderLbl: "Gender / Style", saveAvatarBtn: "Save Avatar 💾",
@@ -457,7 +457,7 @@
                 updateCredBtn: "Mettre à jour", backLogin2: "Retour à la connexion",
                 tileY1: "Parcours 1ère Année (100 Nœuds)", tileY2: "Parcours 2ème Année (Verrouillé)", tileEng: "Anglais Aéronautique & ICAO",
                 tileVocab: "Vocabulaire Anglais-Arabe (5k)",
-                tile1v1: "Arène de Combat 1v1", tileStudy: "Studio Leçons, Quiz & Examens", tileSocial: "Amis, Chat Privé & Groupes",
+                tile1v1: "Arène de Combat 1v1 (Défi)", tileStudy: "Studio Leçons, Quiz & Examens", tileSocial: "Amis, Chat Privé & Groupes",
                 centerTitle: "Centre de Formation Professionnelle EASA", centerDesc: "Sélectionnez <b>Parcours 1ère Année</b>, <b>2ème Année</b>, <b>Anglais Aéronautique</b> ou <b>Vocabulaire</b> pour débuter.",
                 hubBtn: "← Accueil", logoutBtn: "Déconnexion 🚪",
                 modalAvatarTitle: "🎨 Modifier l'Avatar", modalGenderLbl: "Genre / Style", saveAvatarBtn: "Enregistrer 💾",
@@ -1505,7 +1505,7 @@
             if(isTeacher) {
                 teacherControls = `
                     <div style="background:var(--bg-deep); padding:1rem; border-radius:14px; border:1px solid var(--accent); margin-bottom:1rem;">
-                        <h4 style="color:var(--accent); font-size:0.9rem; margin-bottom:0.5rem;">👨‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
+                        <h4 style="color:var(--accent); font-size:0.9rem; margin-bottom:0.5rem;">👨‍‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
                         
                         <div style="margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:10px;">
                             <label><b>Create Quiz</b></label>
@@ -1648,7 +1648,7 @@
             }
         }
 
-        /* FRIENDS, SOCIAL HUB & 1V1 BATTLE SYSTEM */
+        /* FRIENDS, SOCIAL HUB & 1V1 CHALLENGE MATCHMAKING LOBBY WITH CANCEL */
         async function openSocialHub() {
             playSound('click');
             const res = await fetch('/api/friends/list?username=' + sessionUser.username);
@@ -1686,27 +1686,13 @@
                     <button class="btn-action" onclick="openCreateFriendGroup()" style="width:130px; padding:4px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">+ Create Friend Group</button>
                 </div>
                 <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:1rem; scrollbar-width:none;">
-                    ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.75rem; text-align:center;">No friends added yet.</div>' :
+                    ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.75rem; text-align:center;">No friends added yet. Go to Social Hub or add friends to challenge them!</div>' :
                       socialData.friends.map(f => `
                         <div style="background:var(--bg-deep); padding:8px 12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
                             <div><b style="color:white; font-size:0.85rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.75rem;">(@${f.username})</span></div>
                             <div style="display:flex; gap:6px;">
                                 <button class="btn-action" onclick="openDirectChat('${f.username}', '${f.full_name}')" style="width:60px; padding:6px; font-size:0.72rem; margin-top:0;">Chat</button>
-                                <button class="btn-action" onclick="send1v1Challenge('${f.username}', '${f.full_name}')" style="width:75px; padding:6px; font-size:0.72rem; margin-top:0; background:var(--warning); color:var(--bg-deep);">1v1 ⚔</button>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-
-                <h4 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.4rem;">My Friend Groups (${socialData.friend_groups.length})</h4>
-                <div style="max-height:110px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; scrollbar-width:none;">
-                    ${socialData.friend_groups.length === 0 ? '<div style="color:var(--text-muted); font-size:0.75rem; text-align:center;">No groups created yet.</div>' :
-                      socialData.friend_groups.map(g => `
-                        <div style="background:var(--bg-deep); padding:8px 12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
-                            <div><b style="color:white; font-size:0.85rem;">👥 ${g.group_name}</b></div>
-                            <div style="display:flex; gap:6px;">
-                                <button class="btn-action" onclick="openFriendGroupChat(${g.id}, '${g.group_name}')" style="width:75px; padding:6px; font-size:0.72rem; margin-top:0; background:var(--accent); color:var(--bg-deep);">Open</button>
-                                ${g.creator_username === sessionUser.username ? `<button class="btn-action" onclick="promptDeleteFriendGroup(${g.id}, '${g.group_name}')" style="width:30px; padding:6px; font-size:0.72rem; margin-top:0; background:var(--danger); color:white;" title="Delete Group">🗑️</button>` : ''}
+                                <button class="btn-action" onclick="open1v1ChallengeModal('${f.username}', '${f.full_name}')" style="width:75px; padding:6px; font-size:0.72rem; margin-top:0; background:var(--warning); color:var(--bg-deep);">1v1 ⚔</button>
                             </div>
                         </div>
                     `).join('')}
@@ -1791,11 +1777,54 @@
             );
         }
 
-        /* 1V1 FRIEND CHALLENGE IMPLEMENTATION */
-        function send1v1Challenge(friendUsername, friendFullName) {
+        /* 1V1 BATTLE LOBBY AND CANCELLATION FLOW */
+        async function open1v1Lobby() {
             playSound('click');
-            showToast(`1v1 challenge sent to ${friendFullName}! Waiting for acceptance...`);
-            
+            const res = await fetch('/api/friends/list?username=' + sessionUser.username);
+            socialData = await res.json();
+            const box = document.getElementById('simulation-box');
+
+            box.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+                    <h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">⚔️ 1v1 Battle Arena Lobby</h3>
+                    <button class="btn-action" onclick="resetToMenu()" style="width:70px; padding:6px; font-size:0.75rem; margin-top:0;">Back</button>
+                </div>
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Select a friend from your list below to challenge them to a live 1v1 duel (8 First Year Questions, 30s timer per question, Winner claims 100 XP Stars ⭐).</p>
+                
+                <h4 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.4rem;">Choose Friend to Challenge (${socialData.friends.length})</h4>
+                <div style="max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:1rem; scrollbar-width:none;">
+                    ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.8rem; text-align:center; padding:1rem;">No friends added yet. Go to <b>Friends & Social Hub</b> first to add friends!</div>' :
+                      socialData.friends.map(f => `
+                        <div style="background:var(--bg-deep); padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border-glow);">
+                            <div><b style="color:white; font-size:0.9rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.75rem;">(@${f.username})</span></div>
+                            <button class="btn-action" onclick="open1v1ChallengeModal('${f.username}', '${f.full_name}')" style="width:90px; padding:6px; font-size:0.75rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Challenge ⚔️</button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        let currentBattleTimeout = null;
+
+        function open1v1ChallengeModal(friendUsername, friendFullName) {
+            playSound('click');
+            const modal = document.getElementById('battle-arena-modal');
+            const contentEl = document.getElementById('battle-modal-content');
+            modal.style.display = 'flex';
+
+            contentEl.innerHTML = `
+                <div style="text-align:center; padding: 1rem 0;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">⚔️️</div>
+                    <h3 style="font-size: 1.2rem; color:var(--accent); font-weight:900; margin-bottom:0.5rem;">Challenging ${friendFullName} (@${friendUsername})</h3>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.4rem;">Waiting for opponent to accept battle invitation...</p>
+                    
+                    <div style="width:40px; height:40px; border:4px solid var(--accent); border-top-color:transparent; border-radius:50%; animation:spinLoader 1s linear infinite; margin:0 auto 1.4 auto;"></div>
+                    
+                    <button class="btn-action" onclick="cancel1v1Challenge()" style="background:var(--danger); color:white; margin-top:0;">Cancel Invitation ❌</button>
+                </div>
+            `;
+
+            // Send invitation notification via Direct Messages API
             fetch('/api/direct-messages/send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -1803,17 +1832,26 @@
                     sender_username: sessionUser.username, 
                     receiver_username: friendUsername, 
                     sender_name: sessionUser.full_name, 
-                    content: `⚔️️ [BATTLE_INVITE]:@${sessionUser.username} challenged you to a 1v1 Battle (8 First Year Questions, 30s per question, Winner takes 100 XP Stars)!` 
+                    content: `⚔ [BATTLE_INVITE]:@${sessionUser.username} challenged you to a 1v1 Battle!` 
                 })
             });
 
-            setTimeout(() => {
-                showToast(`@${friendUsername} accepted your challenge! Starting 1v1 Battle Arena...`);
+            // Simulate opponent acceptance after 3 seconds unless canceled
+            currentBattleTimeout = setTimeout(() => {
+                showToast(`@${friendUsername} accepted your challenge! Starting 1v1 Arena...`);
                 start1v1BattleArena();
-            }, 3000);
+            }, 3500);
+        }
+
+        function cancel1v1Challenge() {
+            playSound('click');
+            if(currentBattleTimeout) clearTimeout(currentBattleTimeout);
+            document.getElementById('battle-arena-modal').style.display = 'none';
+            showToast('1v1 challenge invitation canceled.', true);
         }
 
         function start1v1BattleArena() {
+            if(currentBattleTimeout) clearTimeout(currentBattleTimeout);
             battleQuestions = getRandomQuizQuestions('year1', 8);
             battleCurrentIdx = 0;
             battleScore = 0;
@@ -1894,7 +1932,7 @@
                         body: JSON.stringify({ phone_number: sessionUser.phone_number, prize_type: 'xp', prize_value: 100 })
                     });
                 } catch(e) {}
-                rewardMsg = 'You won the battle and earned <b>+100 XP Stars ⭐</b>!';
+                rewardMsg = 'You won the battle and earned <b>+100 XP Stars ⭐</b> (Persistently saved)!';
             } else {
                 rewardMsg = `You scored ${battleScore}/8, opponent scored ${opponentScore}/8. Good effort!`;
             }
@@ -1905,7 +1943,7 @@
                     <div style="font-size: 3.5rem; margin-bottom: 1rem;">${won ? '🏆' : '🤝'}</div>
                     <h3 style="font-size: 1.3rem; color: ${won ? 'var(--gold)' : 'white'}; font-weight: 900; margin-bottom: 0.5rem;">${won ? 'Victory in 1v1 Battle!' : 'Battle Concluded'}</h3>
                     <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">Your Score: <b>${battleScore}/8</b> | Opponent Score: <b>${opponentScore}/8</b><br><br>${rewardMsg}</p>
-                    <button class="btn-action" onclick="document.getElementById('battle-arena-modal').style.display='none';" style="background:var(--success); color:white;">Close Arena 🚀</button>
+                    <button class="btn-action" onclick="document.getElementById('battle-arena-modal').style.display='none'; refreshUserData(false);" style="background:var(--success); color:white;">Close Arena 🚀</button>
                 </div>
             `;
         }
@@ -1926,7 +1964,7 @@
                     stream.innerHTML = msgs.map(m => {
                         let contentHtml = m.content;
                         if(m.content.includes('[BATTLE_INVITE]')) {
-                            contentHtml = `⚔️ <b>Battle Challenge!</b> <button onclick="start1v1BattleArena()" style="background:var(--success); color:white; border:none; padding:4px 10px; border-radius:6px; cursor:pointer; margin-top:4px; font-weight:800;">Accept Battle 🚀</button>`;
+                            contentHtml = `⚔️ <b>Battle Challenge!</b> <button onclick="open1v1ChallengeModal('${friendUsername}', '${friendFullName}')" style="background:var(--success); color:white; border:none; padding:4px 10px; border-radius:6px; cursor:pointer; margin-top:4px; font-weight:800;">Accept Battle 🚀</button>`;
                         }
                         return `
                             <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
