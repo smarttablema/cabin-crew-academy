@@ -86,16 +86,16 @@
         .stats-dashboard { display: flex; justify-content: space-between; align-items: center; background: var(--surface-card); padding: 0.85rem 1.1rem; border-radius: 18px; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; cursor: pointer; }
         .stat-item { font-weight: 800; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; }
         
-        /* GORGEOUS AIRCRAFT/AIRPLANE BACKGROUNDS FOR TILES & FULLSCREEN */
+        /* GORGEOUS PURE AIRCRAFT WING & CLOUD BACKGROUNDS FOR TILES */
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.1rem; }
-        .mode-tile { background: linear-gradient(rgba(2, 6, 23, 0.65), rgba(11, 15, 25, 0.88)), url('https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=600&q=80') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+        .mode-tile { background: linear-gradient(rgba(2, 6, 23, 0.65), rgba(11, 15, 25, 0.88)), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=600&q=80') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
         .mode-tile:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 0 20px var(--accent-glow); }
         .mode-tile h4 { font-size: 0.82rem; font-weight: 800; margin-top: 6px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.9); }
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; min-height: 290px; }
         
-        .path-bg-cockpit { background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(3, 105, 161, 0.75) 100%), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
-        .path-bg-cabin { background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(14, 116, 144, 0.72) 100%), url('https://images.unsplash.com/photo-1500835556837-99ac94a94552?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
+        /* FIXED CLOUD BACKGROUNDS FOR FEATURE VIEWS */
+        .path-fixed-cloud { background: linear-gradient(135deg, rgba(2, 6, 23, 0.82) 0%, rgba(3, 105, 161, 0.72) 100%), url('https://images.unsplash.com/photo-1500835556837-99ac94a94552?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
 
         .duo-path-container { 
             display: flex; 
@@ -202,14 +202,14 @@
         <!-- REGISTER SCREEN -->
         <div id="screen-register" class="hidden">
             <h2 id="tr-reg-title">Cadet & Instructor Enrollment</h2>
-            <p class="sub-desc" id="tr-reg-sub">Register your profile (starts with 1,500 XP Stars ⭐), choose your role, and design your avatar.</p>
+            <p class="sub-desc" id="tr-reg-sub">Register your profile (starts with 5,000 XP Stars ⭐), choose your role, and design your avatar.</p>
             
             <div class="avatar-preview-box" id="reg-avatar-preview">🧯</div>
 
             <label id="tr-reg-role-lbl">Register As</label>
             <select id="reg-role" onchange="toggleTeacherCodeContainer()">
-                <option value="student" id="tr-opt-cadet">🎓 Cadet / Student (Starts with 1,500 XP ⭐)</option>
-                <option value="teacher" id="tr-opt-teacher">👨‍🏫 Instructor / Teacher (Starts with 1,500 XP ⭐)</option>
+                <option value="student" id="tr-opt-cadet">🎓 Cadet / Student (Starts with 5,000 XP ⭐)</option>
+                <option value="teacher" id="tr-opt-teacher">👨‍🏫 Instructor / Teacher (Starts with 5,000 XP ⭐)</option>
             </select>
 
             <div id="teacher-code-box" class="hidden" style="background: rgba(56, 189, 248, 0.08); padding: 12px; border-radius: 14px; border: 1px dashed var(--accent); margin-bottom: 1rem;">
@@ -240,7 +240,7 @@
                 <option value="hostess">👗 Hostess</option>
             </select>
             
-            <button class="btn-action" onclick="submitRegister()" style="background: #10b981; color: white;" id="tr-complete-reg-btn">Complete Registration (Claim 1,500 XP)</button>
+            <button class="btn-action" onclick="submitRegister()" style="background: #10b981; color: white;" id="tr-complete-reg-btn">Complete Registration (Claim 5,000 XP)</button>
             
             <div class="footer-nav">
                 <span onclick="navigateTo('screen-login')" id="tr-back-login">Already have an account? Sign In</span>
@@ -271,7 +271,7 @@
                     <span style="font-size: 0.7rem; color: var(--text-muted);" id="dash-role-badge">Student</span>
                 </div>
                 <div style="display: flex; gap: 8px;">
-                    <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">1500</span></div>
+                    <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">5000</span></div>
                     <div class="stat-item" style="color: var(--danger);">❤ <span id="dash-hearts">5</span></div>
                     <div class="stat-item" style="color: var(--success);" id="dash-streak-badge">🔥 <span id="dash-streak">21</span></div>
                 </div>
@@ -403,6 +403,7 @@
         let battleTimerInterval = null;
         let battleInvitePollingInterval = null;
         let activeMatchId = null;
+        let lastKnownMsgCount = 0;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
@@ -442,11 +443,11 @@
                 loginTitle: "Cabin Crew Portal", loginSub: "Access accredited EASA/ICAO curriculum & live groups.",
                 phoneLbl: "Phone Number", passLbl: "Password", loginBtn: "Sign In to Simulator",
                 regNav: "Create Account", resetNav: "Forgot Password?",
-                regTitle: "Cadet & Instructor Enrollment", regSub: "Register your profile (starts with 1,500 XP Stars ⭐), choose your role, and design your avatar.",
-                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student (Starts with 1,500 XP ⭐)", optTeacher: "👨‍🏫 Instructor / Teacher (Starts with 1,500 XP ⭐)",
+                regTitle: "Cadet & Instructor Enrollment", regSub: "Register your profile (starts with 5,000 XP Stars ⭐), choose your role, and design your avatar.",
+                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student (Starts with 5,000 XP ⭐)", optTeacher: "👨‍🏫 Instructor / Teacher (Starts with 5,000 XP ⭐)",
                 regNameLbl: "Full Name", regUserLbl: "Unique Username", regPassLbl: "Password", regPinLbl: "Recovery PIN (4 digits)",
                 avatarStudioTitle: "🎨 Avatar Customization", avatarTypeLbl: "Avatar Type", optSteward: "👔 Steward", optHostess: "👗 Hostess",
-                completeRegBtn: "Complete Registration (Claim 1,500 XP)", backLogin: "Already have an account? Sign In",
+                completeRegBtn: "Complete Registration (Claim 5,000 XP)", backLogin: "Already have an account? Sign In",
                 resetTitle: "Recovery PIN Reset", resetSub: "Enter your phone and secret recovery PIN.", resetNewLbl: "New Password",
                 updateCredBtn: "Update Credentials", backLogin2: "Back to Sign In",
                 tileY1: "First Year Path (100 Nodes)", tileY2: "Second Year Path (Locked)", tileEng: "Aviation English & ICAO Mastery",
@@ -463,11 +464,11 @@
                 loginTitle: "Portail du Personnel de Cabine", loginSub: "Accédez au programme EASA/ICAO et aux groupes.",
                 phoneLbl: "Numéro de téléphone", passLbl: "Mot de passe", loginBtn: "Se connecter",
                 regNav: "Créer un compte", resetNav: "Mot de passe oublié ?",
-                regTitle: "Inscription Cadet & Instructeur", regSub: "Enregistrez votre profil (débute avec 1,500 XP Stars ⭐), choisissez votre rôle et votre avatar.",
-                regRoleLbl: "S'inscrire en tant que", optCadet: "🎓 Cadet / Étudiant (1,500 XP ⭐)", optTeacher: "👨‍🏫 Instructeur / Professeur (1,500 XP ⭐)",
+                regTitle: "Inscription Cadet & Instructeur", regSub: "Enregistrez votre profil (débute avec 5,000 XP Stars ⭐), choisissez votre rôle et votre avatar.",
+                regRoleLbl: "S'inscrire en tant que", optCadet: "🎓 Cadet / Étudiant (5,000 XP ⭐)", optTeacher: "👨‍🏫 Instructeur / Professeur (5,000 XP ⭐)",
                 regNameLbl: "Nom complet", regUserLbl: "Nom d'utilisateur unique", regPassLbl: "Mot de passe", regPinLbl: "PIN de récupération (4 chiffres)",
                 avatarStudioTitle: "🎨 Personnalisation d'Avatar", avatarTypeLbl: "Type d'avatar", optSteward: "👔 Steward", optHostess: "👗 Hôtesse",
-                completeRegBtn: "Terminer l'inscription (1,500 XP)", backLogin: "Déjà un compte ? Se connecter",
+                completeRegBtn: "Terminer l'inscription (5,000 XP)", backLogin: "Déjà un compte ? Se connecter",
                 resetTitle: "Réinitialisation du PIN", resetSub: "Entrez votre téléphone et votre PIN de récupération secret.", resetNewLbl: "Nouveau mot de passe",
                 updateCredBtn: "Mettre à jour", backLogin2: "Retour à la connexion",
                 tileY1: "Parcours 1ère Année (100 Nœuds)", tileY2: "Parcours 2ème Année (Verrouillé)", tileEng: "Anglais Aéronautique & ICAO",
@@ -484,11 +485,11 @@
                 loginTitle: "بوابة طاقم الطائرة", loginSub: "الوصول إلى مناهج EASA والمجموعات الحية المعتمدة.",
                 phoneLbl: "رقم الهاتف", passLbl: "كلمة المرور", loginBtn: "تسجيل الدخول",
                 regNav: "إنشاء حساب", resetNav: "نسيت كلمة المرور؟",
-                regTitle: "تسجيل المتدربين والمدربين", regSub: "سجل ملفك الشخصي (يبدأ بـ 1500 نقطة XP ⭐) واجتاز التدريب وصمم صورتك الرمزية.",
-                regRoleLbl: "التسجيل كـ", optCadet: "🎓 متدرب / طالب (يبدأ بـ 1500 نقطة XP ⭐)", optTeacher: "👨‍🏫 مدرب / معلم (يبدأ بـ 1500 نقطة XP ⭐)",
+                regTitle: "تسجيل المتدربين والمدربين", regSub: "سجل ملفك الشخصي (يبدأ بـ 5000 نقطة XP ⭐) واجتاز التدريب وصمم صورتك الرمزية.",
+                regRoleLbl: "التسجيل كـ", optCadet: "🎓 متدرب / طالب (يبدأ بـ 5000 نقطة XP ⭐)", optTeacher: "👨‍🏫 مدرب / معلم (يبدأ بـ 5000 نقطة XP ⭐)",
                 regNameLbl: "الاسم الكامل", regUserLbl: "اسم المستخدم الفريد", regPassLbl: "كلمة المرور", regPinLbl: "رقم الاسترداد السري (4 أرقام)",
                 avatarStudioTitle: "🎨 تخصيص الصورة الرمزية", avatarTypeLbl: "نوع الصورة", optSteward: "👔 مضيف جوي", optHostess: "👗 مضيفة جوية",
-                completeRegBtn: "إتمام التسجيل (احصل على 1500 نقطة XP)", backLogin: "لديك حساب بالفعل؟ سجل دخولك",
+                completeRegBtn: "إتمام التسجيل (احصل على 5000 نقطة XP)", backLogin: "لديك حساب بالفعل؟ سجل دخولك",
                 resetTitle: "إعادة تعيين رقم الاسترداد", resetSub: "أدخل هاتفك ورقم الاسترداد السري الخاص بك.", resetNewLbl: "كلمة المرور الجديدة",
                 updateCredBtn: "تحديث بيانات الاعتماد", backLogin2: "العودة لتسجيل الدخول",
                 tileY1: "مسار السنة الأولى (100 نقطة)", tileY2: "مسار السنة الثانية (مغلق)", tileEng: "اللغة الإنجليزية للطيران وإيكاو",
@@ -655,7 +656,6 @@
                     langBar.classList.remove('hidden');
                 }
             }
-            // Reset mobile full screen shell on navigation
             document.getElementById('main-app-shell').classList.remove('fullscreen-mode');
         }
 
@@ -699,11 +699,11 @@
             const res = await fetch('/api/register', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ full_name, username, phone_number, password, recovery_pin, role, teacher_code, avatar_gender, group_code, xp_points: 1500 })
+                body: JSON.stringify({ full_name, username, phone_number, password, recovery_pin, role, teacher_code, avatar_gender, group_code, xp_points: 5000 })
             });
             const data = await res.json();
             if(res.ok) {
-                showToast('Registration successful with 1,500 XP Stars! Please sign in.');
+                showToast('Registration successful with 5,000 XP Stars! Please sign in.');
                 navigateTo('screen-login');
             } else {
                 showToast(data.detail || 'Registration failed', true);
@@ -724,8 +724,8 @@
             const data = await res.json();
             if(res.ok) {
                 sessionUser = data.user;
-                if((sessionUser.xp_points || 0) < 1500 && sessionUser.completed_nodes?.length === 0) {
-                    sessionUser.xp_points = 1500;
+                if((sessionUser.xp_points || 0) < 5000 && sessionUser.completed_nodes?.length === 0) {
+                    sessionUser.xp_points = 5000;
                 }
                 localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                 updateDashboardUI();
@@ -1075,11 +1075,6 @@
             });
         }
 
-        function getRandomRoadmapBackgroundClass() {
-            const classes = ['path-bg-cockpit', 'path-bg-cabin'];
-            return classes[Math.floor(Math.random() * classes.length)];
-        }
-
         /* 5,000-STEP VOCABULARY PATH TO ARABIC (FULLSCREEN MOBILE) */
         function launchVocabularyRoadmap() {
             playSound('click');
@@ -1115,15 +1110,13 @@
                 `;
             }
 
-            const bgClass = getRandomRoadmapBackgroundClass();
-
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
                     <button class="btn-action" onclick="resetToMenu()" style="width:75px; padding:4px 8px; font-size:0.75rem; margin-top:0;">← Menu</button>
                     <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">🗣️ Aviation Vocabulary (5k)</h3>
                     <span style="font-size: 0.72rem; color: var(--gold); font-weight: 800;">Step ${activeIndex}/5000</span>
                 </div>
-                <div class="duo-path-container ${bgClass}">
+                <div class="duo-path-container path-fixed-cloud">
                     <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
                         ${nodesHtml}
                     </div>
@@ -1315,15 +1308,13 @@
                 `;
             }
 
-            const bgClass = getRandomRoadmapBackgroundClass();
-
             box.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
                     <button class="btn-action" onclick="resetToMenu()" style="width:75px; padding:4px 8px; font-size:0.75rem; margin-top:0;">← Menu</button>
                     <h3 style="font-size: 1.05rem; color: var(--accent); font-weight: 900;">🌐 Aviation English & ICAO</h3>
                     <span style="font-size: 0.72rem; color: var(--success); font-weight: 800;">Skin: ${sessionUser.active_skin}</span>
                 </div>
-                <div class="duo-path-container ${bgClass}">
+                <div class="duo-path-container path-fixed-cloud">
                     <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
                         ${nodesHtml}
                     </div>
@@ -1507,7 +1498,6 @@
                 `;
             }
 
-            const bgClass = getRandomRoadmapBackgroundClass();
             const yearDisplayNum = yearKey === 'year1' ? '1' : '2';
 
             box.innerHTML = `
@@ -1516,7 +1506,7 @@
                     <h3 style="font-size: 1.05rem; color: var(--gold); font-weight: 900;">🏆 Year ${yearDisplayNum} Roadmap</h3>
                     <span style="font-size: 0.72rem; color: var(--accent);">Skin: ${sessionUser.active_skin}</span>
                 </div>
-                <div class="duo-path-container ${bgClass}">
+                <div class="duo-path-container path-fixed-cloud">
                     <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
                         ${nodesHtml}
                     </div>
@@ -1902,6 +1892,7 @@
                     const res = await fetch('/api/battle/incoming?username=' + sessionUser.username);
                     const data = await res.json();
                     if(data.invite) {
+                        playSound('success');
                         showIncomingBattleModal(data.invite);
                     }
                 } catch(e) {}
@@ -1910,7 +1901,7 @@
 
         function showIncomingBattleModal(invite) {
             const modal = document.getElementById('battle-arena-modal');
-            if(modal.style.display === 'flex') return; // Don't interrupt if already in modal
+            if(modal.style.display === 'flex') return;
             modal.style.display = 'flex';
             activeMatchId = invite.match_id;
 
@@ -1965,11 +1956,11 @@
 
             const qObj = battleQuestions[battleCurrentIdx];
             const contentEl = document.getElementById('battle-modal-content');
-            let timeLeft = 30; // Exactly 30 seconds per question
+            let timeLeft = 30;
 
             contentEl.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-                    <span style="font-size: 0.75rem; color: var(--gold); font-weight: 900;">⚔️ 1v1 BATTLE • QUESTION ${battleCurrentIdx+1} / 8</span>
+                    <span style="font-size: 0.75rem; color: var(--gold); font-weight: 900;">⚔️️ 1v1 BATTLE • QUESTION ${battleCurrentIdx+1} / 8</span>
                     <span id="modal-battle-timer" style="font-size:0.85rem; color:var(--danger); font-weight:800;">⏱️ 30s</span>
                 </div>
                 <div style="background:var(--bg-deep); padding:1.2rem; border-radius:16px; border:1px solid var(--border-glow); margin-bottom:1rem; text-align:left;">
@@ -2014,7 +2005,6 @@
         }
 
         async function finish1v1BattleModal() {
-            // Submit final score to backend and compute outcome
             const res = await fetch('/api/battle/submit', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -2067,6 +2057,16 @@
                 const res = await fetch(`/api/direct-messages/list?user1=${sessionUser.username}&user2=${friendUsername}`);
                 const data = await res.json();
                 const msgs = data.messages || [];
+                
+                // Play notification sound if new message arrived from someone else
+                if(msgs.length > lastKnownMsgCount && msgs.length > 0) {
+                    const latest = msgs[msgs.length - 1];
+                    if(latest.sender_username !== sessionUser.username) {
+                        playSound('success');
+                    }
+                }
+                lastKnownMsgCount = msgs.length;
+
                 const stream = document.getElementById('chat-msg-stream');
                 if(stream) {
                     stream.innerHTML = msgs.map(m => `
@@ -2092,6 +2092,7 @@
                     </div>
                 </div>
             `;
+            lastKnownMsgCount = 0;
             await fetchAndRenderMessages();
             if(dmPollingInterval) clearInterval(dmPollingInterval);
             dmPollingInterval = setInterval(fetchAndRenderMessages, 2500);
