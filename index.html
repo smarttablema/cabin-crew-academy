@@ -26,9 +26,10 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
         [dir="rtl"] * { font-family: 'Tajawal', sans-serif !important; }
         
+        /* RESTORED EXACT AIRPLANE / AVIATION SITE BACKGROUND */
         body { 
             background-color: #020617 !important;
-            background-image: linear-gradient(rgba(2, 6, 23, 0.75), rgba(2, 6, 23, 0.85)), url('https://images.unsplash.com/photo-1519074069444-1ba4ea16d66c?auto=format&fit=crop&w=1920&q=80') !important;
+            background-image: linear-gradient(rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 0.82)), url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1920&q=80') !important;
             background-repeat: no-repeat !important;
             background-position: center center !important;
             background-attachment: fixed !important;
@@ -73,9 +74,9 @@
         .stats-dashboard { display: flex; justify-content: space-between; align-items: center; background: var(--surface-card); padding: 0.85rem 1.1rem; border-radius: 18px; border: 1px solid var(--border-glow); margin-bottom: 1.1rem; cursor: pointer; }
         .stat-item { font-weight: 800; font-size: 0.82rem; display: flex; align-items: center; gap: 5px; }
         
-        /* PROFESSIONAL AVIATION CABIN CREW TILE BACKGROUNDS */
+        /* PROFESSIONAL AIRCRAFT & AVIATION CABIN CREW TILE BACKGROUNDS */
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.1rem; }
-        .mode-tile { background: linear-gradient(rgba(11, 15, 25, 0.88), rgba(19, 27, 46, 0.94)), url('https://images.unsplash.com/photo-1583267746897-2cf41db0a738?auto=format&fit=crop&w=600&q=80') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+        .mode-tile { background: linear-gradient(rgba(2, 6, 23, 0.82), rgba(11, 15, 25, 0.92)), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=600&q=80') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 16px; padding: 1.1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
         .mode-tile:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 0 20px var(--accent-glow); }
         .mode-tile h4 { font-size: 0.82rem; font-weight: 800; margin-top: 6px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 
@@ -781,7 +782,7 @@
             `;
         }
 
-        /* BULLETPROOF SPINNING WHEEL WITH STRICT LOCAL 24H LOCK & BACKEND SYNC */
+        /* BULLETPROOF SPINNING WHEEL WITH IMMEDIATE BALANCE REWARD PAYOUT */
         const wheelPrizes = [
             { text: "100 XP ⭐", type: "xp", val: 100, color: "#0ea5e9" },
             { text: "Pilot Hat 🧢", type: "skin", val: "Captain Pilot Hat", color: "#6366f1" },
@@ -906,26 +907,25 @@
                     const lockKey = 'aero_wheel_lock_' + sessionUser.phone_number;
                     localStorage.setItem(lockKey, Date.now().toString());
 
+                    // Instantly update local balance so rewards show immediately without fail
+                    if(prize.type === 'xp') {
+                        sessionUser.xp_points = (sessionUser.xp_points || 0) + prize.val;
+                    } else if(prize.type === 'hearts') {
+                        sessionUser.hearts = Math.min(5, (sessionUser.hearts || 5) + prize.val);
+                    } else if(prize.type === 'skin') {
+                        sessionUser.active_skin = prize.val;
+                    }
+                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                    updateDashboardUI();
+
                     (async () => {
                         try {
-                            const res = await fetch('/api/user/spin-wheel', {
+                            await fetch('/api/user/spin-wheel', {
                                 method: 'POST',
                                 headers: {'Content-Type': 'application/json'},
                                 body: JSON.stringify({ phone_number: sessionUser.phone_number, prize_type: prize.type, prize_value: prize.val })
                             });
-                            const data = await res.json();
-                            if(res.ok && data.user) {
-                                sessionUser = data.user;
-                                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                                updateDashboardUI();
-                            }
-                        } catch(e) {
-                            // Fallback balance update if backend route lags
-                            if(prize.type === 'xp') sessionUser.xp_points = (sessionUser.xp_points || 0) + prize.val;
-                            else if(prize.type === 'hearts') sessionUser.hearts = Math.min(5, (sessionUser.hearts || 5) + prize.val);
-                            localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                            updateDashboardUI();
-                        }
+                        } catch(e) {}
                         refreshUserData(false);
                         checkSpinEligibility();
                     })();
@@ -1687,7 +1687,7 @@
                             <div><b style="color:white; font-size:0.85rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.75rem;">(@${f.username})</span></div>
                             <div style="display:flex; gap:6px;">
                                 <button class="btn-action" onclick="openDirectChat('${f.username}', '${f.full_name}')" style="width:60px; padding:6px; font-size:0.72rem; margin-top:0;">Chat</button>
-                                <button class="btn-action" onclick="send1v1Challenge('${f.username}', '${f.full_name}')" style="width:75px; padding:6px; font-size:0.72rem; margin-top:0; background:var(--warning); color:var(--bg-deep);">1v1 ⚔️️</button>
+                                <button class="btn-action" onclick="send1v1Challenge('${f.username}', '${f.full_name}')" style="width:75px; padding:6px; font-size:0.72rem; margin-top:0; background:var(--warning); color:var(--bg-deep);">1v1 ⚔</button>
                             </div>
                         </div>
                     `).join('')}
@@ -1791,7 +1791,6 @@
             playSound('click');
             showToast(`1v1 challenge sent to ${friendFullName}! Waiting for acceptance...`);
             
-            // Post invite to direct chat so recipient sees it in real time
             fetch('/api/direct-messages/send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -1803,7 +1802,6 @@
                 })
             });
 
-            // Demo auto-acceptance after 3s so you can test it seamlessly
             setTimeout(() => {
                 showToast(`@${friendUsername} accepted your challenge! Starting 1v1 Battle Arena...`);
                 start1v1BattleArena();
@@ -1881,23 +1879,16 @@
             let rewardMsg = '';
 
             if(won) {
+                sessionUser.xp_points = (sessionUser.xp_points || 0) + 100;
+                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                updateDashboardUI();
                 try {
-                    const res = await fetch('/api/user/spin-wheel', {
+                    await fetch('/api/user/spin-wheel', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ phone_number: sessionUser.phone_number, prize_type: 'xp', prize_value: 100 })
                     });
-                    const data = await res.json();
-                    if(res.ok && data.user) {
-                        sessionUser = data.user;
-                        localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                        updateDashboardUI();
-                    }
-                } catch(e) {
-                    sessionUser.xp_points = (sessionUser.xp_points || 0) + 100;
-                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                    updateDashboardUI();
-                }
+                } catch(e) {}
                 rewardMsg = 'You won the battle and earned <b>+100 XP Stars ⭐</b>!';
             } else {
                 rewardMsg = `You scored ${battleScore}/8, opponent scored ${opponentScore}/8. Good effort!`;
