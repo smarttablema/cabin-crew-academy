@@ -5,14 +5,14 @@ from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from datetime import date, datetime
+from datetime import date, timedelta
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQdjcq6@ep-cold-lake-b1djlrzp-pooler.c-5.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="30.3.0")
+app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="30.4.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -44,6 +44,13 @@ def startup_db():
         );
     """)
 
+    # Safe column migrations if table already existed
+    try:
+        cur.execute("ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS last_heart_refill_timestamp BIGINT DEFAULT 0;")
+        cur.execute("ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS last_spin_timestamp BIGINT DEFAULT 0;")
+    except Exception:
+        conn.commit()
+
     cur.execute("""
         CREATE TABLE IF NOT EXISTS aero_v22_friend_requests (
             id SERIAL PRIMARY KEY,
@@ -55,31 +62,10 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v22_friend_groups (
-            id SERIAL PRIMARY KEY,
-            group_name VARCHAR(100),
-            creator_username VARCHAR(50),
-            members TEXT[] DEFAULT ARRAY[]::TEXT[],
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    """)
-
-    cur.execute("""
         CREATE TABLE IF NOT EXISTS aero_v22_direct_messages (
             id SERIAL PRIMARY KEY,
             sender_username VARCHAR(50),
             receiver_username VARCHAR(50),
-            sender_name VARCHAR(100),
-            content TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    """)
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v22_friend_group_messages (
-            id SERIAL PRIMARY KEY,
-            group_id INT,
-            sender_username VARCHAR(50),
             sender_name VARCHAR(100),
             content TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -133,19 +119,6 @@ def startup_db():
     """)
 
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v22_quiz_results (
-            id SERIAL PRIMARY KEY,
-            lesson_id INT,
-            student_username VARCHAR(50),
-            student_name VARCHAR(100),
-            score INT,
-            total_questions INT,
-            attempts INT DEFAULT 1,
-            completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    """)
-
-    cur.execute("""
         CREATE TABLE IF NOT EXISTS aero_v22_battles (
             match_id VARCHAR(50) PRIMARY KEY,
             sender_username VARCHAR(50),
@@ -183,9 +156,7 @@ def startup_db():
         ('emergency', 'Evacuation', 'Emergency Megaphone', 'Mégaphone d’Urgence', 'مكبر صوت الطوارئ', 300, '📢', 'Battery-powered acoustic amplifier for crowd control and evacuation.', 'Amplificateur acoustique d’urgence.', 'مكبر صوت يعمل بالبطارية للتحكم في الحشود أثناء الإخلاء.'),
         ('safety', 'Equipment', 'Cabin Flashlight', 'Lampe de Poche de Sécurité', 'مصباح طوارئ الكابينة', 200, '🔦', 'Heavy-duty rechargeable emergency LED flashlight.', 'Lampe de poche de secours.', 'مصباح يدوي قوي قابل لإعادة الشحن للطوارئ.'),
         ('survival', 'Flotation', 'Inflatable Life Vest', 'Gilet de Sauvetage Gonflable', 'سترة نجاة قابلة للنفخ', 400, '🦺', 'Dual-chamber passenger and crew flotation vest with whistle and light.', 'Gilet de sauvetage double chambre.', 'سترة نجاة مزدوجة الغرفة مع صفارة ومصباح.'),
-        ('emergency', 'Marine', 'Slide-Raft Unit', 'Toboggan-Radeau d’Évacuation', 'طوافة الانزلاق للإخلاء', 600, '🛟', 'Multi-person inflatable slide and emergency sea rescue raft.', 'Toboggan et radeau de sauvetage.', 'منزلق قابل للنفخ وطوافة إنقاذ بحري طارئة.'),
-        ('safety', 'Protection', 'Smoke Hood PBE', 'Cagoule Anti-Fumée PBE', 'قناع الدخان واقي الحريق', 500, '🪖', 'Protective Breathing Equipment smoke hood for firefighting.', 'Équipement de protection respiratoire anti-fumée.', 'معدات الحماية التنفسية لمقاومة الدخان والحريق.'),
-        ('medical', 'FirstAid', 'Emergency Medical Kit', 'Trousse de Secours Médicale', 'حقيبة الإسعافات الأولية الطارئة', 450, '🩺', 'Comprehensive onboard medical response kit for crew use.', 'Trousse médicale d’urgence à bord.', 'حقيبة استجابة طبية شاملة على متن الطائرة للطاقم.')
+        ('emergency', 'Marine', 'Slide-Raft Unit', 'Toboggan-Radeau d’Évacuation', 'طوافة الانزلاق للإخلاء', 600, '🛟', 'Multi-person inflatable slide and emergency sea rescue raft.', 'Toboggan et radeau de sauvetage.', 'منزلق قابل للنفخ وطوافة إنقاذ بحري طارئة.')
         ON CONFLICT DO NOTHING;
     """)
 
@@ -223,18 +194,6 @@ class AvatarUpdateModel(BaseModel):
     phone_number: str
     avatar_gender: str
 
-class CreateGroupModel(BaseModel):
-    group_name: str
-    group_code: str
-    teacher_username: str
-
-class CreateLessonModel(BaseModel):
-    group_code: str
-    teacher_username: str
-    title: str
-    content_html: str
-    quiz_data: list
-
 class CreateExamModel(BaseModel):
     group_code: str
     teacher_username: str
@@ -248,13 +207,6 @@ class SubmitExamModel(BaseModel):
     score: int
     total_questions: int
     time_spent_seconds: int
-
-class SubmitQuizModel(BaseModel):
-    lesson_id: int
-    student_username: str
-    student_name: str
-    score: int
-    total_questions: int
 
 class DirectMessageModel(BaseModel):
     sender_username: str
@@ -282,17 +234,6 @@ class FriendRequestModel(BaseModel):
 class AcceptFriendModel(BaseModel):
     username: str
     friend_username: str
-
-class CreateFriendGroupModel(BaseModel):
-    group_name: str
-    creator_username: str
-    members: list
-
-class FriendGroupMessageModel(BaseModel):
-    group_id: int
-    sender_username: str
-    sender_name: str
-    content: str
 
 class BattleInviteModel(BaseModel):
     sender_username: str
@@ -323,7 +264,7 @@ def register(data: RegisterModel):
         if data.teacher_code != "112233":
             cur.close()
             conn.close()
-            raise HTTPException(status_code=403, detail="Invalid 6-digit teacher access code.")
+            raise HTTPException(status_code=403, detail="Invalid teacher access code.")
         assigned_role = "teacher"
         group_code = str(random.randint(1000, 9999))
 
@@ -363,8 +304,8 @@ def login(data: LoginModel):
         raise HTTPException(status_code=401, detail="Invalid credentials.")
 
     today = date.today()
-    last_prac = user["last_practice_date"]
-    streak = user["streak"]
+    last_prac = user.get("last_practice_date")
+    streak = user.get("streak", 21)
 
     if last_prac and last_prac < today - timedelta(days=1):
         streak = 0
@@ -478,7 +419,7 @@ def get_friends_list(username: str):
         cur.close()
         conn.close()
         raise HTTPException(status_code=404, detail="User not found.")
-    friend_usernames = u["friends"] or []
+    friend_usernames = u.get("friends") or []
     friends_data = []
     if friend_usernames:
         cur.execute("SELECT username, full_name, avatar_gender, xp_points FROM aero_v22_users WHERE username = ANY(%s);", (friend_usernames,))
@@ -487,12 +428,9 @@ def get_friends_list(username: str):
     cur.execute("SELECT * FROM aero_v22_friend_requests WHERE receiver_username = %s AND status = 'pending';", (username,))
     incoming_requests = cur.fetchall()
 
-    cur.execute("SELECT * FROM aero_v22_friend_groups WHERE %s = ANY(members) OR creator_username = %s;", (username, username))
-    friend_groups = cur.fetchall()
-
     cur.close()
     conn.close()
-    return {"friends": friends_data, "incoming_requests": incoming_requests, "friend_groups": friend_groups}
+    return {"friends": friends_data, "incoming_requests": incoming_requests, "friend_groups": []}
 
 @app.post("/api/friends/accept")
 def accept_friend_request(data: AcceptFriendModel):
@@ -502,14 +440,14 @@ def accept_friend_request(data: AcceptFriendModel):
     
     cur.execute("SELECT friends FROM aero_v22_users WHERE username = %s;", (data.username,))
     u1 = cur.fetchone()
-    f1 = u1["friends"] or []
+    f1 = u1.get("friends") or []
     if data.friend_username not in f1: f1.append(data.friend_username)
     cur.execute("UPDATE aero_v22_users SET friends = %s WHERE username = %s;", (f1, data.username))
 
     cur.execute("SELECT friends FROM aero_v22_users WHERE username = %s;", (data.friend_username,))
     u2 = cur.fetchone()
     if u2:
-        f2 = u2["friends"] or []
+        f2 = u2.get("friends") or []
         if data.username not in f2: f2.append(data.username)
         cur.execute("UPDATE aero_v22_users SET friends = %s WHERE username = %s;", (f2, data.friend_username))
 
@@ -604,10 +542,10 @@ def complete_roadmap_node(data: NodeCompleteModel):
         conn.close()
         raise HTTPException(status_code=404, detail="User not found.")
     
-    nodes = user["completed_nodes"] or []
-    hearts = user["hearts"]
-    xp = user["xp_points"]
-    streak = user["streak"]
+    nodes = user.get("completed_nodes") or []
+    hearts = user.get("hearts", 5)
+    xp = user.get("xp_points", 0)
+    streak = user.get("streak", 0)
 
     if data.lost_heart:
         hearts = max(0, hearts - 1)
@@ -773,7 +711,7 @@ def submit_battle_score(data: BattleSubmitModel):
         conn.close()
         raise HTTPException(status_code=404, detail="Match not found")
         
-    scores = match["scores"] or {}
+    scores = match.get("scores") or {}
     scores[data.username] = data.score
     
     import json
