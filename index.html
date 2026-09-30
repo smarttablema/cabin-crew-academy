@@ -832,7 +832,7 @@
                 if(count > 0) {
                     countEl.innerText = count;
                 } else if(count === 0) {
-                    countEl.innerText = 'GO! ✈️';
+                    countEl.innerText = 'GO! ✈️️';
                 } else {
                     clearInterval(timer);
                     modal.style.display = 'none';
@@ -1168,6 +1168,7 @@
         /* VOCABULARY PATH WITH AUTO-SCROLL TO ACTIVE */
         function launchVocabularyRoadmap() {
             playSound('click');
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
             const completedList = sessionUser.completed_nodes || [];
@@ -1231,6 +1232,7 @@
         }
 
         function startVocabularyNode(nodeNum, status) {
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             const vocabItem = getVocabItemForStep(nodeNum);
             const box = document.getElementById('simulation-box');
             let timeLeft = 35;
@@ -1249,9 +1251,9 @@
                         <span style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:10px; font-weight:800;">Pronounce this Aviation Term in English:</span>
                         <h2 style="font-size:2rem; color:var(--accent); font-weight:900; margin-bottom:18px;" id="target-vocab-word">${vocabItem.en}</h2>
                         
-                        <div id="vocab-translation-box" class="hidden" style="background:rgba(16, 185, 129, 0.15); border:1px solid var(--success); padding:12px; border-radius:14px; margin-bottom:16px;">
-                            <span style="font-size:0.75rem; color:var(--success); font-weight:800; display:block; margin-bottom:4px;">ARABIC TRANSLATION:</span>
-                            <h3 style="font-size:1.3rem; color:white; font-weight:900;">${vocabItem.ar}</h3>
+                        <div id="vocab-translation-box" class="hidden" style="background:rgba(16, 185, 129, 0.15); border:1px solid var(--success); padding:16px; border-radius:14px; margin-bottom:16px;">
+                            <span style="font-size:0.75rem; color:var(--success); font-weight:800; display:block; margin-bottom:6px;">ARABIC TRANSLATION (Memorize):</span>
+                            <h3 style="font-size:1.5rem; color:white; font-weight:900;">${vocabItem.ar}</h3>
                         </div>
 
                         <div style="margin: 20px 0;">
@@ -1318,8 +1320,10 @@
 
                 if(matched) {
                     showToast('Pronunciation Accepted! +30 XP ⭐');
-                    if(statusEl) statusEl.innerText = `Matched!`;
-                    setTimeout(() => completeVocabNode(nodeNum), 1200);
+                    if(statusEl) statusEl.innerText = `Matched! Review Arabic translation below...`;
+                    
+                    // Extended 6-second delay so students can clearly see and memorize the Arabic translation
+                    setTimeout(() => completeVocabNode(nodeNum), 6000);
                 } else {
                     showToast(`Mispronounced. Heart lost ❤️-1`, true);
                     if(statusEl) statusEl.innerText = `Heard: "${recognizedWords[0]}" (Target: ${expected})`;
@@ -1383,6 +1387,7 @@
         /* AVIATION ENGLISH ROADMAP WITH AUTO-SCROLL TO ACTIVE */
         function launchAviationEnglishRoadmap() {
             playSound('click');
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
             const completedList = sessionUser.completed_nodes || [];
@@ -1447,6 +1452,7 @@
         }
 
         function startDynamicNodeSession(poolKey, nodeNum, status) {
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             activeQuestionsStore = getRandomQuizQuestions(poolKey, 3);
             renderDynamicStep(poolKey, nodeNum, 0);
         }
@@ -1534,6 +1540,7 @@
         }
 
         async function completeDynamicNode(poolKey, nodeNum) {
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `${poolKey}_node_${nodeNum}`;
             const res = await fetch('/api/node/complete', {
                 method: 'POST',
@@ -1568,6 +1575,7 @@
         /* ROADMAPS FOR YEAR 1 & YEAR 2 WITH AUTO-SCROLL TO ACTIVE */
         function launchRoadmap(yearKey) {
             playSound('click');
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
             const completedList = sessionUser.completed_nodes || [];
@@ -1659,6 +1667,7 @@
         /* STUDY & EXAMS STUDIO */
         async function openStudyHub() {
             playSound('click');
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
             const res = await fetch('/api/group/info?group_code=' + sessionUser.group_code);
@@ -1738,6 +1747,7 @@
 
         function takeExam(exam) {
             playSound('click');
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             let questions = exam.exam_data;
             if(typeof questions === 'string') questions = JSON.parse(questions);
             const box = document.getElementById('simulation-box');
@@ -1780,6 +1790,7 @@
         /* FRIENDS & SOCIAL HUB */
         async function openSocialHub() {
             playSound('click');
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
             const res = await fetch('/api/friends/list?username=' + sessionUser.username);
@@ -1857,6 +1868,7 @@
         /* 1V1 BATTLE ARENA LOBBY */
         async function open1v1Lobby() {
             playSound('click');
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
             const res = await fetch('/api/friends/list?username=' + sessionUser.username);
@@ -2078,6 +2090,7 @@
         }
 
         async function finish1v1BattleModal() {
+            if(battleTimerInterval) clearInterval(battleTimerInterval);
             const res = await fetch('/api/battle/submit', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -2120,6 +2133,7 @@
 
         async function openDirectChat(friendUsername, friendFullName) {
             playSound('click');
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             activeChatFriendUser = friendUsername;
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
@@ -2176,6 +2190,7 @@
         /* MODALS & BOUTIQUE */
         function openAvatarStudio() { 
             playSound('click'); 
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
             document.getElementById('avatar-studio-modal').style.display = 'flex'; 
@@ -2204,6 +2219,7 @@
         }
         function openSettingsModal() { 
             playSound('click'); 
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
             document.getElementById('settings-modal').style.display = 'flex'; 
@@ -2229,6 +2245,7 @@
 
         async function openShop() {
             playSound('click');
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
             const res = await fetch('/api/shop/skins');
