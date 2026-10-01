@@ -138,6 +138,19 @@
 <body>
     <div id="toast" class="toast-popup">Notification</div>
 
+    <!-- CUSTOM EXAM DELETE CONFIRMATION MODAL -->
+    <div id="custom-confirm-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.92); display:none; justify-content:center; align-items:center; z-index:9999; backdrop-filter:blur(12px);">
+        <div style="background:var(--surface-card); border:1px solid var(--danger); border-radius:28px; padding:2rem; width:90%; max-width:400px; text-align:center; box-shadow:0 0 40px rgba(239, 68, 68, 0.3);">
+            <div style="font-size:3.5rem; margin-bottom:10px;">⚠️</div>
+            <h3 style="font-size:1.2rem; color:white; font-weight:900; margin-bottom:0.5rem;" id="custom-confirm-title">Delete Official Exam</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.5;">Are you sure you want to permanently delete this official exam? This action cannot be undone.</p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-action" id="custom-confirm-cancel" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0; padding:0.9rem;">Cancel</button>
+                <button class="btn-action" id="custom-confirm-ok" style="background:var(--danger); color:white; margin-top:0; padding:0.9rem;">Delete Exam 🗑️</button>
+            </div>
+        </div>
+    </div>
+
     <div id="cinematic-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.96); display:none; justify-content:center; align-items:center; z-index:9000; backdrop-filter:blur(15px);">
         <div style="background:var(--surface-card); border:2px solid var(--accent); border-radius:32px; padding:2.5rem; width:90%; max-width:440px; text-align:center; box-shadow:0 0 50px var(--accent-glow);">
             <div style="font-size:4rem; margin-bottom:12px;">✈️</div>
@@ -398,6 +411,15 @@
         let activeMatchId = null;
 
         let pendingNodeExecution = null;
+
+        // Global session state for roadmap/vocab to prevent scope closure bug
+        window.currentRoadmapSession = {
+            questions: [],
+            currentIdx: 0,
+            poolKey: '',
+            nodeNum: 0,
+            totalNodes: 100
+        };
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
@@ -1059,7 +1081,7 @@
             }
         }
 
-        /* DIVERSIFIED 100-NODE QUESTION POOLS */
+        /* DIVERSIFIED 100-NODE QUESTION POOLS WITH RANDOMIZATION */
         const diversifiedQuestionPools = {
             year1: [
                 [
@@ -1146,8 +1168,21 @@
 
         function getDiversifiedQuestions(poolKey, nodeNum) {
             const pools = diversifiedQuestionPools[poolKey] || diversifiedQuestionPools['year1'];
-            const idx = Math.min((nodeNum - 1) % pools.length, pools.length - 1);
-            return pools[idx] || pools[0];
+            const idx = (nodeNum - 1) % pools.length;
+            const baseList = pools[idx] || pools[0];
+
+            // Deep clone and randomize questions and answer options for anti-cheat & dynamic variety
+            const cloned = JSON.parse(JSON.stringify(baseList));
+            cloned.sort(() => Math.random() - 0.5);
+
+            if(poolKey !== 'vocab') {
+                cloned.forEach(q => {
+                    const originalCorrectText = q.options[q.correct];
+                    q.options.sort(() => Math.random() - 0.5);
+                    q.correct = q.options.indexOf(originalCorrectText);
+                });
+            }
+            return cloned;
         }
 
         function launchVocabularyRoadmap() {
@@ -1206,7 +1241,7 @@
                     icon = '⭐'; 
                 } else if(i === currentUnlocked) { 
                     statusClass = 'active'; 
-                    icon = poolKey === 'vocab' ? '🎙️' : '✈️'; 
+                    icon = poolKey === 'vocab' ? '🎙️️' : '✈️'; 
                 }
 
                 nodesHtml += `
@@ -1241,131 +1276,82 @@
                 }
             }
 
-            const questions = getDiversifiedQuestions(poolKey, nodeNum);
-            let currentQIdx = 0;
+            window.currentRoadmapSession = {
+                questions: getDiversifiedQuestions(poolKey, nodeNum),
+                currentIdx: 0,
+                poolKey: poolKey,
+                nodeNum: nodeNum,
+                totalNodes: totalNodes
+            };
 
-            function renderStep() {
-                if(currentQIdx >= questions.length) {
-                    const progressKey = 'aero_progress_' + (sessionUser ? sessionUser.username : 'guest') + '_' + poolKey;
-                    let currentUnlocked = parseInt(localStorage.getItem(progressKey) || '1');
-                    if(nodeNum === currentUnlocked) {
-                        localStorage.setItem(progressKey, String(nodeNum + 1));
-                    }
-                    if(sessionUser) {
-                        sessionUser.xp_points = (sessionUser.xp_points || 0) + 50;
-                        localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                        updateDashboardUI();
-                    }
-
-                    const box = document.getElementById('simulation-box');
-                    box.innerHTML = `
-                        <div style="text-align:center; padding: 3rem 1rem;">
-                            <div style="font-size:4.5rem; margin-bottom:1rem;">🏆</div>
-                            <h2 style="color:var(--gold); font-size:1.6rem; font-weight:900; margin-bottom:0.5rem;">Module Completed!</h2>
-                            <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:2rem;">Great job, Captain! You earned +50 XP Stars ⭐.</p>
-                            <button class="btn-action" onclick="resetToMenu()" style="max-width:260px; margin:0 auto; background:var(--success); color:white;">Continue Roadmap ✈️️</button>
-                        </div>
-                    `;
-                    return;
-                }
-
-                const q = questions[currentQIdx];
-                const box = document.getElementById('simulation-box');
-
-                if(poolKey === 'vocab') {
-                    // Vocabulary item: { en, ar } - Hidden Arabic translation initially
-                    box.innerHTML = `
-                        <div class="feature-topbar">
-                            <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
-                            <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Vocab Item ${currentQIdx + 1} / ${questions.length}</h3>
-                            <div style="width:85px;"></div>
-                        </div>
-                        <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1.5rem; text-align:center;">
-                            <div style="font-size:3.5rem; margin-bottom:10px; cursor:pointer;" onclick="startSpeechRecognitionForVocab('${q.en}', '${q.ar}', () => { currentQIdx++; renderStep(); })" title="Tap microphone to speak word">🎙️</div>
-                            <h2 style="color:var(--accent); font-size:1.8rem; font-weight:900; margin-bottom:0.5rem;">${q.en}</h2>
-                            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;" id="vocab-status-label">Tap microphone and speak "${q.en}" to reveal Arabic translation</p>
-                            <button class="btn-action" onclick="startSpeechRecognitionForVocab('${q.en}', '${q.ar}', () => { currentQIdx++; renderStep(); })" style="background:var(--accent); color:var(--bg-deep); max-width:280px; margin:0 auto; padding:1.1rem;">Tap Mic to Speak 🎙️</button>
-                        </div>
-                    `;
-                } else {
-                    box.innerHTML = `
-                        <div class="feature-topbar">
-                            <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
-                            <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Question ${currentQIdx + 1} / ${questions.length}</h3>
-                            <div style="width:85px;"></div>
-                        </div>
-                        <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1rem;">
-                            <b style="color:white; font-size:1.05rem; display:block; margin-bottom:1.5rem; line-height:1.6;">${q.q}</b>
-                            <div style="display:flex; flex-direction:column; gap:12px;">
-                                ${q.options.map((opt, idx) => `
-                                    <button class="btn-action" onclick="handleRoadmapAnswer(${idx === q.correct}, () => { currentQIdx++; renderStep(); })" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); text-align:left; padding:14px 18px; font-size:0.95rem; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
-                }
-            }
-            renderStep();
+            renderRoadmapStep();
         }
 
-        function startSpeechRecognitionForVocab(enWord, arWord, nextCallback) {
-            playSound('click');
-            const statusEl = document.getElementById('vocab-status-label');
-            if(statusEl) statusEl.innerText = 'Listening... Speak "' + enWord + '" into microphone';
+        function renderRoadmapStep() {
+            const session = window.currentRoadmapSession;
+            if(!session || !session.questions) return;
 
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                revealVocabWithTimer(enWord, arWord, nextCallback);
+            if(session.currentIdx >= session.questions.length) {
+                const progressKey = 'aero_progress_' + (sessionUser ? sessionUser.username : 'guest') + '_' + session.poolKey;
+                let currentUnlocked = parseInt(localStorage.getItem(progressKey) || '1');
+                if(session.nodeNum === currentUnlocked) {
+                    localStorage.setItem(progressKey, String(session.nodeNum + 1));
+                }
+                if(sessionUser) {
+                    sessionUser.xp_points = (sessionUser.xp_points || 0) + 50;
+                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                    updateDashboardUI();
+                }
+
+                const box = document.getElementById('simulation-box');
+                box.innerHTML = `
+                    <div style="text-align:center; padding: 3rem 1rem;">
+                        <div style="font-size:4.5rem; margin-bottom:1rem;">🏆</div>
+                        <h2 style="color:var(--gold); font-size:1.6rem; font-weight:900; margin-bottom:0.5rem;">Module Completed!</h2>
+                        <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:2rem;">Great job, Captain! You earned +50 XP Stars ⭐.</p>
+                        <button class="btn-action" onclick="resetToMenu()" style="max-width:260px; margin:0 auto; background:var(--success); color:white;">Continue Roadmap ✈</button>
+                    </div>
+                `;
                 return;
             }
 
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'en-US';
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
+            const q = session.questions[session.currentIdx];
+            const box = document.getElementById('simulation-box');
 
-            recognition.onresult = (event) => {
-                const speechResult = event.results[0][0].transcript.toLowerCase();
-                if(speechResult.includes(enWord.toLowerCase())) {
-                    revealVocabWithTimer(enWord, arWord, nextCallback);
-                } else {
-                    showToast('Heard "' + speechResult + '". Try saying "' + enWord + '" clearly.', true);
-                    if(statusEl) statusEl.innerText = 'Heard "' + speechResult + '". Tap mic to try again.';
-                }
-            };
-
-            recognition.onerror = () => {
-                revealVocabWithTimer(enWord, arWord, nextCallback);
-            };
-
-            try {
-                recognition.start();
-            } catch(e) {
-                revealVocabWithTimer(enWord, arWord, nextCallback);
+            if(session.poolKey === 'vocab') {
+                box.innerHTML = `
+                    <div class="feature-topbar">
+                        <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
+                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Vocab Item ${session.currentIdx + 1} / ${session.questions.length}</h3>
+                        <div style="width:85px;"></div>
+                    </div>
+                    <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1.5rem; text-align:center;">
+                        <div style="font-size:3.5rem; margin-bottom:10px; cursor:pointer;" onclick="triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" title="Tap microphone to speak word">🎙️</div>
+                        <h2 style="color:var(--accent); font-size:1.8rem; font-weight:900; margin-bottom:0.5rem;">${q.en}</h2>
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;" id="vocab-status-label">Tap microphone and speak "${q.en}" to reveal Arabic translation</p>
+                        <button class="btn-action" onclick="triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--accent); color:var(--bg-deep); max-width:280px; margin:0 auto; padding:1.1rem;">Tap Mic to Speak 🎙️</button>
+                    </div>
+                `;
+            } else {
+                box.innerHTML = `
+                    <div class="feature-topbar">
+                        <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
+                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Question ${session.currentIdx + 1} / ${session.questions.length}</h3>
+                        <div style="width:85px;"></div>
+                    </div>
+                    <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1rem;">
+                        <b style="color:white; font-size:1.05rem; display:block; margin-bottom:1.5rem; line-height:1.6;">${q.q}</b>
+                        <div style="display:flex; flex-direction:column; gap:12px;">
+                            ${q.options.map((opt, idx) => `
+                                <button class="btn-action" onclick="handleRoadmapAnswerGlobal(${idx === q.correct})" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); text-align:left; padding:14px 18px; font-size:0.95rem; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
             }
         }
 
-        function revealVocabWithTimer(enWord, arWord, nextCallback) {
-            playSound('success');
-            const statusEl = document.getElementById('vocab-status-label');
-            if(statusEl) {
-                statusEl.innerHTML = `<b style="color:var(--gold); font-size:1.3rem;">Arabic: ${arWord}</b><br><span style="color:var(--text-muted); font-size:0.85rem;" id="countdown-timer-text">Memorize word: 6s</span>`;
-            }
-
-            let secondsLeft = 6;
-            const timerInterval = setInterval(() => {
-                secondsLeft--;
-                const timerText = document.getElementById('countdown-timer-text');
-                if(timerText) timerText.innerText = `Memorize word: ${secondsLeft}s`;
-                if(secondsLeft <= 0) {
-                    clearInterval(timerInterval);
-                    showToast('Great job! Moving to next step.');
-                    nextCallback();
-                }
-            }, 1000);
-        }
-
-        function handleRoadmapAnswer(isCorrect, nextCallback) {
+        function handleRoadmapAnswerGlobal(isCorrect) {
             if(isCorrect) {
                 playSound('success');
                 showToast('Correct! ⭐');
@@ -1378,7 +1364,69 @@
                 }
                 showToast('Incorrect! Heart lost ❤', true);
             }
-            setTimeout(nextCallback, 900);
+            setTimeout(() => {
+                window.currentRoadmapSession.currentIdx++;
+                renderRoadmapStep();
+            }, 900);
+        }
+
+        function triggerVocabSpeech(enWord, arWord) {
+            playSound('click');
+            const statusEl = document.getElementById('vocab-status-label');
+            if(statusEl) statusEl.innerText = 'Listening... Speak "' + enWord + '" into microphone';
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                revealVocabWithTimerGlobal(enWord, arWord);
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onresult = (event) => {
+                const speechResult = event.results[0][0].transcript.toLowerCase();
+                if(speechResult.includes(enWord.toLowerCase())) {
+                    revealVocabWithTimerGlobal(enWord, arWord);
+                } else {
+                    showToast('Heard "' + speechResult + '". Try saying "' + enWord + '" clearly.', true);
+                    if(statusEl) statusEl.innerText = 'Heard "' + speechResult + '". Tap mic to try again.';
+                }
+            };
+
+            recognition.onerror = () => {
+                revealVocabWithTimerGlobal(enWord, arWord);
+            };
+
+            try {
+                recognition.start();
+            } catch(e) {
+                revealVocabWithTimerGlobal(enWord, arWord);
+            }
+        }
+
+        function revealVocabWithTimerGlobal(enWord, arWord) {
+            playSound('success');
+            const statusEl = document.getElementById('vocab-status-label');
+            if(statusEl) {
+                statusEl.innerHTML = `<b style="color:var(--gold); font-size:1.3rem;">Arabic: ${arWord}</b><br><span style="color:var(--text-muted); font-size:0.85rem;" id="countdown-timer-text">Memorize word: 6s</span>`;
+            }
+
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
+            let secondsLeft = 6;
+            questionTimerInterval = setInterval(() => {
+                secondsLeft--;
+                const timerText = document.getElementById('countdown-timer-text');
+                if(timerText) timerText.innerText = `Memorize word: ${secondsLeft}s`;
+                if(secondsLeft <= 0) {
+                    clearInterval(questionTimerInterval);
+                    showToast('Great job! Moving to next step.');
+                    window.currentRoadmapSession.currentIdx++;
+                    renderRoadmapStep();
+                }
+            }, 1000);
         }
 
         /* STUDY & EXAMS STUDIO */
@@ -1481,7 +1529,7 @@
                                     actionBtnHtml = `
                                         <div style="display:flex; gap:8px; align-items:center;">
                                             <span style="color:var(--text-muted); font-size:0.75rem; font-weight:700;">Owner</span>
-                                            <button class="btn-action" onclick="deleteExam(${e.id})" style="width:75px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;">Delete 🗑️</button>
+                                            <button class="btn-action" onclick="confirmDeleteExam(${e.id})" style="width:75px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;">Delete 🗑️</button>
                                         </div>
                                     `;
                                 } else if(existingSub) {
@@ -1554,20 +1602,40 @@
             if(res.ok) { showToast('Exam published with code ' + customCode + '!'); openStudyHub(); }
         }
 
-        async function deleteExam(examId) {
+        function confirmDeleteExam(examId) {
             playSound('click');
-            if(!confirm('Are you sure you want to delete this official exam?')) return;
-            const res = await fetch('/api/exam/delete', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ exam_id: examId, teacher_username: sessionUser.username })
-            });
-            if(res.ok) {
-                showToast('Exam deleted successfully!');
-                openStudyHub();
-            } else {
-                showToast('Failed to delete exam', true);
-            }
+            const modal = document.getElementById('custom-confirm-modal');
+            modal.style.display = 'flex';
+
+            const okBtn = document.getElementById('custom-confirm-ok');
+            const cancelBtn = document.getElementById('custom-confirm-cancel');
+
+            // Remove previous listeners by cloning
+            const newOkBtn = okBtn.cloneNode(true);
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+            newCancelBtn.onclick = () => {
+                playSound('click');
+                modal.style.display = 'none';
+            };
+
+            newOkBtn.onclick = async () => {
+                playSound('click');
+                modal.style.display = 'none';
+                const res = await fetch('/api/exam/delete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ exam_id: examId, teacher_username: sessionUser.username })
+                });
+                if(res.ok) {
+                    showToast('Exam deleted successfully!');
+                    openStudyHub();
+                } else {
+                    showToast('Failed to delete exam', true);
+                }
+            };
         }
 
         async function adjustStudentXP(studentUsername, amount) {
@@ -1987,7 +2055,7 @@
                     <b style="color:white; font-size:1rem; display:block; margin-bottom:14px; line-height:1.5;">${qObj.q}</b>
                     <div style="display:flex; flex-direction:column; gap:10px;" id="battle-options-container">
                         ${qObj.options.map((opt, idx) => `
-                            <button class="btn-action battle-opt-btn" onclick="answerModalBattleQuestion(${idx === qObj.correct}, this)" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:13px; font-size:0.9rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
+                            <button class="btn-action battle-opt-btn" onclick="answerModalBattleQuestion(${idx === qObj.correct}, this)" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:13px; font-size:0.9rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)})${opt}</button>
                         `).join('')}
                     </div>
                 </div>
