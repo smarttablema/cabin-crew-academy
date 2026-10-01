@@ -251,6 +251,10 @@ class BattleSubmitModel(BaseModel):
 class BattleCancelModel(BaseModel):
     match_id: str
 
+class GroupUpdateModel(BaseModel):
+    phone_number: str
+    group_code: str
+
 @app.post("/api/register")
 def register(data: RegisterModel):
     conn = get_db_connection()
@@ -387,6 +391,24 @@ def change_password(data: PasswordChangeModel):
     cur.close()
     conn.close()
     return {"status": "success"}
+
+@app.post("/api/user/group-update")
+def update_user_group(data: GroupUpdateModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM aero_v22_groups WHERE group_code = %s;", (data.group_code,))
+    grp = cur.fetchone()
+    if not grp:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Invalid teacher/group code.")
+        
+    cur.execute("UPDATE aero_v22_users SET group_code = %s WHERE phone_number = %s RETURNING *;", (data.group_code, data.phone_number))
+    updated_user = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success", "user": updated_user}
 
 @app.post("/api/friends/request")
 def send_friend_request(data: FriendRequestModel):
