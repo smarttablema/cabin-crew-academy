@@ -506,7 +506,7 @@ def create_exam(data: CreateExamModel):
     cur = conn.cursor()
     import json
     cur.execute(
-        "INSERT INTO aero_v22_exams (group_code, teacher_username, title, exam_data) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
+        "INSERT INTO aero_v22_exams (group_code, teacher_username, title, exam_data) VALUES (%s, %s, %s, %s) RETURNING *;",
         (data.group_code, data.teacher_username, data.title, json.dumps(data.exam_data))
     )
     exam = cur.fetchone()
