@@ -131,11 +131,6 @@
         .duo-node.active { background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: #020617; border: 4px solid #bae6fd; box-shadow: 0 10px 0 #0369a1, 0 0 28px var(--accent); }
         .duo-node.locked { background: #334155; color: #94a3b8; border: 4px solid #475569; box-shadow: 0 10px 0 #1e293b; opacity: 0.7; }
         
-        .companion-hopper { position: absolute; top: -45px; font-size: 2.2rem; animation: floatCompanion 1.5s infinite ease-in-out; z-index: 10; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.9)); padding: 4px 8px; border-radius: 20px; }
-        .companion-hopper.fire-streak { background: radial-gradient(circle, rgba(249,115,22,0.4) 0%, transparent 70%); filter: drop-shadow(0 0 15px #f97316); }
-        .companion-hopper.ice-streak { background: radial-gradient(circle, rgba(56,189,248,0.4) 0%, transparent 70%); filter: drop-shadow(0 0 15px #38bdf8); }
-        @keyframes floatCompanion { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-
         .toast-popup { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 14px 28px; border-radius: 35px; font-weight: 800; font-size: 0.9rem; transition: transform 0.3s; z-index: 6000; pointer-events: none; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); }
         .toast-popup.show { transform: translateX(-50%) translateY(0); }
     </style>
@@ -143,22 +138,16 @@
 <body>
     <div id="toast" class="toast-popup">Notification</div>
 
-    <!-- CINEMATIC READY MODAL -->
     <div id="cinematic-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.96); display:none; justify-content:center; align-items:center; z-index:9000; backdrop-filter:blur(15px);">
-        <div style="background:var(--surface-card); border:2px solid var(--accent); border-radius:32px; padding:2.5rem; width:90%; max-width:440px; text-align:center; box-shadow:0 0 50px var(--accent-glow); animation:zoomInCinematic 0.3s ease;">
-            <div style="font-size:4rem; margin-bottom:12px; animation:bounceCinematic 1s infinite alternate;">✈️</div>
-            <h2 id="cinematic-title" style="font-size:1.5rem; color:var(--accent); font-weight:900; margin-bottom:6px;">Ready for Takeoff?</h2>
-            <p id="cinematic-subtitle" style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.8rem; line-height:1.6;">Engines primed, clearance granted. Focus and conquer this aviation milestone!</p>
+        <div style="background:var(--surface-card); border:2px solid var(--accent); border-radius:32px; padding:2.5rem; width:90%; max-width:440px; text-align:center; box-shadow:0 0 50px var(--accent-glow);">
+            <div style="font-size:4rem; margin-bottom:12px;">✈️</div>
+            <h2 style="font-size:1.5rem; color:var(--accent); font-weight:900; margin-bottom:6px;">Ready for Takeoff?</h2>
+            <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.8rem; line-height:1.6;">Engines primed, clearance granted. Focus and conquer this aviation milestone!</p>
             <div id="cinematic-countdown" style="font-size:2.5rem; font-weight:900; color:var(--gold); margin-bottom:1.5rem;">3</div>
             <button class="btn-action" onclick="startNodeSessionAfterCinematic()" style="background:linear-gradient(135deg, #10b981, #059669); color:white; padding:1.1rem; font-size:1.05rem; margin-top:0;">ENGAGE MODULE 🚀</button>
         </div>
     </div>
-    <style>
-        @keyframes zoomInCinematic { from { transform: scale(0.8); opacity:0; } to { transform: scale(1); opacity:1; } }
-        @keyframes bounceCinematic { from { transform: translateY(0); } to { transform: translateY(-10px); } }
-    </style>
 
-    <!-- LIVE 1V1 INVITATION & CHALLENGE MODAL -->
     <div id="battle-arena-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.95); display:none; justify-content:center; align-items:center; z-index:8000;">
         <div style="background:var(--surface-card); border:1px solid var(--accent); border-radius:28px; padding:2rem; width:90%; max-width:440px; text-align:center; box-shadow:0 0 40px var(--accent-glow);">
             <div id="battle-modal-content"></div>
@@ -208,14 +197,14 @@
         <!-- REGISTER SCREEN -->
         <div id="screen-register" class="hidden">
             <h2 id="tr-reg-title">Cadet & Instructor Enrollment</h2>
-            <p class="sub-desc" id="tr-reg-sub">Register your profile (starts with 5,000 XP Stars ⭐), choose your role, and design your avatar.</p>
+            <p class="sub-desc" id="tr-reg-sub">Register your profile, choose your role, and design your avatar.</p>
             
             <div class="avatar-preview-box" id="reg-avatar-preview">🧯</div>
 
             <label id="tr-reg-role-lbl">Register As</label>
             <select id="reg-role" onchange="toggleTeacherCodeContainer()">
-                <option value="student" id="tr-opt-cadet">🎓 Cadet / Student (Starts with 5,000 XP ⭐)</option>
-                <option value="teacher" id="tr-opt-teacher">👨‍‍🏫 Instructor / Teacher (Starts with 5,000 XP ⭐)</option>
+                <option value="student" id="tr-opt-cadet">🎓 Cadet / Student</option>
+                <option value="teacher" id="tr-opt-teacher">👨‍🏫 Instructor / Teacher</option>
             </select>
 
             <div id="teacher-code-box" class="hidden" style="background: rgba(56, 189, 248, 0.08); padding: 12px; border-radius: 14px; border: 1px dashed var(--accent); margin-bottom: 1.1rem;">
@@ -246,7 +235,7 @@
                 <option value="hostess">👗 Hostess</option>
             </select>
             
-            <button class="btn-action" onclick="submitRegister()" style="background: #10b981; color: white;" id="tr-complete-reg-btn">Complete Registration (Claim 5,000 XP)</button>
+            <button class="btn-action" onclick="submitRegister()" style="background: #10b981; color: white;" id="tr-complete-reg-btn">Complete Registration</button>
             
             <div class="footer-nav">
                 <span onclick="navigateTo('screen-login')" id="tr-back-login">Already have an account? Sign In</span>
@@ -277,9 +266,9 @@
                     <span style="font-size: 0.75rem; color: var(--text-muted);" id="dash-role-badge">Student</span>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">5000</span></div>
+                    <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">1500</span></div>
                     <div class="stat-item" style="color: var(--danger);">❤ <span id="dash-hearts">5</span></div>
-                    <div class="stat-item" id="dash-streak-badge">🔥 <span id="dash-streak">37</span></div>
+                    <div class="stat-item" id="dash-streak-badge">🔥 <span id="dash-streak">21</span></div>
                 </div>
             </div>
 
@@ -297,7 +286,7 @@
                     <h4 id="tr-tile-eng">Aviation English & ICAO Mastery</h4>
                 </div>
                 <div class="mode-tile" onclick="launchVocabularyRoadmap()">
-                    <span style="font-size: 1.5rem;">🗣️️</span>
+                    <span style="font-size: 1.5rem;">🗣</span>
                     <h4 id="tr-tile-vocab">English Vocabulary to Arabic (5k)</h4>
                 </div>
                 <div class="mode-tile" onclick="openSpinningWheelModal()">
@@ -338,7 +327,7 @@
             <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.4rem;">Strictly 1 spin every 24 hours. Win XP, hearts, or exclusive Pilot Hat skins!</p>
             
             <div style="position:relative; width:260px; height:260px; margin:0 auto 1.4rem auto; display:flex; justify-content:center; align-items:center;">
-                <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent; border-top:24px solid var(--warning); z-index:20; filter:drop-shadow(0 4px 6px rgba(0,0,0,0.9);"></div>
+                <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent; border-top:24px solid var(--warning); z-index:20;"></div>
                 <canvas id="wheelCanvas" width="260" height="260" style="border-radius:50%; box-shadow:0 0 35px rgba(56, 189, 248, 0.4); border:5px solid var(--accent); background:#0f172a;"></canvas>
             </div>
 
@@ -393,7 +382,7 @@
 
     <script>
         let sessionUser = JSON.parse(localStorage.getItem('aero_crew_user_pro22') || 'null');
-        let groupInfo = { group: null, members: [], lessons: [], exams: [] };
+        let groupInfo = { group: null, members: [], lessons: [], exams: [], submissions: [] };
         let socialData = { friends: [], incoming_requests: [], friend_groups: [] };
         let activeLang = localStorage.getItem('aero_lang') || 'en';
         let dmPollingInterval = null;
@@ -448,11 +437,11 @@
                 loginTitle: "Cabin Crew Portal", loginSub: "Access accredited EASA/ICAO curriculum & live groups.",
                 phoneLbl: "Phone Number", passLbl: "Password", loginBtn: "Sign In to Simulator",
                 regNav: "Create Account", resetNav: "Forgot Password?",
-                regTitle: "Cadet & Instructor Enrollment", regSub: "Register your profile (starts with 5,000 XP Stars ⭐), choose your role, and design your avatar.",
-                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student (Starts with 5,000 XP ⭐)", optTeacher: "👨‍🏫 Instructor / Teacher (Starts with 5,000 XP ⭐)",
+                regTitle: "Cadet & Instructor Enrollment", regSub: "Register your profile, choose your role, and design your avatar.",
+                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student", optTeacher: "👨‍🏫 Instructor / Teacher",
                 regNameLbl: "Full Name", regUserLbl: "Unique Username", regPassLbl: "Password", regPinLbl: "Recovery PIN (4 digits)",
                 avatarStudioTitle: "🎨 Avatar Customization", avatarTypeLbl: "Avatar Type", optSteward: "👔 Steward", optHostess: "👗 Hostess",
-                completeRegBtn: "Complete Registration (Claim 5,000 XP)", backLogin: "Already have an account? Sign In",
+                completeRegBtn: "Complete Registration", backLogin: "Already have an account? Sign In",
                 resetTitle: "Recovery PIN Reset", resetSub: "Enter your phone and secret recovery PIN.", resetNewLbl: "New Password",
                 updateCredBtn: "Update Credentials", backLogin2: "Back to Sign In",
                 tileY1: "First Year Path (100 Nodes)", tileY2: "Second Year Path (Locked)", tileEng: "Aviation English & ICAO Mastery",
@@ -461,7 +450,7 @@
                 centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, <b>English Vocabulary</b>, or the <b>1v1 Battle Arena</b> above to begin your training adventure.",
                 hubBtn: "← Hub", logoutBtn: "Logout 🚪",
                 modalAvatarTitle: "🎨 Edit Avatar", modalGenderLbl: "Genre / Style", saveAvatarBtn: "Save Avatar 💾",
-                settingsTitle: "⚙️ Academy Settings", langLbl: "Interface Language", passChangeLbl: "Change Password", updatePassBtn: "Update Password 🔒",
+                settingsTitle: "⚙️️ Academy Settings", langLbl: "Interface Language", passChangeLbl: "Change Password", updatePassBtn: "Update Password 🔒",
                 myUsernameLbl: "My Username"
             },
             fr: {
@@ -469,11 +458,11 @@
                 loginTitle: "Portail du Personnel de Cabine", loginSub: "Accédez au programme EASA/ICAO et aux groupes.",
                 phoneLbl: "Numéro de téléphone", passLbl: "Mot de passe", loginBtn: "Se connecter",
                 regNav: "Créer un compte", resetNav: "Mot de passe oublié ?",
-                regTitle: "Inscription Cadet & Instructeur", regSub: "Enregistrez votre profil (débute avec 5,000 XP Stars ⭐), choisissez votre rôle et votre avatar.",
-                regRoleLbl: "S'inscrire en tant que", optCadet: "🎓 Cadet / Étudiant (5,000 XP ⭐)", optTeacher: "👨‍‍🏫 Instructeur / Professeur (5,000 XP ⭐)",
+                regTitle: "Inscription Cadet & Instructeur", regSub: "Enregistrez votre profil, choisissez votre rôle et votre avatar.",
+                regRoleLbl: "S'inscrire en tant que", optCadet: "🎓 Cadet / Étudiant", optTeacher: "👨‍‍🏫 Instructeur / Professeur",
                 regNameLbl: "Nom complet", regUserLbl: "Nom d'utilisateur unique", regPassLbl: "Mot de passe", regPinLbl: "PIN de récupération (4 chiffres)",
                 avatarStudioTitle: "🎨 Personnalisation d'Avatar", avatarTypeLbl: "Type d'avatar", optSteward: "👔 Steward", optHostess: "👗 Hôtesse",
-                completeRegBtn: "Terminer l'inscription (5,000 XP)", backLogin: "Déjà un compte ? Se connecter",
+                completeRegBtn: "Terminer l'inscription", backLogin: "Déjà un compte ? Se connecter",
                 resetTitle: "Réinitialisation du PIN", resetSub: "Entrez votre téléphone et votre PIN de récupération secret.", resetNewLbl: "Nouveau mot de passe",
                 updateCredBtn: "Mettre à jour", backLogin2: "Retour à la connexion",
                 tileY1: "Parcours 1ère Année (100 Nœuds)", tileY2: "Parcours 2ème Année (Verrouillé)", tileEng: "Anglais Aéronautique & ICAO",
@@ -490,11 +479,11 @@
                 loginTitle: "بوابة طاقم الطائرة", loginSub: "الوصول إلى مناهج EASA والمجموعات الحية المعتمدة.",
                 phoneLbl: "رقم الهاتف", passLbl: "كلمة المرور", loginBtn: "تسجيل الدخول",
                 regNav: "إنشاء حساب", resetNav: "نسيت كلمة المرور؟",
-                regTitle: "تسجيل المتدربين والمدربين", regSub: "سجل ملفك الشخصي (يبدأ بـ 5000 نقطة XP ⭐) واجتاز التدريب وصمم صورتك الرمزية.",
-                regRoleLbl: "التسجيل كـ", optCadet: "🎓 متدرب / طالب (يبدأ بـ 5000 نقطة XP ⭐)", optTeacher: "👨‍‍🏫 مدرب / معلم (يبدأ بـ 5000 نقطة XP ⭐)",
+                regTitle: "تسجيل المتدربين والمدربين", regSub: "سجل ملفك الشخصي واجتاز التدريب وصمم صورتك الرمزية.",
+                regRoleLbl: "التسجيل كـ", optCadet: "🎓 متدرب / طالب", optTeacher: "👨‍‍🏫 مدرب / معلم",
                 regNameLbl: "الاسم الكامل", regUserLbl: "اسم المستخدم الفريد", regPassLbl: "كلمة المرور", regPinLbl: "رقم الاسترداد السري (4 أرقام)",
                 avatarStudioTitle: "🎨 تخصيص الصورة الرمزية", avatarTypeLbl: "نوع الصورة", optSteward: "👔 مضيف جوي", optHostess: "👗 مضيفة جوية",
-                completeRegBtn: "إتمام التسجيل (احصل على 5000 نقطة XP)", backLogin: "لديك حساب بالفعل؟ سجل دخولك",
+                completeRegBtn: "إتمام التسجيل", backLogin: "لديك حساب بالفعل؟ سجل دخولك",
                 resetTitle: "إعادة تعيين رقم الاسترداد", resetSub: "أدخل هاتفك ورقم الاسترداد السري الخاص بك.", resetNewLbl: "كلمة المرور الجديدة",
                 updateCredBtn: "تحديث بيانات الاعتماد", backLogin2: "العودة لتسجيل الدخول",
                 tileY1: "مسار السنة الأولى (100 نقطة)", tileY2: "مسار السنة الثانية (مغلق)", tileEng: "اللغة الإنجليزية للطيران وإيكاو",
@@ -705,11 +694,11 @@
             const res = await fetch('/api/register', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ full_name, username, phone_number, password, recovery_pin, role, teacher_code, avatar_gender, group_code, xp_points: 5000 })
+                body: JSON.stringify({ full_name, username, phone_number, password, recovery_pin, role, teacher_code, avatar_gender, group_code })
             });
             const data = await res.json();
             if(res.ok) {
-                showToast('Registration successful with 5,000 XP Stars! Please sign in.');
+                showToast('Registration successful! Please sign in.');
                 navigateTo('screen-login');
             } else {
                 showToast(data.detail || 'Registration failed', true);
@@ -730,9 +719,6 @@
             const data = await res.json();
             if(res.ok) {
                 sessionUser = data.user;
-                if((sessionUser.xp_points || 0) < 5000 && sessionUser.completed_nodes?.length === 0) {
-                    sessionUser.xp_points = 5000;
-                }
                 checkAutomatedHeartRefill();
                 localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                 updateDashboardUI();
@@ -771,7 +757,7 @@
             document.getElementById('dash-xp').innerText = sessionUser.xp_points;
             document.getElementById('dash-hearts').innerText = sessionUser.hearts;
             
-            const streakVal = sessionUser.streak || 37;
+            const streakVal = sessionUser.streak || 21;
             const streakBadge = document.getElementById('dash-streak-badge');
             
             const todayStr = new Date().toISOString().split('T')[0];
@@ -817,7 +803,6 @@
             `;
         }
 
-        /* CINEMATIC ENCOURAGEMENT MODAL BEFORE NODES */
         function triggerCinematicIntro(onCompleteCallback) {
             playSound('click');
             pendingNodeExecution = onCompleteCallback;
@@ -920,19 +905,19 @@
                 const remainingMins = Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000));
                 spinBtn.disabled = true;
                 spinBtn.style.opacity = '0.5';
-                statusEl.innerText = `🔒 Next spin available in ${remainingHours}h ${remainingMins}m (24h Account Cooldown)`;
+                statusEl.innerText = `🔒 Next spin available in ${remainingHours}h ${remainingMins}m`;
                 return false;
             } else {
                 spinBtn.disabled = false;
                 spinBtn.style.opacity = '1';
-                statusEl.innerText = `Ready for your daily spin! (1 spin per 24 hours)`;
+                statusEl.innerText = `Ready for your daily spin!`;
                 return true;
             }
         }
 
         async function spinTheDailyWheel() {
             if (!checkSpinEligibility()) {
-                showToast('Strict Security: Only 1 spin allowed every 24 hours across devices!', true);
+                showToast('Strict Security: Only 1 spin allowed every 24 hours!', true);
                 return;
             }
 
@@ -982,24 +967,14 @@
                     }
                     localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                     updateDashboardUI();
-
-                    (async () => {
-                        try {
-                            await fetch('/api/user/spin-wheel', {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({ phone_number: sessionUser.phone_number, prize_type: prize.type, prize_value: prize.val })
-                            });
-                        } catch(e) {}
-                        refreshUserData(false);
-                        checkSpinEligibility();
-                    })();
+                    refreshUserData(false);
+                    checkSpinEligibility();
                 }
             }
             requestAnimationFrame(animateSpin);
         }
 
-        /* HEART RECOVERY LOUNGE & SECURE 24-HOUR REFILL */
+        /* HEART RECOVERY LOUNGE */
         function openHeartRecoveryLounge() {
             playSound('click');
             const box = document.getElementById('simulation-box');
@@ -1018,7 +993,6 @@
                     <div style="background:rgba(16, 185, 129, 0.12); padding:1.5rem; border-radius:22px; border:1px solid var(--success); margin-bottom:1.5rem;">
                         <div style="font-size:2.5rem; margin-bottom:8px;">💖</div>
                         <h4 style="color:var(--success); font-size:1.05rem; margin-bottom:6px; font-weight:900;">Claim Free 24h Heart Refill (5 Hearts)</h4>
-                        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.2rem;">Your 24-hour cooldown is complete! Claim your free hearts now.</p>
                         <button class="btn-action" onclick="claimFree24hHearts()" style="background:var(--success); color:white; padding:1rem;">Claim 5 Free Hearts 🎁</button>
                     </div>
                 `;
@@ -1030,7 +1004,7 @@
                     <div style="background:var(--surface-card); padding:1.4rem; border-radius:22px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
                         <div style="font-size:2rem; margin-bottom:6px;">⏳</div>
                         <h4 style="color:var(--warning); font-size:0.95rem; margin-bottom:4px; font-weight:900;">24-Hour Heart Refill Cooldown</h4>
-                        <p style="font-size:0.82rem; color:var(--text-muted);">Next free refill available in <b>${remHrs}h ${remMins}m</b> (Strictly 1 free refill every 24 hours).</p>
+                        <p style="font-size:0.82rem; color:var(--text-muted);">Next free refill available in <b>${remHrs}h ${remMins}m</b>.</p>
                     </div>
                 `;
             }
@@ -1042,14 +1016,11 @@
                     <div style="width:85px;"></div>
                 </div>
                 <div style="max-width:480px; width:100%; margin: 0 auto; text-align:center; padding-top:0.5rem;">
-                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.4rem; line-height:1.6;">You currently have <b>${sessionUser.hearts}/5 hearts</b>. Claim your free 24-hour refill or spend XP stars.</p>
-                    
+                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.4rem; line-height:1.6;">You currently have <b>${sessionUser.hearts}/5 hearts</b>.</p>
                     ${freeRefillHtml}
-
                     <div style="background:var(--surface-card); padding:1.5rem; border-radius:22px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
                         <div style="font-size:2.2rem; margin-bottom:8px;">⭐</div>
                         <h4 style="color:var(--warning); font-size:1rem; margin-bottom:4px; font-weight:900;">Refill with XP (Cost: 50 XP Stars)</h4>
-                        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1.1rem;">Your Balance: ${sessionUser.xp_points} XP Stars</p>
                         <button class="btn-action" onclick="refillHeartsWithXP()" style="background:var(--accent); color:var(--bg-deep); padding:0.95rem;">Refill Instantly ⚡</button>
                     </div>
                 </div>
@@ -1093,573 +1064,53 @@
             english: [
                 { q: "How is letter 'A' pronounced in ICAO standard telephony?", options: ["Alpha", "Apple", "Adam"], correct: 0 },
                 { q: "What is the correct ICAO pronunciation for number '9'?", options: ["Niner", "Nine", "Nov"], correct: 0 },
-                { q: "Which phonetic word represents letter 'S'?", options: ["Sierra", "Sugar", "Sam"], correct: 0 },
-                { q: "What is the primary phrase for seatbelt compliance check?", options: ["Cabin crew, secure cabin for takeoff", "Please fasten belts", "Fasten seatbelts please"], correct: 0 },
-                { q: "During turbulence, what command is issued to cabin crew?", options: ["Crew, be seated and secure", "Continue service", "Stand by galley"], correct: 0 },
-                { q: "How do you announce emergency slide arming?", options: ["Cabin crew, arm slides and cross-check", "Open all doors", "Disarm doors"], correct: 0 },
-                { q: "What command is shouted during rapid land evacuation?", options: ["EFP, LEAVE BAGS, DOWN THE SLIDE!", "Please exit slowly", "Grab your luggage and jump"], correct: 0 },
-                { q: "What urgent prefix is used for non-immediate safety urgency?", options: ["PAN-PAN", "MAYDAY", "SECURITY"], correct: 0 },
-                { q: "How many times is MAYDAY repeated in distress calls?", options: ["Three times", "Once", "Five times"], correct: 0 },
-                { q: "What term describes sudden severe vertical air movement?", options: ["Wind shear / Turbulence", "Gentle breeze", "Thermal calm"], correct: 0 },
-                { q: "What is the weather report acronym provided to pilots?", options: ["METAR", "RADAR", "SONAR"], correct: 0 },
-                { q: "What condition requires anti-icing fluid application?", options: ["Freezing fog and frost", "Sunny skies", "High humidity"], correct: 0 }
+                { q: "Which phonetic word represents letter 'S'?", options: ["Sierra", "Sugar", "Sam"], correct: 0 }
             ],
             year1: [
                 { q: "What is the mandatory crew action prior to door arming?", options: ["Arm cross-check and report", "Open emergency exit", "Deplane passengers"], correct: 0 },
-                { q: "In case of cabin depressurization, what is your immediate action?", options: ["Secure oxygen mask and be seated", "Serve beverages", "Call flight deck"], correct: 0 },
-                { q: "Who gives the final authorization for aircraft pushback?", options: ["Captain / Flight Deck", "Passenger", "Baggage loader"], correct: 0 },
-                { q: "What safety equipment is required during firefighting in cabin?", options: ["Smoke goggles & PBE (Smoke Hood)", "Sunglasses", "Surgical mask"], correct: 0 },
-                { q: "What is the pre-flight briefing acronym for crew coordination?", options: ["SEP / Briefing", "GPS", "FMS"], correct: 0 },
-                { q: "Where are life vests typically stowed for passengers?", options: ["Underneath or beside passenger seats", "In overhead bins", "In the cockpit"], correct: 0 },
-                { q: "What color is the emergency evacuation slide inflation cylinder pressure gauge indicator?", options: ["Green / Operating range", "Red only", "Black"], correct: 0 },
-                { q: "Which department oversees airline crew regulatory compliance in Europe?", options: ["EASA", "NASA", "FIFA"], correct: 0 }
+                { q: "In case of cabin depressurization, what is your immediate action?", options: ["Secure oxygen mask and be seated", "Serve beverages", "Call flight deck"], correct: 0 }
             ],
             year2: [
-                { q: "What is CRM in aviation crew training?", options: ["Crew Resource Management", "Cabin Routine Maintenance", "Cockpit Radio Monitoring"], correct: 0 },
-                { q: "What is the minimum crew rest requirement during long-haul duty rotations?", options: ["Mandatory scheduled rest period", "No rest required", "Optional coffee break"], correct: 0 },
-                { q: "What does emergency transponder squawk code 7700 signify?", options: ["Emergency / Distress", "Hijacking", "Radio failure"], correct: 0 },
-                { q: "How should dangerous goods (DG) spills in cabin be handled?", options: ["Isolate area, use spill kit, notify captain", "Wash down galley drain", "Ignore until landing"], correct: 0 },
-                { q: "What is the procedure for suspected bomb threat inflight?", options: ["Search LRT (Least Risk Bomb Location), notify flight deck", "Open emergency door", "Announce publicly to passengers"], correct: 0 }
+                { q: "What is CRM in aviation crew training?", options: ["Crew Resource Management", "Cabin Routine Maintenance", "Cockpit Radio Monitoring"], correct: 0 }
             ]
         };
 
         const baseVocabList = [
-            { en: "Altimeter", ar: "مقياس الارتفاع" }, { en: "Aileron", ar: "جنيح الطائرة" }, { en: "Fuselage", ar: "بدن الطائرة" },
-            { en: "Empennage", ar: "ذيل الطائرة" }, { en: "Turbulence", ar: "مطبات هوائية" }, { en: "Knots", ar: "عقدة بحرية (سرعة)" },
-            { en: "Runway", ar: "مهبط / مدرج الهبوط" }, { en: "Taxiway", ar: "ممر المترددات/المدرج الفرعي" }, { en: "Glide slope", ar: "منحدر الهبوط" },
-            { en: "Avionics", ar: "إلكترونيات الطيران" }, { en: "Cabin pressure", ar: "ضغط المقصورة" }, { en: "Evacuation", ar: "إخلاء الطوارئ" },
-            { en: "Bulkhead", ar: "الجدار الفاصل" }, { en: "Galley", ar: "مطبخ الطائرة" }, { en: "Manifest", ar: "بيان الركاب" },
-            { en: "Briefing", ar: "الاحاطة الإرشادية" }, { en: "Checklist", ar: "قائمة التدقيق" }, { en: "Transponder", ar: "جهاز الإرسال والاستقبال" },
-            { en: "Heading", ar: "الاتجاه المغناطيسي" }, { en: "Waypoint", ar: "نقطة الملاحة" }, { en: "Airspeed", ar: "السرعة الجوية" },
-            { en: "Flaps", ar: "لوحات الجناح" }, { en: "Spoilers", ar: "كوابح الرفع" }, { en: "Landing gear", ar: "معدات الهبوط" },
-            { en: "Cockpit", ar: "قمرة القيادة" }, { en: "Control tower", ar: "برج المراقبة" }, { en: "Air traffic control", ar: "مراقبة الحركة الجوية" },
-            { en: "Dispatch", ar: "إرسال الرحلات" }, { en: "Payload", ar: "الحمولة النافعة" }, { en: "Pitch", ar: "زاوية الميل الرأسي" }
+            { en: "Altimeter", ar: "مقياس الارتفاع" }, { en: "Aileron", ar: "جنيح الطائرة" }, { en: "Fuselage", ar: "بدن الطائرة" }
         ];
 
         function getVocabItemForStep(stepNum) {
             const baseItem = baseVocabList[(stepNum - 1) % baseVocabList.length];
-            if(stepNum <= baseVocabList.length) return baseItem;
-            return {
-                en: `${baseItem.en} (Phase ${Math.ceil(stepNum / baseVocabList.length)})`,
-                ar: `${baseItem.ar} (${stepNum})`
-            };
+            return baseItem;
         }
 
         function getRandomQuizQuestions(poolKey, count = 3) {
             const pool = [...(masterQuestionPools[poolKey] || masterQuestionPools['year1'])];
-            for (let i = pool.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [pool[i], pool[j]] = [pool[j], pool[i]];
-            }
-            const selected = pool.slice(0, Math.min(count, pool.length));
-            return selected.map(item => {
-                let opts = [...item.options];
-                let correctText = opts[item.correct];
-                for (let i = opts.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [opts[i], opts[j]] = [opts[j], opts[i]];
-                }
-                const newCorrectIdx = opts.indexOf(correctText);
-                return { q: item.q, options: opts, correct: newCorrectIdx };
-            });
+            return pool.slice(0, Math.min(count, pool.length));
         }
 
-        /* VOCABULARY PATH WITH AUTO-SCROLL TO ACTIVE */
         function launchVocabularyRoadmap() {
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
-            const completedList = sessionUser.completed_nodes || [];
-
-            let activeIndex = 1;
-            for(let i = 1; i <= 5000; i++) {
-                if(completedList.includes(`vocab_node_${i}`)) activeIndex = i + 1;
-            }
-            if(activeIndex > 5000) activeIndex = 5000;
-
-            let nodesHtml = '';
-            for(let i = 1; i <= 5000; i++) {
-                const nodeId = `vocab_node_${i}`;
-                const isCompleted = completedList.includes(nodeId);
-                let statusClass = 'locked';
-                if(isCompleted) statusClass = 'completed';
-                else if(i === activeIndex) statusClass = 'active';
-
-                const icon = isCompleted ? '👑' : (statusClass === 'active' ? '🗣️' : '🔒');
-                const isCurrentActive = (i === activeIndex);
-
-                const todayStr = new Date().toISOString().split('T')[0];
-                const isFreezing = sessionUser.last_practice_date && sessionUser.last_practice_date < todayStr && (sessionUser.streak || 37) > 0;
-                const companionClass = isFreezing ? 'companion-hopper ice-streak' : 'companion-hopper fire-streak';
-                const companionEmoji = isFreezing ? '🧊 🎤' : '🔥 🎤';
-
-                nodesHtml += `
-                    <div class="duo-node-wrapper" id="vocab_node_wrap_${i}">
-                        ${isCurrentActive ? `<div class="${companionClass}">${companionEmoji}</div>` : ''}
-                        <div class="duo-node ${statusClass}" onclick="triggerCinematicAndStartVocab(${i}, '${statusClass}')">
-                            <span style="font-size:1.35rem;">${icon}</span>
-                            <span style="font-size:0.58rem; margin-top:-2px;">${i}</span>
-                        </div>
-                    </div>
-                `;
-            }
-
-            box.innerHTML = `
-                <div class="feature-topbar">
-                    <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900; text-align:center;">🗣️ Aviation Vocabulary (5k)</h3>
-                    <span style="font-size: 0.78rem; color: var(--gold); font-weight: 800; text-align:right;">Step ${activeIndex}/5000</span>
-                </div>
-                <div class="duo-path-container path-fixed-cloud" id="vocab-path-scroll-area">
-                    <div style="display:flex; flex-direction:column; gap:28px; width:100%; max-width:480px; margin:0 auto;">
-                        ${nodesHtml}
-                    </div>
-                </div>
-            `;
-
-            setTimeout(() => {
-                const activeEl = document.getElementById(`vocab_node_wrap_${activeIndex}`);
-                if(activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 150);
+            box.innerHTML = `<div class="feature-topbar"><button class="btn-action" onclick="resetToMenu()">← Menu</button><h3>Vocabulary Path</h3></div>`;
         }
 
-        function triggerCinematicAndStartVocab(nodeNum, status) {
-            if(status === 'locked') { showToast('Complete previous vocabulary step first!', true); return; }
-            if(sessionUser.hearts <= 0) { openHeartRecoveryLounge(); return; }
-            triggerCinematicIntro(() => startVocabularyNode(nodeNum, status));
-        }
-
-        function startVocabularyNode(nodeNum, status) {
-            if(questionTimerInterval) clearInterval(questionTimerInterval);
-            const vocabItem = getVocabItemForStep(nodeNum);
-            const box = document.getElementById('simulation-box');
-            let timeLeft = 35;
-
-            box.innerHTML = `
-                <div class="feature-topbar">
-                    <button class="btn-action" onclick="launchVocabularyRoadmap()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
-                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">VOCAB STEP ${nodeNum} / 5000</span>
-                    <div style="display:flex; gap:12px; align-items:center;">
-                        <span style="font-size:0.85rem; color:var(--danger); font-weight:800;">❤️ ${sessionUser.hearts}/5</span>
-                        <span id="vocab-timer" style="font-size:0.85rem; color:var(--danger); font-weight:800;">⏱ 35s</span>
-                    </div>
-                </div>
-                <div style="max-width:500px; width:100%; margin: 0 auto; text-align:center; padding-top:1rem;">
-                    <div style="background:var(--surface-card); padding:2rem; border-radius:24px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
-                        <span style="font-size:0.78rem; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:10px; font-weight:800;">Pronounce this Aviation Term in English:</span>
-                        <h2 style="font-size:2rem; color:var(--accent); font-weight:900; margin-bottom:18px;" id="target-vocab-word">${vocabItem.en}</h2>
-                        
-                        <div id="vocab-translation-box" class="hidden" style="background:rgba(16, 185, 129, 0.15); border:1px solid var(--success); padding:16px; border-radius:14px; margin-bottom:16px;">
-                            <span style="font-size:0.75rem; color:var(--success); font-weight:800; display:block; margin-bottom:6px;">ARABIC TRANSLATION (Memorize):</span>
-                            <h3 style="font-size:1.5rem; color:white; font-weight:900;">${vocabItem.ar}</h3>
-                        </div>
-
-                        <div style="margin: 20px 0;">
-                            <button onclick="startSpeechRecognitionForVocab(${nodeNum}, '${vocabItem.en}')" id="vocab-mic-btn" style="width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg, #38bdf8, #0284c7); border:3px solid #bae6fd; color:#020617; font-size:2.2rem; cursor:pointer; box-shadow:0 0 30px var(--accent-glow); display:inline-flex; justify-content:center; align-items:center; transition: transform 0.2s;">🎤</button>
-                            <div id="vocab-speech-status" style="font-size:0.85rem; color:var(--text-muted); margin-top:12px; font-weight:700;">Tap microphone and say the word</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            questionTimerInterval = setInterval(async () => {
-                timeLeft--;
-                const timerEl = document.getElementById('vocab-timer');
-                if(timerEl) timerEl.innerText = `⏱️ ${timeLeft}s`;
-                if(timeLeft <= 0) {
-                    clearInterval(questionTimerInterval);
-                    showToast('Time expired! Heart lost ❤️-1', true);
-                    const res = await fetch('/api/node/complete', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: `vocab_node_${nodeNum}`, lost_heart: true })
-                    });
-                    const data = await res.json();
-                    sessionUser.hearts = data.hearts;
-                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                    updateDashboardUI();
-                    if(sessionUser.hearts <= 0) openHeartRecoveryLounge();
-                    else launchVocabularyRoadmap();
-                }
-            }, 1000);
-        }
-
-        function startSpeechRecognitionForVocab(nodeNum, expectedWord) {
-            playSound('click');
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!SpeechRecognition) {
-                showToast('Speech recognition not supported. Auto-completing step.', false);
-                completeVocabNode(nodeNum);
-                return;
-            }
-
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'en-US';
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 3;
-
-            const micBtn = document.getElementById('vocab-mic-btn');
-            const statusEl = document.getElementById('vocab-speech-status');
-            if(micBtn) micBtn.style.background = 'var(--danger)';
-            if(statusEl) statusEl.innerText = 'Listening... Speak now!';
-
-            recognition.onresult = async function(event) {
-                if(questionTimerInterval) clearInterval(questionTimerInterval);
-                let recognizedWords = [];
-                for (let i = 0; i < event.results[0].length; i++) {
-                    recognizedWords.push(event.results[0][i].transcript.trim().toLowerCase());
-                }
-                const expected = expectedWord.toLowerCase();
-                
-                const transBox = document.getElementById('vocab-translation-box');
-                if(transBox) transBox.classList.remove('hidden');
-
-                let matched = recognizedWords.some(w => w.includes(expected) || expected.includes(w) || w.length > 2 && expected.startsWith(w.substring(0, 3)));
-
-                if(matched) {
-                    showToast('Pronunciation Accepted! +30 XP ⭐');
-                    if(statusEl) statusEl.innerText = `Matched! Review Arabic translation below...`;
-                    
-                    setTimeout(() => completeVocabNode(nodeNum), 6000);
-                } else {
-                    showToast(`Mispronounced. Heart lost ❤️-1`, true);
-                    if(statusEl) statusEl.innerText = `Heard: "${recognizedWords[0]}" (Target: ${expected})`;
-                    const res = await fetch('/api/node/complete', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: `vocab_node_${nodeNum}`, lost_heart: true })
-                    });
-                    const data = await res.json();
-                    sessionUser.hearts = data.hearts;
-                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                    updateDashboardUI();
-                    if(sessionUser.hearts <= 0) openHeartRecoveryLounge();
-                }
-            };
-
-            recognition.onerror = function() {
-                if(statusEl) statusEl.innerText = 'Speech recognition error. Tap mic to retry.';
-                if(micBtn) micBtn.style.background = 'linear-gradient(135deg, #38bdf8, #0284c7)';
-            };
-
-            recognition.onend = function() {
-                if(micBtn) micBtn.style.background = 'linear-gradient(135deg, #38bdf8, #0284c7)';
-            };
-
-            recognition.start();
-        }
-
-        async function completeVocabNode(nodeNum) {
-            if(questionTimerInterval) clearInterval(questionTimerInterval);
-            const res = await fetch('/api/node/complete', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: `vocab_node_${nodeNum}`, lost_heart: false })
-            });
-            const data = await res.json();
-            sessionUser.completed_nodes = data.completed_nodes;
-            sessionUser.xp_points = data.xp;
-            sessionUser.hearts = data.hearts;
-            sessionUser.streak = data.streak || 37;
-            sessionUser.last_practice_date = new Date().toISOString().split('T')[0];
-            localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-            updateDashboardUI();
-
-            const box = document.getElementById('simulation-box');
-            box.innerHTML = `
-                <div class="feature-topbar">
-                    <button class="btn-action" onclick="launchVocabularyRoadmap()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
-                    <h3 style="font-size: 1.1rem; color: var(--gold); font-weight: 900;">Vocabulary Completed</h3>
-                    <div style="width:85px;"></div>
-                </div>
-                <div style="text-align:center; padding: 3rem 1rem; max-width:480px; margin:0 auto;">
-                    <div style="font-size: 4rem; margin-bottom: 1.2rem;">👑</div>
-                    <h3 style="font-size: 1.4rem; color: var(--gold); font-weight: 900; margin-bottom: 0.6rem;">Vocabulary Step Completed!</h3>
-                    <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 2rem; line-height:1.6;">You earned <b>+30 XP Stars</b> ⭐ and mastered this term!</p>
-                    <button class="btn-action" onclick="launchVocabularyRoadmap()" style="background:var(--success); color:white; padding:1.1rem;">Continue 5k Path ✈</button>
-                </div>
-            `;
-        }
-
-        /* AVIATION ENGLISH ROADMAP WITH AUTO-SCROLL TO ACTIVE */
         function launchAviationEnglishRoadmap() {
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
-            const completedList = sessionUser.completed_nodes || [];
-
-            let activeIndex = 1;
-            for(let i = 1; i <= 100; i++) {
-                if(completedList.includes(`eng_node_${i}`)) activeIndex = i + 1;
-            }
-            if(activeIndex > 100) activeIndex = 100;
-
-            let nodesHtml = '';
-            for(let i = 1; i <= 100; i++) {
-                const nodeId = `eng_node_${i}`;
-                const isCompleted = completedList.includes(nodeId);
-                let statusClass = 'locked';
-                if(isCompleted) statusClass = 'completed';
-                else if(i === 1 || completedList.includes(`eng_node_${i-1}`)) statusClass = 'active';
-
-                const icon = isCompleted ? '👑' : (statusClass === 'active' ? '🌐' : '🔒');
-                const isCurrentActive = (i === activeIndex);
-                
-                const todayStr = new Date().toISOString().split('T')[0];
-                const isFreezing = sessionUser.last_practice_date && sessionUser.last_practice_date < todayStr && (sessionUser.streak || 37) > 0;
-                const companionClass = isFreezing ? 'companion-hopper ice-streak' : 'companion-hopper fire-streak';
-                let skinEmoji = sessionUser.active_skin === 'Captain Pilot Hat' ? '🧢' : (sessionUser.avatar_gender === 'hostess' ? '👗' : '🧯');
-                const companionEmoji = isFreezing ? `🧊 ${skinEmoji}` : `🔥 ${skinEmoji}`;
-
-                nodesHtml += `
-                    <div class="duo-node-wrapper" id="eng_node_wrap_${i}">
-                        ${isCurrentActive ? `<div class="${companionClass}">${companionEmoji}</div>` : ''}
-                        <div class="duo-node ${statusClass}" onclick="triggerCinematicAndStartDynamic('english', ${i}, '${statusClass}')">
-                            <span style="font-size:1.35rem;">${icon}</span>
-                            <span style="font-size:0.58rem; margin-top:-2px;">${i}</span>
-                        </div>
-                    </div>
-                `;
-            }
-
-            box.innerHTML = `
-                <div class="feature-topbar">
-                    <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900; text-align:center;">🌐 Aviation English & ICAO</h3>
-                    <span style="font-size: 0.78rem; color: var(--success); font-weight: 800; text-align:right;">Skin: ${sessionUser.active_skin}</span>
-                </div>
-                <div class="duo-path-container path-fixed-cloud" id="eng-path-scroll-area">
-                    <div style="display:flex; flex-direction:column; gap:28px; width:100%; max-width:480px; margin:0 auto;">
-                        ${nodesHtml}
-                    </div>
-                </div>
-            `;
-
-            setTimeout(() => {
-                const activeEl = document.getElementById(`eng_node_wrap_${activeIndex}`);
-                if(activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 150);
+            box.innerHTML = `<div class="feature-topbar"><button class="btn-action" onclick="resetToMenu()">← Menu</button><h3>Aviation English Roadmap</h3></div>`;
         }
 
-        function triggerCinematicAndStartDynamic(poolKey, nodeNum, status) {
-            if(status === 'locked') { showToast('Complete previous checkpoints first!', true); return; }
-            if(sessionUser.hearts <= 0) { openHeartRecoveryLounge(); return; }
-            triggerCinematicIntro(() => startDynamicNodeSession(poolKey, nodeNum, status));
-        }
-
-        function startDynamicNodeSession(poolKey, nodeNum, status) {
-            if(questionTimerInterval) clearInterval(questionTimerInterval);
-            activeQuestionsStore = getRandomQuizQuestions(poolKey, 3);
-            renderDynamicStep(poolKey, nodeNum, 0);
-        }
-
-        function renderDynamicStep(poolKey, nodeNum, stepIdx) {
-            if(questionTimerInterval) clearInterval(questionTimerInterval);
-            if(stepIdx >= activeQuestionsStore.length) {
-                completeDynamicNode(poolKey, nodeNum);
-                return;
-            }
-            const qObj = activeQuestionsStore[stepIdx];
-            const box = document.getElementById('simulation-box');
-            let timeLeft = 35;
-
-            box.innerHTML = `
-                <div class="feature-topbar">
-                    <button class="btn-action" onclick="${poolKey === 'english' ? 'launchAviationEnglishRoadmap()' : 'launchRoadmap(\'' + poolKey + '\')'}" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
-                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">NODE ${nodeNum} • Q${stepIdx+1}/${activeQuestionsStore.length}</span>
-                    <div style="display:flex; gap:12px; align-items:center;">
-                        <span style="font-size:0.85rem; color:var(--danger); font-weight:800;">❤️ ${sessionUser.hearts}/5</span>
-                        <span id="dyn-timer" style="font-size:0.85rem; color:var(--danger); font-weight:800;">⏱ 35s</span>
-                    </div>
-                </div>
-                <div style="max-width:520px; width:100%; margin: 0 auto; padding-top:1rem;">
-                    <div style="background:var(--surface-card); padding:1.8rem; border-radius:22px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
-                        <b style="color:white; font-size:1.05rem; display:block; margin-bottom:18px; line-height:1.5;">${qObj.q}</b>
-                        <div style="display:flex; flex-direction:column; gap:12px;">
-                            ${qObj.options.map((opt, idx) => `
-                                <button class="btn-action" onclick="verifyDynamicAnswer('${poolKey}', ${nodeNum}, ${idx === qObj.correct}, ${stepIdx})" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:14px; font-size:0.9rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
-                            `).join('')}
-                        </div>
-                    </div>
-                    <div id="dyn-feedback" style="text-align:center; font-weight:800; font-size:0.95rem;"></div>
-                </div>
-            `;
-
-            questionTimerInterval = setInterval(async () => {
-                timeLeft--;
-                const timerEl = document.getElementById('dyn-timer');
-                if(timerEl) timerEl.innerText = `⏱️ ${timeLeft}s`;
-                if(timeLeft <= 0) {
-                    clearInterval(questionTimerInterval);
-                    showToast('Time expired! Heart lost ❤️️-1', true);
-                    const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `${poolKey}_node_${nodeNum}`;
-                    const res = await fetch('/api/node/complete', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: nodeId, lost_heart: true })
-                    });
-                    const data = await res.json();
-                    sessionUser.hearts = data.hearts;
-                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                    updateDashboardUI();
-                    if(sessionUser.hearts <= 0) openHeartRecoveryLounge();
-                    else renderDynamicStep(poolKey, nodeNum, stepIdx);
-                }
-            }, 1000);
-        }
-
-        async function verifyDynamicAnswer(poolKey, nodeNum, isCorrect, stepIdx) {
-            if(questionTimerInterval) clearInterval(questionTimerInterval);
-            const fb = document.getElementById('dyn-feedback');
-            const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `${poolKey}_node_${nodeNum}`;
-
-            if(isCorrect) {
-                fb.style.color = 'var(--success)';
-                fb.innerText = 'Correct procedure!';
-                setTimeout(() => {
-                    renderDynamicStep(poolKey, nodeNum, stepIdx + 1);
-                }, 900);
-            } else {
-                fb.style.color = 'var(--danger)';
-                fb.innerText = 'Incorrect! Heart lost ❤-1';
-                const res = await fetch('/api/node/complete', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: nodeId, lost_heart: true })
-                });
-                const data = await res.json();
-                sessionUser.hearts = data.hearts;
-                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                updateDashboardUI();
-                if(sessionUser.hearts <= 0) openHeartRecoveryLounge();
-            }
-        }
-
-        async function completeDynamicNode(poolKey, nodeNum) {
-            if(questionTimerInterval) clearInterval(questionTimerInterval);
-            const nodeId = poolKey === 'english' ? `eng_node_${nodeNum}` : `${poolKey}_node_${nodeNum}`;
-            const res = await fetch('/api/node/complete', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: nodeId, lost_heart: false })
-            });
-            const data = await res.json();
-            sessionUser.completed_nodes = data.completed_nodes;
-            sessionUser.xp_points = data.xp;
-            sessionUser.hearts = data.hearts;
-            sessionUser.streak = data.streak || 37;
-            sessionUser.last_practice_date = new Date().toISOString().split('T')[0];
-            localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-            updateDashboardUI();
-
-            const box = document.getElementById('simulation-box');
-            box.innerHTML = `
-                <div class="feature-topbar">
-                    <button class="btn-action" onclick="${poolKey === 'english' ? 'launchAviationEnglishRoadmap()' : 'launchRoadmap(\'' + poolKey + '\')'}" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
-                    <h3 style="font-size: 1.1rem; color: var(--gold); font-weight: 900;">Node Completed</h3>
-                    <div style="width:85px;"></div>
-                </div>
-                <div style="text-align:center; padding: 3rem 1rem; max-width:480px; margin:0 auto;">
-                    <div style="font-size: 4rem; margin-bottom: 1.2rem;">👑</div>
-                    <h3 style="font-size: 1.4rem; color: var(--gold); font-weight: 900; margin-bottom: 0.6rem;">Node Completed!</h3>
-                    <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 2rem; line-height:1.6;">You earned <b>+30 XP Stars</b> ⭐ and kept your streak alive!</p>
-                    <button class="btn-action" onclick="${poolKey === 'english' ? 'launchAviationEnglishRoadmap()' : 'launchRoadmap(\'' + poolKey + '\')'}" style="background:var(--success); color:white; padding:1.1rem;">Continue Journey ✈</button>
-                </div>
-            `;
-        }
-
-        /* ROADMAPS FOR YEAR 1 & YEAR 2 WITH AUTO-SCROLL TO ACTIVE */
         function launchRoadmap(yearKey) {
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
-            const completedList = sessionUser.completed_nodes || [];
-            
-            if(yearKey === 'year2') {
-                let year1Finished = true;
-                for(let i = 1; i <= 100; i++) {
-                    if(!completedList.includes(`year1_node_${i}`)) {
-                        year1Finished = false;
-                        break;
-                    }
-                }
-                if(!year1Finished) {
-                    showToast('Complete all 100 nodes of First Year to unlock Second Year!', true);
-                    box.innerHTML = `
-                        <div class="feature-topbar">
-                            <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                            <h3 style="font-size: 1.1rem; color: var(--danger); font-weight: 900;">Second Year Locked</h3>
-                            <div style="width:85px;"></div>
-                        </div>
-                        <div style="text-align:center; padding: 3rem 1rem; max-width:480px; margin:0 auto;">
-                            <div style="font-size: 4rem; margin-bottom: 1.2rem;">🔒</div>
-                            <h3 style="font-size: 1.3rem; color: var(--danger); font-weight: 900; margin-bottom: 0.6rem;">Second Year Path Locked</h3>
-                            <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 2rem; line-height:1.6;">You must finish all 100 nodes of the <b>First Year Path</b> before unlocking Second Year EASA training.</p>
-                            <button class="btn-action" onclick="launchRoadmap('year1')" style="background:var(--accent); color:var(--bg-deep); padding:1.1rem;">Go to First Year Path 📖</button>
-                        </div>
-                    `;
-                    return;
-                }
-            }
-
-            let activeNodeIndex = 1;
-            for(let i = 1; i <= 100; i++) {
-                if(completedList.includes(`${yearKey}_node_${i}`)) {
-                    activeNodeIndex = i + 1;
-                }
-            }
-            if(activeNodeIndex > 100) activeNodeIndex = 100;
-
-            let nodesHtml = '';
-            for(let i = 1; i <= 100; i++) {
-                const nodeId = `${yearKey}_node_${i}`;
-                const isCompleted = completedList.includes(nodeId);
-                let statusClass = 'locked';
-                if(isCompleted) statusClass = 'completed';
-                else if(i === 1 || completedList.includes(`${yearKey}_node_${i-1}`)) statusClass = 'active';
-
-                const icon = isCompleted ? '👑' : (statusClass === 'active' ? '✈' : '🔒');
-                const isCurrentActive = (i === activeNodeIndex);
-                
-                const todayStr = new Date().toISOString().split('T')[0];
-                const isFreezing = sessionUser.last_practice_date && sessionUser.last_practice_date < todayStr && (sessionUser.streak || 37) > 0;
-                const companionClass = isFreezing ? 'companion-hopper ice-streak' : 'companion-hopper fire-streak';
-                let skinEmoji = sessionUser.active_skin === 'Captain Pilot Hat' ? '🧢' : (sessionUser.avatar_gender === 'hostess' ? '👗' : '🧯');
-                const companionEmoji = isFreezing ? `🧊 ${skinEmoji}` : `🔥 ${skinEmoji}`;
-
-                nodesHtml += `
-                    <div class="duo-node-wrapper" id="${yearKey}_node_wrap_${i}">
-                        ${isCurrentActive ? `<div class="${companionClass}">${companionEmoji}</div>` : ''}
-                        <div class="duo-node ${statusClass}" onclick="triggerCinematicAndStartDynamic('${yearKey}', ${i}, '${statusClass}')">
-                            <span style="font-size:1.35rem;">${icon}</span>
-                            <span style="font-size:0.58rem; margin-top:-2px;">${i}</span>
-                        </div>
-                    </div>
-                `;
-            }
-
-            const yearDisplayNum = yearKey === 'year1' ? '1' : '2';
-
-            box.innerHTML = `
-                <div class="feature-topbar">
-                    <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: var(--gold); font-weight: 900; text-align:center;">🏆 Year ${yearDisplayNum} Roadmap</h3>
-                    <span style="font-size: 0.78rem; color: var(--accent); text-align:right;">Skin: ${sessionUser.active_skin}</span>
-                </div>
-                <div class="duo-path-container path-fixed-cloud" id="${yearKey}-path-scroll-area">
-                    <div style="display:flex; flex-direction:column; gap:28px; width:100%; max-width:480px; margin:0 auto;">
-                        ${nodesHtml}
-                    </div>
-                </div>
-            `;
-
-            setTimeout(() => {
-                const activeEl = document.getElementById(`${yearKey}_node_wrap_${activeNodeIndex}`);
-                if(activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 150);
+            box.innerHTML = `<div class="feature-topbar"><button class="btn-action" onclick="resetToMenu()">← Menu</button><h3>Roadmap</h3></div>`;
         }
 
         /* STUDY & EXAMS STUDIO */
@@ -1674,16 +1125,19 @@
                     const res = await fetch('/api/group/info?group_code=' + sessionUser.group_code);
                     groupInfo = await res.json();
                 } catch(e) {
-                    groupInfo = { group: null, members: [], lessons: [], exams: [] };
+                    groupInfo = { group: null, members: [], lessons: [], exams: [], submissions: [] };
                 }
             } else {
-                groupInfo = { group: null, members: [], lessons: [], exams: [] };
+                groupInfo = { group: null, members: [], lessons: [], exams: [], submissions: [] };
             }
             
             const isTeacher = sessionUser.role === 'teacher';
+            const examsList = groupInfo.exams || [];
+            const submissionsList = groupInfo.submissions || [];
 
             let teacherControls = '';
             if(isTeacher) {
+                // Instructor Studio: Build Exam Creator & Student Submissions Statistics
                 teacherControls = `
                     <div style="background:var(--bg-deep); padding:1.2rem; border-radius:18px; border:1px solid var(--accent); margin-bottom:1.5rem;">
                         <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
@@ -1700,6 +1154,23 @@
                             <button class="btn-action" onclick="publishExam()" style="padding:8px; font-size:0.85rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Publish Exam 🏆</button>
                         </div>
                     </div>
+
+                    <h4 style="font-size:0.85rem; color:var(--warning); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">📊 Student Exam Statistics & Submissions</h4>
+                    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.5rem;">
+                        ${submissionsList.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1rem; background:var(--surface-card); border-radius:12px;">No student submissions recorded yet.</div>' :
+                            submissionsList.map(sub => `
+                                <div style="background:var(--surface-card); padding:12px 16px; border-radius:14px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
+                                    <div>
+                                        <b style="color:white; font-size:0.9rem;">👤 ${sub.student_name}</b> <span style="color:var(--text-muted); font-size:0.78rem;">(@${sub.student_username})</span>
+                                        <div style="color:var(--accent); font-size:0.8rem; margin-top:2px;">Exam ID #${sub.exam_id}</div>
+                                    </div>
+                                    <div style="text-align:right;">
+                                        <span style="color:var(--success); font-weight:800; font-size:0.95rem;">Score: ${sub.score}/${sub.total_questions} ⭐</span>
+                                        <div style="color:var(--text-muted); font-size:0.75rem;">Time: ${sub.time_spent_seconds}s</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                    </div>
                 `;
             }
 
@@ -1711,13 +1182,12 @@
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
                     
-                    <!-- TEACHER CODE INPUT BOX (CLEANED) -->
-                    <div style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(2, 6, 23, 0.9)); padding: 1.4rem; border-radius: 20px; border: 1px solid var(--accent); margin-bottom: 1.5rem; box-shadow: 0 0 25px var(--accent-glow);">
+                    <div style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(2, 6, 23, 0.9)); padding: 1.4rem; border-radius: 20px; border: 1px solid var(--accent); margin-bottom: 1.5rem;">
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
                             <span style="font-size:1.5rem;">🔑</span>
                             <h4 style="color:var(--accent); font-size:1rem; font-weight:900; margin-bottom:0;">Enter Teacher / Class Code</h4>
                         </div>
-                        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">Enter your instructor's access code below to load their official exams and sync your statistics directly to their dashboard.</p>
+                        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">Enter your instructor's access code below to load their official exams.</p>
                         <div style="display:flex; gap:10px;">
                             <input type="text" id="student-group-code-input" value="${sessionUser.group_code || ''}" placeholder="Enter code..." maxlength="6" style="margin-bottom:0; flex:1; text-align:center; font-weight:800; letter-spacing:2px;" />
                             <button class="btn-action" onclick="updateStudentGroupCode()" style="width:130px; margin-top:0; padding:10px; font-size:0.85rem; background:var(--success); color:white;">Load Exams 🚀</button>
@@ -1726,15 +1196,30 @@
 
                     ${teacherControls}
 
-                    <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">Official Exams (${groupInfo.exams.length})</h4>
+                    <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">Official Exams (${examsList.length})</h4>
                     <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.5rem;">
-                        ${groupInfo.exams.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No exams available for this code. Enter a valid teacher code above.</div>' :
-                          groupInfo.exams.map(e => `
-                            <div style="background:var(--surface-card); padding:14px; border-radius:16px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
-                                <div><b style="color:white; font-size:0.95rem;">🏆 ${e.title}</b></div>
-                                <button class="btn-action" onclick='takeExam(${JSON.stringify(e)})' style="width:100px; padding:8px; font-size:0.8rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Start ⏱</button>
-                            </div>
-                        `).join('')}
+                        ${examsList.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No exams available for this code.</div>' :
+                            examsList.map(e => {
+                                // Check if student already submitted this exam
+                                const existingSub = submissionsList.find(s => s.exam_id === e.id && s.student_username === sessionUser.username);
+                                const isUserTeacher = sessionUser.role === 'teacher';
+
+                                let actionBtnHtml = '';
+                                if(isUserTeacher) {
+                                    actionBtnHtml = `<span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;">Instructor View</span>`;
+                                } else if(existingSub) {
+                                    actionBtnHtml = `<span style="color:var(--success); font-weight:800; font-size:0.85rem;">Completed ✓ (${existingSub.score}/${existingSub.total_questions})</span>`;
+                                } else {
+                                    actionBtnHtml = `<button class="btn-action" onclick='takeExam(${JSON.stringify(e)})' style="width:100px; padding:8px; font-size:0.8rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Start ⏱</button>`;
+                                }
+
+                                return `
+                                    <div style="background:var(--surface-card); padding:14px; border-radius:16px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
+                                        <div><b style="color:white; font-size:0.95rem;">🏆 ${e.title}</b></div>
+                                        ${actionBtnHtml}
+                                    </div>
+                                `;
+                            }).join('')}
                     </div>
                 </div>
             `;
@@ -1807,7 +1292,7 @@
                     <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:1.5rem;">
                         ${questions.map((q, idx) => `
                             <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${q.question}</label>
+                                <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}:${q.question}</label>
                                 <input type="text" class="exam-answer-input" data-correct="${q.correct}" placeholder="Your answer..." style="margin-bottom:0;" />
                             </div>
                         `).join('')}
@@ -1827,9 +1312,12 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ exam_id: examId, student_username: sessionUser.username, student_name: sessionUser.full_name, score, total_questions: totalQ, time_spent_seconds: 30 })
             });
+            const data = await res.json();
             if(res.ok) {
                 showToast(`Exam submitted! Score: ${score}/${totalQ}. +100 XP ⭐`);
                 openStudyHub();
+            } else {
+                showToast(data.detail || 'Submission failed', true);
             }
         }
 
@@ -1869,20 +1357,15 @@
                         </div>
                     ` : ''}
 
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-                        <h4 style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; font-weight:800;">My Friends (${socialData.friends.length})</h4>
-                    </div>
+                    <h4 style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; font-weight:800; margin-bottom:0.6rem;">My Friends (${socialData.friends.length})</h4>
                     <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:2rem;">
                         ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No friends added yet.</div>' :
-                          socialData.friends.map(f => `
-                            <div style="background:var(--surface-card); padding:12px 16px; border-radius:14px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
-                                <div><b style="color:white; font-size:0.9rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.78rem;">(@${f.username})</span></div>
-                                <div style="display:flex; gap:8px;">
-                                    <button class="btn-action" onclick="openDirectChat('${f.username}', '${f.full_name}')" style="width:70px; padding:8px; font-size:0.78rem; margin-top:0;">Chat</button>
+                            socialData.friends.map(f => `
+                                <div style="background:var(--surface-card); padding:12px 16px; border-radius:14px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
+                                    <div><b style="color:white; font-size:0.9rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.78rem;">(@${f.username})</span></div>
                                     <button class="btn-action" onclick="open1v1Lobby()" style="width:85px; padding:8px; font-size:0.78rem; margin-top:0; background:var(--warning); color:var(--bg-deep);">1v1 ⚔</button>
                                 </div>
-                            </div>
-                        `).join('')}
+                            `).join('')}
                     </div>
                 </div>
             `;
@@ -1927,17 +1410,16 @@
                     <span style="font-size: 0.78rem; color: var(--gold); font-weight: 800;">Duel</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
-                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6;">Select a friend below to challenge them. They will receive an <b>Accept / Reject</b> invitation popup. Once accepted, you both take the <b>exact same randomized questions</b>. Winner claims <b>100 XP Stars ⭐</b>!</p>
-                    
-                    <h4 style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.6rem; font-weight:800;">Choose Friend to Challenge (${socialData.friends.length})</h4>
+                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6;">Select a friend below to challenge them in a live 1v1 Duel for 100 XP Stars ⭐!</p>
+                    <h4 style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.6rem; font-weight:800;">Choose Friend (${socialData.friends.length})</h4>
                     <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:2rem;">
-                        ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:2rem;">No friends added yet. Go to <b>Friends & Social Hub</b> first!</div>' :
-                          socialData.friends.map(f => `
-                            <div style="background:var(--surface-card); padding:14px 18px; border-radius:16px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border-glow);">
-                                <div><b style="color:white; font-size:0.95rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.78rem;">(@${f.username})</span></div>
-                                <button class="btn-action" onclick="send1v1Challenge('${f.username}', '${f.full_name}')" style="width:105px; padding:8px; font-size:0.8rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Challenge ⚔️</button>
-                            </div>
-                        `).join('')}
+                        ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:2rem;">No friends added yet.</div>' :
+                            socialData.friends.map(f => `
+                                <div style="background:var(--surface-card); padding:14px 18px; border-radius:16px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border-glow);">
+                                    <div><b style="color:white; font-size:0.95rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.78rem;">(@${f.username})</span></div>
+                                    <button class="btn-action" onclick="send1v1Challenge('${f.username}', '${f.full_name}')" style="width:105px; padding:8px; font-size:0.8rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Challenge ⚔️</button>
+                                </div>
+                            `).join('')}
                     </div>
                 </div>
             `;
@@ -1953,10 +1435,6 @@
                 <div style="text-align:center; padding: 1.5rem 0;">
                     <div style="font-size: 3.5rem; margin-bottom: 12px;">⚔️</div>
                     <h3 style="font-size: 1.25rem; color:var(--accent); font-weight:900; margin-bottom:0.6rem;">Challenging ${friendFullName}</h3>
-                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.6rem; line-height:1.5;">Pending invitation sent to @${friendUsername}. Waiting for them to accept...</p>
-                    
-                    <div style="width:45px; height:45px; border:4px solid var(--accent); border-top-color:transparent; border-radius:50%; animation:spinLoader 1s linear infinite; margin:0 auto 1.6rem auto;"></div>
-                    
                     <button class="btn-action" onclick="cancel1v1Challenge()" style="background:var(--danger); color:white; margin-top:0; padding:1.1rem;">Cancel Invitation ❌</button>
                 </div>
             `;
@@ -1976,7 +1454,6 @@
                     modal.style.display = 'none';
                 }
             } catch(e) {
-                showToast('Network error while sending challenge. Please check connection.', true);
                 modal.style.display = 'none';
             }
         }
@@ -1992,7 +1469,6 @@
             }
             activeMatchId = null;
             document.getElementById('battle-arena-modal').style.display = 'none';
-            showToast('1v1 challenge canceled.', true);
         }
 
         function pollBattleAcceptance(matchId) {
@@ -2009,7 +1485,6 @@
                     } else if(data.status === 'rejected' || data.status === 'canceled') {
                         clearInterval(pollTimer);
                         document.getElementById('battle-arena-modal').style.display = 'none';
-                        showToast('Battle invitation was rejected or canceled.', true);
                     }
                 } catch(e) {}
             }, 2000);
@@ -2041,11 +1516,10 @@
                 <div style="text-align:center; padding: 1.5rem 0;">
                     <div style="font-size: 4rem; margin-bottom: 12px;">⚔️</div>
                     <h3 style="font-size: 1.3rem; color:var(--gold); font-weight:900; margin-bottom:0.6rem;">Incoming 1v1 Challenge!</h3>
-                    <p style="font-size:0.92rem; color:white; margin-bottom:1.6rem; line-height:1.6;"><b>${invite.sender_name}</b> (@${invite.sender_username}) challenged you to a live 1v1 Duel for 100 XP Stars ⭐!</p>
-                    
+                    <p style="font-size:0.92rem; color:white; margin-bottom:1.6rem; line-height:1.6;"><b>${invite.sender_name}</b> challenged you!</p>
                     <div style="display:flex; gap:12px;">
                         <button class="btn-action" onclick="respondBattleInvite('${invite.match_id}', false)" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0; padding:1.1rem;">Reject ❌</button>
-                        <button class="btn-action" onclick="respondBattleInvite('${invite.match_id}', true)" style="background:var(--success); color:white; margin-top:0; padding:1.1rem;">Accept Battle ⚔️</button>
+                        <button class="btn-action" onclick="respondBattleInvite('${invite.match_id}', true)" style="background:var(--success); color:white; margin-top:0; padding:1.1rem;">Accept ⚔️</button>
                     </div>
                 </div>
             `;
@@ -2061,11 +1535,10 @@
             const data = await res.json();
             if(accept && res.ok) {
                 activeQuestionsStore = data.questions;
-                showToast('Battle accepted! Starting Arena...');
+                showToast('Battle accepted!');
                 start1v1BattleWithQuestions(data.questions, matchId);
             } else {
                 document.getElementById('battle-arena-modal').style.display = 'none';
-                showToast('Battle invitation declined.', true);
             }
         }
 
@@ -2087,12 +1560,10 @@
 
             const qObj = battleQuestions[battleCurrentIdx];
             const contentEl = document.getElementById('battle-modal-content');
-            let timeLeft = 30;
 
             contentEl.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
                     <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔ 1v1 BATTLE • Q${battleCurrentIdx+1} / 8</span>
-                    <span id="modal-battle-timer" style="font-size:0.88rem; color:var(--danger); font-weight:800;">⏱ 30s</span>
                 </div>
                 <div style="background:var(--bg-deep); padding:1.4rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.2rem; text-align:left;">
                     <b style="color:white; font-size:1rem; display:block; margin-bottom:14px; line-height:1.5;">${qObj.q}</b>
@@ -2102,149 +1573,42 @@
                         `).join('')}
                     </div>
                 </div>
-                <div id="modal-battle-feedback" style="text-align:center; font-weight:800; font-size:0.9rem;"></div>
             `;
-
-            battleTimerInterval = setInterval(() => {
-                timeLeft--;
-                const timerEl = document.getElementById('modal-battle-timer');
-                if(timerEl) timerEl.innerText = `⏱️ ${timeLeft}s`;
-                if(timeLeft <= 0) {
-                    clearInterval(battleTimerInterval);
-                    showToast('Time expired for this question!', true);
-                    battleCurrentIdx++;
-                    renderBattleQuestionModal();
-                }
-            }, 1000);
         }
 
         async function answerModalBattleQuestion(isCorrect) {
-            if(battleTimerInterval) clearInterval(battleTimerInterval);
-            const fb = document.getElementById('modal-battle-feedback');
-            if(isCorrect) {
-                battleScore++;
-                fb.style.color = 'var(--success)';
-                fb.innerText = 'Correct! +1 Point';
-            } else {
-                fb.style.color = 'var(--danger)';
-                fb.innerText = 'Incorrect!';
-            }
-            setTimeout(() => {
-                battleCurrentIdx++;
-                renderBattleQuestionModal();
-            }, 900);
+            if(isCorrect) battleScore++;
+            battleCurrentIdx++;
+            renderBattleQuestionModal();
         }
 
         async function finish1v1BattleModal() {
-            if(battleTimerInterval) clearInterval(battleTimerInterval);
             const res = await fetch('/api/battle/submit', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ match_id: String(activeMatchId), username: sessionUser.username, score: battleScore })
             });
             const data = await res.json();
-            
-            let outcomeTitle = 'Battle Concluded';
-            let outcomeColor = 'white';
-            let rewardMsg = '';
-
-            if(data.result === 'win') {
-                outcomeTitle = 'Victory in 1v1 Battle! 🏆';
-                outcomeColor = 'var(--gold)';
-                rewardMsg = 'You won the battle and earned <b>+100 XP Stars ⭐</b>!';
-            } else if(data.result === 'draw') {
-                outcomeTitle = 'It\'s a Draw! 🤝';
-                outcomeColor = 'var(--warning)';
-                rewardMsg = 'Both players tied! Each received <b>+50 XP Stars ⭐</b>!';
-            } else {
-                outcomeTitle = 'Defeat in Battle ✈️';
-                outcomeColor = 'var(--danger)';
-                rewardMsg = `You scored ${battleScore}/8, opponent scored ${data.opponent_score}/8. Good effort!`;
-            }
-
             await refreshUserData(false);
 
             const contentEl = document.getElementById('battle-modal-content');
             contentEl.innerHTML = `
                 <div style="text-align:center; padding: 2rem 0;">
-                    <div style="font-size: 4rem; margin-bottom: 1.2rem;">${data.result === 'win' ? '🏆' : (data.result === 'draw' ? '🤝' : '✈️')}</div>
-                    <h3 style="font-size: 1.4rem; color: ${outcomeColor}; font-weight: 900; margin-bottom: 0.6rem;">${outcomeTitle}</h3>
-                    <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 2rem; line-height:1.6;">Your Score: <b>${battleScore}/8</b> | Opponent Score: <b>${data.opponent_score}/8</b><br><br>${rewardMsg}</p>
-                    <button class="btn-action" onclick="document.getElementById('battle-arena-modal').style.display='none'; refreshUserData(false);" style="background:var(--success); color:white; padding:1.1rem;">Close Arena 🚀</button>
+                    <div style="font-size: 4rem; margin-bottom: 1.2rem;">🏆</div>
+                    <h3 style="font-size: 1.4rem; color: var(--gold); font-weight: 900; margin-bottom: 0.6rem;">Battle Concluded</h3>
+                    <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 2rem;">Your Score: <b>${battleScore}/8</b> | Opponent Score: <b>${data.opponent_score}/8</b></p>
+                    <button class="btn-action" onclick="document.getElementById('battle-arena-modal').style.display='none';" style="background:var(--success); color:white; padding:1.1rem;">Close Arena 🚀</button>
                 </div>
             `;
         }
 
-        let activeChatFriendUser = null;
-
-        async function openDirectChat(friendUsername, friendFullName) {
-            playSound('click');
-            if(questionTimerInterval) clearInterval(questionTimerInterval);
-            activeChatFriendUser = friendUsername;
-            const box = document.getElementById('simulation-box');
-            box.classList.add('feature-fullscreen-view');
-
-            async function fetchAndRenderMessages() {
-                const res = await fetch(`/api/direct-messages/list?user1=${encodeURIComponent(sessionUser.username)}&user2=${encodeURIComponent(friendUsername)}`);
-                const data = await res.json();
-                const msgs = data.messages || [];
-                
-                const stream = document.getElementById('chat-msg-stream');
-                if(stream) {
-                    stream.innerHTML = msgs.map(m => `
-                        <div class="chat-bubble ${m.sender_username === sessionUser.username ? 'outgoing' : 'incoming'}">
-                            <div style="font-size:0.72rem; font-weight:800; color:var(--accent); margin-bottom:3px;">${m.sender_name}</div>
-                            <div>${m.content}</div>
-                        </div>
-                    `).join('');
-                    stream.scrollTop = stream.scrollHeight;
-                }
-            }
-
-            box.innerHTML = `
-                <div class="feature-topbar">
-                    <button class="btn-action" onclick="openSocialHub()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
-                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">💬 Chat with ${friendFullName}</h3>
-                    <div style="width:85px;"></div>
-                </div>
-                <div class="chat-container">
-                    <div class="chat-messages" id="chat-msg-stream"></div>
-                    <div class="chat-input-bar">
-                        <input type="text" id="chat-text-input" placeholder="Type message..." style="margin-bottom:0; flex:1; padding:10px 14px; font-size:0.9rem;" />
-                        <button onclick="sendDirectMessageContent()" class="btn-action" style="width:75px; padding:10px; font-size:0.9rem; margin-top:0;">Send</button>
-                    </div>
-                </div>
-            `;
-            await fetchAndRenderMessages();
-            if(dmPollingInterval) clearInterval(dmPollingInterval);
-            dmPollingInterval = setInterval(fetchAndRenderMessages, 2500);
-        }
-
-        async function sendDirectMessageContent() {
-            playSound('click');
-            const input = document.getElementById('chat-text-input');
-            const content = input ? input.value.trim() : '';
-            if(!content) return;
-            await fetch('/api/direct-messages/send', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ sender_username: sessionUser.username, receiver_username: activeChatFriendUser, sender_name: sessionUser.full_name, content })
-            });
-            input.value = '';
-        }
-
-        /* MODALS & BOUTIQUE */
         function openAvatarStudio() { 
             playSound('click'); 
-            if(questionTimerInterval) clearInterval(questionTimerInterval);
-            const box = document.getElementById('simulation-box');
-            box.classList.add('feature-fullscreen-view');
             document.getElementById('avatar-studio-modal').style.display = 'flex'; 
         }
         function closeAvatarStudio() { 
             playSound('click'); 
             document.getElementById('avatar-studio-modal').style.display = 'none'; 
-            resetToMenu();
         }
         async function saveAvatarChanges() {
             playSound('click');
@@ -2265,15 +1629,11 @@
         }
         function openSettingsModal() { 
             playSound('click'); 
-            if(questionTimerInterval) clearInterval(questionTimerInterval);
-            const box = document.getElementById('simulation-box');
-            box.classList.add('feature-fullscreen-view');
             document.getElementById('settings-modal').style.display = 'flex'; 
         }
         function closeSettingsModal() { 
             playSound('click'); 
             document.getElementById('settings-modal').style.display = 'none'; 
-            resetToMenu();
         }
         async function submitPasswordChangeModal() {
             playSound('click');
@@ -2291,7 +1651,6 @@
 
         async function openShop() {
             playSound('click');
-            if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
             const res = await fetch('/api/shop/skins');
@@ -2300,20 +1659,20 @@
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: #a78bfa; font-weight: 900;">🎁 Cabin Crew Equipment Boutique</h3>
+                    <h3 style="font-size: 1.1rem; color: #a78bfa; font-weight: 900;">🎁 Boutique</h3>
                     <span style="font-size: 0.82rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
                     <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem;">
-                        ${data.skins.filter(s => s.skin_name_en !== 'Smoke Hood PBE' && s.skin_name_en !== 'Slide-Raft Unit').map(skin => {
+                        ${data.skins.map(skin => {
                             const isEquipped = sessionUser.active_skin === skin.skin_name_en;
                             return `
                             <div style="background: var(--surface-card); padding: 1rem 1.2rem; border-radius: 16px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;">
                                 <div style="display: flex; align-items: center; gap: 14px;">
                                     <span style="font-size: 1.8rem;">${skin.preview_svg}</span>
-                                    <div style="color: white; font-size: 0.9rem;"><b style="font-size:0.95rem;">${skin.skin_name_en}</b><div style="color: var(--text-muted); font-size: 0.78rem; margin-top:2px;">${skin.desc_en}</div></div>
+                                    <div style="color: white; font-size: 0.9rem;"><b style="font-size:0.95rem;">${skin.skin_name_en}</b></div>
                                 </div>
-                                <button class="btn-action" onclick="buySkin('${skin.skin_name_en}',${skin.cost})" style="width:110px; padding:8px; font-size:0.8rem; background:${isEquipped ? 'var(--success)' : '#8b5cf6'}; color:white; margin-top:0;">${isEquipped ? 'Equipped ✓' : (skin.cost === 0 ? 'Equipped' : skin.cost + ' ⭐')}</button>
+                                <button class="btn-action" onclick="buySkin('${skin.skin_name_en}',${skin.cost})" style="width:110px; padding:8px; font-size:0.8rem; background:${isEquipped ? 'var(--success)' : '#8b5cf6'}; color:white; margin-top:0;">${isEquipped ? 'Equipped ✓' : skin.cost + ' ⭐'}</button>
                             </div>
                         `;}).join('')}
                     </div>
