@@ -275,7 +275,7 @@
             <div class="mode-grid">
                 <div class="mode-tile" onclick="launchRoadmap('year1')">
                     <span style="font-size: 1.5rem;">📖</span>
-                    <h4 id="tr-tile-y1">First Year Path (10 Nodes)</h4>
+                    <h4 id="tr-tile-y1">First Year Path (100 Nodes)</h4>
                 </div>
                 <div class="mode-tile" onclick="launchRoadmap('year2')">
                     <span style="font-size: 1.5rem;">🏆</span>
@@ -294,7 +294,7 @@
                     <h4>Daily Spinning Wheel (24h)</h4>
                 </div>
                 <div class="mode-tile" onclick="open1v1Lobby()">
-                    <span style="font-size: 1.5rem;">⚔️️</span>
+                    <span style="font-size: 1.5rem;">⚔</span>
                     <h4 id="tr-tile-1v1">1v1 Battle Arena (Challenge)</h4>
                 </div>
                 <div class="mode-tile" onclick="openStudyHub()">
@@ -444,7 +444,7 @@
                 completeRegBtn: "Complete Registration", backLogin: "Already have an account? Sign In",
                 resetTitle: "Recovery PIN Reset", resetSub: "Enter your phone and secret recovery PIN.", resetNewLbl: "New Password",
                 updateCredBtn: "Update Credentials", backLogin2: "Back to Sign In",
-                tileY1: "First Year Path (10 Nodes)", tileY2: "Second Year Path (Locked)", tileEng: "Aviation English & ICAO Mastery",
+                tileY1: "First Year Path (100 Nodes)", tileY2: "Second Year Path (Locked)", tileEng: "Aviation English & ICAO Mastery",
                 tileVocab: "English Vocabulary to Arabic (5k)",
                 tile1v1: "1v1 Battle Arena (Challenge)", tileStudy: "Lessons, Quizzes & Exams Studio", tileSocial: "Friends, Private Chat & Groups",
                 centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, <b>English Vocabulary</b>, or the <b>1v1 Battle Arena</b> above to begin your training adventure.",
@@ -465,7 +465,7 @@
                 completeRegBtn: "Terminer l'inscription", backLogin: "Déjà un compte ? Se connecter",
                 resetTitle: "Réinitialisation du PIN", resetSub: "Entrez votre téléphone et votre PIN de récupération secret.", resetNewLbl: "Nouveau mot de passe",
                 updateCredBtn: "Mettre à jour", backLogin2: "Retour à la connexion",
-                tileY1: "Parcours 1ère Année (10 Nœuds)", tileY2: "Parcours 2ème Année (Verrouillé)", tileEng: "Anglais Aéronautique & ICAO",
+                tileY1: "Parcours 1ère Année (100 Nœuds)", tileY2: "Parcours 2ème Année (Verrouillé)", tileEng: "Anglais Aéronautique & ICAO",
                 tileVocab: "Vocabulaire Anglais-Arabe (5k)",
                 tile1v1: "Arène de Combat 1v1 (Défi)", tileStudy: "Studio Leçons, Quiz & Examens", tileSocial: "Amis, Chat Privé & Groupes",
                 centerTitle: "Centre de Formation Professionnelle EASA", centerDesc: "Sélectionnez <b>Parcours 1ère Année</b>, <b>2ème Année</b>, <b>Anglais Aéronautique</b> ou <b>Vocabulaire</b> pour débuter.",
@@ -486,7 +486,7 @@
                 completeRegBtn: "إتمام التسجيل", backLogin: "لديك حساب بالفعل؟ سجل دخولك",
                 resetTitle: "إعادة تعيين رقم الاسترداد", resetSub: "أدخل هاتفك ورقم الاسترداد السري الخاص بك.", resetNewLbl: "كلمة المرور الجديدة",
                 updateCredBtn: "تحديث بيانات الاعتماد", backLogin2: "العودة لتسجيل الدخول",
-                tileY1: "مسار السنة الأولى (10 نقاط)", tileY2: "مسار السنة الثانية (مغلق)", tileEng: "اللغة الإنجليزية للطيران وإيكاو",
+                tileY1: "مسار السنة الأولى (100 نقطة)", tileY2: "مسار السنة الثانية (مغلق)", tileEng: "اللغة الإنجليزية للطيران وإيكاو",
                 tileVocab: "مفردات طيران إنجليزية إلى العربية (5k)",
                 tile1v1: "حلبة تحدي 1 ضد 1", tileStudy: "استوديو الدروس والاختبارات", tileSocial: "الأصدقاء والمحادثة الخاصة والمجموعات",
                 centerTitle: "مركز تدريب الطيران الاحترافي EASA", centerDesc: "اختر مسار التعلم لعرض الخريطة المتعرجة مع أسئلة عشوائية مضادة للغش.",
@@ -1059,7 +1059,7 @@
             }
         }
 
-        /* DIVERSIFIED QUESTION POOLS PER PATH & NODE */
+        /* DIVERSIFIED 100-NODE QUESTION POOLS */
         const diversifiedQuestionPools = {
             year1: [
                 [
@@ -1146,7 +1146,7 @@
 
         function getDiversifiedQuestions(poolKey, nodeNum) {
             const pools = diversifiedQuestionPools[poolKey] || diversifiedQuestionPools['year1'];
-            const idx = Math.min(nodeNum - 1, pools.length - 1);
+            const idx = Math.min((nodeNum - 1) % pools.length, pools.length - 1);
             return pools[idx] || pools[0];
         }
 
@@ -1155,7 +1155,7 @@
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view', 'path-fixed-cloud');
-            renderDuoRoadmap(box, 'English Vocabulary to Arabic (5k)', 'vocab', 10);
+            renderDuoRoadmap(box, 'English Vocabulary to Arabic (5k)', 'vocab', 100);
         }
 
         function launchAviationEnglishRoadmap() {
@@ -1163,7 +1163,7 @@
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view', 'path-fixed-cloud');
-            renderDuoRoadmap(box, 'Aviation English & ICAO Mastery', 'english', 10);
+            renderDuoRoadmap(box, 'Aviation English & ICAO Mastery', 'english', 100);
         }
 
         function launchRoadmap(yearKey) {
@@ -1174,14 +1174,14 @@
 
             if(yearKey === 'year2') {
                 const y1Progress = parseInt(localStorage.getItem('aero_progress_' + (sessionUser ? sessionUser.username : 'guest') + '_year1') || '1');
-                if(y1Progress <= 10) {
-                    showToast('🔒 Complete First Year Path (all 10 nodes) to unlock Second Year!', true);
+                if(y1Progress <= 100) {
+                    showToast('🔒 Complete First Year Path (all 100 nodes) to unlock Second Year!', true);
                     resetToMenu();
                     return;
                 }
             }
 
-            renderDuoRoadmap(box, yearKey === 'year1' ? 'First Year Path (10 Nodes)' : 'Second Year Path (10 Nodes)', yearKey, 10);
+            renderDuoRoadmap(box, yearKey === 'year1' ? 'First Year Path (100 Nodes)' : 'Second Year Path (100 Nodes)', yearKey, 100);
         }
 
         function renderDuoRoadmap(container, title, poolKey, totalNodes) {
@@ -1191,14 +1191,14 @@
             if(poolKey === 'year2') {
                 const y1Key = 'aero_progress_' + (sessionUser ? sessionUser.username : 'guest') + '_year1';
                 const y1Prog = parseInt(localStorage.getItem(y1Key) || '1');
-                if(y1Prog <= 10) currentUnlocked = 1; // Locked
+                if(y1Prog <= 100) currentUnlocked = 1;
             }
 
             let nodesHtml = '';
             for(let i = 1; i <= totalNodes; i++) {
                 let statusClass = 'locked';
                 let icon = '🔒';
-                if(poolKey === 'year2' && parseInt(localStorage.getItem('aero_progress_' + sessionUser.username + '_year1') || '1') <= 10) {
+                if(poolKey === 'year2' && parseInt(localStorage.getItem('aero_progress_' + sessionUser.username + '_year1') || '1') <= 100) {
                     statusClass = 'locked';
                     icon = '🔒';
                 } else if(i < currentUnlocked) { 
@@ -1235,7 +1235,7 @@
             playSound('click');
             if(poolKey === 'year2') {
                 const y1Prog = parseInt(localStorage.getItem('aero_progress_' + sessionUser.username + '_year1') || '1');
-                if(y1Prog <= 10) {
+                if(y1Prog <= 100) {
                     showToast('🔒 Second Year Path is locked until First Year is fully completed!', true);
                     return;
                 }
@@ -1263,7 +1263,7 @@
                             <div style="font-size:4.5rem; margin-bottom:1rem;">🏆</div>
                             <h2 style="color:var(--gold); font-size:1.6rem; font-weight:900; margin-bottom:0.5rem;">Module Completed!</h2>
                             <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:2rem;">Great job, Captain! You earned +50 XP Stars ⭐.</p>
-                            <button class="btn-action" onclick="resetToMenu()" style="max-width:260px; margin:0 auto; background:var(--success); color:white;">Continue Roadmap ✈️</button>
+                            <button class="btn-action" onclick="resetToMenu()" style="max-width:260px; margin:0 auto; background:var(--success); color:white;">Continue Roadmap ✈️️</button>
                         </div>
                     `;
                     return;
@@ -1281,10 +1281,10 @@
                             <div style="width:85px;"></div>
                         </div>
                         <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1.5rem; text-align:center;">
-                            <div style="font-size:3.5rem; margin-bottom:10px;">🎙️</div>
+                            <div style="font-size:3.5rem; margin-bottom:10px; cursor:pointer;" onclick="startSpeechRecognitionForVocab('${q.en}', '${q.ar}', () => { currentQIdx++; renderStep(); })" title="Tap microphone to speak word">🎙️</div>
                             <h2 style="color:var(--accent); font-size:1.8rem; font-weight:900; margin-bottom:0.5rem;">${q.en}</h2>
-                            <p style="color:var(--gold); font-size:1.2rem; font-weight:800; margin-bottom:2rem;" id="vocab-arabic-reveal">Tap microphone or view translation</p>
-                            <button class="btn-action" onclick="revealVocabAnswer('${q.ar}', () => { currentQIdx++; renderStep(); })" style="background:var(--success); color:white; max-width:280px; margin:0 auto; padding:1.1rem;">Got It ✓ (Arabic: ${q.ar})</button>
+                            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;" id="vocab-status-label">Tap microphone or speak word to reveal Arabic translation</p>
+                            <button class="btn-action" onclick="startSpeechRecognitionForVocab('${q.en}', '${q.ar}', () => { currentQIdx++; renderStep(); })" style="background:var(--accent); color:var(--bg-deep); max-width:280px; margin:0 auto; padding:1.1rem;">Tap Mic to Speak 🎙️</button>
                         </div>
                     `;
                 } else {
@@ -1308,12 +1308,63 @@
             renderStep();
         }
 
-        function revealVocabAnswer(arText, nextCallback) {
+        function startSpeechRecognitionForVocab(enWord, arWord, nextCallback) {
+            playSound('click');
+            const statusEl = document.getElementById('vocab-status-label');
+            if(statusEl) statusEl.innerText = 'Listening... Speak "' + enWord + '" into microphone';
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                // Fallback if browser speech API is unavailable
+                revealVocabWithTimer(enWord, arWord, nextCallback);
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onresult = (event) => {
+                const speechResult = event.results[0][0].transcript.toLowerCase();
+                if(speechResult.includes(enWord.toLowerCase())) {
+                    revealVocabWithTimer(enWord, arWord, nextCallback);
+                } else {
+                    showToast('Heard "' + speechResult + '". Try saying "' + enWord + '" clearly.', true);
+                    if(statusEl) statusEl.innerText = 'Heard "' + speechResult + '". Tap mic to try again.';
+                }
+            };
+
+            recognition.onerror = () => {
+                // Fallback on error
+                revealVocabWithTimer(enWord, arWord, nextCallback);
+            };
+
+            try {
+                recognition.start();
+            } catch(e) {
+                revealVocabWithTimer(enWord, arWord, nextCallback);
+            }
+        }
+
+        function revealVocabWithTimer(enWord, arWord, nextCallback) {
             playSound('success');
-            showToast(`Arabic Translation: ${arText}`);
-            const revealEl = document.getElementById('vocab-arabic-reveal');
-            if(revealEl) revealEl.innerText = arText;
-            setTimeout(nextCallback, 6000); // exactly 6 seconds wait as requested
+            const statusEl = document.getElementById('vocab-status-label');
+            if(statusEl) {
+                statusEl.innerHTML = `<b style="color:var(--gold); font-size:1.3rem;">Arabic: ${arWord}</b><br><span style="color:var(--text-muted); font-size:0.85rem;" id="countdown-timer-text">Memorize word: 6s</span>`;
+            }
+
+            let secondsLeft = 6;
+            const timerInterval = setInterval(() => {
+                secondsLeft--;
+                const timerText = document.getElementById('countdown-timer-text');
+                if(timerText) timerText.innerText = `Memorize word: ${secondsLeft}s`;
+                if(secondsLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showToast('Great job! Moving to next step.');
+                    nextCallback();
+                }
+            }, 1000);
         }
 
         function handleRoadmapAnswer(isCorrect, nextCallback) {
@@ -1722,7 +1773,7 @@
                     <div id="dm-chat-box" style="flex:1; overflow-y:auto; background:var(--bg-deep); padding:14px; border-radius:18px; margin-bottom:12px; border:1px solid var(--border-glow); display:flex; flex-direction:column; gap:8px; min-height:285px;"></div>
                     <div style="display:flex; gap:8px; margin-bottom:1.5rem;">
                         <input type="text" id="dm-msg-input" placeholder="Type private message..." style="margin-bottom:0; flex:1;" />
-                        <button class="btn-action" onclick="sendPrivateMessage('${friendUsername}')" style="width:90px; margin-top:0; padding:8px; font-size:0.85rem;">Send ✈️️</button>
+                        <button class="btn-action" onclick="sendPrivateMessage('${friendUsername}')" style="width:90px; margin-top:0; padding:8px; font-size:0.85rem;">Send ✈️</button>
                     </div>
                 </div>
             `;
