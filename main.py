@@ -72,6 +72,16 @@ def startup_db():
     """)
 
     cur.execute("""
+        CREATE TABLE IF NOT EXISTS aero_v22_group_messages (
+            id SERIAL PRIMARY KEY,
+            group_code VARCHAR(50),
+            sender_username VARCHAR(50),
+            message TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS aero_v22_groups (
             id SERIAL PRIMARY KEY,
             group_name VARCHAR(100),
@@ -199,6 +209,15 @@ class CreateExamModel(BaseModel):
     title: str
     exam_data: list
 
+class DeleteExamModel(BaseModel):
+    exam_id: int
+    teacher_username: str
+
+class AdjustXPModel(BaseModel):
+    teacher_username: str
+    student_username: str
+    xp_delta: int
+
 class SubmitExamModel(BaseModel):
     exam_id: int
     student_username: str
@@ -212,6 +231,16 @@ class DirectMessageModel(BaseModel):
     receiver_username: str
     sender_name: str
     content: str
+
+class GroupMessageModel(BaseModel):
+    group_code: str
+    sender_username: str
+    message: str
+
+class DmShortModel(BaseModel):
+    sender_username: str
+    receiver_username: str
+    message: str
 
 class BuySkinModel(BaseModel):
     phone_number: str
@@ -506,6 +535,49 @@ def send_direct_message(data: DirectMessageModel):
     conn.close()
     return {"status": "success", "message": msg}
 
+@app.get("/api/dm/list")
+def get_dm_list_alias(user1: str, user2: str):
+    return get_direct_messages(user1, user2)
+
+@app.post("/api/dm/send")
+def send_dm_alias(data: DmShortModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT full_name FROM aero_v22_users WHERE username = %s;", (data.sender_username,))
+    u = cur.fetchone()
+    sender_name = u["full_name"] if u else data.sender_username
+    cur.close()
+    conn.close()
+    
+    dm_data = DirectMessageModel(
+        sender_username=data.sender_username,
+        receiver_username=data.receiver_username,
+        sender_name=sender_name,
+        content=data.message
+    )
+    return send_direct_message(dm_data)
+
+@app.get("/api/group/messages")
+def get_group_messages(group_code: str):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM aero_v22_group_messages WHERE group_code = %s ORDER BY id ASC LIMIT 50;", (group_code,))
+    msgs = cur.fetchall()
+    cur.close()
+    conn.close()
+    return {"messages": msgs}
+
+@app.post("/api/group/message/send")
+def send_group_message(data: GroupMessageModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO aero_v22_group_messages (group_code, sender_username, message) VALUES (%s, %s, %s) RETURNING *;", (data.group_code, data.sender_username, data.message))
+    msg = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success", "message": msg}
+
 @app.get("/api/group/info")
 def get_group_info(group_code: str):
     conn = get_db_connection()
@@ -545,11 +617,40 @@ def create_exam(data: CreateExamModel):
     conn.close()
     return {"status": "success", "exam": exam}
 
+@app.post("/api/exam/delete")
+def delete_exam(data: DeleteExamModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM aero_v22_exams WHERE id = %s AND teacher_username = %s RETURNING *;", (data.exam_id, data.teacher_username))
+    exam = cur.fetchone()
+    if not exam:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Exam not found or unauthorized.")
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success"}
+
+@app.post("/api/teacher/adjust-xp")
+def adjust_student_xp(data: AdjustXPModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + %s WHERE username = %s RETURNING *;", (data.xp_delta, data.student_username))
+    user = cur.fetchone()
+    if not user:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Student not found.")
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success", "user": user}
+
 @app.post("/api/exam/submit")
 def submit_exam(data: SubmitExamModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    # Check if student already submitted this exam
     cur.execute("SELECT * FROM aero_v22_exam_submissions WHERE exam_id = %s AND student_username = %s;", (data.exam_id, data.student_username))
     if cur.fetchone():
         cur.close()
