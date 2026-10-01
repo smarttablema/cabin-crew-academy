@@ -1263,7 +1263,7 @@
                             <div style="font-size:4.5rem; margin-bottom:1rem;">🏆</div>
                             <h2 style="color:var(--gold); font-size:1.6rem; font-weight:900; margin-bottom:0.5rem;">Module Completed!</h2>
                             <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:2rem;">Great job, Captain! You earned +50 XP Stars ⭐.</p>
-                            <button class="btn-action" onclick="resetToMenu()" style="max-width:260px; margin:0 auto; background:var(--success); color:white;">Continue Roadmap ✈️</button>
+                            <button class="btn-action" onclick="resetToMenu()" style="max-width:260px; margin:0 auto; background:var(--success); color:white;">Continue Roadmap ✈️️</button>
                         </div>
                     `;
                     return;
@@ -1315,7 +1315,6 @@
 
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
-                // Fallback simulation if browser speech API is restricted
                 revealVocabWithTimer(enWord, arWord, nextCallback);
                 return;
             }
@@ -1852,7 +1851,7 @@
 
             contentEl.innerHTML = `
                 <div style="text-align:center; padding: 1.5rem 0;">
-                    <div style="font-size: 3.5rem; margin-bottom: 12px;">⚔️️</div>
+                    <div style="font-size: 3.5rem; margin-bottom: 12px;">⚔️</div>
                     <h3 style="font-size: 1.25rem; color:var(--accent); font-weight:900; margin-bottom:0.6rem;">Challenging ${friendFullName}</h3>
                     <button class="btn-action" onclick="cancel1v1Challenge()" style="background:var(--danger); color:white; margin-top:0; padding:1.1rem;">Cancel Invitation ❌</button>
                 </div>
