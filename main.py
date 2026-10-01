@@ -518,9 +518,17 @@ def get_group_info(group_code: str):
     lessons = cur.fetchall()
     cur.execute("SELECT * FROM aero_v22_exams WHERE group_code = %s ORDER BY id DESC;", (group_code,))
     exams = cur.fetchall()
+
+    cur.execute("""
+        SELECT s.*, e.group_code FROM aero_v22_exam_submissions s
+        JOIN aero_v22_exams e ON s.exam_id = e.id
+        WHERE e.group_code = %s;
+    """, (group_code,))
+    submissions = cur.fetchall()
+
     cur.close()
     conn.close()
-    return {"group": grp, "members": members, "lessons": lessons, "exams": exams}
+    return {"group": grp, "members": members, "lessons": lessons, "exams": exams, "submissions": submissions}
 
 @app.post("/api/exam/create")
 def create_exam(data: CreateExamModel):
@@ -541,6 +549,13 @@ def create_exam(data: CreateExamModel):
 def submit_exam(data: SubmitExamModel):
     conn = get_db_connection()
     cur = conn.cursor()
+    # Check if student already submitted this exam
+    cur.execute("SELECT * FROM aero_v22_exam_submissions WHERE exam_id = %s AND student_username = %s;", (data.exam_id, data.student_username))
+    if cur.fetchone():
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=400, detail="You have already submitted this exam.")
+
     cur.execute(
         "INSERT INTO aero_v22_exam_submissions (exam_id, student_username, student_name, score, total_questions, time_spent_seconds) VALUES (%s, %s, %s, %s, %s, %s) RETURNING *;",
         (data.exam_id, data.student_username, data.student_name, data.score, data.total_questions, data.time_spent_seconds)
