@@ -104,6 +104,32 @@
             border-bottom: 1px solid var(--border);
             gap: 15px;
         }
+
+        .path-fixed-cloud { background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(3, 105, 161, 0.75) 100%), url('https://images.unsplash.com/photo-1500835556837-99ac94a94552?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
+
+        .duo-path-container { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 28px; 
+            padding: 24px 10px; 
+            flex: 1;
+            overflow-y: auto; 
+            border-radius: 20px; 
+            border: 1px solid var(--border-glow);
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .duo-path-container::-webkit-scrollbar { display: none; }
+
+        .duo-node-wrapper { display: flex; width: 100%; position: relative; }
+        .duo-node-wrapper:nth-child(odd) { justify-content: flex-start; padding-left: 20%; }
+        .duo-node-wrapper:nth-child(even) { justify-content: flex-end; padding-right: 20%; }
+
+        .duo-node { width: 72px; height: 72px; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 1.1rem; cursor: pointer; position: relative; box-shadow: 0 10px 0 rgba(0,0,0,0.5); transition: transform 0.2s; z-index: 2; }
+        .duo-node:hover { transform: scale(1.1); }
+        .duo-node.completed { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); color: #451a03; border: 4px solid #fef3c7; box-shadow: 0 10px 0 #b45309, 0 0 22px rgba(251,191,36,0.5); }
+        .duo-node.active { background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: #020617; border: 4px solid #bae6fd; box-shadow: 0 10px 0 #0369a1, 0 0 28px var(--accent); }
+        .duo-node.locked { background: #334155; color: #94a3b8; border: 4px solid #475569; box-shadow: 0 10px 0 #1e293b; opacity: 0.7; }
         
         .toast-popup { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 14px 28px; border-radius: 35px; font-weight: 800; font-size: 0.9rem; transition: transform 0.3s; z-index: 6000; pointer-events: none; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); }
         .toast-popup.show { transform: translateX(-50%) translateY(0); }
@@ -433,7 +459,7 @@
                 phoneLbl: "Numéro de téléphone", passLbl: "Mot de passe", loginBtn: "Se connecter",
                 regNav: "Créer un compte", resetNav: "Mot de passe oublié ?",
                 regTitle: "Inscription Cadet & Instructeur", regSub: "Enregistrez votre profil, choisissez votre rôle et votre avatar.",
-                regRoleLbl: "S'inscrire en tant que", optCadet: "🎓 Cadet / Étudiant", optTeacher: "👨‍‍🏫 Instructeur / Professeur",
+                regRoleLbl: "S'inscrire en tant que", optCadet: "🎓 Cadet / Étudiant", optTeacher: "👨‍‍‍‍🏫 Instructeur / Professeur",
                 regNameLbl: "Nom complet", regUserLbl: "Nom d'utilisateur unique", regPassLbl: "Mot de passe", regPinLbl: "PIN de récupération (4 chiffres)",
                 avatarStudioTitle: "🎨 Personnalisation d'Avatar", avatarTypeLbl: "Type d'avatar", optSteward: "👔 Steward", optHostess: "👗 Hôtesse",
                 completeRegBtn: "Terminer l'inscription", backLogin: "Déjà un compte ? Se connecter",
@@ -1033,7 +1059,7 @@
             }
         }
 
-        /* MASTER QUESTION POOLS */
+        /* MASTER QUESTION POOLS & ROADMAPS */
         const masterQuestionPools = {
             english: [
                 { q: "How is letter 'A' pronounced in ICAO standard telephony?", options: ["Alpha", "Apple", "Adam"], correct: 0 },
@@ -1054,8 +1080,7 @@
         ];
 
         function getVocabItemForStep(stepNum) {
-            const baseItem = baseVocabList[(stepNum - 1) % baseVocabList.length];
-            return baseItem;
+            return baseVocabList[(stepNum - 1) % baseVocabList.length];
         }
 
         function getRandomQuizQuestions(poolKey, count = 3) {
@@ -1067,24 +1092,125 @@
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
-            box.classList.add('feature-fullscreen-view');
-            box.innerHTML = `<div class="feature-topbar"><button class="btn-action" onclick="resetToMenu()">← Menu</button><h3>Vocabulary Path</h3></div>`;
+            box.classList.add('feature-fullscreen-view', 'path-fixed-cloud');
+            renderDuoRoadmap(box, 'English Vocabulary (5k)', 'vocab', 10);
         }
 
         function launchAviationEnglishRoadmap() {
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
-            box.classList.add('feature-fullscreen-view');
-            box.innerHTML = `<div class="feature-topbar"><button class="btn-action" onclick="resetToMenu()">← Menu</button><h3>Aviation English Roadmap</h3></div>`;
+            box.classList.add('feature-fullscreen-view', 'path-fixed-cloud');
+            renderDuoRoadmap(box, 'Aviation English & ICAO Mastery', 'english', 10);
         }
 
         function launchRoadmap(yearKey) {
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             const box = document.getElementById('simulation-box');
-            box.classList.add('feature-fullscreen-view');
-            box.innerHTML = `<div class="feature-topbar"><button class="btn-action" onclick="resetToMenu()">← Menu</button><h3>Roadmap</h3></div>`;
+            box.classList.add('feature-fullscreen-view', 'path-fixed-cloud');
+            renderDuoRoadmap(box, yearKey === 'year1' ? 'First Year Path (100 Nodes)' : 'Second Year Path', yearKey, 10);
+        }
+
+        function renderDuoRoadmap(container, title, poolKey, totalNodes) {
+            const progressKey = 'aero_progress_' + (sessionUser ? sessionUser.username : 'guest') + '_' + poolKey;
+            let currentUnlocked = parseInt(localStorage.getItem(progressKey) || '1');
+
+            let nodesHtml = '';
+            for(let i = 1; i <= totalNodes; i++) {
+                let statusClass = 'locked';
+                let icon = '🔒';
+                if(i < currentUnlocked) { statusClass = 'completed'; icon = '⭐'; }
+                else if(i === currentUnlocked) { statusClass = 'active'; icon = '✈️'; }
+
+                nodesHtml += `
+                    <div class="duo-node-wrapper">
+                        <div class="duo-node ${statusClass}" onclick="triggerCinematicIntro(() => startRoadmapLesson('${poolKey}', ${i}, ${totalNodes}))">
+                            <span style="font-size:1.4rem;">${icon}</span>
+                            <span style="font-size:0.65rem; font-weight:800; margin-top:2px;">#${i}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="feature-topbar">
+                    <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
+                    <h3 style="font-size:1.1rem; color:var(--accent); font-weight:900;">🗺️ ${title}</h3>
+                    <div style="width:85px;"></div>
+                </div>
+                <div class="duo-path-container">
+                    ${nodesHtml}
+                </div>
+            `;
+        }
+
+        function startRoadmapLesson(poolKey, nodeNum, totalNodes) {
+            playSound('click');
+            const questions = getRandomQuizQuestions(poolKey, 3);
+            let currentQIdx = 0;
+            let correctCount = 0;
+
+            function renderStep() {
+                if(currentQIdx >= questions.length) {
+                    const progressKey = 'aero_progress_' + (sessionUser ? sessionUser.username : 'guest') + '_' + poolKey;
+                    let currentUnlocked = parseInt(localStorage.getItem(progressKey) || '1');
+                    if(nodeNum === currentUnlocked) {
+                        localStorage.setItem(progressKey, String(nodeNum + 1));
+                    }
+                    if(sessionUser) {
+                        sessionUser.xp_points = (sessionUser.xp_points || 0) + 50;
+                        localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                        updateDashboardUI();
+                    }
+
+                    const box = document.getElementById('simulation-box');
+                    box.innerHTML = `
+                        <div style="text-align:center; padding: 3rem 1rem;">
+                            <div style="font-size:4.5rem; margin-bottom:1rem;">🏆</div>
+                            <h2 style="color:var(--gold); font-size:1.6rem; font-weight:900; margin-bottom:0.5rem;">Module Completed!</h2>
+                            <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:2rem;">Great job, Captain! You earned +50 XP Stars ⭐.</p>
+                            <button class="btn-action" onclick="resetToMenu()" style="max-width:260px; margin:0 auto; background:var(--success); color:white;">Continue Roadmap ✈️</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const q = questions[currentQIdx];
+                const box = document.getElementById('simulation-box');
+                box.innerHTML = `
+                    <div class="feature-topbar">
+                        <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
+                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Question ${currentQIdx + 1} / ${questions.length}</h3>
+                        <div style="width:85px;"></div>
+                    </div>
+                    <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1rem;">
+                        <b style="color:white; font-size:1.05rem; display:block; margin-bottom:1.5rem; line-height:1.6;">${q.q}</b>
+                        <div style="display:flex; flex-direction:column; gap:12px;">
+                            ${q.options.map((opt, idx) => `
+                                <button class="btn-action" onclick="handleRoadmapAnswer(${idx === q.correct}, ${() => { currentQIdx++; renderStep(); }})" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); text-align:left; padding:14px 18px; font-size:0.95rem; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            renderStep();
+        }
+
+        function handleRoadmapAnswer(isCorrect, nextCallback) {
+            if(isCorrect) {
+                playSound('success');
+                showToast('Correct! ⭐');
+            } else {
+                playSound('error');
+                if(sessionUser && sessionUser.hearts > 0) {
+                    sessionUser.hearts--;
+                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                    updateDashboardUI();
+                }
+                showToast('Incorrect! Heart lost ❤', true);
+            }
+            setTimeout(nextCallback, 800);
         }
 
         /* STUDY & EXAMS STUDIO */
@@ -1094,7 +1220,6 @@
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
             
-            // Use the student's saved group code if present, or fallback to sessionUser's group code
             const inputField = document.getElementById('student-group-code-input');
             let targetCode = inputField ? inputField.value.trim() : (sessionUser ? sessionUser.group_code : '');
 
@@ -1117,10 +1242,14 @@
             if(isTeacher) {
                 teacherControls = `
                     <div style="background:var(--bg-deep); padding:1.2rem; border-radius:18px; border:1px solid var(--accent); margin-bottom:1.5rem;">
-                        <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
+                        <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Instructor Studio</h4>
                         <div>
-                            <label><b>Create Official Exam</b></label>
+                            <label><b>Exam / Class Code (Shareable on WhatsApp, etc.)</b></label>
+                            <input type="text" id="ex-code" value="${sessionUser.group_code || ''}" placeholder="e.g. 4412 or custom code" style="margin-bottom:8px; font-weight:800;" />
+                            
+                            <label><b>Create Official Exam Title</b></label>
                             <input type="text" id="ex-title" placeholder="Exam Title" style="margin-bottom:8px;" />
+                            
                             <div id="exam-questions-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom:10px;">
                                 <div class="exam-q-row" style="display:flex; gap:8px;">
                                     <input type="text" placeholder="Question 1" class="eq-text" style="margin-bottom:0; flex:2;" />
@@ -1132,18 +1261,18 @@
                         </div>
                     </div>
 
-                    <h4 style="font-size:0.85rem; color:var(--warning); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">📊 Student Exam Statistics & Submissions</h4>
+                    <h4 style="font-size:0.85rem; color:var(--warning); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">📊 Student Exam Statistics & XP Adjuster</h4>
                     <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.5rem;">
                         ${submissionsList.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1rem; background:var(--surface-card); border-radius:12px;">No student submissions recorded yet.</div>' :
                             submissionsList.map(sub => `
-                                <div style="background:var(--surface-card); padding:12px 16px; border-radius:14px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
+                                <div style="background:var(--surface-card); padding:14px; border-radius:16px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
                                     <div>
                                         <b style="color:white; font-size:0.9rem;">👤 ${sub.student_name}</b> <span style="color:var(--text-muted); font-size:0.78rem;">(@${sub.student_username})</span>
-                                        <div style="color:var(--accent); font-size:0.8rem; margin-top:2px;">Exam ID #${sub.exam_id}</div>
+                                        <div style="color:var(--accent); font-size:0.8rem; margin-top:2px;">Exam ID #${sub.exam_id} | Score: <b>${sub.score}/${sub.total_questions}</b></div>
                                     </div>
-                                    <div style="text-align:right;">
-                                        <span style="color:var(--success); font-weight:800; font-size:0.95rem;">Score: ${sub.score}/${sub.total_questions} ⭐</span>
-                                        <div style="color:var(--text-muted); font-size:0.75rem;">Time: ${sub.time_spent_seconds}s</div>
+                                    <div style="display:flex; gap:6px; align-items:center;">
+                                        <button class="btn-action" onclick="adjustStudentXP('${sub.student_username}', 50)" style="width:50px; padding:6px; font-size:0.75rem; background:var(--success); color:white; margin-top:0;" title="Reward +50 XP">+50⭐</button>
+                                        <button class="btn-action" onclick="adjustStudentXP('${sub.student_username}', -50)" style="width:50px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;" title="Deduction -50 XP">-50⭐</button>
                                     </div>
                                 </div>
                             `).join('')}
@@ -1162,11 +1291,11 @@
                     <div style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(2, 6, 23, 0.9)); padding: 1.4rem; border-radius: 20px; border: 1px solid var(--accent); margin-bottom: 1.5rem;">
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
                             <span style="font-size:1.5rem;">🔑</span>
-                            <h4 style="color:var(--accent); font-size:1rem; font-weight:900; margin-bottom:0;">Enter Teacher / Class Code</h4>
+                            <h4 style="color:var(--accent); font-size:1rem; font-weight:900; margin-bottom:0;">Enter Teacher / Exam Code</h4>
                         </div>
-                        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">Enter your instructor's access code below to load their official exams.</p>
+                        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">Enter the instructor's exam code below to load their official exams.</p>
                         <div style="display:flex; gap:10px;">
-                            <input type="text" id="student-group-code-input" value="${targetCode}" placeholder="Enter code..." maxlength="6" style="margin-bottom:0; flex:1; text-align:center; font-weight:800; letter-spacing:2px;" />
+                            <input type="text" id="student-group-code-input" value="${targetCode}" placeholder="Enter code..." style="margin-bottom:0; flex:1; text-align:center; font-weight:800; letter-spacing:2px;" />
                             <button class="btn-action" onclick="updateStudentGroupCode()" style="width:130px; margin-top:0; padding:10px; font-size:0.85rem; background:var(--success); color:white;">Load Exams 🚀</button>
                         </div>
                     </div>
@@ -1181,7 +1310,12 @@
 
                                 let actionBtnHtml = '';
                                 if(isTeacher) {
-                                    actionBtnHtml = `<span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;">Instructor View</span>`;
+                                    actionBtnHtml = `
+                                        <div style="display:flex; gap:8px; align-items:center;">
+                                            <span style="color:var(--text-muted); font-size:0.75rem; font-weight:700;">Owner</span>
+                                            <button class="btn-action" onclick="deleteExam(${e.id})" style="width:75px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;">Delete 🗑️</button>
+                                        </div>
+                                    `;
                                 } else if(existingSub) {
                                     actionBtnHtml = `<span style="color:var(--success); font-weight:800; font-size:0.85rem;">Completed ✓ (${existingSub.score}/${existingSub.total_questions})</span>`;
                                 } else {
@@ -1190,7 +1324,8 @@
 
                                 return `
                                     <div style="background:var(--surface-card); padding:14px; border-radius:16px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
-                                        <div><b style="color:white; font-size:0.95rem;">🏆 ${e.title}</b></div>${actionBtnHtml}
+                                        <div><b style="color:white; font-size:0.95rem;">🏆 ${e.title}</b></div>
+                                        ${actionBtnHtml}
                                     </div>
                                 `;
                             }).join('')}
@@ -1235,6 +1370,7 @@
         async function publishExam() {
             playSound('click');
             const title = document.getElementById('ex-title').value.trim();
+            const customCode = document.getElementById('ex-code').value.trim() || sessionUser.group_code;
             if(!title) { showToast('Enter title', true); return; }
             let exam_data = [];
             document.querySelectorAll('.exam-q-row').forEach(r => {
@@ -1245,9 +1381,41 @@
             const res = await fetch('/api/exam/create', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ group_code: sessionUser.group_code, teacher_username: sessionUser.username, title, exam_data })
+                body: JSON.stringify({ group_code: customCode, teacher_username: sessionUser.username, title, exam_data })
             });
-            if(res.ok) { showToast('Exam published!'); openStudyHub(); }
+            if(res.ok) { showToast('Exam published with code ' + customCode + '!'); openStudyHub(); }
+        }
+
+        async function deleteExam(examId) {
+            playSound('click');
+            if(!confirm('Are you sure you want to delete this exam?')) return;
+            const res = await fetch('/api/exam/delete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ exam_id: examId, teacher_username: sessionUser.username })
+            });
+            if(res.ok) {
+                showToast('Exam deleted successfully!');
+                openStudyHub();
+            } else {
+                showToast('Failed to delete exam', true);
+            }
+        }
+
+        async function adjustStudentXP(studentUsername, amount) {
+            playSound('click');
+            const res = await fetch('/api/teacher/adjust-xp', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ teacher_username: sessionUser.username, student_username: studentUsername, xp_delta: amount })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                showToast(`Student XP updated by ${amount > 0 ? '+' : ''}${amount} ⭐!`);
+                openStudyHub();
+            } else {
+                showToast(data.detail || 'Failed to adjust XP', true);
+            }
         }
 
         function takeExam(exam) {
@@ -1266,7 +1434,7 @@
                     <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:1.5rem;">
                         ${questions.map((q, idx) => `
                             <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}:${q.question}</label>
+                                <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${q.question}</label>
                                 <input type="text" class="exam-answer-input" data-correct="${q.correct}" placeholder="Your answer..." style="margin-bottom:0;" />
                             </div>
                         `).join('')}
@@ -1295,7 +1463,7 @@
             }
         }
 
-        /* FRIENDS & SOCIAL HUB */
+        /* FRIENDS & SOCIAL HUB WITH LIVE CHAT */
         async function openSocialHub() {
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
@@ -1311,6 +1479,7 @@
                     <span style="font-size: 0.78rem; color: var(--success); font-weight: 800;">Network</span>
                 </div>
                 <div style="max-width:520px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
+                    
                     <div style="background:var(--surface-card); padding:1.2rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
                         <label><b>Add Friend by Username</b></label>
                         <div style="display:flex; gap:10px;">
@@ -1320,7 +1489,7 @@
                     </div>
 
                     ${socialData.incoming_requests.length > 0 ? `
-                        <h4 style="font-size:0.85rem; color:var(--warning); margin-bottom:0.6rem; font-weight:800;">Incoming Friend Requests</h4>
+                        <h4 style="font-size:0.85rem; color:var(--warning); margin-bottom:0.6rem; font-weight:800;">Incoming Requests</h4>
                         <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:1.5rem;">
                             ${socialData.incoming_requests.map(req => `
                                 <div style="background:var(--surface-card); padding:12px 16px; border-radius:14px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
@@ -1332,17 +1501,32 @@
                     ` : ''}
 
                     <h4 style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; font-weight:800; margin-bottom:0.6rem;">My Friends (${socialData.friends.length})</h4>
-                    <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:2rem;">
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:1.5rem;">
                         ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No friends added yet.</div>' :
                             socialData.friends.map(f => `
                                 <div style="background:var(--surface-card); padding:12px 16px; border-radius:14px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
                                     <div><b style="color:white; font-size:0.9rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.78rem;">(@${f.username})</span></div>
-                                    <button class="btn-action" onclick="open1v1Lobby()" style="width:85px; padding:8px; font-size:0.78rem; margin-top:0; background:var(--warning); color:var(--bg-deep);">1v1 ⚔</button>
+                                    <div style="display:flex; gap:6px;">
+                                        <button class="btn-action" onclick="openPrivateChat('${f.username}', '${f.full_name}')" style="width:75px; padding:8px; font-size:0.78rem; margin-top:0; background:var(--accent); color:var(--bg-deep);">Chat 💬</button>
+                                        <button class="btn-action" onclick="open1v1Lobby()" style="width:75px; padding:8px; font-size:0.78rem; margin-top:0; background:var(--warning); color:var(--bg-deep);">1v1 ⚔</button>
+                                    </div>
                                 </div>
                             `).join('')}
                     </div>
+
+                    ${sessionUser.group_code ? `
+                        <div style="background:var(--surface-card); padding:1.4rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:2rem;">
+                            <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:10px; font-weight:900;">📢 Live Group Study Chat (${sessionUser.group_code})</h4>
+                            <div id="group-chat-box" style="height:160px; overflow-y:auto; background:var(--bg-deep); padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid var(--border-glow); display:flex; flex-direction:column; gap:6px;"></div>
+                            <div style="display:flex; gap:8px;">
+                                <input type="text" id="group-msg-input" placeholder="Type message..." style="margin-bottom:0; flex:1;" />
+                                <button class="btn-action" onclick="sendGroupMessage()" style="width:90px; margin-top:0; padding:8px; font-size:0.85rem;">Send ✈️</button>
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
             `;
+            if(sessionUser.group_code) startGroupChatPolling();
         }
 
         async function sendFriendReq() {
@@ -1368,7 +1552,99 @@
             if(res.ok) { showToast('Friend accepted!'); openSocialHub(); }
         }
 
-        /* 1V1 BATTLE ARENA LOBBY */
+        function startGroupChatPolling() {
+            if(groupMsgPollingInterval) clearInterval(groupMsgPollingInterval);
+            fetchGroupMessages();
+            groupMsgPollingInterval = setInterval(fetchGroupMessages, 3000);
+        }
+
+        async function fetchGroupMessages() {
+            if(!sessionUser || !sessionUser.group_code) return;
+            try {
+                const res = await fetch('/api/group/messages?group_code=' + sessionUser.group_code);
+                const data = await res.json();
+                const box = document.getElementById('group-chat-box');
+                if(!box) return;
+                box.innerHTML = (data.messages || []).map(m => `
+                    <div style="font-size:0.82rem; line-height:1.4;">
+                        <b style="color:var(--accent);">@${m.sender_username}:</b> <span style="color:white;">${m.message}</span>
+                    </div>
+                `).join('') || '<div style="color:var(--text-muted); font-size:0.8rem; text-align:center;">No messages yet. Say hello!</div>';
+                box.scrollTop = box.scrollHeight;
+            } catch(e) {}
+        }
+
+        async function sendGroupMessage() {
+            const input = document.getElementById('group-msg-input');
+            const message = input ? input.value.trim() : '';
+            if(!message) return;
+            input.value = '';
+            await fetch('/api/group/message/send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ group_code: sessionUser.group_code, sender_username: sessionUser.username, message })
+            });
+            fetchGroupMessages();
+        }
+
+        function openPrivateChat(friendUsername, friendFullName) {
+            playSound('click');
+            if(groupMsgPollingInterval) clearInterval(groupMsgPollingInterval);
+            if(dmPollingInterval) clearInterval(dmPollingInterval);
+
+            const box = document.getElementById('simulation-box');
+            box.innerHTML = `
+                <div class="feature-topbar">
+                    <button class="btn-action" onclick="openSocialHub()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
+                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">💬 Chat with ${friendFullName}</h3>
+                    <div style="width:85px;"></div>
+                </div>
+                <div style="max-width:520px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; display:flex; flex-direction:column;">
+                    <div id="dm-chat-box" style="flex:1; overflow-y:auto; background:var(--bg-deep); padding:14px; border-radius:18px; margin-bottom:12px; border:1px solid var(--border-glow); display:flex; flex-direction:column; gap:8px; min-height:285px;"></div>
+                    <div style="display:flex; gap:8px; margin-bottom:1.5rem;">
+                        <input type="text" id="dm-msg-input" placeholder="Type private message..." style="margin-bottom:0; flex:1;" />
+                        <button class="btn-action" onclick="sendPrivateMessage('${friendUsername}')" style="width:90px; margin-top:0; padding:8px; font-size:0.85rem;">Send ✈️</button>
+                    </div>
+                </div>
+            `;
+            startDMPolling(friendUsername);
+        }
+
+        function startDMPolling(friendUsername) {
+            fetchDMs(friendUsername);
+            dmPollingInterval = setInterval(() => fetchDMs(friendUsername), 3000);
+        }
+
+        async function fetchDMs(friendUsername) {
+            try {
+                const res = await fetch(`/api/dm/list?user1=${sessionUser.username}&user2=${friendUsername}`);
+                const data = await res.json();
+                const box = document.getElementById('dm-chat-box');
+                if(!box) return;
+                box.innerHTML = (data.messages || []).map(m => `
+                    <div style="font-size:0.85rem; padding:6px 10px; border-radius:10px; background:${m.sender_username === sessionUser.username ? 'rgba(56, 189, 248, 0.15)' : 'var(--surface-card)'}; align-self:${m.sender_username === sessionUser.username ? 'flex-end' : 'flex-start'}; max-width:80%;">
+                        <b style="color:var(--accent); font-size:0.75rem; display:block;">@${m.sender_username}</b>
+                        <span style="color:white;">${m.message}</span>
+                    </div>
+                `).join('') || '<div style="color:var(--text-muted); font-size:0.8rem; text-align:center; margin:auto;">No messages exchanged yet.</div>';
+                box.scrollTop = box.scrollHeight;
+            } catch(e) {}
+        }
+
+        async function sendPrivateMessage(friendUsername) {
+            const input = document.getElementById('dm-msg-input');
+            const message = input ? input.value.trim() : '';
+            if(!message) return;
+            input.value = '';
+            await fetch('/api/dm/send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ sender_username: sessionUser.username, receiver_username: friendUsername, message })
+            });
+            fetchDMs(friendUsername);
+        }
+
+        /* 1V1 BATTLE ARENA LOBBY WITH INSTANT FEEDBACK & REWARDS */
         async function open1v1Lobby() {
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
@@ -1380,7 +1656,7 @@
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️️ 1v1 Battle Arena</h3>
+                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️ 1v1 Battle Arena</h3>
                     <span style="font-size: 0.78rem; color: var(--gold); font-weight: 800;">Duel</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
@@ -1537,23 +1813,40 @@
 
             contentEl.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
-                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔ 1v1 BATTLE • Q${battleCurrentIdx+1} / 8</span>
+                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔ 1v1 BATTLE • Q${battleCurrentIdx+1} / ${battleQuestions.length}</span>
                 </div>
                 <div style="background:var(--bg-deep); padding:1.4rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.2rem; text-align:left;">
                     <b style="color:white; font-size:1rem; display:block; margin-bottom:14px; line-height:1.5;">${qObj.q}</b>
-                    <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; flex-direction:column; gap:10px;" id="battle-options-container">
                         ${qObj.options.map((opt, idx) => `
-                            <button class="btn-action" onclick="answerModalBattleQuestion(${idx === qObj.correct})" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:13px; font-size:0.9rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)})${opt}</button>
+                            <button class="btn-action battle-opt-btn" onclick="answerModalBattleQuestion(${idx === qObj.correct}, this)" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:13px; font-size:0.9rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)})${opt}</button>
                         `).join('')}
                     </div>
                 </div>
             `;
         }
 
-        async function answerModalBattleQuestion(isCorrect) {
-            if(isCorrect) battleScore++;
-            battleCurrentIdx++;
-            renderBattleQuestionModal();
+        async function answerModalBattleQuestion(isCorrect, btnEl) {
+            const allBtns = document.querySelectorAll('.battle-opt-btn');
+            allBtns.forEach(b => b.disabled = true);
+
+            if(isCorrect) {
+                playSound('success');
+                battleScore++;
+                btnEl.style.background = 'var(--success)';
+                btnEl.style.borderColor = 'var(--success)';
+                showToast('Correct! ⭐');
+            } else {
+                playSound('error');
+                btnEl.style.background = 'var(--danger)';
+                btnEl.style.borderColor = 'var(--danger)';
+                showToast('Incorrect ❌', true);
+            }
+
+            setTimeout(() => {
+                battleCurrentIdx++;
+                renderBattleQuestionModal();
+            }, 900);
         }
 
         async function finish1v1BattleModal() {
@@ -1563,14 +1856,31 @@
                 body: JSON.stringify({ match_id: String(activeMatchId), username: sessionUser.username, score: battleScore })
             });
             const data = await res.json();
+            
+            // Award winner reward if applicable
+            const oppScore = data.opponent_score || 0;
+            let resultTitle = 'Battle Concluded (Draw)';
+            let rewardText = 'Great effort!';
+            if(battleScore > oppScore) {
+                sessionUser.xp_points = (sessionUser.xp_points || 0) + 100;
+                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                updateDashboardUI();
+                resultTitle = 'Victory! 🏆';
+                rewardText = 'You won the 1v1 Duel and earned +100 XP Stars ⭐!';
+            } else if(battleScore < oppScore) {
+                resultTitle = 'Defeat 😢';
+                rewardText = 'Opponent scored higher. Better luck next time!';
+            }
+
             await refreshUserData(false);
 
             const contentEl = document.getElementById('battle-modal-content');
             contentEl.innerHTML = `
                 <div style="text-align:center; padding: 2rem 0;">
                     <div style="font-size: 4rem; margin-bottom: 1.2rem;">🏆</div>
-                    <h3 style="font-size: 1.4rem; color: var(--gold); font-weight: 900; margin-bottom: 0.6rem;">Battle Concluded</h3>
-                    <p style="font-size: 0.92rem; color: var(--text-muted); margin-bottom: 2rem;">Your Score: <b>${battleScore}/8</b> | Opponent Score: <b>${data.opponent_score}/8</b></p>
+                    <h3 style="font-size: 1.4rem; color: var(--gold); font-weight: 900; margin-bottom: 0.6rem;">${resultTitle}</h3>
+                    <p style="font-size: 0.92rem; color: white; margin-bottom: 0.5rem;">Your Score: <b>${battleScore}</b> | Opponent Score: <b>${oppScore}</b></p>
+                    <p style="font-size: 0.85rem; color: var(--warning); margin-bottom: 2rem; font-weight:700;">${rewardText}</p>
                     <button class="btn-action" onclick="document.getElementById('battle-arena-modal').style.display='none';" style="background:var(--success); color:white; padding:1.1rem;">Close Arena 🚀</button>
                 </div>
             `;
