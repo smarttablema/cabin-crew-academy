@@ -104,32 +104,6 @@
             border-bottom: 1px solid var(--border);
             gap: 15px;
         }
-
-        .path-fixed-cloud { background: linear-gradient(135deg, rgba(2, 6, 23, 0.85) 0%, rgba(3, 105, 161, 0.75) 100%), url('https://images.unsplash.com/photo-1500835556837-99ac94a94552?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat !important; }
-
-        .duo-path-container { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 28px; 
-            padding: 24px 10px; 
-            flex: 1;
-            overflow-y: auto; 
-            border-radius: 20px; 
-            border: 1px solid var(--border-glow);
-            scrollbar-width: none; 
-            -ms-overflow-style: none;
-        }
-        .duo-path-container::-webkit-scrollbar { display: none; }
-
-        .duo-node-wrapper { display: flex; width: 100%; position: relative; }
-        .duo-node-wrapper:nth-child(odd) { justify-content: flex-start; padding-left: 20%; }
-        .duo-node-wrapper:nth-child(even) { justify-content: flex-end; padding-right: 20%; }
-
-        .duo-node { width: 72px; height: 72px; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 900; font-size: 1.1rem; cursor: pointer; position: relative; box-shadow: 0 10px 0 rgba(0,0,0,0.5); transition: transform 0.2s; z-index: 2; }
-        .duo-node:hover { transform: scale(1.1); }
-        .duo-node.completed { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); color: #451a03; border: 4px solid #fef3c7; box-shadow: 0 10px 0 #b45309, 0 0 22px rgba(251,191,36,0.5); }
-        .duo-node.active { background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: #020617; border: 4px solid #bae6fd; box-shadow: 0 10px 0 #0369a1, 0 0 28px var(--accent); }
-        .duo-node.locked { background: #334155; color: #94a3b8; border: 4px solid #475569; box-shadow: 0 10px 0 #1e293b; opacity: 0.7; }
         
         .toast-popup { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 14px 28px; border-radius: 35px; font-weight: 800; font-size: 0.9rem; transition: transform 0.3s; z-index: 6000; pointer-events: none; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); }
         .toast-popup.show { transform: translateX(-50%) translateY(0); }
@@ -450,7 +424,7 @@
                 centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, <b>English Vocabulary</b>, or the <b>1v1 Battle Arena</b> above to begin your training adventure.",
                 hubBtn: "← Hub", logoutBtn: "Logout 🚪",
                 modalAvatarTitle: "🎨 Edit Avatar", modalGenderLbl: "Genre / Style", saveAvatarBtn: "Save Avatar 💾",
-                settingsTitle: "⚙️️ Academy Settings", langLbl: "Interface Language", passChangeLbl: "Change Password", updatePassBtn: "Update Password 🔒",
+                settingsTitle: "⚙ Academy Settings", langLbl: "Interface Language", passChangeLbl: "Change Password", updatePassBtn: "Update Password 🔒",
                 myUsernameLbl: "My Username"
             },
             fr: {
@@ -1120,9 +1094,13 @@
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
             
-            if(sessionUser && sessionUser.group_code) {
+            // Use the student's saved group code if present, or fallback to sessionUser's group code
+            const inputField = document.getElementById('student-group-code-input');
+            let targetCode = inputField ? inputField.value.trim() : (sessionUser ? sessionUser.group_code : '');
+
+            if(targetCode) {
                 try {
-                    const res = await fetch('/api/group/info?group_code=' + sessionUser.group_code);
+                    const res = await fetch('/api/group/info?group_code=' + encodeURIComponent(targetCode));
                     groupInfo = await res.json();
                 } catch(e) {
                     groupInfo = { group: null, members: [], lessons: [], exams: [], submissions: [] };
@@ -1131,13 +1109,12 @@
                 groupInfo = { group: null, members: [], lessons: [], exams: [], submissions: [] };
             }
             
-            const isTeacher = sessionUser.role === 'teacher';
+            const isTeacher = sessionUser && sessionUser.role === 'teacher';
             const examsList = groupInfo.exams || [];
             const submissionsList = groupInfo.submissions || [];
 
             let teacherControls = '';
             if(isTeacher) {
-                // Instructor Studio: Build Exam Creator & Student Submissions Statistics
                 teacherControls = `
                     <div style="background:var(--bg-deep); padding:1.2rem; border-radius:18px; border:1px solid var(--accent); margin-bottom:1.5rem;">
                         <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Instructor Studio (My Code: ${sessionUser.group_code})</h4>
@@ -1189,7 +1166,7 @@
                         </div>
                         <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">Enter your instructor's access code below to load their official exams.</p>
                         <div style="display:flex; gap:10px;">
-                            <input type="text" id="student-group-code-input" value="${sessionUser.group_code || ''}" placeholder="Enter code..." maxlength="6" style="margin-bottom:0; flex:1; text-align:center; font-weight:800; letter-spacing:2px;" />
+                            <input type="text" id="student-group-code-input" value="${targetCode}" placeholder="Enter code..." maxlength="6" style="margin-bottom:0; flex:1; text-align:center; font-weight:800; letter-spacing:2px;" />
                             <button class="btn-action" onclick="updateStudentGroupCode()" style="width:130px; margin-top:0; padding:10px; font-size:0.85rem; background:var(--success); color:white;">Load Exams 🚀</button>
                         </div>
                     </div>
@@ -1198,14 +1175,12 @@
 
                     <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">Official Exams (${examsList.length})</h4>
                     <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.5rem;">
-                        ${examsList.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No exams available for this code.</div>' :
+                        ${examsList.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No exams available for this code. Please load a valid teacher code above.</div>' :
                             examsList.map(e => {
-                                // Check if student already submitted this exam
                                 const existingSub = submissionsList.find(s => s.exam_id === e.id && s.student_username === sessionUser.username);
-                                const isUserTeacher = sessionUser.role === 'teacher';
 
                                 let actionBtnHtml = '';
-                                if(isUserTeacher) {
+                                if(isTeacher) {
                                     actionBtnHtml = `<span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;">Instructor View</span>`;
                                 } else if(existingSub) {
                                     actionBtnHtml = `<span style="color:var(--success); font-weight:800; font-size:0.85rem;">Completed ✓ (${existingSub.score}/${existingSub.total_questions})</span>`;
@@ -1215,8 +1190,7 @@
 
                                 return `
                                     <div style="background:var(--surface-card); padding:14px; border-radius:16px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
-                                        <div><b style="color:white; font-size:0.95rem;">🏆 ${e.title}</b></div>
-                                        ${actionBtnHtml}
+                                        <div><b style="color:white; font-size:0.95rem;">🏆 ${e.title}</b></div>${actionBtnHtml}
                                     </div>
                                 `;
                             }).join('')}
@@ -1406,7 +1380,7 @@
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️ 1v1 Battle Arena</h3>
+                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️️ 1v1 Battle Arena</h3>
                     <span style="font-size: 0.78rem; color: var(--gold); font-weight: 800;">Duel</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
