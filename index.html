@@ -75,7 +75,7 @@
         
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 1.2rem; }
         .mode-tile { background: linear-gradient(rgba(2, 6, 23, 0.65), rgba(11, 15, 25, 0.88)), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=600&q=80') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 18px; padding: 1.2rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
-        .mode-tile:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 0 22px var(--accent-glow); }
+        .mode-tile:hover { border-color: var(--accent); translateY(-2px); box-shadow: 0 0 22px var(--accent-glow); }
         .mode-tile h4 { font-size: 0.82rem; font-weight: 800; margin-top: 8px; color: white; text-shadow: 0 2px 6px rgba(0,0,0,0.9); line-height: 1.3; }
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.2rem; min-height: 290px; }
@@ -118,6 +118,7 @@
             border: 1px solid var(--border-glow);
             scrollbar-width: none; 
             -ms-overflow-style: none;
+            position: relative;
         }
         .duo-path-container::-webkit-scrollbar { display: none; }
 
@@ -131,6 +132,21 @@
         .duo-node.active { background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: #020617; border: 4px solid #bae6fd; box-shadow: 0 10px 0 #0369a1, 0 0 28px var(--accent); }
         .duo-node.locked { background: #334155; color: #94a3b8; border: 4px solid #475569; box-shadow: 0 10px 0 #1e293b; opacity: 0.7; }
         
+        /* Animated Floating Skin Mascot along Roadmap Path */
+        @keyframes floatMascot {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(4deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .floating-roadmap-skin {
+            position: absolute;
+            font-size: 2.4rem;
+            animation: floatMascot 2.5s ease-in-out infinite;
+            filter: drop-shadow(0 8px 15px rgba(56, 189, 248, 0.5));
+            z-index: 5;
+            pointer-events: none;
+        }
+
         .toast-popup { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 14px 28px; border-radius: 35px; font-weight: 800; font-size: 0.9rem; transition: transform 0.3s; z-index: 6000; pointer-events: none; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); }
         .toast-popup.show { transform: translateX(-50%) translateY(0); }
     </style>
@@ -278,10 +294,13 @@
                     <h3 id="dash-name" style="font-size: 1.05rem; color: var(--accent); font-weight: 900; margin-bottom: 2px;">Cadet</h3>
                     <span style="font-size: 0.75rem; color: var(--text-muted);" id="dash-role-badge">Student</span>
                 </div>
-                <div style="display: flex; gap: 10px;">
+                <div style="display: flex; gap: 10px; align-items:center;">
                     <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">1500</span></div>
                     <div class="stat-item" style="color: var(--danger);">❤ <span id="dash-hearts">5</span></div>
-                    <div class="stat-item" id="dash-streak-badge">🔥 <span id="dash-streak">21</span></div>
+                    <div class="stat-item" id="dash-streak-badge" style="font-size: 0.95rem;">🔥 <span id="dash-streak">21</span></div>
+                    <div class="stat-item" style="background: rgba(56,189,248,0.12); padding: 4px 8px; border-radius: 10px; border: 1px solid var(--border-glow);" title="Active Boutique Skin">
+                        <span id="dash-active-skin-icon" style="font-size: 1.1rem;">🧯</span>
+                    </div>
                 </div>
             </div>
 
@@ -299,7 +318,7 @@
                     <h4 id="tr-tile-eng">Aviation English & ICAO Mastery</h4>
                 </div>
                 <div class="mode-tile" onclick="launchVocabularyRoadmap()">
-                    <span style="font-size: 1.5rem;">🎙️</span>
+                    <span style="font-size: 1.5rem;">🎙️️</span>
                     <h4 id="tr-tile-vocab">English Vocabulary to Arabic (5k)</h4>
                 </div>
                 <div class="mode-tile" onclick="openSpinningWheelModal()">
@@ -401,24 +420,30 @@
         let dmPollingInterval = null;
         let groupMsgPollingInterval = null;
         let questionTimerInterval = null;
-        let activeQuestionsStore = [];
         
         let battleQuestions = [];
         let battleCurrentIdx = 0;
         let battleScore = 0;
-        let battleTimerInterval = null;
-        let battleInvitePollingInterval = null;
         let activeMatchId = null;
 
         let pendingNodeExecution = null;
 
-        // Global session state for roadmap/vocab to prevent scope closure bug
         window.currentRoadmapSession = {
             questions: [],
             currentIdx: 0,
             poolKey: '',
             nodeNum: 0,
             totalNodes: 100
+        };
+
+        const skinEmojiMap = {
+            "Cabin Fire Extinguisher": "🧯",
+            "Portable Oxygen Bottle": "💨",
+            "Emergency Megaphone": "📢",
+            "Cabin Flashlight": "🔦",
+            "Inflatable Life Vest": "🦺",
+            "Slide-Raft Unit": "🛟",
+            "Captain Pilot Hat": "🧢"
         };
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -793,6 +818,10 @@
                 streakBadge.innerHTML = `🔥 <span id="dash-streak">${streakVal}</span>`;
             }
 
+            const activeSkin = sessionUser.active_skin || 'Cabin Fire Extinguisher';
+            const skinEmoji = skinEmojiMap[activeSkin] || '🧯';
+            document.getElementById('dash-active-skin-icon').innerText = skinEmoji;
+
             const roleText = sessionUser.role === 'teacher' ? 'Instructor / Teacher' : 'Cadet / Student';
             document.getElementById('dash-role-badge').innerText = roleText;
             document.getElementById('settings-my-username').innerText = '@' + sessionUser.username;
@@ -802,7 +831,6 @@
             playSound('click');
             localStorage.removeItem('aero_crew_user_pro22');
             sessionUser = null;
-            if(battleInvitePollingInterval) clearInterval(battleInvitePollingInterval);
             navigateTo('screen-login');
             showToast('Logged out successfully.');
         }
@@ -1171,7 +1199,6 @@
             const idx = (nodeNum - 1) % pools.length;
             const baseList = pools[idx] || pools[0];
 
-            // Deep clone and randomize questions and answer options for anti-cheat & dynamic variety
             const cloned = JSON.parse(JSON.stringify(baseList));
             cloned.sort(() => Math.random() - 0.5);
 
@@ -1229,6 +1256,8 @@
                 if(y1Prog <= 100) currentUnlocked = 1;
             }
 
+            const activeSkinEmoji = skinEmojiMap[sessionUser.active_skin || 'Cabin Fire Extinguisher'] || '🧯';
+
             let nodesHtml = '';
             for(let i = 1; i <= totalNodes; i++) {
                 let statusClass = 'locked';
@@ -1241,7 +1270,12 @@
                     icon = '⭐'; 
                 } else if(i === currentUnlocked) { 
                     statusClass = 'active'; 
-                    icon = poolKey === 'vocab' ? '🎙️️' : '✈️'; 
+                    icon = poolKey === 'vocab' ? '🎙' : '✈️'; 
+                }
+
+                let mascotHtml = '';
+                if(i === currentUnlocked) {
+                    mascotHtml = `<div class="floating-roadmap-skin" style="top: -38px; right: -28px;">${activeSkinEmoji}</div>`;
                 }
 
                 nodesHtml += `
@@ -1249,6 +1283,7 @@
                         <div class="duo-node ${statusClass}" onclick="triggerCinematicIntro(() => startRoadmapLesson('${poolKey}', ${i}, ${totalNodes}))">
                             <span style="font-size:1.4rem;">${icon}</span>
                             <span style="font-size:0.65rem; font-weight:800; margin-top:2px;">#${i}</span>
+                            ${mascotHtml}
                         </div>
                     </div>
                 `;
@@ -1303,13 +1338,19 @@
                     updateDashboardUI();
                 }
 
+                // FIX: Re-render roadmap directly without kicking user back to main dashboard
                 const box = document.getElementById('simulation-box');
                 box.innerHTML = `
-                    <div style="text-align:center; padding: 3rem 1rem;">
+                    <div class="feature-topbar">
+                        <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
+                        <h3 style="font-size:1.1rem; color:var(--gold); font-weight:900;">🏆 Module Completed!</h3>
+                        <div style="width:85px;"></div>
+                    </div>
+                    <div style="text-align:center; padding: 2rem 1rem;">
                         <div style="font-size:4.5rem; margin-bottom:1rem;">🏆</div>
-                        <h2 style="color:var(--gold); font-size:1.6rem; font-weight:900; margin-bottom:0.5rem;">Module Completed!</h2>
-                        <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:2rem;">Great job, Captain! You earned +50 XP Stars ⭐.</p>
-                        <button class="btn-action" onclick="resetToMenu()" style="max-width:260px; margin:0 auto; background:var(--success); color:white;">Continue Roadmap ✈</button>
+                        <h2 style="color:var(--gold); font-size:1.5rem; font-weight:900; margin-bottom:0.5rem;">Node #${session.nodeNum} Conquered!</h2>
+                        <p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:2rem;">Earned +50 XP Stars ⭐. Ready for the next aviation milestone?</p>
+                        <button class="btn-action" onclick="renderDuoRoadmap(document.getElementById('simulation-box'), '${session.poolKey === 'vocab' ? 'English Vocabulary to Arabic (5k)' : session.poolKey === 'english' ? 'Aviation English & ICAO Mastery' : 'First Year Path (100 Nodes)'}', '${session.poolKey}', ${session.totalNodes})" style="max-width:280px; margin:0 auto; background:var(--success); color:white; padding:1.1rem;">Continue Roadmap ✈</button>
                     </div>
                 `;
                 return;
@@ -1328,8 +1369,9 @@
                     <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1.5rem; text-align:center;">
                         <div style="font-size:3.5rem; margin-bottom:10px; cursor:pointer;" onclick="triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" title="Tap microphone to speak word">🎙️</div>
                         <h2 style="color:var(--accent); font-size:1.8rem; font-weight:900; margin-bottom:0.5rem;">${q.en}</h2>
-                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;" id="vocab-status-label">Tap microphone and speak "${q.en}" to reveal Arabic translation</p>
-                        <button class="btn-action" onclick="triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--accent); color:var(--bg-deep); max-width:280px; margin:0 auto; padding:1.1rem;">Tap Mic to Speak 🎙️</button>
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;" id="vocab-status-label">Speak "${q.en}" or tap below to reveal Arabic translation</p>
+                        <button class="btn-action" onclick="triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--accent); color:var(--bg-deep); max-width:280px; margin:0 auto; padding:1.1rem; margin-bottom:10px;">Tap Mic to Speak 🎙️</button>
+                        <button class="btn-action" onclick="revealVocabWithTimerGlobal('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); max-width:280px; margin:0 auto; padding:0.9rem;">Skip / Reveal Translation ➡</button>
                     </div>
                 `;
             } else {
@@ -1370,6 +1412,7 @@
             }, 900);
         }
 
+        /* FORGIVING SPEECH RECOGNITION FOR VOCABULARY (ACCEPTS ACCENT VARIATIONS & PARTIAL MATCHES) */
         function triggerVocabSpeech(enWord, arWord) {
             playSound('click');
             const statusEl = document.getElementById('vocab-status-label');
@@ -1384,20 +1427,45 @@
             const recognition = new SpeechRecognition();
             recognition.lang = 'en-US';
             recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
+            recognition.maxAlternatives = 3;
+
+            let speechAccepted = false;
 
             recognition.onresult = (event) => {
-                const speechResult = event.results[0][0].transcript.toLowerCase();
-                if(speechResult.includes(enWord.toLowerCase())) {
+                const results = event.results[0];
+                let matched = false;
+                
+                for(let i = 0; i < results.length; i++) {
+                    const transcript = results[i].transcript.toLowerCase().trim();
+                    const target = enWord.toLowerCase().trim();
+                    
+                    // Forgiving matching: checks if transcript contains target, or target contains transcript, or first 3 letters match for accent tolerance
+                    if(transcript.includes(target) || target.includes(transcript) || (target.length >= 3 && transcript.startsWith(target.substring(0, 3)))) {
+                        matched = true;
+                        break;
+                    }
+                }
+
+                if(matched) {
+                    speechAccepted = true;
                     revealVocabWithTimerGlobal(enWord, arWord);
                 } else {
-                    showToast('Heard "' + speechResult + '". Try saying "' + enWord + '" clearly.', true);
-                    if(statusEl) statusEl.innerText = 'Heard "' + speechResult + '". Tap mic to try again.';
+                    const heard = results[0].transcript;
+                    showToast('Heard "' + heard + '". Accepted for effort! ✈️');
+                    revealVocabWithTimerGlobal(enWord, arWord);
                 }
             };
 
             recognition.onerror = () => {
-                revealVocabWithTimerGlobal(enWord, arWord);
+                if(!speechAccepted) revealVocabWithTimerGlobal(enWord, arWord);
+            };
+
+            recognition.onend = () => {
+                setTimeout(() => {
+                    if(!speechAccepted) {
+                        revealVocabWithTimerGlobal(enWord, arWord);
+                    }
+                }, 1500);
             };
 
             try {
@@ -1411,18 +1479,17 @@
             playSound('success');
             const statusEl = document.getElementById('vocab-status-label');
             if(statusEl) {
-                statusEl.innerHTML = `<b style="color:var(--gold); font-size:1.3rem;">Arabic: ${arWord}</b><br><span style="color:var(--text-muted); font-size:0.85rem;" id="countdown-timer-text">Memorize word: 6s</span>`;
+                statusEl.innerHTML = `<b style="color:var(--gold); font-size:1.3rem;">Arabic: ${arWord}</b><br><span style="color:var(--text-muted); font-size:0.85rem;" id="countdown-timer-text">Memorize word: 5s</span>`;
             }
 
             if(questionTimerInterval) clearInterval(questionTimerInterval);
-            let secondsLeft = 6;
+            let secondsLeft = 5;
             questionTimerInterval = setInterval(() => {
                 secondsLeft--;
                 const timerText = document.getElementById('countdown-timer-text');
                 if(timerText) timerText.innerText = `Memorize word: ${secondsLeft}s`;
                 if(secondsLeft <= 0) {
                     clearInterval(questionTimerInterval);
-                    showToast('Great job! Moving to next step.');
                     window.currentRoadmapSession.currentIdx++;
                     renderRoadmapStep();
                 }
@@ -1610,7 +1677,6 @@
             const okBtn = document.getElementById('custom-confirm-ok');
             const cancelBtn = document.getElementById('custom-confirm-cancel');
 
-            // Remove previous listeners by cloning
             const newOkBtn = okBtn.cloneNode(true);
             const newCancelBtn = cancelBtn.cloneNode(true);
             okBtn.parentNode.replaceChild(newOkBtn, okBtn);
@@ -1965,7 +2031,6 @@
                     const data = await res.json();
                     if(data.status === 'accepted') {
                         clearInterval(pollTimer);
-                        activeQuestionsStore = data.questions;
                         showToast('Opponent accepted! Starting 1v1 Arena...');
                         start1v1BattleWithQuestions(data.questions, matchId);
                     } else if(data.status === 'rejected' || data.status === 'canceled') {
@@ -1976,6 +2041,7 @@
             }, 2000);
         }
 
+        let battleInvitePollingInterval = null;
         function startBattleInvitePolling() {
             if(battleInvitePollingInterval) clearInterval(battleInvitePollingInterval);
             battleInvitePollingInterval = setInterval(async () => {
@@ -2020,7 +2086,6 @@
             });
             const data = await res.json();
             if(accept && res.ok) {
-                activeQuestionsStore = data.questions;
                 showToast('Battle accepted!');
                 start1v1BattleWithQuestions(data.questions, matchId);
             } else {
@@ -2038,7 +2103,6 @@
         }
 
         function renderBattleQuestionModal() {
-            if(battleTimerInterval) clearInterval(battleTimerInterval);
             if(battleCurrentIdx >= battleQuestions.length) {
                 finish1v1BattleModal();
                 return;
