@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aero Crew Academy</title>
+    <title>Aero Crew Academy - Millennium Edition</title>
     <link rel="icon" href="https://img.icons8.com/color/48/airplane-take-off.png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@450;700;900&display=swap" rel="stylesheet">
     <style>
@@ -297,6 +297,7 @@
                     <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">1500</span></div>
                     <div class="stat-item" style="color: var(--danger);">❤ <span id="dash-hearts">5</span></div>
                     <div class="stat-item" id="dash-streak-badge" style="font-size: 0.95rem;">🔥 <span id="dash-streak">1</span></div>
+                    <div class="stat-item" style="color: var(--accent);" title="Logged Flight Hours">⏱ <span id="dash-hours">45</span>h</div>
                     <div class="stat-item" style="background: rgba(56,189,248,0.12); padding: 4px 8px; border-radius: 10px; border: 1px solid var(--border-glow);" title="Active Boutique Skin">
                         <span id="dash-active-skin-icon" style="font-size: 1.1rem;">🧯</span>
                     </div>
@@ -484,7 +485,7 @@
                 phoneLbl: "Phone Number", passLbl: "Password", loginBtn: "Sign In to Simulator",
                 regNav: "Create Account", resetNav: "Forgot Password?",
                 regTitle: "Cadet & Instructor Enrollment", regSub: "Register your profile, choose your role, and design your avatar.",
-                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student", optTeacher: "👨‍🏫 Instructor / Teacher",
+                regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student", optTeacher: "👨‍‍🏫 Instructor / Teacher",
                 regNameLbl: "Full Name", regUserLbl: "Unique Username", regPassLbl: "Password", regPinLbl: "Recovery PIN (4 digits)",
                 avatarStudioTitle: "🎨 Avatar Customization", avatarTypeLbl: "Avatar Type", optSteward: "👔 Steward", optHostess: "👗 Hostess",
                 completeRegBtn: "Complete Registration", backLogin: "Already have an account? Sign In",
@@ -802,8 +803,8 @@
             document.getElementById('dash-name').innerText = sessionUser.full_name;
             document.getElementById('dash-xp').innerText = sessionUser.xp_points;
             document.getElementById('dash-hearts').innerText = sessionUser.hearts;
+            document.getElementById('dash-hours').innerText = sessionUser.flight_hours || 45;
             
-            // Streak fix: explicitly initialized to 1 or actual active streak, avoiding inflated hardcoded values on new accounts
             const streakVal = (sessionUser.streak !== undefined && sessionUser.streak !== null) ? sessionUser.streak : 1;
             const streakBadge = document.getElementById('dash-streak-badge');
             
@@ -1270,7 +1271,7 @@
                     icon = '⭐'; 
                 } else if(i === currentUnlocked) { 
                     statusClass = 'active'; 
-                    icon = poolKey === 'vocab' ? '🎙' : '✈️️'; 
+                    icon = poolKey === 'vocab' ? '🎙' : '✈'; 
                 }
 
                 let mascotHtml = '';
@@ -1292,7 +1293,7 @@
             container.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size:1.1rem; color:var(--accent); font-weight:900;">🗺️ ${title}</h3>
+                    <h3 style="font-size:1.1rem; color:var(--accent); font-weight:900;">🗺️️ ${title}</h3>
                     <div style="width:85px;"></div>
                 </div>
                 <div class="duo-path-container">
@@ -1332,11 +1333,21 @@
                 if(session.nodeNum === currentUnlocked) {
                     localStorage.setItem(progressKey, String(session.nodeNum + 1));
                 }
-                if(sessionUser) {
-                    sessionUser.xp_points = (sessionUser.xp_points || 0) + 50;
-                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                    updateDashboardUI();
-                }
+                
+                // Sync backend completion
+                fetch('/api/node/complete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: `${session.poolKey}_${session.nodeNum}` })
+                }).then(res => res.json()).then(data => {
+                    if(data.status === 'success') {
+                        sessionUser.xp_points = data.xp;
+                        sessionUser.flight_hours = data.flight_hours;
+                        sessionUser.streak = data.streak;
+                        localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                        updateDashboardUI();
+                    }
+                }).catch(e => {});
 
                 const box = document.getElementById('simulation-box');
                 box.innerHTML = `
@@ -1348,7 +1359,7 @@
                     <div style="text-align:center; padding: 2rem 1rem;">
                         <div style="font-size:4.5rem; margin-bottom:1rem;">🏆</div>
                         <h2 style="color:var(--gold); font-size:1.5rem; font-weight:900; margin-bottom:0.5rem;">Node #${session.nodeNum} Conquered!</h2>
-                        <p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:2rem;">Earned +50 XP Stars ⭐. Ready for the next aviation milestone?</p>
+                        <p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:2rem;">Earned +30 XP Stars ⭐ & +1 Flight Hour ⏱. Ready for the next aviation milestone?</p>
                         <button class="btn-action" onclick="renderDuoRoadmap(document.getElementById('simulation-box'), '${session.poolKey === 'vocab' ? 'English Vocabulary to Arabic (5k)' : session.poolKey === 'english' ? 'Aviation English & ICAO Mastery' : 'First Year Path (100 Nodes)'}', '${session.poolKey}', ${session.totalNodes})" style="max-width:280px; margin:0 auto; background:var(--success); color:white; padding:1.1rem;">Continue Roadmap ✈</button>
                     </div>
                 `;
@@ -1384,7 +1395,7 @@
                         <b style="color:white; font-size:1.05rem; display:block; margin-bottom:1.5rem; line-height:1.6;">${q.q}</b>
                         <div style="display:flex; flex-direction:column; gap:12px;">
                             ${q.options.map((opt, idx) => `
-                                <button class="btn-action" onclick="handleRoadmapAnswerGlobal(${idx === q.correct})" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); text-align:left; padding:14px 18px; font-size:0.95rem; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
+                                <button class="btn-action" onclick="handleRoadmapAnswerGlobal(${idx === q.correct}, '${q.q.replace(/'/g, "\\'")}')" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); text-align:left; padding:14px 18px; font-size:0.95rem; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
                             `).join('')}
                         </div>
                     </div>
@@ -1392,10 +1403,14 @@
             }
         }
 
-        function handleRoadmapAnswerGlobal(isCorrect) {
+        function handleRoadmapAnswerGlobal(isCorrect, questionText) {
             if(isCorrect) {
                 playSound('success');
                 showToast('Correct! ⭐');
+                setTimeout(() => {
+                    window.currentRoadmapSession.currentIdx++;
+                    renderRoadmapStep();
+                }, 900);
             } else {
                 playSound('error');
                 if(sessionUser && sessionUser.hearts > 0) {
@@ -1404,11 +1419,19 @@
                     updateDashboardUI();
                 }
                 showToast('Incorrect! Heart lost ❤', true);
+                
+                // Record mistake in backend
+                fetch('/api/node/complete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: 'error_log', lost_heart: true, mistake_question: questionText })
+                }).catch(e => {});
+
+                setTimeout(() => {
+                    window.currentRoadmapSession.currentIdx++;
+                    renderRoadmapStep();
+                }, 1200);
             }
-            setTimeout(() => {
-                window.currentRoadmapSession.currentIdx++;
-                renderRoadmapStep();
-            }, 900);
         }
 
         function triggerVocabSpeech(enWord, arWord) {
@@ -1480,7 +1503,7 @@
             }
 
             if(questionTimerInterval) clearInterval(questionTimerInterval);
-            let secondsLeft = 5; // Fixed timer countdown strictly set to 5 seconds
+            let secondsLeft = 5;
             questionTimerInterval = setInterval(() => {
                 secondsLeft--;
                 const timerText = document.getElementById('countdown-timer-text');
@@ -1493,7 +1516,7 @@
             }, 1000);
         }
 
-        /* STUDY & EXAMS STUDIO */
+        /* STUDY & EXAMS STUDIO WITH PDF UPLOAD */
         async function openStudyHub() {
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
@@ -1522,12 +1545,20 @@
             if(isTeacher) {
                 teacherControls = `
                     <div style="background:var(--bg-deep); padding:1.2rem; border-radius:18px; border:1px solid var(--accent); margin-bottom:1.5rem;">
-                        <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Instructor Studio</h4>
+                        <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Instructor Studio & PDF Uploader</h4>
+                        
+                        <div style="margin-bottom:1.2rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
+                            <label><b>Upload PDF Exam / Syllabus</b></label>
+                            <input type="text" id="pdf-ex-title" placeholder="PDF Exam Title" style="margin-bottom:8px;" />
+                            <input type="file" id="pdf-file-input" accept="application/pdf" style="margin-bottom:8px; padding:8px; background:var(--surface-card);" />
+                            <button class="btn-action" onclick="uploadPDFExam()" style="padding:9px; font-size:0.85rem; background:var(--success); color:white; margin-top:0;">Upload PDF Exam 📄</button>
+                        </div>
+
                         <div>
-                            <label><b>Exam / Class Code (Shareable on WhatsApp, etc.)</b></label>
-                            <input type="text" id="ex-code" value="${sessionUser.group_code || ''}" placeholder="e.g. 4412 or custom code" style="margin-bottom:8px; font-weight:800;" />
+                            <label><b>Exam / Class Code</b></label>
+                            <input type="text" id="ex-code" value="${sessionUser.group_code || ''}" placeholder="e.g. 7842" style="margin-bottom:8px; font-weight:800;" />
                             
-                            <label><b>Create Official Exam Title</b></label>
+                            <label><b>Create Interactive Exam Title</b></label>
                             <input type="text" id="ex-title" placeholder="Exam Title" style="margin-bottom:8px;" />
                             
                             <div id="exam-questions-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom:10px;">
@@ -1582,7 +1613,7 @@
 
                     ${teacherControls}
 
-                    <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">Official Exams (${examsList.length})</h4>
+                    <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">Official Exams & PDFs (${examsList.length})</h4>
                     <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.5rem;">
                         ${examsList.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No exams available for this code. Please load a valid teacher code above.</div>' :
                             examsList.map(e => {
@@ -1596,6 +1627,8 @@
                                             <button class="btn-action" onclick="confirmDeleteExam(${e.id})" style="width:75px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;">Delete 🗑️</button>
                                         </div>
                                     `;
+                                } else if(e.pdf_url) {
+                                    actionBtnHtml = `<a href="${e.pdf_url}" target="_blank" class="btn-action" style="width:110px; padding:8px; font-size:0.8rem; background:var(--accent); color:var(--bg-deep); margin-top:0; text-align:center; text-decoration:none; display:inline-block;">Open PDF 📄</a>`;
                                 } else if(existingSub) {
                                     actionBtnHtml = `<span style="color:var(--success); font-weight:800; font-size:0.85rem;">Completed ✓ (${existingSub.score}/${existingSub.total_questions})</span>`;
                                 } else {
@@ -1604,7 +1637,7 @@
 
                                 return `
                                     <div style="background:var(--surface-card); padding:14px; border-radius:16px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
-                                        <div><b style="color:white; font-size:0.95rem;">🏆 ${e.title}</b></div>
+                                        <div><b style="color:white; font-size:0.95rem;">🏆 ${e.title}</b> ${e.pdf_url ? '<span style="font-size:0.75rem; color:var(--accent); display:block;">PDF Document</span>' : ''}</div>
                                         ${actionBtnHtml}
                                     </div>
                                 `;
@@ -1664,6 +1697,40 @@
                 body: JSON.stringify({ group_code: customCode, teacher_username: sessionUser.username, title, exam_data })
             });
             if(res.ok) { showToast('Exam published with code ' + customCode + '!'); openStudyHub(); }
+        }
+
+        async function uploadPDFExam() {
+            playSound('click');
+            const title = document.getElementById('pdf-ex-title').value.trim();
+            const fileInput = document.getElementById('pdf-file-input');
+            const file = fileInput.files[0];
+            const customCode = sessionUser.group_code;
+
+            if(!title || !file) {
+                showToast('Enter PDF title and select a file', true);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('group_code', customCode);
+            formData.append('teacher_username', sessionUser.username);
+            formData.append('title', title);
+            formData.append('file', file);
+
+            try {
+                const res = await fetch('/api/exam/upload-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+                if(res.ok) {
+                    showToast('PDF exam uploaded successfully! 📄');
+                    openStudyHub();
+                } else {
+                    showToast('Failed to upload PDF', true);
+                }
+            } catch(e) {
+                showToast('Network error during PDF upload', true);
+            }
         }
 
         function confirmDeleteExam(examId) {
@@ -1755,7 +1822,8 @@
             });
             const data = await res.json();
             if(res.ok) {
-                showToast(`Exam submitted! Score: ${score}/${totalQ}. +100 XP ⭐`);
+                showToast(`Exam submitted! Score: ${score}/${totalQ}. +100 XP ⭐ & +5 Flight Hours ⏱️`);
+                await refreshUserData(false);
                 openStudyHub();
             } else {
                 showToast(data.detail || 'Submission failed', true);
@@ -1902,7 +1970,7 @@
                     <div id="dm-chat-box" style="flex:1; overflow-y:auto; background:var(--bg-deep); padding:14px; border-radius:18px; margin-bottom:12px; border:1px solid var(--border-glow); display:flex; flex-direction:column; gap:8px; min-height:285px;"></div>
                     <div style="display:flex; gap:8px; margin-bottom:1.5rem;">
                         <input type="text" id="dm-msg-input" placeholder="Type private message..." style="margin-bottom:0; flex:1;" />
-                        <button class="btn-action" onclick="sendPrivateMessage('${friendUsername}')" style="width:90px; margin-top:0; padding:8px; font-size:0.85rem;">Send ✈️</button>
+                        <button class="btn-action" onclick="sendPrivateMessage('${friendUsername}')" style="width:90px; margin-top:0; padding:8px; font-size:0.85rem;">Send ✈️️</button>
                     </div>
                 </div>
             `;
@@ -1959,7 +2027,7 @@
                     <span style="font-size: 0.78rem; color: var(--gold); font-weight: 800;">Duel</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
-                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6;">Select a friend below to challenge them in a live 1v1 Duel for 100 XP Stars ⭐!</p>
+                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6;">Select a friend below to challenge them in a live 1v1 Duel for 100 XP Stars ⭐ & Flight Hours!</p>
                     <h4 style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.6rem; font-weight:800;">Choose Friend (${socialData.friends.length})</h4>
                     <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:2rem;">
                         ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:2rem;">No friends added yet.</div>' :
@@ -2158,11 +2226,8 @@
             let resultTitle = 'Battle Concluded (Draw)';
             let rewardText = 'Great effort!';
             if(battleScore > oppScore) {
-                sessionUser.xp_points = (sessionUser.xp_points || 0) + 100;
-                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                updateDashboardUI();
                 resultTitle = 'Victory! 🏆';
-                rewardText = 'You won the 1v1 Duel and earned +100 XP Stars ⭐!';
+                rewardText = 'You won the 1v1 Duel and earned +100 XP Stars ⭐ & +3 Flight Hours ⏱️!';
             } else if(battleScore < oppScore) {
                 resultTitle = 'Defeat 😢';
                 rewardText = 'Opponent scored higher. Better luck next time!';
