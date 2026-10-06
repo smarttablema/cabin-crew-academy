@@ -2,17 +2,18 @@ import os
 import random
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from datetime import date, timedelta
+import json
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQdjcq6@ep-cold-lake-b1djlrzp-pooler.c-5.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="31.0.0")
+app = FastAPI(title="Aero Crew Academy - Millennium Ultimate Edition", version="36.5.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -35,11 +36,14 @@ def startup_db():
             xp_points INT DEFAULT 1500,
             hearts INT DEFAULT 5,
             streak INT DEFAULT 21,
+            flight_hours INT DEFAULT 45,
+            rank_title VARCHAR(50) DEFAULT 'Junior Cadet',
             last_practice_date DATE,
             last_heart_loss_date DATE,
             last_heart_refill_timestamp BIGINT DEFAULT 0,
             last_spin_timestamp BIGINT DEFAULT 0,
             completed_nodes TEXT[] DEFAULT ARRAY[]::TEXT[],
+            mistakes_bank JSONB DEFAULT '[]'::jsonb,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
@@ -47,6 +51,9 @@ def startup_db():
     try:
         cur.execute("ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS last_heart_refill_timestamp BIGINT DEFAULT 0;")
         cur.execute("ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS last_spin_timestamp BIGINT DEFAULT 0;")
+        cur.execute("ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS flight_hours INT DEFAULT 45;")
+        cur.execute("ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS rank_title VARCHAR(50) DEFAULT 'Junior Cadet';")
+        cur.execute("ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS mistakes_bank JSONB DEFAULT '[]'::jsonb;")
     except Exception:
         conn.commit()
 
@@ -110,9 +117,15 @@ def startup_db():
             teacher_username VARCHAR(50),
             title TEXT,
             exam_data JSONB,
+            pdf_url TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
+
+    try:
+        cur.execute("ALTER TABLE aero_v22_exams ADD COLUMN IF NOT EXISTS pdf_url TEXT;")
+    except Exception:
+        conn.commit()
 
     cur.execute("""
         CREATE TABLE IF NOT EXISTS aero_v22_exam_submissions (
@@ -251,6 +264,7 @@ class NodeCompleteModel(BaseModel):
     phone_number: str
     node_id: str
     lost_heart: bool = False
+    mistake_question: str = None
 
 class RefillHeartsModel(BaseModel):
     phone_number: str
@@ -584,7 +598,7 @@ def get_group_info(group_code: str):
     cur = conn.cursor()
     cur.execute("SELECT * FROM aero_v22_groups WHERE group_code = %s;", (group_code,))
     grp = cur.fetchone()
-    cur.execute("SELECT username, full_name, role, avatar_gender, xp_points FROM aero_v22_users WHERE group_code = %s;", (group_code,))
+    cur.execute("SELECT username, full_name, role, avatar_gender, xp_points, flight_hours, rank_title FROM aero_v22_users WHERE group_code = %s;", (group_code,))
     members = cur.fetchall()
     cur.execute("SELECT * FROM aero_v22_lessons WHERE group_code = %s ORDER BY id DESC;", (group_code,))
     lessons = cur.fetchall()
@@ -606,10 +620,31 @@ def get_group_info(group_code: str):
 def create_exam(data: CreateExamModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    import json
     cur.execute(
         "INSERT INTO aero_v22_exams (group_code, teacher_username, title, exam_data) VALUES (%s, %s, %s, %s) RETURNING *;",
         (data.group_code, data.teacher_username, data.title, json.dumps(data.exam_data))
+    )
+    exam = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success", "exam": exam}
+
+@app.post("/api/exam/upload-pdf")
+async def upload_pdf_exam(group_code: str = Form(...), teacher_username: str = Form(...), title: str = Form(...), file: UploadFile = File(...)):
+    upload_dir = "static_uploads"
+    os.makedirs(upload_dir, exist_ok=True)
+    file_path = os.path.join(upload_dir, file.filename)
+    with open(file_path, "wb") as buffer:
+        buffer.write(await file.read())
+    
+    pdf_url = f"/{file_path}"
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO aero_v22_exams (group_code, teacher_username, title, exam_data, pdf_url) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
+        (group_code, teacher_username, title, json.dumps([]), pdf_url)
     )
     exam = cur.fetchone()
     conn.commit()
@@ -662,7 +697,7 @@ def submit_exam(data: SubmitExamModel):
         (data.exam_id, data.student_username, data.student_name, data.score, data.total_questions, data.time_spent_seconds)
     )
     sub = cur.fetchone()
-    cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + 100 WHERE username = %s;", (data.student_username,))
+    cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + 100, flight_hours = flight_hours + 5 WHERE username = %s;", (data.student_username,))
     conn.commit()
     cur.close()
     conn.close()
@@ -672,7 +707,7 @@ def submit_exam(data: SubmitExamModel):
 def complete_roadmap_node(data: NodeCompleteModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT completed_nodes, xp_points, hearts, streak FROM aero_v22_users WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT completed_nodes, xp_points, hearts, streak, mistakes_bank FROM aero_v22_users WHERE phone_number = %s;", (data.phone_number,))
     user = cur.fetchone()
     if not user:
         cur.close()
@@ -683,14 +718,17 @@ def complete_roadmap_node(data: NodeCompleteModel):
     hearts = user.get("hearts", 5)
     xp = user.get("xp_points", 0)
     streak = user.get("streak", 0)
+    mistakes = user.get("mistakes_bank") or []
 
     if data.lost_heart:
         hearts = max(0, hearts - 1)
-        cur.execute("UPDATE aero_v22_users SET hearts = %s, last_heart_loss_date = %s WHERE phone_number = %s;", (hearts, date.today(), data.phone_number))
+        if data.mistake_question and data.mistake_question not in mistakes:
+            mistakes.append(data.mistake_question)
+        cur.execute("UPDATE aero_v22_users SET hearts = %s, mistakes_bank = %s, last_heart_loss_date = %s WHERE phone_number = %s;", (hearts, json.dumps(mistakes), date.today(), data.phone_number))
         conn.commit()
         cur.close()
         conn.close()
-        return {"status": "success", "completed_nodes": nodes, "xp": xp, "hearts": hearts, "streak": streak}
+        return {"status": "success", "completed_nodes": nodes, "xp": xp, "hearts": hearts, "streak": streak, "mistakes_bank": mistakes}
 
     if hearts <= 0:
         cur.close()
@@ -702,14 +740,14 @@ def complete_roadmap_node(data: NodeCompleteModel):
 
     if data.node_id not in nodes:
         nodes.append(data.node_id)
-        cur.execute("UPDATE aero_v22_users SET completed_nodes = %s, xp_points = xp_points + 30, streak = %s, last_practice_date = %s WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts, streak;", (nodes, streak, today, data.phone_number))
+        cur.execute("UPDATE aero_v22_users SET completed_nodes = %s, xp_points = xp_points + 30, flight_hours = flight_hours + 1, streak = %s, last_practice_date = %s WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts, streak, flight_hours;", (nodes, streak, today, data.phone_number))
     else:
-        cur.execute("UPDATE aero_v22_users SET streak = %s, last_practice_date = %s WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts, streak;", (streak, today, data.phone_number))
+        cur.execute("UPDATE aero_v22_users SET streak = %s, last_practice_date = %s WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts, streak, flight_hours;", (streak, today, data.phone_number))
     res = cur.fetchone()
     conn.commit()
     cur.close()
     conn.close()
-    return {"status": "success", "completed_nodes": res["completed_nodes"], "xp": res["xp_points"], "hearts": res["hearts"], "streak": res["streak"]}
+    return {"status": "success", "completed_nodes": res["completed_nodes"], "xp": res["xp_points"], "hearts": res["hearts"], "streak": res["streak"], "flight_hours": res.get("flight_hours", 45)}
 
 @app.get("/api/shop/skins")
 def get_skins():
@@ -776,7 +814,6 @@ def send_battle_invite(data: BattleInviteModel):
             "correct": new_correct_idx
         })
     
-    import json
     cur.execute(
         "INSERT INTO aero_v22_battles (match_id, sender_username, sender_name, receiver_username, status, questions) VALUES (%s, %s, %s, %s, 'pending', %s) RETURNING *;",
         (match_id, data.sender_username, data.sender_name, data.receiver_username, json.dumps(randomized_questions))
@@ -851,7 +888,6 @@ def submit_battle_score(data: BattleSubmitModel):
     scores = match.get("scores") or {}
     scores[data.username] = data.score
     
-    import json
     cur.execute("UPDATE aero_v22_battles SET scores = %s WHERE match_id = %s;", (json.dumps(scores), data.match_id))
     conn.commit()
     
@@ -859,10 +895,10 @@ def submit_battle_score(data: BattleSubmitModel):
     result = "loss"
     if data.score > opponent_score:
         result = "win"
-        cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + 100 WHERE username = %s;", (data.username,))
+        cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + 100, flight_hours = flight_hours + 3 WHERE username = %s;", (data.username,))
     elif data.score == opponent_score:
         result = "draw"
-        cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + 50 WHERE username = %s;", (data.username,))
+        cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + 50, flight_hours = flight_hours + 1 WHERE username = %s;", (data.username,))
     
     conn.commit()
     cur.close()
