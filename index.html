@@ -1060,7 +1060,7 @@
                     <div style="background:var(--surface-card); padding:1.4rem; border-radius:22px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
                         <div style="font-size:2rem; margin-bottom:6px;">⏳</div>
                         <h4 style="color:var(--warning); font-size:0.95rem; margin-bottom:4px; font-weight:900;">24-Hour Heart Refill Cooldown</h4>
-                        <p style="font-size:0.82rem; color:var(--text-muted);">Next free refill available in <b>${remHrs}h${remMins}m</b>.</p>
+                        <p style="font-size:0.82rem; color:var(--text-muted);">Next free refill available in <b>${remHrs}h ${remMins}m</b>.</p>
                     </div>
                 `;
             }
@@ -1072,7 +1072,8 @@
                     <div style="width:85px;"></div>
                 </div>
                 <div style="max-width:480px; width:100%; margin: 0 auto; text-align:center; padding-top:0.5rem;">
-                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.4rem; line-height:1.6;">You currently have <b>${sessionUser.hearts}/5 hearts</b>.</p>${freeRefillHtml}
+                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.4rem; line-height:1.6;">You currently have <b>${sessionUser.hearts}/5 hearts</b>.</p>
+                    ${freeRefillHtml}
                     <div style="background:var(--surface-card); padding:1.5rem; border-radius:22px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
                         <div style="font-size:2.2rem; margin-bottom:8px;">⭐</div>
                         <h4 style="color:var(--warning); font-size:1rem; margin-bottom:4px; font-weight:900;">Refill with XP (Cost: 50 XP Stars)</h4>
@@ -1154,7 +1155,7 @@
                     <div style="background:var(--surface-card); padding:1.5rem; border-radius:20px; border:1px solid var(--border-glow); text-align:center; margin-bottom:1.5rem;">
                         <div style="font-size:3rem; margin-bottom:8px;">👨‍✈️</div>
                         <h4 style="color:var(--gold); font-size:1.1rem; font-weight:900; margin-bottom:4px;">${rankTitle}</h4>
-                        <p style="font-size:0.85rem; color:var(--text-muted);">Accumulated Flight Hours: <b>${flightHours} hrs</b> \vert{} Total XP: <b>${xp} ⭐</b></p>
+                        <p style="font-size:0.85rem; color:var(--text-muted);">Accumulated Flight Hours: <b>${flightHours} hrs</b> | Total XP: <b>${xp} ⭐</b></p>
                     </div>
 
                     <h4 style="font-size:0.85rem; color:var(--danger); text-transform:uppercase; font-weight:800; margin-bottom:0.6rem;">🛠️ The Hangar of Errors (Weak Spots Review)</h4>
@@ -1336,9 +1337,10 @@
 
                 nodesHtml += `
                     <div class="duo-node-wrapper">
-                        <div class="duo-node ${statusClass}" onclick="triggerCinematicIntro(() => startRoadmapLesson('${poolKey}', ${i},${totalNodes}))">
+                        <div class="duo-node ${statusClass}" onclick="triggerCinematicIntro(() => startRoadmapLesson('${poolKey}', ${i}, ${totalNodes}))">
                             <span style="font-size:1.4rem;">${icon}</span>
-                            <span style="font-size:0.65rem; font-weight:800; margin-top:2px;">#${i}</span>${mascotHtml}
+                            <span style="font-size:0.65rem; font-weight:800; margin-top:2px;">#${i}</span>
+                            ${mascotHtml}
                         </div>
                     </div>
                 `;
@@ -1405,7 +1407,7 @@
                         <div style="font-size:4.5rem; margin-bottom:1rem;">🏆</div>
                         <h2 style="color:var(--gold); font-size:1.5rem; font-weight:900; margin-bottom:0.5rem;">Node #${session.nodeNum} Conquered!</h2>
                         <p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:2rem;">Earned +50 XP Stars ⭐. Ready for the next aviation milestone?</p>
-                        <button class="btn-action" onclick="renderDuoRoadmap(document.getElementById('simulation-box'), '${session.poolKey === 'vocab' ? 'English Vocabulary to Arabic (5k)' : session.poolKey === 'english' ? 'Aviation English & ICAO Mastery' : 'First Year Path (100 Nodes)'}', '${session.poolKey}',${session.totalNodes})" style="max-width:280px; margin:0 auto; background:var(--success); color:white; padding:1.1rem;">Continue Roadmap ✈</button>
+                        <button class="btn-action" onclick="renderDuoRoadmap(document.getElementById('simulation-box'), '${session.poolKey === 'vocab' ? 'English Vocabulary to Arabic (5k)' : session.poolKey === 'english' ? 'Aviation English & ICAO Mastery' : 'First Year Path (100 Nodes)'}', '${session.poolKey}', ${session.totalNodes})" style="max-width:280px; margin:0 auto; background:var(--success); color:white; padding:1.1rem;">Continue Roadmap ✈</button>
                     </div>
                 `;
                 return;
@@ -1418,7 +1420,7 @@
                 box.innerHTML = `
                     <div class="feature-topbar">
                         <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
-                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Vocab Item ${session.currentIdx + 1} /${session.questions.length}</h3>
+                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Vocab Item ${session.currentIdx + 1} / ${session.questions.length}</h3>
                         <div style="width:85px;"></div>
                     </div>
                     <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1.5rem; text-align:center;">
@@ -1433,7 +1435,7 @@
                 box.innerHTML = `
                     <div class="feature-topbar">
                         <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
-                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Question ${session.currentIdx + 1} /${session.questions.length}</h3>
+                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Question ${session.currentIdx + 1} / ${session.questions.length}</h3>
                         <div style="width:85px;"></div>
                     </div>
                     <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1rem;">
@@ -1901,12 +1903,12 @@
                     <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:1.5rem;">
                         ${questions.map((q, idx) => `
                             <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${q.question}</label>
+                                <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}:${q.question}</label>
                                 <input type="text" class="exam-answer-input" data-correct="${q.correct}" placeholder="Your answer..." style="margin-bottom:0;" />
                             </div>
                         `).join('')}
                     </div>
-                    <button class="btn-action" onclick="submitActiveExam(${exam.id},${questions.length})" style="background:var(--success); color:white; padding:1.1rem; margin-bottom:2rem;">Submit Official Exam 🏆</button>
+                    <button class="btn-action" onclick="submitActiveExam(${exam.id}, ${questions.length})" style="background:var(--success); color:white; padding:1.1rem; margin-bottom:2rem;">Submit Official Exam 🏆</button>
                 </div>
             `;
         }
@@ -2280,7 +2282,7 @@
 
             contentEl.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
-                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔ 1v1 BATTLE • Q${battleCurrentIdx+1} /${battleQuestions.length}</span>
+                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔ 1v1 BATTLE • Q${battleCurrentIdx+1} / ${battleQuestions.length}</span>
                 </div>
                 <div style="background:var(--bg-deep); padding:1.4rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.2rem; text-align:left;">
                     <b style="color:white; font-size:1rem; display:block; margin-bottom:14px; line-height:1.5;">${qObj.q}</b>
@@ -2345,7 +2347,7 @@
                 <div style="text-align:center; padding: 2rem 0;">
                     <div style="font-size: 4rem; margin-bottom: 1.2rem;">🏆</div>
                     <h3 style="font-size: 1.4rem; color: var(--gold); font-weight: 900; margin-bottom: 0.6rem;">${resultTitle}</h3>
-                    <p style="font-size: 0.92rem; color: white; margin-bottom: 0.5rem;">Your Score: <b>${battleScore}</b> \vert{} Opponent Score: <b>${oppScore}</b></p>
+                    <p style="font-size: 0.92rem; color: white; margin-bottom: 0.5rem;">Your Score: <b>${battleScore}</b> | Opponent Score: <b>${oppScore}</b></p>
                     <p style="font-size: 0.85rem; color: var(--warning); margin-bottom: 2rem; font-weight:700;">${rewardText}</p>
                     <button class="btn-action" onclick="document.getElementById('battle-arena-modal').style.display='none';" style="background:var(--success); color:white; padding:1.1rem;">Close Arena 🚀</button>
                 </div>
@@ -2409,4 +2411,45 @@
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: #a78bfa; font-weight: 900
+                    <h3 style="font-size: 1.1rem; color: #a78bfa; font-weight: 900;">🎁 Boutique</h3>
+                    <span style="font-size: 0.82rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
+                </div>
+                <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem;">
+                        ${data.skins.map(skin => {
+                            const isEquipped = sessionUser.active_skin === skin.skin_name_en;
+                            return `
+                            <div style="background: var(--surface-card); padding: 1rem 1.2rem; border-radius: 16px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 14px;">
+                                    <span style="font-size: 1.8rem;">${skin.preview_svg}</span>
+                                    <div style="color: white; font-size: 0.9rem;"><b style="font-size:0.95rem;">${skin.skin_name_en}</b></div>
+                                </div>
+                                <button class="btn-action" onclick="buySkin('${skin.skin_name_en}',${skin.cost})" style="width:110px; padding:8px; font-size:0.8rem; background:${isEquipped ? 'var(--success)' : '#8b5cf6'}; color:white; margin-top:0;">${isEquipped ? 'Equipped ✓' : skin.cost + ' ⭐'}</button>
+                            </div>
+                        `;}).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function buySkin(skinName, cost) {
+            playSound('click');
+            const res = await fetch('/api/shop/buy', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ phone_number: sessionUser.phone_number, skin_name: skinName, cost })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                sessionUser = data.user;
+                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                updateDashboardUI();
+                showToast('Equipped ' + skinName + ' successfully!');
+                openShop();
+            } else {
+                showToast(data.detail || 'Purchase failed', true);
+            }
+        }
+    </script>
+</body>
+</html>
