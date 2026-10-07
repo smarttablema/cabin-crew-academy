@@ -172,7 +172,6 @@
             <h2 style="font-size:1.5rem; color:var(--accent); font-weight:900; margin-bottom:6px;">Ready for Takeoff?</h2>
             <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.8rem; line-height:1.6;">Engines primed, clearance granted. Focus and conquer this aviation milestone!</p>
             <div id="cinematic-countdown" style="font-size:2.5rem; font-weight:900; color:var(--gold); margin-bottom:1.5rem;">3</div>
-            <button class="btn-action" onclick="startNodeSessionAfterCinematic()" style="background:linear-gradient(135deg, #10b981, #059669); color:white; padding:1.1rem; font-size:1.05rem; margin-top:0;">ENGAGE MODULE 🚀</button>
         </div>
     </div>
 
@@ -865,6 +864,7 @@
             modal.style.display = 'flex';
             let count = 3;
             countEl.innerText = count;
+            playSound('click');
 
             const timer = setInterval(() => {
                 count--;
@@ -879,13 +879,7 @@
                     modal.style.display = 'none';
                     if(pendingNodeExecution) pendingNodeExecution();
                 }
-            }, 800);
-        }
-
-        function startNodeSessionAfterCinematic() {
-            const modal = document.getElementById('cinematic-modal');
-            modal.style.display = 'none';
-            if(pendingNodeExecution) pendingNodeExecution();
+            }, 1000);
         }
 
         /* DAILY SPINNING WHEEL MODAL */
@@ -1597,21 +1591,23 @@
                     <div style="background:var(--bg-deep); padding:1.2rem; border-radius:18px; border:1px solid var(--accent); margin-bottom:1.5rem;">
                         <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Advanced Exam Studio (MCQ, True/False, Short Answer & PDF Print)</h4>
                         <div>
-                            <label><b>Class / Group Code</b></label>
-                            <input type="text" id="ex-code" value="${sessionUser.group_code || ''}" placeholder="e.g. 7842" style="margin-bottom:8px; font-weight:800;" />
+                            <label><b>Custom Teacher Exam Code (e.g. AERO2026)</b></label>
+                            <input type="text" id="ex-code" value="${sessionUser.group_code || ''}" placeholder="Enter unique exam/class code" style="margin-bottom:8px; font-weight:800;" />
                             
                             <label><b>Exam Title</b></label>
                             <input type="text" id="ex-title" placeholder="e.g. EASA Regulations Midterm" style="margin-bottom:8px;" />
                             
                             <div id="advanced-exam-questions-container" style="display:flex; flex-direction:column; gap:10px; margin-bottom:10px;">
                                 <div class="adv-exam-q-block" style="background:var(--surface-card); padding:10px; border-radius:12px; border:1px solid var(--border-glow);">
-                                    <select class="q-type-select" style="margin-bottom:6px; padding:6px; font-size:0.8rem;">
+                                    <select class="q-type-select" onchange="onQuestionTypeChange(this)" style="margin-bottom:6px; padding:6px; font-size:0.8rem;">
                                         <option value="mcq">Multiple Choice (A, B, C, D)</option>
                                         <option value="true_false">True / False</option>
                                         <option value="short_text">Short Text (Fuzzy Matching)</option>
                                     </select>
                                     <input type="text" placeholder="Question text..." class="adv-q-text" style="margin-bottom:6px;" />
-                                    <input type="text" placeholder="Correct Answer (e.g. Alpha or True)" class="adv-q-correct" style="margin-bottom:0;" />
+                                    <div class="q-answer-container">
+                                        <input type="text" placeholder="Correct Answer (e.g. Alpha)" class="adv-q-correct" style="margin-bottom:0;" />
+                                    </div>
                                 </div>
                             </div>
                             <div style="display:flex; gap:8px; margin-bottom:10px;">
@@ -1622,11 +1618,23 @@
                         </div>
                     </div>
 
+                    <!-- PDF DOCUMENT EXAM UPLOAD TAB FOR TEACHERS -->
+                    <div style="background:var(--surface-card); padding:1.2rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
+                        <h4 style="color:var(--gold); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">📄 PDF Document Exam / Material Upload</h4>
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Upload or link a PDF study guide/exam for your students under your custom code.</p>
+                        <input type="text" id="pdf-doc-title" placeholder="PDF Document Title (e.g. EASA Chapter 4 PDF)" style="margin-bottom:8px;" />
+                        <input type="text" id="pdf-doc-url" placeholder="PDF File URL or Link (https://...)" style="margin-bottom:8px;" />
+                        <button class="btn-action" onclick="publishPDFDocument()" style="padding:10px; font-size:0.9rem; background:var(--gold); color:#020617; margin-top:0;">Upload PDF Material 📑</button>
+                    </div>
+
                     <div style="background:var(--surface-card); padding:1.2rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
                         <h4 style="color:var(--warning); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">🔀 Smart Group Separator (Classroom Shuffler)</h4>
-                        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Automatically shuffle 30+ students into balanced teams.</p>
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Enter students and team size to automatically shuffle balanced teams.</p>
+                        <label><b>Student Names (comma or line separated)</b></label>
+                        <textarea id="shuffler-names-input" placeholder="Alex, Sarah, Marc, John, Fatima, Omar..." style="margin-bottom:10px; height:80px; resize:vertical;"></textarea>
+                        
                         <div style="display:flex; gap:10px; margin-bottom:10px;">
-                            <input type="number" id="team-size-input" value="4" min="2" max="10" placeholder="Size per team" style="margin-bottom:0; flex:1;" />
+                            <input type="number" id="team-size-input" value="4" min="1" max="20" placeholder="Size per team" style="margin-bottom:0; flex:1;" />
                             <button class="btn-action" onclick="runSmartGroupSeparator()" style="width:150px; margin-top:0; padding:10px; font-size:0.85rem; background:var(--warning); color:var(--bg-deep);">Shuffle Teams ⚡</button>
                         </div>
                         <div id="shuffled-teams-output" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;"></div>
@@ -1662,22 +1670,23 @@
                     <div style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(2, 6, 23, 0.9)); padding: 1.4rem; border-radius: 20px; border: 1px solid var(--accent); margin-bottom: 1.5rem;">
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
                             <span style="font-size:1.5rem;">🔑</span>
-                            <h4 style="color:var(--accent); font-size:1rem; font-weight:900; margin-bottom:0;">Enter Teacher / Exam Code</h4>
+                            <h4 style="color:var(--accent); font-size:1rem; font-weight:900; margin-bottom:0;">Enter Teacher's Custom Exam Code</h4>
                         </div>
-                        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">Enter the instructor's exam code below to load their official exams.</p>
+                        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">Enter the unique custom code provided by your instructor to view and take their specific exams.</p>
                         <div style="display:flex; gap:10px;">
-                            <input type="text" id="student-group-code-input" value="${targetCode}" placeholder="Enter code..." style="margin-bottom:0; flex:1; text-align:center; font-weight:800; letter-spacing:2px;" />
+                            <input type="text" id="student-group-code-input" value="${targetCode}" placeholder="Enter custom code..." style="margin-bottom:0; flex:1; text-align:center; font-weight:800; letter-spacing:2px;" />
                             <button class="btn-action" onclick="updateStudentGroupCode()" style="width:130px; margin-top:0; padding:10px; font-size:0.85rem; background:var(--success); color:white;">Load Exams 🚀</button>
                         </div>
                     </div>
 
                     ${teacherControls}
 
-                    <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">Official Exams (${examsList.length})</h4>
+                    <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">Official Exams & PDF Materials (${examsList.length})</h4>
                     <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.5rem;">
-                        ${examsList.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No exams available for this code. Please load a valid teacher code above.</div>' :
+                        ${examsList.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No exams available for this custom code. Please enter the correct code provided by your teacher above.</div>' :
                             examsList.map(e => {
                                 const existingSub = submissionsList.find(s => s.exam_id === e.id && s.student_username === sessionUser.username);
+                                const teacherName = e.teacher_username ? '@' + e.teacher_username : 'Instructor';
 
                                 let actionBtnHtml = '';
                                 if(isTeacher) {
@@ -1687,6 +1696,8 @@
                                             <button class="btn-action" onclick="confirmDeleteExam(${e.id})" style="width:75px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;">Delete 🗑️</button>
                                         </div>
                                     `;
+                                } else if(e.is_pdf) {
+                                    actionBtnHtml = `<a href="${e.pdf_url}" target="_blank" class="btn-action" style="width:110px; padding:8px; font-size:0.8rem; background:var(--gold); color:#020617; text-decoration:none; text-align:center; margin-top:0;">Open PDF 📑</a>`;
                                 } else if(existingSub) {
                                     actionBtnHtml = `<span style="color:var(--success); font-weight:800; font-size:0.85rem;">Completed ✓ (${existingSub.score}/${existingSub.total_questions})</span>`;
                                 } else {
@@ -1695,7 +1706,10 @@
 
                                 return `
                                     <div style="background:var(--surface-card); padding:14px; border-radius:16px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
-                                        <div><b style="color:white; font-size:0.95rem;">🏆 ${e.title}</b></div>
+                                        <div>
+                                            <b style="color:white; font-size:0.95rem;">${e.is_pdf ? '📄' : '🏆'} ${e.title}</b>
+                                            <div style="font-size:0.75rem; color:var(--accent); margin-top:2px;">Created by: <b>${teacherName}</b></div>
+                                        </div>
                                         ${actionBtnHtml}
                                     </div>
                                 `;
@@ -1709,7 +1723,7 @@
             playSound('click');
             const codeInput = document.getElementById('student-group-code-input');
             const newCode = codeInput ? codeInput.value.trim() : '';
-            if(!newCode) { showToast('Enter a valid code', true); return; }
+            if(!newCode) { showToast('Enter a valid custom code', true); return; }
 
             const res = await fetch('/api/user/group-update', {
                 method: 'POST',
@@ -1721,7 +1735,7 @@
                 sessionUser = data.user;
                 localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                 updateDashboardUI();
-                showToast('Class code updated successfully! Loading exams...');
+                showToast('Custom code updated successfully! Loading exams...');
                 openStudyHub();
             } else {
                 showToast(data.detail || 'Failed to update code', true);
@@ -1735,15 +1749,36 @@
             block.className = 'adv-exam-q-block';
             block.style.cssText = 'background:var(--surface-card); padding:10px; border-radius:12px; border:1px solid var(--border-glow); margin-top:6px;';
             block.innerHTML = `
-                <select class="q-type-select" style="margin-bottom:6px; padding:6px; font-size:0.8rem;">
+                <select class="q-type-select" onchange="onQuestionTypeChange(this)" style="margin-bottom:6px; padding:6px; font-size:0.8rem;">
                     <option value="mcq">Multiple Choice (A, B, C, D)</option>
                     <option value="true_false">True / False</option>
                     <option value="short_text">Short Text (Fuzzy Matching)</option>
                 </select>
                 <input type="text" placeholder="Question text..." class="adv-q-text" style="margin-bottom:6px;" />
-                <input type="text" placeholder="Correct Answer" class="adv-q-correct" style="margin-bottom:0;" />
+                <div class="q-answer-container">
+                    <input type="text" placeholder="Correct Answer" class="adv-q-correct" style="margin-bottom:0;" />
+                </div>
             `;
             container.appendChild(block);
+        }
+
+        function onQuestionTypeChange(selectEl) {
+            const block = selectEl.closest('.adv-exam-q-block');
+            const answerContainer = block.querySelector('.q-answer-container');
+            const type = selectEl.value;
+
+            if(type === 'true_false') {
+                answerContainer.innerHTML = `
+                    <select class="adv-q-correct" style="margin-bottom:0;">
+                        <option value="True">True</option>
+                        <option value="False">False</option>
+                    </select>
+                `;
+            } else {
+                answerContainer.innerHTML = `
+                    <input type="text" placeholder="${type === 'mcq' ? 'Correct Answer (e.g. Alpha)' : 'Correct Answer'}" class="adv-q-correct" style="margin-bottom:0;" />
+                `;
+            }
         }
 
         function generatePrintablePDFHandout() {
@@ -1763,8 +1798,13 @@
 
             document.querySelectorAll('.adv-exam-q-block').forEach((block) => {
                 const qText = block.querySelector('.adv-q-text').value.trim();
+                const qType = block.querySelector('.q-type-select').value;
                 if(qText) {
-                    printWindow.document.write(`<li style="margin-bottom: 15px;">${qText}<br><div style="border-bottom:1px dotted #888; width:100%; height:25px;"></div></li>`);
+                    if(qType === 'true_false') {
+                        printWindow.document.write(`<li style="margin-bottom: 15px;">${qText}<br>&nbsp;&nbsp;&nbsp;&nbsp; [ &nbsp; ] True &nbsp;&nbsp;&nbsp;&nbsp; [ &nbsp; ] False<div style="border-bottom:1px dotted #888; width:100%; height:15px;"></div></li>`);
+                    } else {
+                        printWindow.document.write(`<li style="margin-bottom: 15px;">${qText}<br><div style="border-bottom:1px dotted #888; width:100%; height:25px;"></div></li>`);
+                    }
                 }
             });
 
@@ -1782,11 +1822,13 @@
             const title = document.getElementById('ex-title').value.trim();
             const groupCode = document.getElementById('ex-code').value.trim() || sessionUser.group_code;
             if(!title) { showToast('Enter exam title', true); return; }
+            if(!groupCode) { showToast('Enter a custom teacher exam code', true); return; }
 
             let exam_data = [];
             document.querySelectorAll('.adv-exam-q-block').forEach(b => {
                 const q = b.querySelector('.adv-q-text').value.trim();
-                const a = b.querySelector('.adv-q-correct').value.trim();
+                const aEl = b.querySelector('.adv-q-correct');
+                const a = aEl ? aEl.value.trim() : '';
                 const type = b.querySelector('.q-type-select').value;
                 if(q && a) exam_data.push({ question: q, correct: a, type: type });
             });
@@ -1796,7 +1838,7 @@
             const res = await fetch('/api/exam/create-advanced', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ group_code: groupCode, teacher_username: sessionUser.username, title, exam_data })
+                body: JSON.stringify({ group_code: groupCode, teacher_username: sessionUser.username, title, exam_data, is_pdf: false })
             });
             if(res.ok) {
                 showToast('Advanced exam published successfully! 🏆');
@@ -1806,34 +1848,59 @@
             }
         }
 
+        async function publishPDFDocument() {
+            playSound('click');
+            const title = document.getElementById('pdf-doc-title').value.trim();
+            const url = document.getElementById('pdf-doc-url').value.trim();
+            const groupCode = document.getElementById('ex-code').value.trim() || sessionUser.group_code;
+
+            if(!title || !url) { showToast('Enter PDF title and URL', true); return; }
+            if(!groupCode) { showToast('Enter a custom teacher code', true); return; }
+
+            const res = await fetch('/api/exam/create-advanced', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ group_code: groupCode, teacher_username: sessionUser.username, title, exam_data: [], is_pdf: true, pdf_url: url })
+            });
+            if(res.ok) {
+                showToast('PDF Document uploaded successfully! 📑');
+                openStudyHub();
+            } else {
+                showToast('Failed to upload PDF document', true);
+            }
+        }
+
         async function runSmartGroupSeparator() {
             playSound('click');
             const teamSize = parseInt(document.getElementById('team-size-input').value) || 4;
-            const groupCode = sessionUser ? sessionUser.group_code : '7842';
-
-            try {
-                const res = await fetch('/api/teacher/generate-groups', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ group_code: groupCode, team_size: teamSize })
-                });
-                const data = await res.json();
-                const outputBox = document.getElementById('shuffled-teams-output');
-
-                if(res.ok && data.teams) {
-                    outputBox.innerHTML = data.teams.map(t => `
-                        <div style="background:var(--bg-deep); padding:10px 14px; border-radius:12px; border:1px solid var(--border-glow);">
-                            <b style="color:var(--accent); font-size:0.9rem;">${t.team_name} (${t.members.length} cadets)</b>
-                            <div style="font-size:0.82rem; color:white; margin-top:4px;">${t.members.map(m => m.full_name).join(', ')}</div>
-                        </div>
-                    `).join('');
-                    showToast('Teams generated successfully! 🔀');
-                } else {
-                    showToast(data.detail || 'Failed to generate groups', true);
-                }
-            } catch(e) {
-                showToast('Network error during grouping', true);
+            const namesRaw = document.getElementById('shuffler-names-input').value.trim();
+            
+            if(!namesRaw) {
+                showToast('Please enter student names for shuffling', true);
+                return;
             }
+
+            const namesList = namesRaw.split(/[\n,]+/).map(n => n.trim()).filter(n => n.length > 0);
+            if(namesList.length === 0) {
+                showToast('No valid student names found', true);
+                return;
+            }
+
+            namesList.sort(() => Math.random() - 0.5);
+            let teams = [];
+            for (let i = 0; i < namesList.length; i += teamSize) {
+                const chunk = namesList.slice(i, i + teamSize);
+                teams.push({ team_name: `Team ${teams.length + 1}`, members: chunk.map(n => ({ full_name: n })) });
+            }
+
+            const outputBox = document.getElementById('shuffled-teams-output');
+            outputBox.innerHTML = teams.map(t => `
+                <div style="background:var(--bg-deep); padding:10px 14px; border-radius:12px; border:1px solid var(--border-glow);">
+                    <b style="color:var(--accent); font-size:0.9rem;">${t.team_name} (${t.members.length} cadets)</b>
+                    <div style="font-size:0.82rem; color:white; margin-top:4px;">${t.members.map(m => m.full_name).join(', ')}</div>
+                </div>
+            `).join('');
+            showToast('Teams generated successfully! 🔀');
         }
 
         function confirmDeleteExam(examId) {
@@ -1897,16 +1964,31 @@
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="openStudyHub()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
                     <h3 style="font-size:1.1rem; color:var(--warning); font-weight:900;">⏱️ ${exam.title}</h3>
-                    <div style="width:85px;"></div>
+                    <span style="font-size:0.75rem; color:var(--accent);">By @${exam.teacher_username || 'teacher'}</span>
                 </div>
                 <div style="max-width:520px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
                     <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:1.5rem;">
-                        ${questions.map((q, idx) => `
-                            <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}:${q.question}</label>
-                                <input type="text" class="exam-answer-input" data-correct="${q.correct}" placeholder="Your answer..." style="margin-bottom:0;" />
-                            </div>
-                        `).join('')}
+                        ${questions.map((q, idx) => {
+                            if(q.type === 'true_false') {
+                                return `
+                                    <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
+                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}:${q.question}</label>
+                                        <select class="exam-answer-input" data-correct="${q.correct}" style="margin-bottom:0;">
+                                            <option value="">Select True / False...</option>
+                                            <option value="True">True</option>
+                                            <option value="False">False</option>
+                                        </select>
+                                    </div>
+                                `;
+                            } else {
+                                return `
+                                    <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
+                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}:${q.question}</label>
+                                        <input type="text" class="exam-answer-input" data-correct="${q.correct}" placeholder="Your answer..." style="margin-bottom:0;" />
+                                    </div>
+                                `;
+                            }
+                        }).join('')}
                     </div>
                     <button class="btn-action" onclick="submitActiveExam(${exam.id}, ${questions.length})" style="background:var(--success); color:white; padding:1.1rem; margin-bottom:2rem;">Submit Official Exam 🏆</button>
                 </div>
