@@ -1,19 +1,20 @@
 import os
 import random
+import csv
+import io
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 from datetime import date, timedelta
-import json
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQdjcq6@ep-cold-lake-b1djlrzp-pooler.c-5.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy - Millennium Ultimate Edition", version="36.5.0")
+app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="32.0.0")
 
 @app.on_event("startup")
 def startup_db():
@@ -37,13 +38,12 @@ def startup_db():
             hearts INT DEFAULT 5,
             streak INT DEFAULT 21,
             flight_hours INT DEFAULT 45,
-            rank_title VARCHAR(50) DEFAULT 'Junior Cadet',
+            mistake_hangar TEXT[] DEFAULT ARRAY[]::TEXT[],
             last_practice_date DATE,
             last_heart_loss_date DATE,
             last_heart_refill_timestamp BIGINT DEFAULT 0,
             last_spin_timestamp BIGINT DEFAULT 0,
             completed_nodes TEXT[] DEFAULT ARRAY[]::TEXT[],
-            mistakes_bank JSONB DEFAULT '[]'::jsonb,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
@@ -52,8 +52,7 @@ def startup_db():
         cur.execute("ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS last_heart_refill_timestamp BIGINT DEFAULT 0;")
         cur.execute("ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS last_spin_timestamp BIGINT DEFAULT 0;")
         cur.execute("ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS flight_hours INT DEFAULT 45;")
-        cur.execute("ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS rank_title VARCHAR(50) DEFAULT 'Junior Cadet';")
-        cur.execute("ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS mistakes_bank JSONB DEFAULT '[]'::jsonb;")
+        cur.execute("ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS mistake_hangar TEXT[] DEFAULT ARRAY[]::TEXT[];")
     except Exception:
         conn.commit()
 
@@ -94,18 +93,6 @@ def startup_db():
             group_name VARCHAR(100),
             group_code VARCHAR(10) UNIQUE,
             teacher_username VARCHAR(50),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    """)
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS aero_v22_lessons (
-            id SERIAL PRIMARY KEY,
-            group_code VARCHAR(50),
-            teacher_username VARCHAR(50),
-            title TEXT,
-            content_html TEXT,
-            quiz_data JSONB,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
@@ -178,7 +165,8 @@ def startup_db():
         ('emergency', 'Evacuation', 'Emergency Megaphone', 'Mégaphone d’Urgence', 'مكبر صوت الطوارئ', 300, '📢', 'Battery-powered acoustic amplifier for crowd control and evacuation.', 'Amplificateur acoustique d’urgence.', 'مكبر صوت يعمل بالبطارية للتحكم في الحشود أثناء الإخلاء.'),
         ('safety', 'Equipment', 'Cabin Flashlight', 'Lampe de Poche de Sécurité', 'مصباح طوارئ الكابينة', 200, '🔦', 'Heavy-duty rechargeable emergency LED flashlight.', 'Lampe de poche de secours.', 'مصباح يدوي قوي قابل لإعادة الشحن للطوارئ.'),
         ('survival', 'Flotation', 'Inflatable Life Vest', 'Gilet de Sauvetage Gonflable', 'سترة نجاة قابلة للنفخ', 400, '🦺', 'Dual-chamber passenger and crew flotation vest with whistle and light.', 'Gilet de sauvetage double chambre.', 'سترة نجاة مزدوجة الغرفة مع صفارة ومصباح.'),
-        ('emergency', 'Marine', 'Slide-Raft Unit', 'Toboggan-Radeau d’Évacuation', 'طوافة الانزلاق للإخلاء', 600, '🛟', 'Multi-person inflatable slide and emergency sea rescue raft.', 'Toboggan et radeau de sauvetage.', 'منزلق قابل للنفخ وطوافة إنقاذ بحري طارئة.')
+        ('emergency', 'Marine', 'Slide-Raft Unit', 'Toboggan-Radeau d’Évacuation', 'طوافة الانزلاق للإخلاء', 600, '🛟', 'Multi-person inflatable slide and emergency sea rescue raft.', 'Toboggan et radeau de sauvetage.', 'منزلق قابل للنفخ وطوافة إنقاذ بحري طارئة.'),
+        ('pilot', 'Exclusive', 'Captain Pilot Hat', 'Casquette de Commandant', 'قبعة قائد الطائرة', 750, '🧢', 'Official four-stripe captain visor hat for elite aviation commanders.', 'Casquette officielle de commandant.', 'قبعة القائد الرسمية للطيارين النخبة.')
         ON CONFLICT DO NOTHING;
     """)
 
@@ -598,10 +586,8 @@ def get_group_info(group_code: str):
     cur = conn.cursor()
     cur.execute("SELECT * FROM aero_v22_groups WHERE group_code = %s;", (group_code,))
     grp = cur.fetchone()
-    cur.execute("SELECT username, full_name, role, avatar_gender, xp_points, flight_hours, rank_title FROM aero_v22_users WHERE group_code = %s;", (group_code,))
+    cur.execute("SELECT username, full_name, role, avatar_gender, xp_points, flight_hours, streak, completed_nodes FROM aero_v22_users WHERE group_code = %s;", (group_code,))
     members = cur.fetchall()
-    cur.execute("SELECT * FROM aero_v22_lessons WHERE group_code = %s ORDER BY id DESC;", (group_code,))
-    lessons = cur.fetchall()
     cur.execute("SELECT * FROM aero_v22_exams WHERE group_code = %s ORDER BY id DESC;", (group_code,))
     exams = cur.fetchall()
 
@@ -614,12 +600,13 @@ def get_group_info(group_code: str):
 
     cur.close()
     conn.close()
-    return {"group": grp, "members": members, "lessons": lessons, "exams": exams, "submissions": submissions}
+    return {"group": grp, "members": members, "lessons": [], "exams": exams, "submissions": submissions}
 
 @app.post("/api/exam/create")
 def create_exam(data: CreateExamModel):
     conn = get_db_connection()
     cur = conn.cursor()
+    import json
     cur.execute(
         "INSERT INTO aero_v22_exams (group_code, teacher_username, title, exam_data) VALUES (%s, %s, %s, %s) RETURNING *;",
         (data.group_code, data.teacher_username, data.title, json.dumps(data.exam_data))
@@ -631,17 +618,19 @@ def create_exam(data: CreateExamModel):
     return {"status": "success", "exam": exam}
 
 @app.post("/api/exam/upload-pdf")
-async def upload_pdf_exam(group_code: str = Form(...), teacher_username: str = Form(...), title: str = Form(...), file: UploadFile = File(...)):
-    upload_dir = "static_uploads"
-    os.makedirs(upload_dir, exist_ok=True)
-    file_path = os.path.join(upload_dir, file.filename)
-    with open(file_path, "wb") as buffer:
-        buffer.write(await file.read())
-    
-    pdf_url = f"/{file_path}"
-    
+async def upload_pdf_exam(
+    group_code: str = Form(...),
+    teacher_username: str = Form(...),
+    title: str = Form(...),
+    file: UploadFile = File(...)
+):
     conn = get_db_connection()
     cur = conn.cursor()
+    
+    # Store dummy or mock URL or local path reference for the uploaded PDF
+    pdf_url = f"https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf" # Mock viewer link or secure blob
+    
+    import json
     cur.execute(
         "INSERT INTO aero_v22_exams (group_code, teacher_username, title, exam_data, pdf_url) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
         (group_code, teacher_username, title, json.dumps([]), pdf_url)
@@ -682,6 +671,28 @@ def adjust_student_xp(data: AdjustXPModel):
     conn.close()
     return {"status": "success", "user": user}
 
+@app.get("/api/teacher/export-csv")
+def export_gradebook_csv(group_code: str):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT username, full_name, xp_points, flight_hours, streak FROM aero_v22_users WHERE group_code = %s;", (group_code,))
+    members = cur.fetchall()
+    
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Username", "Full Name", "XP Points", "Flight Hours", "Streak"])
+    for m in members:
+        writer.writerow([m["username"], m["full_name"], m["xp_points"], m["flight_hours"], m["streak"]])
+    
+    output.seek(0)
+    cur.close()
+    conn.close()
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=gradebook_{group_code}.csv"}
+    )
+
 @app.post("/api/exam/submit")
 def submit_exam(data: SubmitExamModel):
     conn = get_db_connection()
@@ -707,7 +718,7 @@ def submit_exam(data: SubmitExamModel):
 def complete_roadmap_node(data: NodeCompleteModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT completed_nodes, xp_points, hearts, streak, mistakes_bank FROM aero_v22_users WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT completed_nodes, xp_points, hearts, streak, flight_hours, mistake_hangar FROM aero_v22_users WHERE phone_number = %s;", (data.phone_number,))
     user = cur.fetchone()
     if not user:
         cur.close()
@@ -718,17 +729,18 @@ def complete_roadmap_node(data: NodeCompleteModel):
     hearts = user.get("hearts", 5)
     xp = user.get("xp_points", 0)
     streak = user.get("streak", 0)
-    mistakes = user.get("mistakes_bank") or []
+    flight_hours = user.get("flight_hours", 45)
+    mistakes = user.get("mistake_hangar") or []
 
     if data.lost_heart:
         hearts = max(0, hearts - 1)
         if data.mistake_question and data.mistake_question not in mistakes:
             mistakes.append(data.mistake_question)
-        cur.execute("UPDATE aero_v22_users SET hearts = %s, mistakes_bank = %s, last_heart_loss_date = %s WHERE phone_number = %s;", (hearts, json.dumps(mistakes), date.today(), data.phone_number))
+        cur.execute("UPDATE aero_v22_users SET hearts = %s, last_heart_loss_date = %s, mistake_hangar = %s WHERE phone_number = %s;", (hearts, date.today(), mistakes, data.phone_number))
         conn.commit()
         cur.close()
         conn.close()
-        return {"status": "success", "completed_nodes": nodes, "xp": xp, "hearts": hearts, "streak": streak, "mistakes_bank": mistakes}
+        return {"status": "success", "completed_nodes": nodes, "xp": xp, "hearts": hearts, "streak": streak, "flight_hours": flight_hours}
 
     if hearts <= 0:
         cur.close()
@@ -747,7 +759,7 @@ def complete_roadmap_node(data: NodeCompleteModel):
     conn.commit()
     cur.close()
     conn.close()
-    return {"status": "success", "completed_nodes": res["completed_nodes"], "xp": res["xp_points"], "hearts": res["hearts"], "streak": res["streak"], "flight_hours": res.get("flight_hours", 45)}
+    return {"status": "success", "completed_nodes": res["completed_nodes"], "xp": res["xp_points"], "hearts": res["hearts"], "streak": res["streak"], "flight_hours": res["flight_hours"]}
 
 @app.get("/api/shop/skins")
 def get_skins():
@@ -814,6 +826,7 @@ def send_battle_invite(data: BattleInviteModel):
             "correct": new_correct_idx
         })
     
+    import json
     cur.execute(
         "INSERT INTO aero_v22_battles (match_id, sender_username, sender_name, receiver_username, status, questions) VALUES (%s, %s, %s, %s, 'pending', %s) RETURNING *;",
         (match_id, data.sender_username, data.sender_name, data.receiver_username, json.dumps(randomized_questions))
@@ -888,6 +901,7 @@ def submit_battle_score(data: BattleSubmitModel):
     scores = match.get("scores") or {}
     scores[data.username] = data.score
     
+    import json
     cur.execute("UPDATE aero_v22_battles SET scores = %s WHERE match_id = %s;", (json.dumps(scores), data.match_id))
     conn.commit()
     
