@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aero Crew Academy - Millennium Edition</title>
+    <title>Aero Crew Academy</title>
     <link rel="icon" href="https://img.icons8.com/color/48/airplane-take-off.png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@450;700;900&display=swap" rel="stylesheet">
     <style>
@@ -75,7 +75,7 @@
         
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 1.2rem; }
         .mode-tile { background: linear-gradient(rgba(2, 6, 23, 0.65), rgba(11, 15, 25, 0.88)), url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=600&q=80') center/cover no-repeat; border: 1px solid var(--border-glow); border-radius: 18px; padding: 1.2rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
-        .mode-tile:hover { border-color: var(--accent); translateY(-2px); box-shadow: 0 0 22px var(--accent-glow); }
+        .mode-tile:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 0 22px var(--accent-glow); }
         .mode-tile h4 { font-size: 0.82rem; font-weight: 800; margin-top: 8px; color: white; text-shadow: 0 2px 6px rgba(0,0,0,0.9); line-height: 1.3; }
 
         .card-container { background: var(--surface-card); border-radius: 22px; padding: 1.5rem; border: 1px solid var(--border-glow); margin-bottom: 1.2rem; min-height: 290px; }
@@ -169,10 +169,10 @@
     <div id="cinematic-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.96); display:none; justify-content:center; align-items:center; z-index:9000; backdrop-filter:blur(15px);">
         <div style="background:var(--surface-card); border:2px solid var(--accent); border-radius:32px; padding:2.5rem; width:90%; max-width:440px; text-align:center; box-shadow:0 0 50px var(--accent-glow);">
             <div style="font-size:4rem; margin-bottom:12px;">✈️</div>
-            <h2 style="font-size:1.5rem; color:var(--accent); font-weight:900; margin-bottom:6px;" id="tr-cin-title">Ready for Takeoff?</h2>
-            <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.8rem; line-height:1.6;" id="tr-cin-sub">Engines primed, clearance granted. Focus and conquer this aviation milestone!</p>
+            <h2 style="font-size:1.5rem; color:var(--accent); font-weight:900; margin-bottom:6px;">Ready for Takeoff?</h2>
+            <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1.8rem; line-height:1.6;">Engines primed, clearance granted. Focus and conquer this aviation milestone!</p>
             <div id="cinematic-countdown" style="font-size:2.5rem; font-weight:900; color:var(--gold); margin-bottom:1.5rem;">3</div>
-            <button class="btn-action" onclick="startNodeSessionAfterCinematic()" style="background:linear-gradient(135deg, #10b981, #059669); color:white; padding:1.1rem; font-size:1.05rem; margin-top:0;" id="tr-cin-btn">ENGAGE MODULE 🚀</button>
+            <button class="btn-action" onclick="startNodeSessionAfterCinematic()" style="background:linear-gradient(135deg, #10b981, #059669); color:white; padding:1.1rem; font-size:1.05rem; margin-top:0;">ENGAGE MODULE 🚀</button>
         </div>
     </div>
 
@@ -236,7 +236,7 @@
             </select>
 
             <div id="teacher-code-box" class="hidden" style="background: rgba(56, 189, 248, 0.08); padding: 12px; border-radius: 14px; border: 1px dashed var(--accent); margin-bottom: 1.1rem;">
-                <label id="tr-lbl-teachercode" style="color: var(--accent);">🔒 6-Digit Teacher Verification Code</label>
+                <label style="color: var(--accent);">🔒 6-Digit Teacher Verification Code</label>
                 <input type="password" id="reg-teacher-code" placeholder="Enter 6-digit teacher code" maxlength="6" style="letter-spacing: 3px; text-align: center; margin-bottom:0;" />
             </div>
 
@@ -259,8 +259,8 @@
             
             <label id="tr-avatar-type-lbl">Avatar Type</label>
             <select id="reg-gender" onchange="updateRegAvatarPreview()">
-                <option value="steward" id="tr-opt-steward">👔 Steward</option>
-                <option value="hostess" id="tr-opt-hostess">👗 Hostess</option>
+                <option value="steward">👔 Steward</option>
+                <option value="hostess">👗 Hostess</option>
             </select>
             
             <button class="btn-action" onclick="submitRegister()" style="background: #10b981; color: white;" id="tr-complete-reg-btn">Complete Registration</button>
@@ -297,7 +297,6 @@
                     <div class="stat-item" style="color: var(--warning);">⭐ <span id="dash-xp">1500</span></div>
                     <div class="stat-item" style="color: var(--danger);">❤ <span id="dash-hearts">5</span></div>
                     <div class="stat-item" id="dash-streak-badge" style="font-size: 0.95rem;">🔥 <span id="dash-streak">1</span></div>
-                    <div class="stat-item" style="color: var(--accent);" title="Logged Flight Hours">⏱ <span id="dash-hours">45</span>h</div>
                     <div class="stat-item" style="background: rgba(56,189,248,0.12); padding: 4px 8px; border-radius: 10px; border: 1px solid var(--border-glow);" title="Active Boutique Skin">
                         <span id="dash-active-skin-icon" style="font-size: 1.1rem;">🧯</span>
                     </div>
@@ -323,7 +322,7 @@
                 </div>
                 <div class="mode-tile" onclick="openSpinningWheelModal()">
                     <span style="font-size: 1.5rem;">🎡</span>
-                    <h4 id="tr-tile-wheel">Daily Spinning Wheel (24h)</h4>
+                    <h4>Daily Spinning Wheel (24h)</h4>
                 </div>
                 <div class="mode-tile" onclick="open1v1Lobby()">
                     <span style="font-size: 1.5rem;">⚔</span>
@@ -336,10 +335,6 @@
                 <div class="mode-tile" onclick="openSocialHub()">
                     <span style="font-size: 1.5rem;">💬</span>
                     <h4 id="tr-tile-social">Friends, Private Chat & Groups</h4>
-                </div>
-                <div class="mode-tile" onclick="openMistakeHangar()" style="grid-column: span 2;">
-                    <span style="font-size: 1.5rem;">🛠️</span>
-                    <h4 id="tr-tile-hangar">The Hangar of Errors (Mistake Review)</h4>
                 </div>
             </div>
 
@@ -359,8 +354,8 @@
     <div id="spinning-wheel-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.95); display:none; justify-content:center; align-items:center; z-index:5000;">
         <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:32px; padding:2rem; width:90%; max-width:440px; text-align:center; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.9);">
             <button onclick="closeSpinningWheelModal()" style="position:absolute; top:18px; right:18px; background:none; border:none; color:var(--text-muted); font-size:1.3rem; cursor:pointer;">✕</button>
-            <h3 style="font-size:1.25rem; font-weight:900; color:var(--gold); margin-bottom:0.3rem;" id="tr-wheel-modal-title">🎡 Daily Aviation Spinning Wheel</h3>
-            <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.4rem;" id="tr-wheel-modal-sub">Strictly 1 spin every 24 hours. Win XP, hearts, or exclusive Pilot Hat skins!</p>
+            <h3 style="font-size:1.25rem; font-weight:900; color:var(--gold); margin-bottom:0.3rem;">🎡 Daily Aviation Spinning Wheel</h3>
+            <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.4rem;">Strictly 1 spin every 24 hours. Win XP, hearts, or exclusive Pilot Hat skins!</p>
             
             <div style="position:relative; width:260px; height:260px; margin:0 auto 1.4rem auto; display:flex; justify-content:center; align-items:center;">
                 <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent; border-top:24px solid var(--warning); z-index:20;"></div>
@@ -382,8 +377,8 @@
             <div class="avatar-preview-box" id="modal-avatar-preview">👔</div>
             <label id="tr-modal-gender-lbl">Gender / Style</label>
             <select id="mod-gender" onchange="updateModalAvatarPreview()">
-                <option value="steward" id="tr-mod-steward">👔 Steward</option>
-                <option value="hostess" id="tr-mod-hostess">👗 Hostess</option>
+                <option value="steward">👔 Steward</option>
+                <option value="hostess">👗 Hostess</option>
             </select>
             <button class="btn-action" onclick="saveAvatarChanges()" style="background:var(--success); color:white;" id="tr-save-avatar-btn">Save Avatar 💾</button>
         </div>
@@ -490,23 +485,19 @@
                 regNav: "Create Account", resetNav: "Forgot Password?",
                 regTitle: "Cadet & Instructor Enrollment", regSub: "Register your profile, choose your role, and design your avatar.",
                 regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student", optTeacher: "👨‍🏫 Instructor / Teacher",
-                teachercodeLbl: "🔒 6-Digit Teacher Verification Code",
                 regNameLbl: "Full Name", regUserLbl: "Unique Username", regPassLbl: "Password", regPinLbl: "Recovery PIN (4 digits)",
                 avatarStudioTitle: "🎨 Avatar Customization", avatarTypeLbl: "Avatar Type", optSteward: "👔 Steward", optHostess: "👗 Hostess",
                 completeRegBtn: "Complete Registration", backLogin: "Already have an account? Sign In",
                 resetTitle: "Recovery PIN Reset", resetSub: "Enter your phone and secret recovery PIN.", resetNewLbl: "New Password",
                 updateCredBtn: "Update Credentials", backLogin2: "Back to Sign In",
                 tileY1: "First Year Path (100 Nodes)", tileY2: "Second Year Path (Locked)", tileEng: "Aviation English & ICAO Mastery",
-                tileVocab: "English Vocabulary to Arabic (5k)", tileWheel: "Daily Spinning Wheel (24h)",
+                tileVocab: "English Vocabulary to Arabic (5k)",
                 tile1v1: "1v1 Battle Arena (Challenge)", tileStudy: "Lessons, Quizzes & Exams Studio", tileSocial: "Friends, Private Chat & Groups",
-                tileHangar: "The Hangar of Errors (Mistake Review)",
                 centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, <b>English Vocabulary</b>, or the <b>1v1 Battle Arena</b> above to begin your training adventure.",
                 hubBtn: "← Hub", logoutBtn: "Logout 🚪",
                 modalAvatarTitle: "🎨 Edit Avatar", modalGenderLbl: "Genre / Style", saveAvatarBtn: "Save Avatar 💾",
                 settingsTitle: "⚙ Academy Settings", langLbl: "Interface Language", passChangeLbl: "Change Password", updatePassBtn: "Update Password 🔒",
-                myUsernameLbl: "My Username",
-                cinTitle: "Ready for Takeoff?", cinSub: "Engines primed, clearance granted. Focus and conquer this aviation milestone!", cinBtn: "ENGAGE MODULE 🚀",
-                wheelTitle: "🎡 Daily Aviation Spinning Wheel", wheelSub: "Strictly 1 spin every 24 hours. Win XP, hearts, or exclusive Pilot Hat skins!"
+                myUsernameLbl: "My Username"
             },
             fr: {
                 brand: "Aero Crew",
@@ -515,48 +506,40 @@
                 regNav: "Créer un compte", resetNav: "Mot de passe oublié ?",
                 regTitle: "Inscription Cadet & Instructeur", regSub: "Enregistrez votre profil, choisissez votre rôle et votre avatar.",
                 regRoleLbl: "S'inscrire en tant que", optCadet: "🎓 Cadet / Étudiant", optTeacher: "👨‍🏫 Instructeur / Professeur",
-                teachercodeLbl: "🔒 Code de vérification enseignant (6 chiffres)",
                 regNameLbl: "Nom complet", regUserLbl: "Nom d'utilisateur unique", regPassLbl: "Mot de passe", regPinLbl: "PIN de récupération (4 chiffres)",
                 avatarStudioTitle: "🎨 Personnalisation d'Avatar", avatarTypeLbl: "Type d'avatar", optSteward: "👔 Steward", optHostess: "👗 Hôtesse",
                 completeRegBtn: "Terminer l'inscription", backLogin: "Déjà un compte ? Se connecter",
                 resetTitle: "Réinitialisation du PIN", resetSub: "Entrez votre téléphone et votre PIN de récupération secret.", resetNewLbl: "Nouveau mot de passe",
                 updateCredBtn: "Mettre à jour", backLogin2: "Retour à la connexion",
                 tileY1: "Parcours 1ère Année (100 Nœuds)", tileY2: "Parcours 2ème Année (Verrouillé)", tileEng: "Anglais Aéronautique & ICAO",
-                tileVocab: "Vocabulaire Anglais-Arabe (5k)", tileWheel: "Roue de la Fortune (24h)",
+                tileVocab: "Vocabulaire Anglais-Arabe (5k)",
                 tile1v1: "Arène de Combat 1v1 (Défi)", tileStudy: "Studio Leçons, Quiz & Examens", tileSocial: "Amis, Chat Privé & Groupes",
-                tileHangar: "Le Hangar des Erreurs (Révision)",
                 centerTitle: "Centre de Formation Professionnelle EASA", centerDesc: "Sélectionnez <b>Parcours 1ère Année</b>, <b>2ème Année</b>, <b>Anglais Aéronautique</b> ou <b>Vocabulaire</b> pour débuter.",
                 hubBtn: "← Accueil", logoutBtn: "Déconnexion 🚪",
                 modalAvatarTitle: "🎨 Modifier l'Avatar", modalGenderLbl: "Genre / Style", saveAvatarBtn: "Enregistrer 💾",
                 settingsTitle: "⚙ Paramètres", langLbl: "Langue de l'interface", passChangeLbl: "Changer le mot de passe", updatePassBtn: "Mettre à jour 🔒",
-                myUsernameLbl: "Mon Nom d'utilisateur",
-                cinTitle: "Prêt pour le Décollage ?", cinSub: "Moteurs amorcés, autorisation accordée. Conquérons cette étape !", cinBtn: "LANCER LE MODULE 🚀",
-                wheelTitle: "🎡 Roue de la Fortune Aéronautique", wheelSub: "1 tour toutes les 24h. Gagnez de l'XP, des cœurs ou des skins !"
+                myUsernameLbl: "Mon Nom d'utilisateur"
             },
             ar: {
-                brand: "طاقم أيرو",
+                brand: "Aero Crew",
                 loginTitle: "بوابة طاقم الطائرة", loginSub: "الوصول إلى مناهج EASA والمجموعات الحية المعتمدة.",
                 phoneLbl: "رقم الهاتف", passLbl: "كلمة المرور", loginBtn: "تسجيل الدخول",
                 regNav: "إنشاء حساب", resetNav: "نسيت كلمة المرور؟",
                 regTitle: "تسجيل المتدربين والمدربين", regSub: "سجل ملفك الشخصي واجتاز التدريب وصمم صورتك الرمزية.",
                 regRoleLbl: "التسجيل كـ", optCadet: "🎓 متدرب / طالب", optTeacher: "👨‍🏫 مدرب / معلم",
-                teachercodeLbl: "🔒 رمز التحقق للمدرب (6 أرقام)",
                 regNameLbl: "الاسم الكامل", regUserLbl: "اسم المستخدم الفريد", regPassLbl: "كلمة المرور", regPinLbl: "رقم الاسترداد السري (4 أرقام)",
                 avatarStudioTitle: "🎨 تخصيص الصورة الرمزية", avatarTypeLbl: "نوع الصورة", optSteward: "👔 مضيف جوي", optHostess: "👗 مضيفة جوية",
                 completeRegBtn: "إتمام التسجيل", backLogin: "لديك حساب بالفعل؟ سجل دخولك",
                 resetTitle: "إعادة تعيين رقم الاسترداد", resetSub: "أدخل هاتفك ورقم الاسترداد السري الخاص بك.", resetNewLbl: "كلمة المرور الجديدة",
                 updateCredBtn: "تحديث بيانات الاعتماد", backLogin2: "العودة لتسجيل الدخول",
                 tileY1: "مسار السنة الأولى (100 نقطة)", tileY2: "مسار السنة الثانية (مغلق)", tileEng: "اللغة الإنجليزية للطيران وإيكاو",
-                tileVocab: "مفردات طيران إنجليزية إلى العربية (5k)", tileWheel: "عجلة الحظ اليومية (24س)",
+                tileVocab: "مفردات طيران إنجليزية إلى العربية (5k)",
                 tile1v1: "حلبة تحدي 1 ضد 1", tileStudy: "استوديو الدروس والاختبارات", tileSocial: "الأصدقاء والمحادثة الخاصة والمجموعات",
-                tileHangar: "حظيرة الأخطاء (مراجعة الأخطاء)",
                 centerTitle: "مركز تدريب الطيران الاحترافي EASA", centerDesc: "اختر مسار التعلم لعرض الخريطة المتعرجة مع أسئلة عشوائية مضادة للغش.",
                 hubBtn: "← الرئيسية", logoutBtn: "تسجيل الخروج 🚪",
                 modalAvatarTitle: "🎨 تعديل الرمزية", modalGenderLbl: "الجنس / النمط", saveAvatarBtn: "حفظ 💾",
                 settingsTitle: "⚙️ إعدادات الأكاديمية", langLbl: "لغة الواجهة", passChangeLbl: "تغيير كلمة المرور", updatePassBtn: "تحديث كلمة المرور 🔒",
-                myUsernameLbl: "اسم المستخدم الخاص بي",
-                cinTitle: "جاهز للإقلاع؟", cinSub: "المحركات جاهزة، تمت الموافقة. ركز واجتاز هذا المعلم!", cinBtn: "تشغيل الوحدة 🚀",
-                wheelTitle: "🎡 عجلة الحظ للطيران اليومية", wheelSub: "دور مرة كل 24 ساعة لربح نقاط XP، القلوب، أو القبعات!"
+                myUsernameLbl: "اسم المستخدم الخاص بي"
             }
         };
 
@@ -639,7 +622,6 @@
                 document.getElementById('tr-reg-role-lbl').innerText = t.regRoleLbl;
                 document.getElementById('tr-opt-cadet').innerText = t.optCadet;
                 document.getElementById('tr-opt-teacher').innerText = t.optTeacher;
-                document.getElementById('tr-lbl-teachercode').innerText = t.teachercodeLbl;
                 document.getElementById('tr-reg-name-lbl').innerText = t.regNameLbl;
                 document.getElementById('tr-reg-user-lbl').innerText = t.regUserLbl;
                 document.getElementById('tr-reg-phone-lbl').innerText = t.phoneLbl;
@@ -664,11 +646,9 @@
                 document.getElementById('tr-tile-y2').innerText = t.tileY2;
                 document.getElementById('tr-tile-eng').innerText = t.tileEng;
                 document.getElementById('tr-tile-vocab').innerText = t.tileVocab;
-                document.getElementById('tr-tile-wheel').innerText = t.tileWheel;
                 document.getElementById('tr-tile-1v1').innerText = t.tile1v1;
                 document.getElementById('tr-tile-study').innerText = t.tileStudy;
                 document.getElementById('tr-tile-social').innerText = t.tileSocial;
-                document.getElementById('tr-tile-hangar').innerText = t.tileHangar;
                 document.getElementById('tr-center-title').innerText = t.centerTitle;
                 document.getElementById('tr-center-desc').innerHTML = t.centerDesc;
                 document.getElementById('tr-hub-btn').innerText = t.hubBtn;
@@ -676,8 +656,6 @@
 
                 document.getElementById('tr-modal-avatar-title').innerText = t.modalAvatarTitle;
                 document.getElementById('tr-modal-gender-lbl').innerText = t.modalGenderLbl;
-                document.getElementById('tr-mod-steward').innerText = t.optSteward;
-                document.getElementById('tr-mod-hostess').innerText = t.optHostess;
                 document.getElementById('tr-save-avatar-btn').innerText = t.saveAvatarBtn;
 
                 document.getElementById('tr-settings-title').innerText = t.settingsTitle;
@@ -685,13 +663,6 @@
                 document.getElementById('tr-pass-change-lbl').innerText = t.passChangeLbl;
                 document.getElementById('tr-update-pass-btn').innerText = t.updatePassBtn;
                 document.getElementById('tr-my-username-lbl').innerText = t.myUsernameLbl;
-                
-                document.getElementById('tr-cin-title').innerText = t.cinTitle;
-                document.getElementById('tr-cin-sub').innerText = t.cinSub;
-                document.getElementById('tr-cin-btn').innerText = t.cinBtn;
-                document.getElementById('tr-wheel-modal-title').innerText = t.wheelTitle;
-                document.getElementById('tr-wheel-modal-sub').innerText = t.wheelSub;
-
                 if(sessionUser) document.getElementById('settings-my-username').innerText = '@' + sessionUser.username;
             }
         }
@@ -831,7 +802,6 @@
             document.getElementById('dash-name').innerText = sessionUser.full_name;
             document.getElementById('dash-xp').innerText = sessionUser.xp_points;
             document.getElementById('dash-hearts').innerText = sessionUser.hearts;
-            document.getElementById('dash-hours').innerText = sessionUser.flight_hours || 45;
             
             const streakVal = (sessionUser.streak !== undefined && sessionUser.streak !== null) ? sessionUser.streak : 1;
             const streakBadge = document.getElementById('dash-streak-badge');
@@ -984,7 +954,7 @@
                 const remainingMins = Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000));
                 spinBtn.disabled = true;
                 spinBtn.style.opacity = '0.5';
-                statusEl.innerText = `🔒 Next spin available in ${remainingHours}h${remainingMins}m`;
+                statusEl.innerText = `🔒 Next spin available in ${remainingHours}h ${remainingMins}m`;
                 return false;
             } else {
                 spinBtn.disabled = false;
@@ -1083,7 +1053,7 @@
                     <div style="background:var(--surface-card); padding:1.4rem; border-radius:22px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
                         <div style="font-size:2rem; margin-bottom:6px;">⏳</div>
                         <h4 style="color:var(--warning); font-size:0.95rem; margin-bottom:4px; font-weight:900;">24-Hour Heart Refill Cooldown</h4>
-                        <p style="font-size:0.82rem; color:var(--text-muted);">Next free refill available in <b>${remHrs}h${remMins}m</b>.</p>
+                        <p style="font-size:0.82rem; color:var(--text-muted);">Next free refill available in <b>${remHrs}h ${remMins}m</b>.</p>
                     </div>
                 `;
             }
@@ -1095,7 +1065,8 @@
                     <div style="width:85px;"></div>
                 </div>
                 <div style="max-width:480px; width:100%; margin: 0 auto; text-align:center; padding-top:0.5rem;">
-                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.4rem; line-height:1.6;">You currently have <b>${sessionUser.hearts}/5 hearts</b>.</p>${freeRefillHtml}
+                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.4rem; line-height:1.6;">You currently have <b>${sessionUser.hearts}/5 hearts</b>.</p>
+                    ${freeRefillHtml}
                     <div style="background:var(--surface-card); padding:1.5rem; border-radius:22px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
                         <div style="font-size:2.2rem; margin-bottom:8px;">⭐</div>
                         <h4 style="color:var(--warning); font-size:1rem; margin-bottom:4px; font-weight:900;">Refill with XP (Cost: 50 XP Stars)</h4>
@@ -1135,35 +1106,6 @@
             } else {
                 showToast(data.detail || 'Refill failed', true);
             }
-        }
-
-        /* HANGAR OF ERRORS (MISTAKE REVIEW) */
-        async function openMistakeHangar() {
-            playSound('click');
-            if(questionTimerInterval) clearInterval(questionTimerInterval);
-            const box = document.getElementById('simulation-box');
-            box.classList.add('feature-fullscreen-view');
-            const mistakes = sessionUser.mistake_hangar || [];
-
-            box.innerHTML = `
-                <div class="feature-topbar">
-                    <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: var(--danger); font-weight: 900;">🛠️ The Hangar of Errors</h3>
-                    <div style="width:85px;"></div>
-                </div>
-                <div style="max-width:520px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
-                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6;">Review and practice your exact weak spots logged during roadmap sessions.</p>
-                    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.5rem;">
-                        ${mistakes.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:2rem; background:var(--surface-card); border-radius:18px;">No mistakes logged in your Hangar yet. Fly safely! ✈️</div>' :
-                            mistakes.map((m, idx) => `
-                                <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                    <span style="color:var(--danger); font-size:0.75rem; font-weight:800; display:block; margin-bottom:4px;">MISTAKE #${idx+1}</span>
-                                    <b style="color:white; font-size:0.95rem; line-height:1.5;">${m}</b>
-                                </div>
-                            `).join('')}
-                    </div>
-                </div>
-            `;
         }
 
         /* DIVERSIFIED 100-NODE QUESTION POOLS WITH RANDOMIZATION */
@@ -1337,9 +1279,10 @@
 
                 nodesHtml += `
                     <div class="duo-node-wrapper">
-                        <div class="duo-node ${statusClass}" onclick="triggerCinematicIntro(() => startRoadmapLesson('${poolKey}', ${i},${totalNodes}))">
+                        <div class="duo-node ${statusClass}" onclick="triggerCinematicIntro(() => startRoadmapLesson('${poolKey}', ${i}, ${totalNodes}))">
                             <span style="font-size:1.4rem;">${icon}</span>
-                            <span style="font-size:0.65rem; font-weight:800; margin-top:2px;">#${i}</span>${mascotHtml}
+                            <span style="font-size:0.65rem; font-weight:800; margin-top:2px;">#${i}</span>
+                            ${mascotHtml}
                         </div>
                     </div>
                 `;
@@ -1372,8 +1315,7 @@
                 currentIdx: 0,
                 poolKey: poolKey,
                 nodeNum: nodeNum,
-                totalNodes: totalNodes,
-                isAnswerLocked: false
+                totalNodes: totalNodes
             };
 
             renderRoadmapStep();
@@ -1382,7 +1324,6 @@
         function renderRoadmapStep() {
             const session = window.currentRoadmapSession;
             if(!session || !session.questions) return;
-            session.isAnswerLocked = false;
 
             if(session.currentIdx >= session.questions.length) {
                 const progressKey = 'aero_progress_' + (sessionUser ? sessionUser.username : 'guest') + '_' + session.poolKey;
@@ -1390,21 +1331,11 @@
                 if(session.nodeNum === currentUnlocked) {
                     localStorage.setItem(progressKey, String(session.nodeNum + 1));
                 }
-                
-                // Backend Sync
-                fetch('/api/node/complete', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: `${session.poolKey}_${session.nodeNum}` })
-                }).then(res => res.json()).then(data => {
-                    if(data.status === 'success') {
-                        sessionUser.xp_points = data.xp;
-                        sessionUser.flight_hours = data.flight_hours;
-                        sessionUser.streak = data.streak;
-                        localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                        updateDashboardUI();
-                    }
-                }).catch(e => {});
+                if(sessionUser) {
+                    sessionUser.xp_points = (sessionUser.xp_points || 0) + 50;
+                    localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                    updateDashboardUI();
+                }
 
                 const box = document.getElementById('simulation-box');
                 box.innerHTML = `
@@ -1416,8 +1347,8 @@
                     <div style="text-align:center; padding: 2rem 1rem;">
                         <div style="font-size:4.5rem; margin-bottom:1rem;">🏆</div>
                         <h2 style="color:var(--gold); font-size:1.5rem; font-weight:900; margin-bottom:0.5rem;">Node #${session.nodeNum} Conquered!</h2>
-                        <p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:2rem;">Earned +30 XP Stars ⭐ & +1 Flight Hour ⏱. Ready for the next aviation milestone?</p>
-                        <button class="btn-action" onclick="renderDuoRoadmap(document.getElementById('simulation-box'), '${session.poolKey === 'vocab' ? 'English Vocabulary to Arabic (5k)' : session.poolKey === 'english' ? 'Aviation English & ICAO Mastery' : 'First Year Path (100 Nodes)'}', '${session.poolKey}',${session.totalNodes})" style="max-width:280px; margin:0 auto; background:var(--success); color:white; padding:1.1rem;">Continue Roadmap ✈</button>
+                        <p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:2rem;">Earned +50 XP Stars ⭐. Ready for the next aviation milestone?</p>
+                        <button class="btn-action" onclick="renderDuoRoadmap(document.getElementById('simulation-box'), '${session.poolKey === 'vocab' ? 'English Vocabulary to Arabic (5k)' : session.poolKey === 'english' ? 'Aviation English & ICAO Mastery' : 'First Year Path (100 Nodes)'}', '${session.poolKey}', ${session.totalNodes})" style="max-width:280px; margin:0 auto; background:var(--success); color:white; padding:1.1rem;">Continue Roadmap ✈</button>
                     </div>
                 `;
                 return;
@@ -1430,29 +1361,29 @@
                 box.innerHTML = `
                     <div class="feature-topbar">
                         <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
-                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Vocab Item ${session.currentIdx + 1} /${session.questions.length}</h3>
+                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Vocab Item ${session.currentIdx + 1} / ${session.questions.length}</h3>
                         <div style="width:85px;"></div>
                     </div>
                     <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1.5rem; text-align:center;">
                         <div style="font-size:3.5rem; margin-bottom:10px; cursor:pointer;" onclick="triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" title="Tap microphone to speak word">🎙️</div>
                         <h2 style="color:var(--accent); font-size:1.8rem; font-weight:900; margin-bottom:0.5rem;">${q.en}</h2>
                         <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;" id="vocab-status-label">Speak "${q.en}" or tap below to reveal Arabic translation</p>
-                        <button id="vocab-mic-btn" class="btn-action" onclick="triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--accent); color:var(--bg-deep); max-width:280px; margin:0 auto; padding:1.1rem; margin-bottom:10px;">Tap Mic to Speak 🎙️</button>
-                        <button id="vocab-skip-btn" class="btn-action" onclick="revealVocabWithTimerGlobal('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); max-width:280px; margin:0 auto; padding:0.9rem;">Skip / Reveal Translation ➡</button>
+                        <button class="btn-action" onclick="triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--accent); color:var(--bg-deep); max-width:280px; margin:0 auto; padding:1.1rem; margin-bottom:10px;">Tap Mic to Speak 🎙️</button>
+                        <button class="btn-action" onclick="revealVocabWithTimerGlobal('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); max-width:280px; margin:0 auto; padding:0.9rem;">Skip / Reveal Translation ➡</button>
                     </div>
                 `;
             } else {
                 box.innerHTML = `
                     <div class="feature-topbar">
                         <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
-                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Question ${session.currentIdx + 1} /${session.questions.length}</h3>
+                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Question ${session.currentIdx + 1} / ${session.questions.length}</h3>
                         <div style="width:85px;"></div>
                     </div>
                     <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1rem;">
                         <b style="color:white; font-size:1.05rem; display:block; margin-bottom:1.5rem; line-height:1.6;">${q.q}</b>
                         <div style="display:flex; flex-direction:column; gap:12px;">
                             ${q.options.map((opt, idx) => `
-                                <button class="btn-action roadmap-ans-btn" onclick="handleRoadmapAnswerGlobal(${idx === q.correct}, '${q.q.replace(/'/g, "\\'")}')" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); text-align:left; padding:14px 18px; font-size:0.95rem; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
+                                <button class="btn-action" onclick="handleRoadmapAnswerGlobal(${idx === q.correct})" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); text-align:left; padding:14px 18px; font-size:0.95rem; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
                             `).join('')}
                         </div>
                     </div>
@@ -1460,21 +1391,10 @@
             }
         }
 
-        function handleRoadmapAnswerGlobal(isCorrect, questionText) {
-            const session = window.currentRoadmapSession;
-            if(session.isAnswerLocked) return;
-            session.isAnswerLocked = true;
-
-            const allBtns = document.querySelectorAll('.roadmap-ans-btn');
-            allBtns.forEach(b => b.disabled = true);
-
+        function handleRoadmapAnswerGlobal(isCorrect) {
             if(isCorrect) {
                 playSound('success');
                 showToast('Correct! ⭐');
-                setTimeout(() => {
-                    session.currentIdx++;
-                    renderRoadmapStep();
-                }, 900);
             } else {
                 playSound('error');
                 if(sessionUser && sessionUser.hearts > 0) {
@@ -1483,26 +1403,14 @@
                     updateDashboardUI();
                 }
                 showToast('Incorrect! Heart lost ❤', true);
-                
-                // Record mistake in backend Hangar of Errors
-                fetch('/api/node/complete', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: 'error_log', lost_heart: true, mistake_question: questionText })
-                }).catch(e => {});
-
-                setTimeout(() => {
-                    session.currentIdx++;
-                    renderRoadmapStep();
-                }, 1200);
             }
+            setTimeout(() => {
+                window.currentRoadmapSession.currentIdx++;
+                renderRoadmapStep();
+            }, 900);
         }
 
         function triggerVocabSpeech(enWord, arWord) {
-            const session = window.currentRoadmapSession;
-            if(session.isAnswerLocked) return;
-            session.isAnswerLocked = true;
-
             playSound('click');
             const statusEl = document.getElementById('vocab-status-label');
             if(statusEl) statusEl.innerText = 'Listening... Speak "' + enWord + '" into microphone';
@@ -1565,11 +1473,6 @@
 
         function revealVocabWithTimerGlobal(enWord, arWord) {
             playSound('success');
-            const micBtn = document.getElementById('vocab-mic-btn');
-            const skipBtn = document.getElementById('vocab-skip-btn');
-            if(micBtn) micBtn.style.display = 'none';
-            if(skipBtn) skipBtn.style.display = 'none';
-
             const statusEl = document.getElementById('vocab-status-label');
             if(statusEl) {
                 statusEl.innerHTML = `<b style="color:var(--gold); font-size:1.3rem;">Arabic: ${arWord}</b><br><span style="color:var(--text-muted); font-size:0.85rem;" id="countdown-timer-text">Memorize word: 5s</span>`;
@@ -1589,7 +1492,7 @@
             }, 1000);
         }
 
-        /* STUDY & EXAMS STUDIO WITH SMART GROUP SEPARATOR & PDF UPLOADER */
+        /* STUDY & EXAMS STUDIO */
         async function openStudyHub() {
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
@@ -1613,28 +1516,17 @@
             const isTeacher = sessionUser && sessionUser.role === 'teacher';
             const examsList = groupInfo.exams || [];
             const submissionsList = groupInfo.submissions || [];
-            const membersList = groupInfo.members || [];
 
             let teacherControls = '';
-            let groupSeparatorHtml = '';
-
             if(isTeacher) {
                 teacherControls = `
                     <div style="background:var(--bg-deep); padding:1.2rem; border-radius:18px; border:1px solid var(--accent); margin-bottom:1.5rem;">
-                        <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Instructor Studio & PDF Uploader</h4>
-                        
-                        <div style="margin-bottom:1.2rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
-                            <label><b>Upload PDF Exam / Syllabus</b></label>
-                            <input type="text" id="pdf-ex-title" placeholder="PDF Exam Title" style="margin-bottom:8px;" />
-                            <input type="file" id="pdf-file-input" accept="application/pdf" style="margin-bottom:8px; padding:8px; background:var(--surface-card);" />
-                            <button class="btn-action" onclick="uploadPDFExam()" style="padding:9px; font-size:0.85rem; background:var(--success); color:white; margin-top:0;">Upload PDF Exam 📄</button>
-                        </div>
-
-                        <div style="margin-bottom:1.2rem; padding-bottom:1rem; border-bottom:1px solid var(--border);">
-                            <label><b>Exam / Class Code</b></label>
-                            <input type="text" id="ex-code" value="${sessionUser.group_code || ''}" placeholder="e.g. 7842" style="margin-bottom:8px; font-weight:800;" />
+                        <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Instructor Studio</h4>
+                        <div>
+                            <label><b>Exam / Class Code (Shareable on WhatsApp, etc.)</b></label>
+                            <input type="text" id="ex-code" value="${sessionUser.group_code || ''}" placeholder="e.g. 4412 or custom code" style="margin-bottom:8px; font-weight:800;" />
                             
-                            <label><b>Create Interactive Exam Title</b></label>
+                            <label><b>Create Official Exam Title</b></label>
                             <input type="text" id="ex-title" placeholder="Exam Title" style="margin-bottom:8px;" />
                             
                             <div id="exam-questions-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom:10px;">
@@ -1646,22 +1538,23 @@
                             <button class="btn-action" onclick="addExamQuestionRow()" style="padding:6px; font-size:0.78rem; background:var(--surface-card); color:var(--accent); margin-top:0; margin-bottom:8px;">+ Add Question</button>
                             <button class="btn-action" onclick="publishExam()" style="padding:8px; font-size:0.85rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Publish Exam 🏆</button>
                         </div>
-
-                        <div>
-                            <a href="/api/teacher/export-csv?group_code=${sessionUser.group_code}" target="_blank" class="btn-action" style="background:var(--accent); color:var(--bg-deep); text-align:center; text-decoration:none; display:block; padding:10px; font-size:0.85rem; margin-top:0;">Download Official Gradebook (CSV) 📊</a>
-                        </div>
                     </div>
-                `;
 
-                groupSeparatorHtml = `
-                    <div style="background:var(--surface-card); padding:1.4rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
-                        <h4 style="color:var(--warning); font-size:1rem; font-weight:900; margin-bottom:6px;">🔀 Smart Group Separator (Team Shuffler)</h4>
-                        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem;">Automatically shuffle your enrolled students (${membersList.length} students) into balanced working teams (Team A, Team B, Team C...).</p>
-                        <div style="display:flex; gap:10px; margin-bottom:10px;">
-                            <input type="number" id="group-size-input" value="4" min="2" max="10" placeholder="Students per team" style="margin-bottom:0; width:120px; text-align:center;" />
-                            <button class="btn-action" onclick="executeSmartGroupSeparator()" style="background:var(--warning); color:var(--bg-deep); margin-top:0; padding:10px; font-size:0.85rem; flex:1;">Generate Teams 🔀</button>
-                        </div>
-                        <div id="smart-teams-output" style="margin-top:10px;"></div>
+                    <h4 style="font-size:0.85rem; color:var(--warning); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">📊 Student Exam Statistics & XP Adjuster</h4>
+                    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.5rem;">
+                        ${submissionsList.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1rem; background:var(--surface-card); border-radius:12px;">No student submissions recorded yet.</div>' :
+                            submissionsList.map(sub => `
+                                <div style="background:var(--surface-card); padding:14px; border-radius:16px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
+                                    <div>
+                                        <b style="color:white; font-size:0.9rem;">👤 ${sub.student_name}</b> <span style="color:var(--text-muted); font-size:0.78rem;">(@${sub.student_username})</span>
+                                        <div style="color:var(--accent); font-size:0.8rem; margin-top:2px;">Exam ID #${sub.exam_id} | Score: <b>${sub.score}/${sub.total_questions}</b></div>
+                                    </div>
+                                    <div style="display:flex; gap:6px; align-items:center;">
+                                        <button class="btn-action" onclick="adjustStudentXP('${sub.student_username}', 50)" style="width:50px; padding:6px; font-size:0.75rem; background:var(--success); color:white; margin-top:0;" title="Reward +50 XP">+50⭐</button>
+                                        <button class="btn-action" onclick="adjustStudentXP('${sub.student_username}', -50)" style="width:50px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;" title="Deduction -50 XP">-50⭐</button>
+                                    </div>
+                                </div>
+                            `).join('')}
                     </div>
                 `;
             }
@@ -1686,9 +1579,9 @@
                         </div>
                     </div>
 
-                    ${teacherControls}${groupSeparatorHtml}
+                    ${teacherControls}
 
-                    <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">Official Exams & PDFs (${examsList.length})</h4>
+                    <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">Official Exams (${examsList.length})</h4>
                     <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.5rem;">
                         ${examsList.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No exams available for this code. Please load a valid teacher code above.</div>' :
                             examsList.map(e => {
@@ -1702,8 +1595,6 @@
                                             <button class="btn-action" onclick="confirmDeleteExam(${e.id})" style="width:75px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;">Delete 🗑️</button>
                                         </div>
                                     `;
-                                } else if(e.pdf_url) {
-                                    actionBtnHtml = `<a href="${e.pdf_url}" target="_blank" class="btn-action" style="width:110px; padding:8px; font-size:0.8rem; background:var(--accent); color:var(--bg-deep); margin-top:0; text-align:center; text-decoration:none; display:inline-block;">Open PDF 📄</a>`;
                                 } else if(existingSub) {
                                     actionBtnHtml = `<span style="color:var(--success); font-weight:800; font-size:0.85rem;">Completed ✓ (${existingSub.score}/${existingSub.total_questions})</span>`;
                                 } else {
@@ -1712,7 +1603,7 @@
 
                                 return `
                                     <div style="background:var(--surface-card); padding:14px; border-radius:16px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
-                                        <div><b style="color:white; font-size:0.95rem;">🏆 ${e.title}</b> ${e.pdf_url ? '<span style="font-size:0.75rem; color:var(--accent); display:block;">PDF Document</span>' : ''}</div>
+                                        <div><b style="color:white; font-size:0.95rem;">🏆 ${e.title}</b></div>
                                         ${actionBtnHtml}
                                     </div>
                                 `;
@@ -1720,33 +1611,6 @@
                     </div>
                 </div>
             `;
-        }
-
-        function executeSmartGroupSeparator() {
-            playSound('click');
-            const members = groupInfo.members || [];
-            if(members.length === 0) {
-                showToast('No students enrolled in this group yet', true);
-                return;
-            }
-
-            const sizeInput = document.getElementById('group-size-input');
-            const teamSize = parseInt(sizeInput ? sizeInput.value : 4) || 4;
-
-            const shuffled = [...members].sort(() => Math.random() - 0.5);
-            const teams = [];
-            for (let i = 0; i < shuffled.length; i += teamSize) {
-                teams.push(shuffled.slice(i, i + teamSize));
-            }
-
-            const outputDiv = document.getElementById('smart-teams-output');
-            outputDiv.innerHTML = teams.map((team, idx) => `
-                <div style="background:var(--bg-deep); padding:12px; border-radius:12px; border:1px solid var(--border-glow); margin-top:8px;">
-                    <b style="color:var(--accent); font-size:0.9rem;">Team ${String.fromCharCode(65 + idx)} (${team.length} members):</b>
-                    <div style="font-size:0.82rem; color:white; margin-top:4px;">${team.map(m => m.full_name).join(', ')}</div>
-                </div>
-            `).join('');
-            showToast('Teams generated successfully! 🔀');
         }
 
         async function updateStudentGroupCode() {
@@ -1799,40 +1663,6 @@
                 body: JSON.stringify({ group_code: customCode, teacher_username: sessionUser.username, title, exam_data })
             });
             if(res.ok) { showToast('Exam published with code ' + customCode + '!'); openStudyHub(); }
-        }
-
-        async function uploadPDFExam() {
-            playSound('click');
-            const title = document.getElementById('pdf-ex-title').value.trim();
-            const fileInput = document.getElementById('pdf-file-input');
-            const file = fileInput.files[0];
-            const customCode = sessionUser.group_code;
-
-            if(!title || !file) {
-                showToast('Enter PDF title and select a file', true);
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('group_code', customCode);
-            formData.append('teacher_username', sessionUser.username);
-            formData.append('title', title);
-            formData.append('file', file);
-
-            try {
-                const res = await fetch('/api/exam/upload-pdf', {
-                    method: 'POST',
-                    body: formData
-                });
-                if(res.ok) {
-                    showToast('PDF exam uploaded successfully! 📄');
-                    openStudyHub();
-                } else {
-                    showToast('Failed to upload PDF', true);
-                }
-            } catch(e) {
-                showToast('Network error during PDF upload', true);
-            }
         }
 
         function confirmDeleteExam(examId) {
@@ -1907,7 +1737,7 @@
                             </div>
                         `).join('')}
                     </div>
-                    <button class="btn-action" onclick="submitActiveExam(${exam.id},${questions.length})" style="background:var(--success); color:white; padding:1.1rem; margin-bottom:2rem;">Submit Official Exam 🏆</button>
+                    <button class="btn-action" onclick="submitActiveExam(${exam.id}, ${questions.length})" style="background:var(--success); color:white; padding:1.1rem; margin-bottom:2rem;">Submit Official Exam 🏆</button>
                 </div>
             `;
         }
@@ -1915,9 +1745,7 @@
         async function submitActiveExam(examId, totalQ) {
             let score = 0;
             document.querySelectorAll('.exam-answer-input').forEach(inp => {
-                const userAns = inp.value.trim().toLowerCase();
-                const correctAns = inp.getAttribute('data-correct').trim().toLowerCase();
-                if(userAns === correctAns || (correctAns.length > 3 && userAns.includes(correctAns))) score++;
+                if(inp.value.trim().toLowerCase() === inp.getAttribute('data-correct').trim().toLowerCase()) score++;
             });
             const res = await fetch('/api/exam/submit', {
                 method: 'POST',
@@ -1926,8 +1754,7 @@
             });
             const data = await res.json();
             if(res.ok) {
-                showToast(`Exam submitted! Score: ${score}/${totalQ}. +100 XP ⭐ & +5 Flight Hours ⏱️`);
-                await refreshUserData(false);
+                showToast(`Exam submitted! Score: ${score}/${totalQ}. +100 XP ⭐`);
                 openStudyHub();
             } else {
                 showToast(data.detail || 'Submission failed', true);
@@ -2067,4 +1894,389 @@
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="openSocialHub()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
-                    <h3 style="font-size: 1.1rem; color: var(--accent
+                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">💬 Chat with ${friendFullName}</h3>
+                    <div style="width:85px;"></div>
+                </div>
+                <div style="max-width:520px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; display:flex; flex-direction:column;">
+                    <div id="dm-chat-box" style="flex:1; overflow-y:auto; background:var(--bg-deep); padding:14px; border-radius:18px; margin-bottom:12px; border:1px solid var(--border-glow); display:flex; flex-direction:column; gap:8px; min-height:285px;"></div>
+                    <div style="display:flex; gap:8px; margin-bottom:1.5rem;">
+                        <input type="text" id="dm-msg-input" placeholder="Type private message..." style="margin-bottom:0; flex:1;" />
+                        <button class="btn-action" onclick="sendPrivateMessage('${friendUsername}')" style="width:90px; margin-top:0; padding:8px; font-size:0.85rem;">Send ✈️</button>
+                    </div>
+                </div>
+            `;
+            startDMPolling(friendUsername);
+        }
+
+        function startDMPolling(friendUsername) {
+            fetchDMs(friendUsername);
+            dmPollingInterval = setInterval(() => fetchDMs(friendUsername), 3000);
+        }
+
+        async function fetchDMs(friendUsername) {
+            try {
+                const res = await fetch(`/api/dm/list?user1=${sessionUser.username}&user2=${friendUsername}`);
+                const data = await res.json();
+                const box = document.getElementById('dm-chat-box');
+                if(!box) return;
+                box.innerHTML = (data.messages || []).map(m => `
+                    <div style="font-size:0.85rem; padding:6px 10px; border-radius:10px; background:${m.sender_username === sessionUser.username ? 'rgba(56, 189, 248, 0.15)' : 'var(--surface-card)'}; align-self:${m.sender_username === sessionUser.username ? 'flex-end' : 'flex-start'}; max-width:80%;">
+                        <b style="color:var(--accent); font-size:0.75rem; display:block;">@${m.sender_username}</b>
+                        <span style="color:white;">${m.message}</span>
+                    </div>
+                `).join('') || '<div style="color:var(--text-muted); font-size:0.8rem; text-align:center; margin:auto;">No messages exchanged yet.</div>';
+                box.scrollTop = box.scrollHeight;
+            } catch(e) {}
+        }
+
+        async function sendPrivateMessage(friendUsername) {
+            const input = document.getElementById('dm-msg-input');
+            const message = input ? input.value.trim() : '';
+            if(!message) return;
+            input.value = '';
+            await fetch('/api/dm/send', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ sender_username: sessionUser.username, receiver_username: friendUsername, message })
+            });
+            fetchDMs(friendUsername);
+        }
+
+        /* 1V1 BATTLE ARENA LOBBY WITH INSTANT FEEDBACK & REWARDS */
+        async function open1v1Lobby() {
+            playSound('click');
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
+            const box = document.getElementById('simulation-box');
+            box.classList.add('feature-fullscreen-view');
+            const res = await fetch('/api/friends/list?username=' + sessionUser.username);
+            socialData = await res.json();
+
+            box.innerHTML = `
+                <div class="feature-topbar">
+                    <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
+                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️ 1v1 Battle Arena</h3>
+                    <span style="font-size: 0.78rem; color: var(--gold); font-weight: 800;">Duel</span>
+                </div>
+                <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
+                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.6;">Select a friend below to challenge them in a live 1v1 Duel for 100 XP Stars ⭐!</p>
+                    <h4 style="font-size:0.85rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.6rem; font-weight:800;">Choose Friend (${socialData.friends.length})</h4>
+                    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:2rem;">
+                        ${socialData.friends.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:2rem;">No friends added yet.</div>' :
+                            socialData.friends.map(f => `
+                                <div style="background:var(--surface-card); padding:14px 18px; border-radius:16px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border-glow);">
+                                    <div><b style="color:white; font-size:0.95rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.78rem;">(@${f.username})</span></div>
+                                    <button class="btn-action" onclick="send1v1Challenge('${f.username}', '${f.full_name}')" style="width:105px; padding:8px; font-size:0.8rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Challenge ⚔️</button>
+                                </div>
+                            `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function send1v1Challenge(friendUsername, friendFullName) {
+            playSound('click');
+            const modal = document.getElementById('battle-arena-modal');
+            const contentEl = document.getElementById('battle-modal-content');
+            modal.style.display = 'flex';
+
+            contentEl.innerHTML = `
+                <div style="text-align:center; padding: 1.5rem 0;">
+                    <div style="font-size: 3.5rem; margin-bottom: 12px;">⚔️</div>
+                    <h3 style="font-size: 1.25rem; color:var(--accent); font-weight:900; margin-bottom:0.6rem;">Challenging ${friendFullName}</h3>
+                    <button class="btn-action" onclick="cancel1v1Challenge()" style="background:var(--danger); color:white; margin-top:0; padding:1.1rem;">Cancel Invitation ❌</button>
+                </div>
+            `;
+
+            try {
+                const res = await fetch('/api/battle/invite', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ sender_username: sessionUser.username, sender_name: sessionUser.full_name, receiver_username: friendUsername })
+                });
+                const data = await res.json();
+                if(res.ok && data.match_id) {
+                    activeMatchId = data.match_id;
+                    pollBattleAcceptance(activeMatchId);
+                } else {
+                    showToast(data.detail || 'Failed to send challenge', true);
+                    modal.style.display = 'none';
+                }
+            } catch(e) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function cancel1v1Challenge() {
+            playSound('click');
+            if(activeMatchId) {
+                fetch('/api/battle/cancel', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ match_id: String(activeMatchId) })
+                }).catch(e => {});
+            }
+            activeMatchId = null;
+            document.getElementById('battle-arena-modal').style.display = 'none';
+        }
+
+        function pollBattleAcceptance(matchId) {
+            const pollTimer = setInterval(async () => {
+                if(!activeMatchId) { clearInterval(pollTimer); return; }
+                try {
+                    const res = await fetch('/api/battle/status?match_id=' + encodeURIComponent(matchId));
+                    const data = await res.json();
+                    if(data.status === 'accepted') {
+                        clearInterval(pollTimer);
+                        showToast('Opponent accepted! Starting 1v1 Arena...');
+                        start1v1BattleWithQuestions(data.questions, matchId);
+                    } else if(data.status === 'rejected' || data.status === 'canceled') {
+                        clearInterval(pollTimer);
+                        document.getElementById('battle-arena-modal').style.display = 'none';
+                    }
+                } catch(e) {}
+            }, 2000);
+        }
+
+        let battleInvitePollingInterval = null;
+        function startBattleInvitePolling() {
+            if(battleInvitePollingInterval) clearInterval(battleInvitePollingInterval);
+            battleInvitePollingInterval = setInterval(async () => {
+                if(!sessionUser) return;
+                try {
+                    const res = await fetch('/api/battle/incoming?username=' + encodeURIComponent(sessionUser.username));
+                    const data = await res.json();
+                    if(data.invite) {
+                        playSound('success');
+                        showIncomingBattleModal(data.invite);
+                    }
+                } catch(e) {}
+            }, 3000);
+        }
+
+        function showIncomingBattleModal(invite) {
+            const modal = document.getElementById('battle-arena-modal');
+            if(modal.style.display === 'flex') return;
+            modal.style.display = 'flex';
+            activeMatchId = invite.match_id;
+
+            const contentEl = document.getElementById('battle-modal-content');
+            contentEl.innerHTML = `
+                <div style="text-align:center; padding: 1.5rem 0;">
+                    <div style="font-size: 4rem; margin-bottom: 12px;">⚔️</div>
+                    <h3 style="font-size: 1.3rem; color:var(--gold); font-weight:900; margin-bottom:0.6rem;">Incoming 1v1 Challenge!</h3>
+                    <p style="font-size:0.92rem; color:white; margin-bottom:1.6rem; line-height:1.6;"><b>${invite.sender_name}</b> challenged you!</p>
+                    <div style="display:flex; gap:12px;">
+                        <button class="btn-action" onclick="respondBattleInvite('${invite.match_id}', false)" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0; padding:1.1rem;">Reject ❌</button>
+                        <button class="btn-action" onclick="respondBattleInvite('${invite.match_id}', true)" style="background:var(--success); color:white; margin-top:0; padding:1.1rem;">Accept ⚔️</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function respondBattleInvite(matchId, accept) {
+            playSound('click');
+            const res = await fetch('/api/battle/respond', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ match_id: String(matchId), accept: accept })
+            });
+            const data = await res.json();
+            if(accept && res.ok) {
+                showToast('Battle accepted!');
+                start1v1BattleWithQuestions(data.questions, matchId);
+            } else {
+                document.getElementById('battle-arena-modal').style.display = 'none';
+            }
+        }
+
+        function start1v1BattleWithQuestions(questions, matchId) {
+            battleQuestions = questions;
+            battleCurrentIdx = 0;
+            battleScore = 0;
+            activeMatchId = matchId;
+            document.getElementById('battle-arena-modal').style.display = 'flex';
+            renderBattleQuestionModal();
+        }
+
+        function renderBattleQuestionModal() {
+            if(battleCurrentIdx >= battleQuestions.length) {
+                finish1v1BattleModal();
+                return;
+            }
+
+            const qObj = battleQuestions[battleCurrentIdx];
+            const contentEl = document.getElementById('battle-modal-content');
+
+            contentEl.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔ 1v1 BATTLE • Q${battleCurrentIdx+1} / ${battleQuestions.length}</span>
+                </div>
+                <div style="background:var(--bg-deep); padding:1.4rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.2rem; text-align:left;">
+                    <b style="color:white; font-size:1rem; display:block; margin-bottom:14px; line-height:1.5;">${qObj.q}</b>
+                    <div style="display:flex; flex-direction:column; gap:10px;" id="battle-options-container">
+                        ${qObj.options.map((opt, idx) => `
+                            <button class="btn-action battle-opt-btn" onclick="answerModalBattleQuestion(${idx === qObj.correct}, this)" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:13px; font-size:0.9rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)})${opt}</button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function answerModalBattleQuestion(isCorrect, btnEl) {
+            const allBtns = document.querySelectorAll('.battle-opt-btn');
+            allBtns.forEach(b => b.disabled = true);
+
+            if(isCorrect) {
+                playSound('success');
+                battleScore++;
+                btnEl.style.background = 'var(--success)';
+                btnEl.style.borderColor = 'var(--success)';
+                showToast('Correct! ⭐');
+            } else {
+                playSound('error');
+                btnEl.style.background = 'var(--danger)';
+                btnEl.style.borderColor = 'var(--danger)';
+                showToast('Incorrect ❌', true);
+            }
+
+            setTimeout(() => {
+                battleCurrentIdx++;
+                renderBattleQuestionModal();
+            }, 900);
+        }
+
+        async function finish1v1BattleModal() {
+            const res = await fetch('/api/battle/submit', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ match_id: String(activeMatchId), username: sessionUser.username, score: battleScore })
+            });
+            const data = await res.json();
+            
+            const oppScore = data.opponent_score || 0;
+            let resultTitle = 'Battle Concluded (Draw)';
+            let rewardText = 'Great effort!';
+            if(battleScore > oppScore) {
+                sessionUser.xp_points = (sessionUser.xp_points || 0) + 100;
+                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                updateDashboardUI();
+                resultTitle = 'Victory! 🏆';
+                rewardText = 'You won the 1v1 Duel and earned +100 XP Stars ⭐!';
+            } else if(battleScore < oppScore) {
+                resultTitle = 'Defeat 😢';
+                rewardText = 'Opponent scored higher. Better luck next time!';
+            }
+
+            await refreshUserData(false);
+
+            const contentEl = document.getElementById('battle-modal-content');
+            contentEl.innerHTML = `
+                <div style="text-align:center; padding: 2rem 0;">
+                    <div style="font-size: 4rem; margin-bottom: 1.2rem;">🏆</div>
+                    <h3 style="font-size: 1.4rem; color: var(--gold); font-weight: 900; margin-bottom: 0.6rem;">${resultTitle}</h3>
+                    <p style="font-size: 0.92rem; color: white; margin-bottom: 0.5rem;">Your Score: <b>${battleScore}</b> | Opponent Score: <b>${oppScore}</b></p>
+                    <p style="font-size: 0.85rem; color: var(--warning); margin-bottom: 2rem; font-weight:700;">${rewardText}</p>
+                    <button class="btn-action" onclick="document.getElementById('battle-arena-modal').style.display='none';" style="background:var(--success); color:white; padding:1.1rem;">Close Arena 🚀</button>
+                </div>
+            `;
+        }
+
+        function openAvatarStudio() { 
+            playSound('click'); 
+            document.getElementById('avatar-studio-modal').style.display = 'flex'; 
+        }
+        function closeAvatarStudio() { 
+            playSound('click'); 
+            document.getElementById('avatar-studio-modal').style.display = 'none'; 
+        }
+        async function saveAvatarChanges() {
+            playSound('click');
+            const avatar_gender = document.getElementById('mod-gender').value;
+            const res = await fetch('/api/user/avatar-update', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ phone_number: sessionUser.phone_number, avatar_gender })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                sessionUser = data.user;
+                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                updateDashboardUI();
+                closeAvatarStudio();
+                showToast('Avatar updated!');
+            }
+        }
+        function openSettingsModal() { 
+            playSound('click'); 
+            document.getElementById('settings-modal').style.display = 'flex'; 
+        }
+        function closeSettingsModal() { 
+            playSound('click'); 
+            document.getElementById('settings-modal').style.display = 'none'; 
+        }
+        async function submitPasswordChangeModal() {
+            playSound('click');
+            const recovery_pin = document.getElementById('set-pin').value.trim();
+            const new_password = document.getElementById('set-new-pass').value.trim();
+            if(!recovery_pin || !new_password) { showToast('Fill fields', true); return; }
+            const res = await fetch('/api/user/password-change', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ phone_number: sessionUser.phone_number, recovery_pin, new_password })
+            });
+            if(res.ok) { showToast('Password updated!'); closeSettingsModal(); }
+            else { showToast('Invalid PIN', true); }
+        }
+
+        async function openShop() {
+            playSound('click');
+            const box = document.getElementById('simulation-box');
+            box.classList.add('feature-fullscreen-view');
+            const res = await fetch('/api/shop/skins');
+            const data = await res.json();
+
+            box.innerHTML = `
+                <div class="feature-topbar">
+                    <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
+                    <h3 style="font-size: 1.1rem; color: #a78bfa; font-weight: 900;">🎁 Boutique</h3>
+                    <span style="font-size: 0.82rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
+                </div>
+                <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem;">
+                        ${data.skins.map(skin => {
+                            const isEquipped = sessionUser.active_skin === skin.skin_name_en;
+                            return `
+                            <div style="background: var(--surface-card); padding: 1rem 1.2rem; border-radius: 16px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 14px;">
+                                    <span style="font-size: 1.8rem;">${skin.preview_svg}</span>
+                                    <div style="color: white; font-size: 0.9rem;"><b style="font-size:0.95rem;">${skin.skin_name_en}</b></div>
+                                </div>
+                                <button class="btn-action" onclick="buySkin('${skin.skin_name_en}',${skin.cost})" style="width:110px; padding:8px; font-size:0.8rem; background:${isEquipped ? 'var(--success)' : '#8b5cf6'}; color:white; margin-top:0;">${isEquipped ? 'Equipped ✓' : skin.cost + ' ⭐'}</button>
+                            </div>
+                        `;}).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function buySkin(skinName, cost) {
+            playSound('click');
+            const res = await fetch('/api/shop/buy', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ phone_number: sessionUser.phone_number, skin_name: skinName, cost })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                sessionUser = data.user;
+                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                updateDashboardUI();
+                showToast('Equipped ' + skinName + ' successfully!');
+                openShop();
+            } else {
+                showToast(data.detail || 'Purchase failed', true);
+            }
+        }
+    </script>
+</body>
+</html>
