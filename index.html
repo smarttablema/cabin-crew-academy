@@ -336,6 +336,10 @@
                     <span style="font-size: 1.5rem;">💬</span>
                     <h4 id="tr-tile-social">Friends, Private Chat & Groups</h4>
                 </div>
+                <div class="mode-tile" onclick="openFlightLogbookModal()" style="grid-column: span 2; background: linear-gradient(135deg, rgba(3, 105, 161, 0.85), rgba(2, 6, 23, 0.95));">
+                    <span style="font-size: 1.8rem;">📖✈️</span>
+                    <h4 style="font-size: 0.9rem; margin-top: 6px;">Flight Logbook & The Hangar of Errors (Mistake Review)</h4>
+                </div>
             </div>
 
             <div id="simulation-box" class="card-container">
@@ -419,6 +423,7 @@
         let dmPollingInterval = null;
         let groupMsgPollingInterval = null;
         let questionTimerInterval = null;
+        let vocabAnswerLocked = false;
         
         let battleQuestions = [];
         let battleCurrentIdx = 0;
@@ -865,8 +870,10 @@
                 count--;
                 if(count > 0) {
                     countEl.innerText = count;
+                    playSound('click');
                 } else if(count === 0) {
                     countEl.innerText = 'GO! ✈';
+                    playSound('success');
                 } else {
                     clearInterval(timer);
                     modal.style.display = 'none';
@@ -1053,7 +1060,7 @@
                     <div style="background:var(--surface-card); padding:1.4rem; border-radius:22px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
                         <div style="font-size:2rem; margin-bottom:6px;">⏳</div>
                         <h4 style="color:var(--warning); font-size:0.95rem; margin-bottom:4px; font-weight:900;">24-Hour Heart Refill Cooldown</h4>
-                        <p style="font-size:0.82rem; color:var(--text-muted);">Next free refill available in <b>${remHrs}h ${remMins}m</b>.</p>
+                        <p style="font-size:0.82rem; color:var(--text-muted);">Next free refill available in <b>${remHrs}h${remMins}m</b>.</p>
                     </div>
                 `;
             }
@@ -1065,8 +1072,7 @@
                     <div style="width:85px;"></div>
                 </div>
                 <div style="max-width:480px; width:100%; margin: 0 auto; text-align:center; padding-top:0.5rem;">
-                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.4rem; line-height:1.6;">You currently have <b>${sessionUser.hearts}/5 hearts</b>.</p>
-                    ${freeRefillHtml}
+                    <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1.4rem; line-height:1.6;">You currently have <b>${sessionUser.hearts}/5 hearts</b>.</p>${freeRefillHtml}
                     <div style="background:var(--surface-card); padding:1.5rem; border-radius:22px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
                         <div style="font-size:2.2rem; margin-bottom:8px;">⭐</div>
                         <h4 style="color:var(--warning); font-size:1rem; margin-bottom:4px; font-weight:900;">Refill with XP (Cost: 50 XP Stars)</h4>
@@ -1106,6 +1112,57 @@
             } else {
                 showToast(data.detail || 'Refill failed', true);
             }
+        }
+
+        /* FLIGHT LOGBOOK & THE HANGAR OF ERRORS */
+        async function openFlightLogbookModal() {
+            playSound('click');
+            const box = document.getElementById('simulation-box');
+            box.classList.add('feature-fullscreen-view');
+
+            const xp = sessionUser ? (sessionUser.xp_points || 0) : 0;
+            let rankTitle = 'Student Cadet 🎓';
+            let flightHours = Math.floor(xp / 10);
+            if(xp >= 5000) rankTitle = 'Chief Training Captain 👨‍✈️⭐';
+            else if(xp >= 2500) rankTitle = 'Senior Purser ✈️';
+            else if(xp >= 1000) rankTitle = 'Junior Flight Attendant 🧯';
+
+            let mistakesHtml = '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1rem;">Loading mistake hangar...</div>';
+            
+            try {
+                const res = await fetch('/api/student/mistakes?username=' + sessionUser.username);
+                const data = await res.json();
+                if(data.mistakes && data.mistakes.length > 0) {
+                    mistakesHtml = data.mistakes.map(m => `
+                        <div style="background:var(--surface-card); padding:12px; border-radius:12px; border:1px solid var(--danger); margin-bottom:8px;">
+                            <b style="color:white; font-size:0.88rem; display:block; margin-bottom:4px;">❌ ${m.question_text}</b>
+                            <span style="color:var(--danger); font-size:0.78rem;">Your Answer: ${m.incorrect_answer}</span> | <span style="color:var(--success); font-size:0.78rem;">Correct: ${m.correct_answer}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    mistakesHtml = '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">Your Hangar of Errors is completely clean! Zero mistakes recorded. ✈️</div>';
+                }
+            } catch(e) {}
+
+            box.innerHTML = `
+                <div class="feature-topbar">
+                    <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
+                    <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">📖✈️ Flight Logbook & Hangar</h3>
+                    <div style="width:85px;"></div>
+                </div>
+                <div style="max-width:520px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
+                    <div style="background:var(--surface-card); padding:1.5rem; border-radius:20px; border:1px solid var(--border-glow); text-align:center; margin-bottom:1.5rem;">
+                        <div style="font-size:3rem; margin-bottom:8px;">👨‍✈️</div>
+                        <h4 style="color:var(--gold); font-size:1.1rem; font-weight:900; margin-bottom:4px;">${rankTitle}</h4>
+                        <p style="font-size:0.85rem; color:var(--text-muted);">Accumulated Flight Hours: <b>${flightHours} hrs</b> \vert{} Total XP: <b>${xp} ⭐</b></p>
+                    </div>
+
+                    <h4 style="font-size:0.85rem; color:var(--danger); text-transform:uppercase; font-weight:800; margin-bottom:0.6rem;">🛠️ The Hangar of Errors (Weak Spots Review)</h4>
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:2rem;">
+                        ${mistakesHtml}
+                    </div>
+                </div>
+            `;
         }
 
         /* DIVERSIFIED 100-NODE QUESTION POOLS WITH RANDOMIZATION */
@@ -1279,10 +1336,9 @@
 
                 nodesHtml += `
                     <div class="duo-node-wrapper">
-                        <div class="duo-node ${statusClass}" onclick="triggerCinematicIntro(() => startRoadmapLesson('${poolKey}', ${i}, ${totalNodes}))">
+                        <div class="duo-node ${statusClass}" onclick="triggerCinematicIntro(() => startRoadmapLesson('${poolKey}', ${i},${totalNodes}))">
                             <span style="font-size:1.4rem;">${icon}</span>
-                            <span style="font-size:0.65rem; font-weight:800; margin-top:2px;">#${i}</span>
-                            ${mascotHtml}
+                            <span style="font-size:0.65rem; font-weight:800; margin-top:2px;">#${i}</span>${mascotHtml}
                         </div>
                     </div>
                 `;
@@ -1323,6 +1379,7 @@
 
         function renderRoadmapStep() {
             const session = window.currentRoadmapSession;
+            vocabAnswerLocked = false;
             if(!session || !session.questions) return;
 
             if(session.currentIdx >= session.questions.length) {
@@ -1348,7 +1405,7 @@
                         <div style="font-size:4.5rem; margin-bottom:1rem;">🏆</div>
                         <h2 style="color:var(--gold); font-size:1.5rem; font-weight:900; margin-bottom:0.5rem;">Node #${session.nodeNum} Conquered!</h2>
                         <p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:2rem;">Earned +50 XP Stars ⭐. Ready for the next aviation milestone?</p>
-                        <button class="btn-action" onclick="renderDuoRoadmap(document.getElementById('simulation-box'), '${session.poolKey === 'vocab' ? 'English Vocabulary to Arabic (5k)' : session.poolKey === 'english' ? 'Aviation English & ICAO Mastery' : 'First Year Path (100 Nodes)'}', '${session.poolKey}', ${session.totalNodes})" style="max-width:280px; margin:0 auto; background:var(--success); color:white; padding:1.1rem;">Continue Roadmap ✈</button>
+                        <button class="btn-action" onclick="renderDuoRoadmap(document.getElementById('simulation-box'), '${session.poolKey === 'vocab' ? 'English Vocabulary to Arabic (5k)' : session.poolKey === 'english' ? 'Aviation English & ICAO Mastery' : 'First Year Path (100 Nodes)'}', '${session.poolKey}',${session.totalNodes})" style="max-width:280px; margin:0 auto; background:var(--success); color:white; padding:1.1rem;">Continue Roadmap ✈</button>
                     </div>
                 `;
                 return;
@@ -1361,29 +1418,29 @@
                 box.innerHTML = `
                     <div class="feature-topbar">
                         <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
-                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Vocab Item ${session.currentIdx + 1} / ${session.questions.length}</h3>
+                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Vocab Item ${session.currentIdx + 1} /${session.questions.length}</h3>
                         <div style="width:85px;"></div>
                     </div>
                     <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1.5rem; text-align:center;">
                         <div style="font-size:3.5rem; margin-bottom:10px; cursor:pointer;" onclick="triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" title="Tap microphone to speak word">🎙️</div>
-                        <h2 style="color:var(--accent); font-size:1.8rem; font-weight:900; margin-bottom:0.5rem;">${q.en}</h2>
-                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;" id="vocab-status-label">Speak "${q.en}" or tap below to reveal Arabic translation</p>
-                        <button class="btn-action" onclick="triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--accent); color:var(--bg-deep); max-width:280px; margin:0 auto; padding:1.1rem; margin-bottom:10px;">Tap Mic to Speak 🎙️</button>
-                        <button class="btn-action" onclick="revealVocabWithTimerGlobal('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); max-width:280px; margin:0 auto; padding:0.9rem;">Skip / Reveal Translation ➡</button>
+                        <h2 style="color:var(--accent); font-size:1.8rem; font-weight:900; margin-bottom:0.5rem;" id="vocab-word-display">${q.en}</h2>
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;" id="vocab-status-label">Speak "${q.en}" or tap below</p>
+                        <button class="btn-action" id="vocab-mic-btn" onclick="triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--accent); color:var(--bg-deep); max-width:280px; margin:0 auto; padding:1.1rem; margin-bottom:10px;">Tap Mic to Speak 🎙️</button>
+                        <button class="btn-action" id="vocab-reveal-btn" onclick="revealVocabWithTimerGlobal('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); max-width:280px; margin:0 auto; padding:0.9rem;">Reveal Translation ➡</button>
                     </div>
                 `;
             } else {
                 box.innerHTML = `
                     <div class="feature-topbar">
                         <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
-                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Question ${session.currentIdx + 1} / ${session.questions.length}</h3>
+                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Question ${session.currentIdx + 1} /${session.questions.length}</h3>
                         <div style="width:85px;"></div>
                     </div>
                     <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1rem;">
-                        <b style="color:white; font-size:1.05rem; display:block; margin-bottom:1.5rem; line-height:1.6;">${q.q}</b>
+                        <b style="color:white; font-size:1.05rem; display:block; margin-bottom:1.5rem; line-height:1.6;" id="current-q-text">${q.q}</b>
                         <div style="display:flex; flex-direction:column; gap:12px;">
                             ${q.options.map((opt, idx) => `
-                                <button class="btn-action" onclick="handleRoadmapAnswerGlobal(${idx === q.correct})" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); text-align:left; padding:14px 18px; font-size:0.95rem; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
+                                <button class="btn-action" onclick="handleRoadmapAnswerGlobal(${idx === q.correct}, '${q.q.replace(/'/g, "\\'")}', '${opt.replace(/'/g, "\\'")}', '${q.options[q.correct].replace(/'/g, "\\'")}')" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); text-align:left; padding:14px 18px; font-size:0.95rem; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
                             `).join('')}
                         </div>
                     </div>
@@ -1391,7 +1448,7 @@
             }
         }
 
-        function handleRoadmapAnswerGlobal(isCorrect) {
+        async function handleRoadmapAnswerGlobal(isCorrect, questionText, chosenAnswer, correctAns) {
             if(isCorrect) {
                 playSound('success');
                 showToast('Correct! ⭐');
@@ -1403,6 +1460,14 @@
                     updateDashboardUI();
                 }
                 showToast('Incorrect! Heart lost ❤', true);
+
+                if(sessionUser && sessionUser.username) {
+                    await fetch('/api/student/log-mistake', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ username: sessionUser.username, question_text: questionText, incorrect_answer: chosenAnswer, correct_answer: correctAns })
+                    }).catch(e => {});
+                }
             }
             setTimeout(() => {
                 window.currentRoadmapSession.currentIdx++;
@@ -1411,6 +1476,8 @@
         }
 
         function triggerVocabSpeech(enWord, arWord) {
+            if(vocabAnswerLocked) return;
+            vocabAnswerLocked = true;
             playSound('click');
             const statusEl = document.getElementById('vocab-status-label');
             if(statusEl) statusEl.innerText = 'Listening... Speak "' + enWord + '" into microphone';
@@ -1472,18 +1539,23 @@
         }
 
         function revealVocabWithTimerGlobal(enWord, arWord) {
+            if(questionTimerInterval) clearInterval(questionTimerInterval);
             playSound('success');
             const statusEl = document.getElementById('vocab-status-label');
+            const micBtn = document.getElementById('vocab-mic-btn');
+            const revealBtn = document.getElementById('vocab-reveal-btn');
+            if(micBtn) micBtn.style.display = 'none';
+            if(revealBtn) revealBtn.style.display = 'none';
+
             if(statusEl) {
-                statusEl.innerHTML = `<b style="color:var(--gold); font-size:1.3rem;">Arabic: ${arWord}</b><br><span style="color:var(--text-muted); font-size:0.85rem;" id="countdown-timer-text">Memorize word: 5s</span>`;
+                statusEl.innerHTML = `<b style="color:var(--gold); font-size:1.3rem;">Arabic: ${arWord}</b><br><span style="color:var(--text-muted); font-size:0.85rem;" id="countdown-timer-text">Next word in: 5s</span>`;
             }
 
-            if(questionTimerInterval) clearInterval(questionTimerInterval);
             let secondsLeft = 5;
             questionTimerInterval = setInterval(() => {
                 secondsLeft--;
                 const timerText = document.getElementById('countdown-timer-text');
-                if(timerText) timerText.innerText = `Memorize word: ${secondsLeft}s`;
+                if(timerText) timerText.innerText = `Next word in: ${secondsLeft}s`;
                 if(secondsLeft <= 0) {
                     clearInterval(questionTimerInterval);
                     window.currentRoadmapSession.currentIdx++;
@@ -1492,7 +1564,7 @@
             }, 1000);
         }
 
-        /* STUDY & EXAMS STUDIO */
+        /* STUDY & EXAMS STUDIO & SMART GROUP SEPARATOR */
         async function openStudyHub() {
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
@@ -1521,23 +1593,41 @@
             if(isTeacher) {
                 teacherControls = `
                     <div style="background:var(--bg-deep); padding:1.2rem; border-radius:18px; border:1px solid var(--accent); margin-bottom:1.5rem;">
-                        <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Instructor Studio</h4>
+                        <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Advanced Exam Studio (MCQ, True/False, Short Answer & PDF Print)</h4>
                         <div>
-                            <label><b>Exam / Class Code (Shareable on WhatsApp, etc.)</b></label>
-                            <input type="text" id="ex-code" value="${sessionUser.group_code || ''}" placeholder="e.g. 4412 or custom code" style="margin-bottom:8px; font-weight:800;" />
+                            <label><b>Class / Group Code</b></label>
+                            <input type="text" id="ex-code" value="${sessionUser.group_code || ''}" placeholder="e.g. 7842" style="margin-bottom:8px; font-weight:800;" />
                             
-                            <label><b>Create Official Exam Title</b></label>
-                            <input type="text" id="ex-title" placeholder="Exam Title" style="margin-bottom:8px;" />
+                            <label><b>Exam Title</b></label>
+                            <input type="text" id="ex-title" placeholder="e.g. EASA Regulations Midterm" style="margin-bottom:8px;" />
                             
-                            <div id="exam-questions-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom:10px;">
-                                <div class="exam-q-row" style="display:flex; gap:8px;">
-                                    <input type="text" placeholder="Question 1" class="eq-text" style="margin-bottom:0; flex:2;" />
-                                    <input type="text" placeholder="Correct Answer" class="eq-ans" style="margin-bottom:0; flex:1;" />
+                            <div id="advanced-exam-questions-container" style="display:flex; flex-direction:column; gap:10px; margin-bottom:10px;">
+                                <div class="adv-exam-q-block" style="background:var(--surface-card); padding:10px; border-radius:12px; border:1px solid var(--border-glow);">
+                                    <select class="q-type-select" style="margin-bottom:6px; padding:6px; font-size:0.8rem;">
+                                        <option value="mcq">Multiple Choice (A, B, C, D)</option>
+                                        <option value="true_false">True / False</option>
+                                        <option value="short_text">Short Text (Fuzzy Matching)</option>
+                                    </select>
+                                    <input type="text" placeholder="Question text..." class="adv-q-text" style="margin-bottom:6px;" />
+                                    <input type="text" placeholder="Correct Answer (e.g. Alpha or True)" class="adv-q-correct" style="margin-bottom:0;" />
                                 </div>
                             </div>
-                            <button class="btn-action" onclick="addExamQuestionRow()" style="padding:6px; font-size:0.78rem; background:var(--surface-card); color:var(--accent); margin-top:0; margin-bottom:8px;">+ Add Question</button>
-                            <button class="btn-action" onclick="publishExam()" style="padding:8px; font-size:0.85rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Publish Exam 🏆</button>
+                            <div style="display:flex; gap:8px; margin-bottom:10px;">
+                                <button class="btn-action" onclick="addAdvancedQuestionRow()" style="padding:8px; font-size:0.78rem; background:var(--surface-card); color:var(--accent); margin-top:0; flex:1;">+ Add Question</button>
+                                <button class="btn-action" onclick="generatePrintablePDFHandout()" style="padding:8px; font-size:0.78rem; background:var(--warning); color:var(--bg-deep); margin-top:0; flex:1;">🖨️ Print PDF Handout</button>
+                            </div>
+                            <button class="btn-action" onclick="publishAdvancedExam()" style="padding:10px; font-size:0.9rem; background:var(--success); color:white; margin-top:0;">Publish Exam 🏆</button>
                         </div>
+                    </div>
+
+                    <div style="background:var(--surface-card); padding:1.2rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
+                        <h4 style="color:var(--warning); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">🔀 Smart Group Separator (Classroom Shuffler)</h4>
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Automatically shuffle 30+ students into balanced teams.</p>
+                        <div style="display:flex; gap:10px; margin-bottom:10px;">
+                            <input type="number" id="team-size-input" value="4" min="2" max="10" placeholder="Size per team" style="margin-bottom:0; flex:1;" />
+                            <button class="btn-action" onclick="runSmartGroupSeparator()" style="width:150px; margin-top:0; padding:10px; font-size:0.85rem; background:var(--warning); color:var(--bg-deep);">Shuffle Teams ⚡</button>
+                        </div>
+                        <div id="shuffled-teams-output" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;"></div>
                     </div>
 
                     <h4 style="font-size:0.85rem; color:var(--warning); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">📊 Student Exam Statistics & XP Adjuster</h4>
@@ -1636,33 +1726,112 @@
             }
         }
 
-        function addExamQuestionRow() {
+        function addAdvancedQuestionRow() {
             playSound('click');
-            const container = document.getElementById('exam-questions-container');
-            const row = document.createElement('div');
-            row.className = 'exam-q-row';
-            row.style.cssText = 'display:flex; gap:8px; margin-top:6px;';
-            row.innerHTML = `<input type="text" placeholder="Question" class="eq-text" style="margin-bottom:0; flex:2;" /><input type="text" placeholder="Answer" class="eq-ans" style="margin-bottom:0; flex:1;" />`;
-            container.appendChild(row);
+            const container = document.getElementById('advanced-exam-questions-container');
+            const block = document.createElement('div');
+            block.className = 'adv-exam-q-block';
+            block.style.cssText = 'background:var(--surface-card); padding:10px; border-radius:12px; border:1px solid var(--border-glow); margin-top:6px;';
+            block.innerHTML = `
+                <select class="q-type-select" style="margin-bottom:6px; padding:6px; font-size:0.8rem;">
+                    <option value="mcq">Multiple Choice (A, B, C, D)</option>
+                    <option value="true_false">True / False</option>
+                    <option value="short_text">Short Text (Fuzzy Matching)</option>
+                </select>
+                <input type="text" placeholder="Question text..." class="adv-q-text" style="margin-bottom:6px;" />
+                <input type="text" placeholder="Correct Answer" class="adv-q-correct" style="margin-bottom:0;" />
+            `;
+            container.appendChild(block);
         }
 
-        async function publishExam() {
+        function generatePrintablePDFHandout() {
+            playSound('click');
+            const title = document.getElementById('ex-title').value.trim() || 'Aero Crew Academy Exam Handout';
+            let printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head><title>${title} - Printable Handout</title></head>
+                <body style="font-family: Arial, sans-serif; padding: 40px; color: #000;">
+                    <h2 style="text-align:center; text-transform:uppercase; margin-bottom:5px;">Aero Crew Academy - Official Exam Handout</h2>
+                    <h3 style="text-align:center; color:#555; margin-top:0;">${title}</h3>
+                    <p><b>Student Name:</b> _______________________________________ &nbsp;&nbsp;&nbsp;&nbsp; <b>Date:</b> ______________</p>
+                    <hr style="margin: 20px 0;"/>
+                    <ol style="line-height: 2.2; font-size: 1.1rem;">
+            `);
+
+            document.querySelectorAll('.adv-exam-q-block').forEach((block) => {
+                const qText = block.querySelector('.adv-q-text').value.trim();
+                if(qText) {
+                    printWindow.document.write(`<li style="margin-bottom: 15px;">${qText}<br><div style="border-bottom:1px dotted #888; width:100%; height:25px;"></div></li>`);
+                }
+            });
+
+            printWindow.document.write(`
+                    </ol>
+                    <script>window.print();<\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        async function publishAdvancedExam() {
             playSound('click');
             const title = document.getElementById('ex-title').value.trim();
-            const customCode = document.getElementById('ex-code').value.trim() || sessionUser.group_code;
-            if(!title) { showToast('Enter title', true); return; }
+            const groupCode = document.getElementById('ex-code').value.trim() || sessionUser.group_code;
+            if(!title) { showToast('Enter exam title', true); return; }
+
             let exam_data = [];
-            document.querySelectorAll('.exam-q-row').forEach(r => {
-                const q = r.querySelector('.eq-text').value.trim();
-                const a = r.querySelector('.eq-ans').value.trim();
-                if(q && a) exam_data.push({ question: q, correct: a });
+            document.querySelectorAll('.adv-exam-q-block').forEach(b => {
+                const q = b.querySelector('.adv-q-text').value.trim();
+                const a = b.querySelector('.adv-q-correct').value.trim();
+                const type = b.querySelector('.q-type-select').value;
+                if(q && a) exam_data.push({ question: q, correct: a, type: type });
             });
-            const res = await fetch('/api/exam/create', {
+
+            if(exam_data.length === 0) { showToast('Add at least one question', true); return; }
+
+            const res = await fetch('/api/exam/create-advanced', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ group_code: customCode, teacher_username: sessionUser.username, title, exam_data })
+                body: JSON.stringify({ group_code: groupCode, teacher_username: sessionUser.username, title, exam_data })
             });
-            if(res.ok) { showToast('Exam published with code ' + customCode + '!'); openStudyHub(); }
+            if(res.ok) {
+                showToast('Advanced exam published successfully! 🏆');
+                openStudyHub();
+            } else {
+                showToast('Failed to publish exam', true);
+            }
+        }
+
+        async function runSmartGroupSeparator() {
+            playSound('click');
+            const teamSize = parseInt(document.getElementById('team-size-input').value) || 4;
+            const groupCode = sessionUser ? sessionUser.group_code : '7842';
+
+            try {
+                const res = await fetch('/api/teacher/generate-groups', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ group_code: groupCode, team_size: teamSize })
+                });
+                const data = await res.json();
+                const outputBox = document.getElementById('shuffled-teams-output');
+
+                if(res.ok && data.teams) {
+                    outputBox.innerHTML = data.teams.map(t => `
+                        <div style="background:var(--bg-deep); padding:10px 14px; border-radius:12px; border:1px solid var(--border-glow);">
+                            <b style="color:var(--accent); font-size:0.9rem;">${t.team_name} (${t.members.length} cadets)</b>
+                            <div style="font-size:0.82rem; color:white; margin-top:4px;">${t.members.map(m => m.full_name).join(', ')}</div>
+                        </div>
+                    `).join('');
+                    showToast('Teams generated successfully! 🔀');
+                } else {
+                    showToast(data.detail || 'Failed to generate groups', true);
+                }
+            } catch(e) {
+                showToast('Network error during grouping', true);
+            }
         }
 
         function confirmDeleteExam(examId) {
@@ -1737,7 +1906,7 @@
                             </div>
                         `).join('')}
                     </div>
-                    <button class="btn-action" onclick="submitActiveExam(${exam.id}, ${questions.length})" style="background:var(--success); color:white; padding:1.1rem; margin-bottom:2rem;">Submit Official Exam 🏆</button>
+                    <button class="btn-action" onclick="submitActiveExam(${exam.id},${questions.length})" style="background:var(--success); color:white; padding:1.1rem; margin-bottom:2rem;">Submit Official Exam 🏆</button>
                 </div>
             `;
         }
@@ -1745,9 +1914,11 @@
         async function submitActiveExam(examId, totalQ) {
             let score = 0;
             document.querySelectorAll('.exam-answer-input').forEach(inp => {
-                if(inp.value.trim().toLowerCase() === inp.getAttribute('data-correct').trim().toLowerCase()) score++;
+                const userAns = inp.value.trim().toLowerCase();
+                const correctAns = inp.getAttribute('data-correct').trim().toLowerCase();
+                if(userAns === correctAns || (userAns.length >= 3 && correctAns.includes(userAns))) score++;
             });
-            const res = await fetch('/api/exam/submit', {
+            const res = await fetch('/api/exam/submit-fuzzy', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ exam_id: examId, student_username: sessionUser.username, student_name: sessionUser.full_name, score, total_questions: totalQ, time_spent_seconds: 30 })
@@ -2109,7 +2280,7 @@
 
             contentEl.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
-                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔ 1v1 BATTLE • Q${battleCurrentIdx+1} / ${battleQuestions.length}</span>
+                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔ 1v1 BATTLE • Q${battleCurrentIdx+1} /${battleQuestions.length}</span>
                 </div>
                 <div style="background:var(--bg-deep); padding:1.4rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.2rem; text-align:left;">
                     <b style="color:white; font-size:1rem; display:block; margin-bottom:14px; line-height:1.5;">${qObj.q}</b>
@@ -2174,7 +2345,7 @@
                 <div style="text-align:center; padding: 2rem 0;">
                     <div style="font-size: 4rem; margin-bottom: 1.2rem;">🏆</div>
                     <h3 style="font-size: 1.4rem; color: var(--gold); font-weight: 900; margin-bottom: 0.6rem;">${resultTitle}</h3>
-                    <p style="font-size: 0.92rem; color: white; margin-bottom: 0.5rem;">Your Score: <b>${battleScore}</b> | Opponent Score: <b>${oppScore}</b></p>
+                    <p style="font-size: 0.92rem; color: white; margin-bottom: 0.5rem;">Your Score: <b>${battleScore}</b> \vert{} Opponent Score: <b>${oppScore}</b></p>
                     <p style="font-size: 0.85rem; color: var(--warning); margin-bottom: 2rem; font-weight:700;">${rewardText}</p>
                     <button class="btn-action" onclick="document.getElementById('battle-arena-modal').style.display='none';" style="background:var(--success); color:white; padding:1.1rem;">Close Arena 🚀</button>
                 </div>
@@ -2238,45 +2409,4 @@
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: #a78bfa; font-weight: 900;">🎁 Boutique</h3>
-                    <span style="font-size: 0.82rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
-                </div>
-                <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
-                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem;">
-                        ${data.skins.map(skin => {
-                            const isEquipped = sessionUser.active_skin === skin.skin_name_en;
-                            return `
-                            <div style="background: var(--surface-card); padding: 1rem 1.2rem; border-radius: 16px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;">
-                                <div style="display: flex; align-items: center; gap: 14px;">
-                                    <span style="font-size: 1.8rem;">${skin.preview_svg}</span>
-                                    <div style="color: white; font-size: 0.9rem;"><b style="font-size:0.95rem;">${skin.skin_name_en}</b></div>
-                                </div>
-                                <button class="btn-action" onclick="buySkin('${skin.skin_name_en}',${skin.cost})" style="width:110px; padding:8px; font-size:0.8rem; background:${isEquipped ? 'var(--success)' : '#8b5cf6'}; color:white; margin-top:0;">${isEquipped ? 'Equipped ✓' : skin.cost + ' ⭐'}</button>
-                            </div>
-                        `;}).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        async function buySkin(skinName, cost) {
-            playSound('click');
-            const res = await fetch('/api/shop/buy', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, skin_name: skinName, cost })
-            });
-            const data = await res.json();
-            if(res.ok) {
-                sessionUser = data.user;
-                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                updateDashboardUI();
-                showToast('Equipped ' + skinName + ' successfully!');
-                openShop();
-            } else {
-                showToast(data.detail || 'Purchase failed', true);
-            }
-        }
-    </script>
-</body>
-</html>
+                    <h3 style="font-size: 1.1rem; color: #a78bfa; font-weight: 900
