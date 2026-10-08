@@ -189,15 +189,15 @@
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
                 <div id="prelogin-lang-bar" style="display: flex; gap: 4px;">
-                    <button onclick="setLanguage('en')" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); padding:4px 8px; border-radius:8px; font-size:0.75rem; cursor:pointer;">EN</button>
-                    <button onclick="setLanguage('fr')" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); padding:4px 8px; border-radius:8px; font-size:0.75rem; cursor:pointer;">FR</button>
-                    <button onclick="setLanguage('ar')" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); padding:4px 8px; border-radius:8px; font-size:0.75rem; cursor:pointer;">AR</button>
+                    <button onclick="window.setLanguage('en')" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); padding:4px 8px; border-radius:8px; font-size:0.75rem; cursor:pointer;">EN</button>
+                    <button onclick="window.setLanguage('fr')" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); padding:4px 8px; border-radius:8px; font-size:0.75rem; cursor:pointer;">FR</button>
+                    <button onclick="window.setLanguage('ar')" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); padding:4px 8px; border-radius:8px; font-size:0.75rem; cursor:pointer;">AR</button>
                 </div>
                 <div class="header-controls hidden" id="dash-header-icons">
-                    <div class="header-icon-btn" onclick="refreshUserData()" title="Universal Refresh Balance">🔄</div>
-                    <div class="header-icon-btn" onclick="openAvatarStudio()" title="Avatar">👤</div>
-                    <div class="header-icon-btn" onclick="openShop()" title="Boutique">🎁</div>
-                    <div class="header-icon-btn" onclick="openSettingsModal()" title="Settings">⚙</div>
+                    <div class="header-icon-btn" onclick="window.refreshUserData()" title="Universal Refresh Balance">🔄</div>
+                    <div class="header-icon-btn" onclick="window.openAvatarStudio()" title="Avatar">👤</div>
+                    <div class="header-icon-btn" onclick="window.openShop()" title="Boutique">🎁</div>
+                    <div class="header-icon-btn" onclick="window.openSettingsModal()" title="Settings">⚙</div>
                 </div>
             </div>
         </div>
@@ -213,11 +213,11 @@
             <label id="tr-lbl-pass">Password</label>
             <input type="password" id="login-pass" placeholder="••••••••" />
             
-            <button class="btn-action" onclick="submitLogin()" id="tr-login-btn">Sign In to Simulator</button>
+            <button class="btn-action" onclick="window.submitLogin()" id="tr-login-btn">Sign In to Simulator</button>
             
             <div class="footer-nav">
-                <span onclick="navigateTo('screen-register')" id="tr-nav-reg">Create Account</span>
-                <span onclick="navigateTo('screen-reset')" id="tr-nav-reset">Forgot Password?</span>
+                <span onclick="window.navigateTo('screen-register')" id="tr-nav-reg">Create Account</span>
+                <span onclick="window.navigateTo('screen-reset')" id="tr-nav-reset">Forgot Password?</span>
             </div>
         </div>
 
@@ -229,7 +229,7 @@
             <div class="avatar-preview-box" id="reg-avatar-preview">🧯</div>
 
             <label id="tr-reg-role-lbl">Register As</label>
-            <select id="reg-role" onchange="toggleTeacherCodeContainer()">
+            <select id="reg-role" onchange="window.toggleTeacherCodeContainer()">
                 <option value="student" id="tr-opt-cadet">🎓 Cadet / Student</option>
                 <option value="teacher" id="tr-opt-teacher">👨‍🏫 Instructor / Teacher</option>
             </select>
@@ -257,15 +257,15 @@
             <h3 style="font-size:1rem; color:var(--accent); margin: 1.2rem 0 0.6rem 0; font-weight:800;" id="tr-avatar-studio-title">🎨 Avatar Customization</h3>
             
             <label id="tr-avatar-type-lbl">Avatar Type</label>
-            <select id="reg-gender" onchange="updateRegAvatarPreview()">
+            <select id="reg-gender" onchange="window.updateRegAvatarPreview()">
                 <option value="steward" id="tr-opt-steward">👔 Steward</option>
                 <option value="hostess" id="tr-opt-hostess">👗 Hostess</option>
             </select>
             
-            <button class="btn-action" onclick="submitRegister()" style="background: #10b981; color: white;" id="tr-complete-reg-btn">Complete Registration</button>
+            <button class="btn-action" onclick="window.submitRegister()" style="background: #10b981; color: white;" id="tr-complete-reg-btn">Complete Registration</button>
             
             <div class="footer-nav">
-                <span onclick="navigateTo('screen-login')" id="tr-back-login">Already have an account? Sign In</span>
+                <span onclick="window.navigateTo('screen-login')" id="tr-back-login">Already have an account? Sign In</span>
             </div>
         </div>
 
@@ -279,15 +279,15 @@
             <input type="password" id="reset-pin" placeholder="PIN" maxlength="4" />
             <label id="tr-reset-new-lbl">New Password</label>
             <input type="password" id="reset-new" placeholder="New Password" />
-            <button class="btn-action" onclick="submitReset()" style="background: #f59e0b; color: #020617;" id="tr-update-cred-btn">Update Credentials</button>
+            <button class="btn-action" onclick="window.submitReset()" style="background: #f59e0b; color: #020617;" id="tr-update-cred-btn">Update Credentials</button>
             <div class="footer-nav">
-                <span onclick="navigateTo('screen-login')" id="tr-back-login2">Back to Sign In</span>
+                <span onclick="window.navigateTo('screen-login')" id="tr-back-login2">Back to Sign In</span>
             </div>
         </div>
 
         <!-- DASHBOARD SCREEN -->
         <div id="screen-dashboard" class="hidden">
-            <div class="stats-dashboard" onclick="openHeartRecoveryLounge()" title="Heart Recovery Lounge">
+            <div class="stats-dashboard" onclick="window.openHeartRecoveryLounge()" title="Heart Recovery Lounge">
                 <div>
                     <h3 id="dash-name" style="font-size: 1.05rem; color: var(--accent); font-weight: 900; margin-bottom: 2px;">Cadet</h3>
                     <span style="font-size: 0.75rem; color: var(--text-muted);" id="dash-role-badge">Student</span>
@@ -303,39 +303,39 @@
             </div>
 
             <div class="mode-grid">
-                <div class="mode-tile" onclick="launchRoadmap('year1')">
+                <div class="mode-tile" onclick="window.launchRoadmap('year1')">
                     <span style="font-size: 1.5rem;">📖</span>
                     <h4 id="tr-tile-y1">First Year Path (100 Nodes)</h4>
                 </div>
-                <div class="mode-tile" onclick="launchRoadmap('year2')">
+                <div class="mode-tile" onclick="window.launchRoadmap('year2')">
                     <span style="font-size: 1.5rem;">🏆</span>
                     <h4 id="tr-tile-y2">Second Year Path (Locked)</h4>
                 </div>
-                <div class="mode-tile" onclick="launchAviationEnglishRoadmap()">
+                <div class="mode-tile" onclick="window.launchAviationEnglishRoadmap()">
                     <span style="font-size: 1.5rem;">🌐</span>
                     <h4 id="tr-tile-eng">Aviation English & ICAO Mastery</h4>
                 </div>
-                <div class="mode-tile" onclick="launchVocabularyRoadmap()">
+                <div class="mode-tile" onclick="window.launchVocabularyRoadmap()">
                     <span style="font-size: 1.5rem;">🎙</span>
                     <h4 id="tr-tile-vocab">English Vocabulary to Arabic (5k)</h4>
                 </div>
-                <div class="mode-tile" onclick="openSpinningWheelModal()">
+                <div class="mode-tile" onclick="window.openSpinningWheelModal()">
                     <span style="font-size: 1.5rem;">🎡</span>
                     <h4 id="tr-tile-wheel">Daily Spinning Wheel (24h)</h4>
                 </div>
-                <div class="mode-tile" onclick="open1v1Lobby()">
+                <div class="mode-tile" onclick="window.open1v1Lobby()">
                     <span style="font-size: 1.5rem;">⚔</span>
                     <h4 id="tr-tile-1v1">1v1 Battle Arena (Challenge)</h4>
                 </div>
-                <div class="mode-tile" onclick="openStudyHub()">
+                <div class="mode-tile" onclick="window.openStudyHub()">
                     <span style="font-size: 1.5rem;">📚</span>
                     <h4 id="tr-tile-study">Lessons, Quizzes & Exams Studio</h4>
                 </div>
-                <div class="mode-tile" onclick="openSocialHub()">
+                <div class="mode-tile" onclick="window.openSocialHub()">
                     <span style="font-size: 1.5rem;">💬</span>
                     <h4 id="tr-tile-social">Friends, Private Chat & Groups</h4>
                 </div>
-                <div class="mode-tile" onclick="openFlightLogbookModal()" style="grid-column: span 2; background: linear-gradient(135deg, rgba(3, 105, 161, 0.85), rgba(2, 6, 23, 0.95));">
+                <div class="mode-tile" onclick="window.openFlightLogbookModal()" style="grid-column: span 2; background: linear-gradient(135deg, rgba(3, 105, 161, 0.85), rgba(2, 6, 23, 0.95));">
                     <span style="font-size: 1.8rem;">📖✈️</span>
                     <h4 id="tr-tile-hangar" style="font-size: 0.9rem; margin-top: 6px;">Flight Logbook & The Hangar of Errors (Mistake Review)</h4>
                 </div>
@@ -347,8 +347,8 @@
             </div>
             
             <div style="display: flex; gap: 10px;">
-                <button class="btn-action" onclick="resetToMenu()" style="background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border-glow); flex: 1; margin-top:0;" id="tr-hub-btn">← Hub</button>
-                <button class="btn-action" onclick="logoutUser()" style="background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); flex: 1; margin-top:0;" id="tr-logout-btn">Logout 🚪</button>
+                <button class="btn-action" onclick="window.resetToMenu()" style="background: var(--surface-card); color: var(--text-muted); border: 1px solid var(--border-glow); flex: 1; margin-top:0;" id="tr-hub-btn">← Hub</button>
+                <button class="btn-action" onclick="window.logoutUser()" style="background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.4); flex: 1; margin-top:0;" id="tr-logout-btn">Logout 🚪</button>
             </div>
         </div>
     </div>
@@ -356,7 +356,7 @@
     <!-- DAILY SPINNING WHEEL MODAL -->
     <div id="spinning-wheel-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.95); display:none; justify-content:center; align-items:center; z-index:5000;">
         <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:32px; padding:2rem; width:90%; max-width:440px; text-align:center; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.9);">
-            <button onclick="closeSpinningWheelModal()" style="position:absolute; top:18px; right:18px; background:none; border:none; color:var(--text-muted); font-size:1.3rem; cursor:pointer;">✕</button>
+            <button onclick="window.closeSpinningWheelModal()" style="position:absolute; top:18px; right:18px; background:none; border:none; color:var(--text-muted); font-size:1.3rem; cursor:pointer;">✕</button>
             <h3 style="font-size:1.25rem; font-weight:900; color:var(--gold); margin-bottom:0.3rem;" id="tr-wheel-title">🎡 Daily Aviation Spinning Wheel</h3>
             <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.4rem;" id="tr-wheel-sub">Strictly 1 spin every 24 hours. Win XP, hearts, or exclusive Pilot Hat skins!</p>
             
@@ -366,7 +366,7 @@
             </div>
 
             <div id="wheel-status-text" style="font-size:0.85rem; color:var(--text-muted); font-weight:700; margin-bottom:1.2rem;">Ready for your daily spin!</div>
-            <button class="btn-action" onclick="spinTheDailyWheel()" id="spin-wheel-btn" style="background:linear-gradient(135deg, #fbbf24, #d97706); color:#451a03; margin-top:0; font-size:1rem; padding:0.95rem;">SPIN WHEEL 🎁</button>
+            <button class="btn-action" onclick="window.spinTheDailyWheel()" id="spin-wheel-btn" style="background:linear-gradient(135deg, #fbbf24, #d97706); color:#451a03; margin-top:0; font-size:1rem; padding:0.95rem;">SPIN WHEEL 🎁</button>
         </div>
     </div>
 
@@ -375,15 +375,15 @@
         <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:440px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
                 <h3 style="font-size:1.15rem; font-weight:900; color:white;" id="tr-modal-avatar-title">🎨 Edit Avatar</h3>
-                <button onclick="closeAvatarStudio()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
+                <button onclick="window.closeAvatarStudio()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
             </div>
             <div class="avatar-preview-box" id="modal-avatar-preview">👔</div>
             <label id="tr-modal-gender-lbl">Gender / Style</label>
-            <select id="mod-gender" onchange="updateModalAvatarPreview()">
+            <select id="mod-gender" onchange="window.updateModalAvatarPreview()">
                 <option value="steward" id="tr-opt-steward2">👔 Steward</option>
                 <option value="hostess" id="tr-opt-hostess2">👗 Hostess</option>
             </select>
-            <button class="btn-action" onclick="saveAvatarChanges()" style="background:var(--success); color:white;" id="tr-save-avatar-btn">Save Avatar 💾</button>
+            <button class="btn-action" onclick="window.saveAvatarChanges()" style="background:var(--success); color:white;" id="tr-save-avatar-btn">Save Avatar 💾</button>
         </div>
     </div>
 
@@ -392,7 +392,7 @@
         <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:28px; padding:2rem; width:90%; max-width:400px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.4rem;">
                 <h3 style="font-size:1.2rem; font-weight:900; color:white;" id="tr-settings-title">⚙️ Academy Settings</h3>
-                <button onclick="closeSettingsModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
+                <button onclick="window.closeSettingsModal()" style="background:none; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;">✕</button>
             </div>
 
             <div style="background:var(--bg-deep); padding:12px 16px; border-radius:14px; margin-bottom:1.2rem; border:1px solid var(--border-glow);">
@@ -402,15 +402,15 @@
             
             <label id="tr-lang-lbl">Interface Language</label>
             <div style="display:flex; gap:8px; margin-bottom:1.4rem;">
-                <button onclick="setLanguage('en')" class="btn-action" style="padding:10px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow); margin-top:0; margin-bottom:0;">English 🇬🇧</button>
-                <button onclick="setLanguage('fr')" class="btn-action" style="padding:10px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow); margin-top:0; margin-bottom:0;">Français 🇫🇷</button>
-                <button onclick="setLanguage('ar')" class="btn-action" style="padding:10px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow); margin-top:0; margin-bottom:0;">العربية 🇸🇦</button>
+                <button onclick="window.setLanguage('en')" class="btn-action" style="padding:10px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow); margin-top:0; margin-bottom:0;">English 🇬🇧</button>
+                <button onclick="window.setLanguage('fr')" class="btn-action" style="padding:10px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow); margin-top:0; margin-bottom:0;">Français 🇫🇷</button>
+                <button onclick="window.setLanguage('ar')" class="btn-action" style="padding:10px; font-size:0.8rem; background:var(--bg-deep); color:white; border:1px solid var(--border-glow); margin-top:0; margin-bottom:0;">العربية 🇸🇦</button>
             </div>
 
             <label id="tr-pass-change-lbl">Change Password</label>
             <input type="password" id="set-pin" placeholder="Recovery PIN (4 digits)" maxlength="4" />
             <input type="password" id="set-new-pass" placeholder="New Password" />
-            <button class="btn-action" onclick="submitPasswordChangeModal()" style="background:var(--warning); color:var(--bg-deep);" id="tr-update-pass-btn">Update Password 🔒</button>
+            <button class="btn-action" onclick="window.submitPasswordChangeModal()" style="background:var(--warning); color:var(--bg-deep);" id="tr-update-pass-btn">Update Password 🔒</button>
         </div>
     </div>
 
@@ -421,8 +421,8 @@
             <label id="tr-edit-member-name-lbl">Member Name</label>
             <input type="text" id="edit-member-name-input" placeholder="Student name..." style="margin-bottom:1rem;" />
             <div style="display:flex; gap:10px;">
-                <button class="btn-action" onclick="closeEditTeamModal()" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0;" id="tr-cancel-btn">Cancel</button>
-                <button class="btn-action" onclick="saveTeamMemberEdit()" style="background:var(--success); color:white; margin-top:0;" id="tr-save-btn">Save Changes 💾</button>
+                <button class="btn-action" onclick="window.closeEditTeamModal()" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0;" id="tr-cancel-btn">Cancel</button>
+                <button class="btn-action" onclick="window.saveTeamMemberEdit()" style="background:var(--success); color:white; margin-top:0;" id="tr-save-btn">Save Changes 💾</button>
             </div>
         </div>
     </div>
@@ -627,6 +627,7 @@
                 if(showNotification) showToast('Network error during refresh', true);
             }
         }
+        window.refreshUserData = refreshUserData;
 
         function setLanguage(lang) {
             playSound('click');
@@ -707,6 +708,7 @@
                 if(sessionUser) document.getElementById('settings-my-username').innerText = '@' + sessionUser.username;
             }
         }
+        window.setLanguage = setLanguage;
 
         function showToast(text, isError = false) {
             playSound(isError ? 'error' : 'success');
@@ -740,6 +742,7 @@
                 }
             }
         }
+        window.navigateTo = navigateTo;
 
         function toggleTeacherCodeContainer() {
             const roleEl = document.getElementById('reg-role');
@@ -752,17 +755,21 @@
                 document.getElementById('reg-teacher-code').value = '';
             }
         }
+        window.toggleTeacherCodeContainer = toggleTeacherCodeContainer;
 
         function updateRegAvatarPreview() {
             playSound('click');
             const gender = document.getElementById('reg-gender').value;
             document.getElementById('reg-avatar-preview').innerText = gender === 'hostess' ? '👗' : '🧯';
         }
+        window.updateRegAvatarPreview = updateRegAvatarPreview;
+
         function updateModalAvatarPreview() {
             playSound('click');
             const gender = document.getElementById('mod-gender').value;
             document.getElementById('modal-avatar-preview').innerText = gender === 'hostess' ? '👗' : '🧯';
         }
+        window.updateModalAvatarPreview = updateModalAvatarPreview;
 
         async function submitRegister() {
             playSound('click');
@@ -791,6 +798,7 @@
                 showToast(data.detail || 'Registration failed', true);
             }
         }
+        window.submitRegister = submitRegister;
 
         async function submitLogin() {
             playSound('click');
@@ -817,6 +825,7 @@
                 showToast(data.detail || 'Invalid phone or password', true);
             }
         }
+        window.submitLogin = submitLogin;
 
         async function submitReset() {
             playSound('click');
@@ -837,6 +846,7 @@
                 showToast('Invalid phone or recovery PIN', true);
             }
         }
+        window.submitReset = submitReset;
 
         function updateDashboardUI() {
             if(!sessionUser) return;
@@ -874,6 +884,7 @@
             navigateTo('screen-login');
             showToast('Logged out successfully.');
         }
+        window.logoutUser = logoutUser;
 
         async function fetchGroupData() {
             if(!sessionUser || !sessionUser.group_code) return;
@@ -892,6 +903,7 @@
                 <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;" id="tr-center-desc">${t.centerDesc}</p>
             `;
         }
+        window.resetToMenu = resetToMenu;
 
         function triggerCinematicIntro(onCompleteCallback) {
             playSound('click');
@@ -937,11 +949,13 @@
             drawWheelCanvas(0);
             checkSpinEligibility();
         }
+        window.openSpinningWheelModal = openSpinningWheelModal;
 
         function closeSpinningWheelModal() {
             playSound('click');
             document.getElementById('spinning-wheel-modal').style.display = 'none';
         }
+        window.closeSpinningWheelModal = closeSpinningWheelModal;
 
         function drawWheelCanvas(currentAngle = 0) {
             const canvas = document.getElementById('wheelCanvas');
@@ -1060,6 +1074,7 @@
             }
             requestAnimationFrame(animateSpin);
         }
+        window.spinTheDailyWheel = spinTheDailyWheel;
 
         /* HEART RECOVERY LOUNGE */
         function openHeartRecoveryLounge() {
@@ -1080,7 +1095,7 @@
                     <div style="background:rgba(16, 185, 129, 0.12); padding:1.5rem; border-radius:22px; border:1px solid var(--success); margin-bottom:1.5rem;">
                         <div style="font-size:2.5rem; margin-bottom:8px;">💖</div>
                         <h4 style="color:var(--success); font-size:1.05rem; margin-bottom:6px; font-weight:900;">Claim Free 24h Heart Refill (5 Hearts)</h4>
-                        <button class="btn-action" onclick="claimFree24hHearts()" style="background:var(--success); color:white; padding:1rem;">Claim 5 Free Hearts 🎁</button>
+                        <button class="btn-action" onclick="window.claimFree24hHearts()" style="background:var(--success); color:white; padding:1rem;">Claim 5 Free Hearts 🎁</button>
                     </div>
                 `;
             } else {
@@ -1098,7 +1113,7 @@
 
             box.innerHTML = `
                 <div class="feature-topbar">
-                    <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
+                    <button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
                     <h3 style="font-size:1.1rem; color:var(--danger); font-weight:900;">❤ Heart Recovery Lounge</h3>
                     <div style="width:85px;"></div>
                 </div>
@@ -1108,11 +1123,12 @@
                     <div style="background:var(--surface-card); padding:1.5rem; border-radius:22px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
                         <div style="font-size:2.2rem; margin-bottom:8px;">⭐</div>
                         <h4 style="color:var(--warning); font-size:1rem; margin-bottom:4px; font-weight:900;">Refill with XP (Cost: 50 XP Stars)</h4>
-                        <button class="btn-action" onclick="refillHeartsWithXP()" style="background:var(--accent); color:var(--bg-deep); padding:0.95rem;">Refill Instantly ⚡</button>
+                        <button class="btn-action" onclick="window.refillHeartsWithXP()" style="background:var(--accent); color:var(--bg-deep); padding:0.95rem;">Refill Instantly ⚡</button>
                     </div>
                 </div>
             `;
         }
+        window.openHeartRecoveryLounge = openHeartRecoveryLounge;
 
         async function claimFree24hHearts() {
             playSound('click');
@@ -1126,6 +1142,7 @@
             showToast('💖 Free 24h Hearts Claimed! Hearts restored to 5.');
             openHeartRecoveryLounge();
         }
+        window.claimFree24hHearts = claimFree24hHearts;
 
         async function refillHeartsWithXP() {
             playSound('click');
@@ -1145,6 +1162,7 @@
                 showToast(data.detail || 'Refill failed', true);
             }
         }
+        window.refillHeartsWithXP = refillHeartsWithXP;
 
         /* FLIGHT LOGBOOK & THE HANGAR OF ERRORS */
         async function openFlightLogbookModal() {
@@ -1178,7 +1196,7 @@
 
             box.innerHTML = `
                 <div class="feature-topbar">
-                    <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
+                    <button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
                     <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">📖✈️ Flight Logbook & Hangar</h3>
                     <div style="width:85px;"></div>
                 </div>
@@ -1196,6 +1214,7 @@
                 </div>
             `;
         }
+        window.openFlightLogbookModal = openFlightLogbookModal;
 
         /* DIVERSIFIED 100-NODE QUESTION POOLS WITH RANDOMIZATION */
         const diversifiedQuestionPools = {
@@ -1307,6 +1326,7 @@
             box.classList.add('feature-fullscreen-view', 'path-fixed-cloud');
             renderDuoRoadmap(box, 'English Vocabulary to Arabic (5k)', 'vocab', 100);
         }
+        window.launchVocabularyRoadmap = launchVocabularyRoadmap;
 
         function launchAviationEnglishRoadmap() {
             playSound('click');
@@ -1315,6 +1335,7 @@
             box.classList.add('feature-fullscreen-view', 'path-fixed-cloud');
             renderDuoRoadmap(box, 'Aviation English & ICAO Mastery', 'english', 100);
         }
+        window.launchAviationEnglishRoadmap = launchAviationEnglishRoadmap;
 
         function launchRoadmap(yearKey) {
             playSound('click');
@@ -1333,6 +1354,7 @@
 
             renderDuoRoadmap(box, yearKey === 'year1' ? 'First Year Path (100 Nodes)' : 'Second Year Path (100 Nodes)', yearKey, 100);
         }
+        window.launchRoadmap = launchRoadmap;
 
         function renderDuoRoadmap(container, title, poolKey, totalNodes) {
             const progressKey = 'aero_progress_' + (sessionUser ? sessionUser.username : 'guest') + '_' + poolKey;
@@ -1368,7 +1390,7 @@
 
                 nodesHtml += `
                     <div class="duo-node-wrapper">
-                        <div class="duo-node ${statusClass}" onclick="triggerCinematicIntro(() => startRoadmapLesson('${poolKey}', ${i}, ${totalNodes}))">
+                        <div class="duo-node ${statusClass}" onclick="window.triggerCinematicIntro(() => window.startRoadmapLesson('${poolKey}', ${i}, ${totalNodes}))">
                             <span style="font-size:1.4rem;">${icon}</span>
                             <span style="font-size:0.65rem; font-weight:800; margin-top:2px;">#${i}</span>
                             ${mascotHtml}
@@ -1379,7 +1401,7 @@
 
             container.innerHTML = `
                 <div class="feature-topbar">
-                    <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
+                    <button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
                     <h3 style="font-size:1.1rem; color:var(--accent); font-weight:900;">🗺️ ${title}</h3>
                     <div style="width:85px;"></div>
                 </div>
@@ -1388,6 +1410,8 @@
                 </div>
             `;
         }
+        window.renderDuoRoadmap = renderDuoRoadmap;
+        window.triggerCinematicIntro = triggerCinematicIntro;
 
         function startRoadmapLesson(poolKey, nodeNum, totalNodes) {
             playSound('click');
@@ -1409,6 +1433,7 @@
 
             renderRoadmapStep();
         }
+        window.startRoadmapLesson = startRoadmapLesson;
 
         function renderRoadmapStep() {
             const session = window.currentRoadmapSession;
@@ -1430,7 +1455,7 @@
                 const box = document.getElementById('simulation-box');
                 box.innerHTML = `
                     <div class="feature-topbar">
-                        <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
+                        <button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
                         <h3 style="font-size:1.1rem; color:var(--gold); font-weight:900;">🏆 Module Completed!</h3>
                         <div style="width:85px;"></div>
                     </div>
@@ -1438,7 +1463,7 @@
                         <div style="font-size:4.5rem; margin-bottom:1rem;">🏆</div>
                         <h2 style="color:var(--gold); font-size:1.5rem; font-weight:900; margin-bottom:0.5rem;">Node #${session.nodeNum} Conquered!</h2>
                         <p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:2rem;">Earned +50 XP Stars ⭐. Ready for the next aviation milestone?</p>
-                        <button class="btn-action" onclick="renderDuoRoadmap(document.getElementById('simulation-box'), '${session.poolKey === 'vocab' ? 'English Vocabulary to Arabic (5k)' : session.poolKey === 'english' ? 'Aviation English & ICAO Mastery' : 'First Year Path (100 Nodes)'}', '${session.poolKey}', ${session.totalNodes})" style="max-width:280px; margin:0 auto; background:var(--success); color:white; padding:1.1rem;">Continue Roadmap ✈</button>
+                        <button class="btn-action" onclick="window.renderDuoRoadmap(document.getElementById('simulation-box'), '${session.poolKey === 'vocab' ? 'English Vocabulary to Arabic (5k)' : session.poolKey === 'english' ? 'Aviation English & ICAO Mastery' : 'First Year Path (100 Nodes)'}', '${session.poolKey}', ${session.totalNodes})" style="max-width:280px; margin:0 auto; background:var(--success); color:white; padding:1.1rem;">Continue Roadmap ✈</button>
                     </div>
                 `;
                 return;
@@ -1450,22 +1475,22 @@
             if(session.poolKey === 'vocab') {
                 box.innerHTML = `
                     <div class="feature-topbar">
-                        <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
+                        <button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
                         <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Vocab Item ${session.currentIdx + 1} / ${session.questions.length}</h3>
                         <div style="width:85px;"></div>
                     </div>
                     <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1.5rem; text-align:center;">
-                        <div style="font-size:3.5rem; margin-bottom:10px; cursor:pointer;" onclick="triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" title="Tap microphone to speak word">🎙️</div>
+                        <div style="font-size:3.5rem; margin-bottom:10px; cursor:pointer;" onclick="window.triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" title="Tap microphone to speak word">🎙️</div>
                         <h2 style="color:var(--accent); font-size:1.8rem; font-weight:900; margin-bottom:0.5rem;" id="vocab-word-display">${q.en}</h2>
                         <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;" id="vocab-status-label">Clearly speak "${q.en}" into microphone</p>
-                        <button class="btn-action" id="vocab-mic-btn" onclick="triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--accent); color:var(--bg-deep); max-width:280px; margin:0 auto; padding:1.1rem; margin-bottom:10px;">Tap Mic to Speak 🎙️</button>
-                        <button class="btn-action" id="vocab-reveal-btn" onclick="revealVocabWithTimerGlobal('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); max-width:280px; margin:0 auto; padding:0.9rem;">Reveal Translation ➡</button>
+                        <button class="btn-action" id="vocab-mic-btn" onclick="window.triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--accent); color:var(--bg-deep); max-width:280px; margin:0 auto; padding:1.1rem; margin-bottom:10px;">Tap Mic to Speak 🎙️</button>
+                        <button class="btn-action" id="vocab-reveal-btn" onclick="window.revealVocabWithTimerGlobal('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); max-width:280px; margin:0 auto; padding:0.9rem;">Reveal Translation ➡</button>
                     </div>
                 `;
             } else {
                 box.innerHTML = `
                     <div class="feature-topbar">
-                        <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
+                        <button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
                         <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Question ${session.currentIdx + 1} / ${session.questions.length}</h3>
                         <div style="width:85px;"></div>
                     </div>
@@ -1473,13 +1498,14 @@
                         <b style="color:white; font-size:1.05rem; display:block; margin-bottom:1.5rem; line-height:1.6;" id="current-q-text">${q.q}</b>
                         <div style="display:flex; flex-direction:column; gap:12px;">
                             ${q.options.map((opt, idx) => `
-                                <button class="btn-action" onclick="handleRoadmapAnswerGlobal(${idx === q.correct}, '${q.q.replace(/'/g, "\\'")}', '${opt.replace(/'/g, "\\'")}', '${q.options[q.correct].replace(/'/g, "\\'")}')" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); text-align:left; padding:14px 18px; font-size:0.95rem; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
+                                <button class="btn-action" onclick="window.handleRoadmapAnswerGlobal(${idx === q.correct}, '${q.q.replace(/'/g, "\\'")}', '${opt.replace(/'/g, "\\'")}', '${q.options[q.correct].replace(/'/g, "\\'")}')" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); text-align:left; padding:14px 18px; font-size:0.95rem; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
                             `).join('')}
                         </div>
                     </div>
                 `;
             }
         }
+        window.renderRoadmapStep = renderRoadmapStep;
 
         async function handleRoadmapAnswerGlobal(isCorrect, questionText, chosenAnswer, correctAns) {
             if(isCorrect) {
@@ -1507,6 +1533,7 @@
                 renderRoadmapStep();
             }, 900);
         }
+        window.handleRoadmapAnswerGlobal = handleRoadmapAnswerGlobal;
 
         function checkSpokenWordMatch(spoken, target) {
             const s = spoken.toLowerCase().trim();
@@ -1588,6 +1615,7 @@
                 vocabAnswerLocked = false;
             }
         }
+        window.triggerVocabSpeech = triggerVocabSpeech;
 
         function revealVocabWithTimerGlobal(enWord, arWord) {
             if(questionTimerInterval) clearInterval(questionTimerInterval);
@@ -1614,6 +1642,7 @@
                 }
             }, 1000);
         }
+        window.revealVocabWithTimerGlobal = revealVocabWithTimerGlobal;
 
         /* STUDY & EXAMS STUDIO & NAMED CLASSROOM GROUPS */
         let teacherGroups = JSON.parse(localStorage.getItem('aero_teacher_groups_v1') || '{}');
@@ -1659,7 +1688,7 @@
                             
                             <div id="advanced-exam-questions-container" style="display:flex; flex-direction:column; gap:10px; margin-bottom:10px;">
                                 <div class="adv-exam-q-block" style="background:var(--surface-card); padding:10px; border-radius:12px; border:1px solid var(--border-glow);">
-                                    <select class="q-type-select" onchange="onQuestionTypeChange(this)" style="margin-bottom:6px; padding:6px; font-size:0.8rem;">
+                                    <select class="q-type-select" onchange="window.onQuestionTypeChange(this)" style="margin-bottom:6px; padding:6px; font-size:0.8rem;">
                                         <option value="mcq">Multiple Choice (A, B, C, D)</option>
                                         <option value="true_false">True / False</option>
                                         <option value="short_text">Short Text (Fuzzy Matching)</option>
@@ -1671,10 +1700,10 @@
                                 </div>
                             </div>
                             <div style="display:flex; gap:8px; margin-bottom:10px;">
-                                <button class="btn-action" onclick="addAdvancedQuestionRow()" style="padding:8px; font-size:0.78rem; background:var(--surface-card); color:var(--accent); margin-top:0; flex:1;">+ Add Question</button>
-                                <button class="btn-action" onclick="generatePrintablePDFHandout()" style="padding:8px; font-size:0.78rem; background:var(--warning); color:var(--bg-deep); margin-top:0; flex:1;">🖨️ Print PDF Handout</button>
+                                <button class="btn-action" onclick="window.addAdvancedQuestionRow()" style="padding:8px; font-size:0.78rem; background:var(--surface-card); color:var(--accent); margin-top:0; flex:1;">+ Add Question</button>
+                                <button class="btn-action" onclick="window.generatePrintablePDFHandout()" style="padding:8px; font-size:0.78rem; background:var(--warning); color:var(--bg-deep); margin-top:0; flex:1;">🖨️ Print PDF Handout</button>
                             </div>
-                            <button class="btn-action" onclick="publishAdvancedExam()" style="padding:10px; font-size:0.9rem; background:var(--success); color:white; margin-top:0;">Publish Interactive Exam 🏆</button>
+                            <button class="btn-action" onclick="window.publishAdvancedExam()" style="padding:10px; font-size:0.9rem; background:var(--success); color:white; margin-top:0;">Publish Interactive Exam 🏆</button>
                         </div>
                     </div>
 
@@ -1685,7 +1714,7 @@
                         <input type="text" id="pdf-code" placeholder="Custom Code for PDF Material" style="margin-bottom:8px; font-weight:800;" />
                         <input type="text" id="pdf-doc-title" placeholder="PDF Document Title (e.g. EASA Chapter 4 PDF)" style="margin-bottom:8px;" />
                         <input type="text" id="pdf-doc-url" placeholder="PDF File URL or Link (https://...)" style="margin-bottom:8px;" />
-                        <button class="btn-action" onclick="publishPDFDocument()" style="padding:10px; font-size:0.9rem; background:var(--gold); color:#020617; margin-top:0;">Publish PDF Material 📑</button>
+                        <button class="btn-action" onclick="window.publishPDFDocument()" style="padding:10px; font-size:0.9rem; background:var(--gold); color:#020617; margin-top:0;">Publish PDF Material 📑</button>
                     </div>
 
                     <!-- NAMED CLASSROOM GROUPS & SHUFFLER -->
@@ -1695,11 +1724,11 @@
                         
                         <div style="display:flex; gap:8px; margin-bottom:10px;">
                             <input type="text" id="new-group-name-input" placeholder="Group Name (e.g. Group Alpha)" style="margin-bottom:0; flex:1;" />
-                            <button class="btn-action" onclick="createTeacherGroup()" style="width:110px; margin-top:0; padding:8px; font-size:0.85rem; background:var(--accent); color:var(--bg-deep);">Create Group +</button>
+                            <button class="btn-action" onclick="window.createTeacherGroup()" style="width:110px; margin-top:0; padding:8px; font-size:0.85rem; background:var(--accent); color:var(--bg-deep);">Create Group +</button>
                         </div>
 
                         <label><b>Select Classroom Group</b></label>
-                        <select id="selected-teacher-group" onchange="renderGroupStudentsManager()" style="margin-bottom:10px;">
+                        <select id="selected-teacher-group" onchange="window.renderGroupStudentsManager()" style="margin-bottom:10px;">
                             <option value="">-- Choose Group --</option>
                             ${groupNames.map(g => `<option value="${g}">${g}</option>`).join('')}
                         </select>
@@ -1708,14 +1737,14 @@
                             <label><b>Add Student Name</b></label>
                             <div style="display:flex; gap:8px; margin-bottom:8px;">
                                 <input type="text" id="single-student-name-input" placeholder="Student Full Name" style="margin-bottom:0; flex:1;" />
-                                <button class="btn-action" onclick="addStudentToSelectedGroup()" style="width:90px; margin-top:0; padding:6px; font-size:0.8rem; background:var(--success); color:white;">Add ➕</button>
+                                <button class="btn-action" onclick="window.addStudentToSelectedGroup()" style="width:90px; margin-top:0; padding:6px; font-size:0.8rem; background:var(--success); color:white;">Add ➕</button>
                             </div>
                             <div id="group-roster-list" style="font-size:0.82rem; color:white; margin-bottom:8px; max-height:100px; overflow-y:auto;"></div>
                         </div>
 
                         <div style="display:flex; gap:10px; margin-bottom:10px;">
                             <input type="number" id="team-size-input" value="4" min="1" max="20" placeholder="Size per team" style="margin-bottom:0; flex:1;" />
-                            <button class="btn-action" onclick="runNamedGroupShuffler()" style="width:150px; margin-top:0; padding:10px; font-size:0.85rem; background:var(--warning); color:var(--bg-deep);">Shuffle Teams ⚡</button>
+                            <button class="btn-action" onclick="window.runNamedGroupShuffler()" style="width:150px; margin-top:0; padding:10px; font-size:0.85rem; background:var(--warning); color:var(--bg-deep);">Shuffle Teams ⚡</button>
                         </div>
                         <div id="shuffled-teams-output" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;"></div>
                     </div>
@@ -1730,8 +1759,8 @@
                                         <div style="color:var(--accent); font-size:0.8rem; margin-top:2px;">Exam ID #${sub.exam_id} | Score: <b>${sub.score}/${sub.total_questions}</b></div>
                                     </div>
                                     <div style="display:flex; gap:6px; align-items:center;">
-                                        <button class="btn-action" onclick="adjustStudentXP('${sub.student_username}', 50)" style="width:50px; padding:6px; font-size:0.75rem; background:var(--success); color:white; margin-top:0;" title="Reward +50 XP">+50⭐</button>
-                                        <button class="btn-action" onclick="adjustStudentXP('${sub.student_username}', -50)" style="width:50px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;" title="Deduction -50 XP">-50⭐</button>
+                                        <button class="btn-action" onclick="window.adjustStudentXP('${sub.student_username}', 50)" style="width:50px; padding:6px; font-size:0.75rem; background:var(--success); color:white; margin-top:0;" title="Reward +50 XP">+50⭐</button>
+                                        <button class="btn-action" onclick="window.adjustStudentXP('${sub.student_username}', -50)" style="width:50px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;" title="Deduction -50 XP">-50⭐</button>
                                     </div>
                                 </div>
                             `).join('')}
@@ -1744,7 +1773,7 @@
 
             box.innerHTML = `
                 <div class="feature-topbar">
-                    <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
+                    <button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
                     <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">📚 Study & Exams Studio</h3>
                     <span style="font-size: 0.78rem; color: var(--success); font-weight: 800;">${sessionUser.group_code ? 'Code: ' + sessionUser.group_code : 'No Code'}</span>
                 </div>
@@ -1758,7 +1787,7 @@
                         <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">Enter the unique custom code provided by your instructor to view and take their specific exams and PDFs.</p>
                         <div style="display:flex; gap:10px;">
                             <input type="text" id="student-group-code-input" value="${targetCode}" placeholder="Enter custom code..." style="margin-bottom:0; flex:1; text-align:center; font-weight:800; letter-spacing:2px;" />
-                            <button class="btn-action" onclick="updateStudentGroupCode()" style="width:130px; margin-top:0; padding:10px; font-size:0.85rem; background:var(--success); color:white;">Load Exams 🚀</button>
+                            <button class="btn-action" onclick="window.updateStudentGroupCode()" style="width:130px; margin-top:0; padding:10px; font-size:0.85rem; background:var(--success); color:white;">Load Exams 🚀</button>
                         </div>
                     </div>
 
@@ -1766,8 +1795,8 @@
 
                     <!-- STUDENT EXAM vs PDF TAB SELECTOR -->
                     <div style="display:flex; gap:10px; margin-bottom:1.2rem;">
-                        <button class="btn-action" onclick="switchStudentMaterialTab('interactive')" id="tab-btn-interactive" style="background:var(--accent); color:var(--bg-deep); margin-top:0; padding:10px; font-size:0.85rem; flex:1;">🏆 Interactive Exams (${interactiveExamsList.length})</button>
-                        <button class="btn-action" onclick="switchStudentMaterialTab('pdf')" id="tab-btn-pdf" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0; padding:10px; font-size:0.85rem; flex:1;">📄 PDF Documents (${pdfExamsList.length})</button>
+                        <button class="btn-action" onclick="window.switchStudentMaterialTab('interactive')" id="tab-btn-interactive" style="background:var(--accent); color:var(--bg-deep); margin-top:0; padding:10px; font-size:0.85rem; flex:1;">🏆 Interactive Exams (${interactiveExamsList.length})</button>
+                        <button class="btn-action" onclick="window.switchStudentMaterialTab('pdf')" id="tab-btn-pdf" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0; padding:10px; font-size:0.85rem; flex:1;">📄 PDF Documents (${pdfExamsList.length})</button>
                     </div>
 
                     <!-- INTERACTIVE EXAMS TAB CONTENT -->
@@ -1782,13 +1811,13 @@
                                     actionBtnHtml = `
                                         <div style="display:flex; gap:8px; align-items:center;">
                                             <span style="color:var(--text-muted); font-size:0.75rem; font-weight:700;">Owner</span>
-                                            <button class="btn-action" onclick="confirmDeleteExam(${e.id})" style="width:75px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;">Delete 🗑️</button>
+                                            <button class="btn-action" onclick="window.confirmDeleteExam(${e.id})" style="width:75px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;">Delete 🗑️</button>
                                         </div>
                                     `;
                                 } else if(existingSub) {
                                     actionBtnHtml = `<span style="color:var(--success); font-weight:800; font-size:0.85rem;">Completed ✓ (${existingSub.score}/${existingSub.total_questions})</span>`;
                                 } else {
-                                    actionBtnHtml = `<button class="btn-action" onclick='takeExam(${JSON.stringify(e)})' style="width:100px; padding:8px; font-size:0.8rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Start ⏱</button>`;
+                                    actionBtnHtml = `<button class="btn-action" onclick='window.takeExam(${JSON.stringify(e)})' style="width:100px; padding:8px; font-size:0.8rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Start ⏱</button>`;
                                 }
 
                                 return `
@@ -1810,7 +1839,7 @@
                                 const teacherName = e.teacher_username ? '@' + e.teacher_username : 'Instructor';
                                 let actionBtnHtml = '';
                                 if(isTeacher) {
-                                    actionBtnHtml = `<button class="btn-action" onclick="confirmDeleteExam(${e.id})" style="width:75px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;">Delete 🗑️</button>`;
+                                    actionBtnHtml = `<button class="btn-action" onclick="window.confirmDeleteExam(${e.id})" style="width:75px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;">Delete 🗑️</button>`;
                                 } else {
                                     actionBtnHtml = `<a href="${e.pdf_url}" target="_blank" class="btn-action" style="width:110px; padding:8px; font-size:0.8rem; background:var(--gold); color:#020617; text-decoration:none; text-align:center; margin-top:0;">Open PDF 📑</a>`;
                                 }
@@ -1829,6 +1858,7 @@
                 </div>
             `;
         }
+        window.openStudyHub = openStudyHub;
 
         function switchStudentMaterialTab(tabName) {
             playSound('click');
@@ -1857,6 +1887,7 @@
                 btnInteractive.style.border = '1px solid var(--border-glow)';
             }
         }
+        window.switchStudentMaterialTab = switchStudentMaterialTab;
 
         async function updateStudentGroupCode() {
             playSound('click');
@@ -1880,6 +1911,7 @@
                 showToast(data.detail || 'Failed to update code', true);
             }
         }
+        window.updateStudentGroupCode = updateStudentGroupCode;
 
         function addAdvancedQuestionRow() {
             playSound('click');
@@ -1888,7 +1920,7 @@
             block.className = 'adv-exam-q-block';
             block.style.cssText = 'background:var(--surface-card); padding:10px; border-radius:12px; border:1px solid var(--border-glow); margin-top:6px;';
             block.innerHTML = `
-                <select class="q-type-select" onchange="onQuestionTypeChange(this)" style="margin-bottom:6px; padding:6px; font-size:0.8rem;">
+                <select class="q-type-select" onchange="window.onQuestionTypeChange(this)" style="margin-bottom:6px; padding:6px; font-size:0.8rem;">
                     <option value="mcq">Multiple Choice (A, B, C, D)</option>
                     <option value="true_false">True / False</option>
                     <option value="short_text">Short Text (Fuzzy Matching)</option>
@@ -1900,6 +1932,7 @@
             `;
             container.appendChild(block);
         }
+        window.addAdvancedQuestionRow = addAdvancedQuestionRow;
 
         function onQuestionTypeChange(selectEl) {
             const block = selectEl.closest('.adv-exam-q-block');
@@ -1919,6 +1952,7 @@
                 `;
             }
         }
+        window.onQuestionTypeChange = onQuestionTypeChange;
 
         function generatePrintablePDFHandout() {
             playSound('click');
@@ -1957,6 +1991,7 @@
             `);
             printWindow.document.close();
         }
+        window.generatePrintablePDFHandout = generatePrintablePDFHandout;
 
         async function publishAdvancedExam() {
             playSound('click');
@@ -1988,6 +2023,7 @@
                 showToast('Failed to publish exam', true);
             }
         }
+        window.publishAdvancedExam = publishAdvancedExam;
 
         async function publishPDFDocument() {
             playSound('click');
@@ -2010,6 +2046,7 @@
                 showToast('Failed to upload PDF document', true);
             }
         }
+        window.publishPDFDocument = publishPDFDocument;
 
         /* NAMED GROUPS & SHUFFLER LOGIC */
         function createTeacherGroup() {
@@ -2028,6 +2065,7 @@
                 showToast('Group already exists', true);
             }
         }
+        window.createTeacherGroup = createTeacherGroup;
 
         function renderGroupStudentsManager() {
             playSound('click');
@@ -2047,10 +2085,11 @@
             rosterList.innerHTML = students.length === 0 ? '<i>No students added yet.</i>' : students.map((s, idx) => `
                 <div style="display:flex; justify-content:space-between; align-items:center; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
                     <span>• ${s}</span>
-                    <span onclick="removeStudentFromGroup('${groupName}', ${idx})" style="color:var(--danger); cursor:pointer; font-weight:800;">✕</span>
+                    <span onclick="window.removeStudentFromGroup('${groupName}', ${idx})" style="color:var(--danger); cursor:pointer; font-weight:800;">✕</span>
                 </div>
             `).join('');
         }
+        window.renderGroupStudentsManager = renderGroupStudentsManager;
 
         function addStudentToSelectedGroup() {
             playSound('click');
@@ -2069,6 +2108,7 @@
             renderGroupStudentsManager();
             showToast(`Added ${studentName} to ${groupName}!`);
         }
+        window.addStudentToSelectedGroup = addStudentToSelectedGroup;
 
         function removeStudentFromGroup(groupName, index) {
             playSound('click');
@@ -2078,6 +2118,7 @@
                 renderGroupStudentsManager();
             }
         }
+        window.removeStudentFromGroup = removeStudentFromGroup;
 
         function runNamedGroupShuffler() {
             playSound('click');
@@ -2102,6 +2143,7 @@
             renderShuffledTeamsUI(groupName);
             showToast(`Group ${groupName} shuffled into teams successfully! 🔀`);
         }
+        window.runNamedGroupShuffler = runNamedGroupShuffler;
 
         function renderShuffledTeamsUI(groupName) {
             const outputBox = document.getElementById('shuffled-teams-output');
@@ -2119,8 +2161,8 @@
                                 <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; color:white; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:8px;">
                                     <span>• ${m}</span>
                                     <div style="display:flex; gap:6px;">
-                                        <span onclick="openEditTeamMember('${groupName}', ${tIdx}, ${mIdx}, '${m}')" style="color:var(--accent); cursor:pointer; font-weight:800;" title="Edit">✏️</span>
-                                        <span onclick="deleteTeamMember('${groupName}', ${tIdx}, ${mIdx})" style="color:var(--danger); cursor:pointer; font-weight:800;" title="Delete">🗑️</span>
+                                        <span onclick="window.openEditTeamMember('${groupName}', ${tIdx}, ${mIdx}, '${m}')" style="color:var(--accent); cursor:pointer; font-weight:800;" title="Edit">✏️</span>
+                                        <span onclick="window.deleteTeamMember('${groupName}', ${tIdx}, ${mIdx})" style="color:var(--danger); cursor:pointer; font-weight:800;" title="Delete">🗑️</span>
                                     </div>
                                 </div>
                             `).join('')}
@@ -2129,6 +2171,7 @@
                 `).join('')}
             `;
         }
+        window.renderShuffledTeamsUI = renderShuffledTeamsUI;
 
         function openEditTeamMember(groupName, teamIdx, memberIdx, currentName) {
             playSound('click');
@@ -2136,11 +2179,13 @@
             document.getElementById('edit-member-name-input').value = currentName;
             document.getElementById('edit-team-modal').style.display = 'flex';
         }
+        window.openEditTeamMember = openEditTeamMember;
 
         function closeEditTeamModal() {
             playSound('click');
             document.getElementById('edit-team-modal').style.display = 'none';
         }
+        window.closeEditTeamModal = closeEditTeamModal;
 
         function saveTeamMemberEdit() {
             playSound('click');
@@ -2153,6 +2198,7 @@
             renderShuffledTeamsUI(groupName);
             showToast('Team member updated successfully! 💾');
         }
+        window.saveTeamMemberEdit = saveTeamMemberEdit;
 
         function deleteTeamMember(groupName, teamIdx, memberIdx) {
             playSound('click');
@@ -2160,6 +2206,7 @@
             renderShuffledTeamsUI(groupName);
             showToast('Team member removed.');
         }
+        window.deleteTeamMember = deleteTeamMember;
 
         function confirmDeleteExam(examId) {
             playSound('click');
@@ -2195,6 +2242,7 @@
                 }
             };
         }
+        window.confirmDeleteExam = confirmDeleteExam;
 
         async function adjustStudentXP(studentUsername, amount) {
             playSound('click');
@@ -2211,6 +2259,7 @@
                 showToast(data.detail || 'Failed to adjust XP', true);
             }
         }
+        window.adjustStudentXP = adjustStudentXP;
 
         function takeExam(exam) {
             playSound('click');
@@ -2220,7 +2269,7 @@
             const box = document.getElementById('simulation-box');
             box.innerHTML = `
                 <div class="feature-topbar">
-                    <button class="btn-action" onclick="openStudyHub()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
+                    <button class="btn-action" onclick="window.openStudyHub()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
                     <h3 style="font-size:1.1rem; color:var(--warning); font-weight:900;">⏱️ ${exam.title}</h3>
                     <span style="font-size:0.75rem; color:var(--accent);">By @${exam.teacher_username || 'teacher'}</span>
                 </div>
@@ -2230,7 +2279,7 @@
                             if(q.type === 'true_false') {
                                 return `
                                     <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}:${q.question}</label>
+                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${q.question}</label>
                                         <select class="exam-answer-input" data-correct="${q.correct}" style="margin-bottom:0;">
                                             <option value="">Select True / False...</option>
                                             <option value="True">True</option>
@@ -2241,17 +2290,18 @@
                             } else {
                                 return `
                                     <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}:${q.question}</label>
+                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${q.question}</label>
                                         <input type="text" class="exam-answer-input" data-correct="${q.correct}" placeholder="Your answer..." style="margin-bottom:0;" />
                                     </div>
                                 `;
                             }
                         }).join('')}
                     </div>
-                    <button class="btn-action" onclick="submitActiveExam(${exam.id}, ${questions.length})" style="background:var(--success); color:white; padding:1.1rem; margin-bottom:2rem;">Submit Official Exam 🏆</button>
+                    <button class="btn-action" onclick="window.submitActiveExam(${exam.id}, ${questions.length})" style="background:var(--success); color:white; padding:1.1rem; margin-bottom:2rem;">Submit Official Exam 🏆</button>
                 </div>
             `;
         }
+        window.takeExam = takeExam;
 
         async function submitActiveExam(examId, totalQ) {
             let score = 0;
@@ -2273,6 +2323,7 @@
                 showToast(data.detail || 'Submission failed', true);
             }
         }
+        window.submitActiveExam = submitActiveExam;
 
         /* FRIENDS & SOCIAL HUB WITH LIVE CHAT */
         async function openSocialHub() {
@@ -2285,7 +2336,7 @@
 
             box.innerHTML = `
                 <div class="feature-topbar">
-                    <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
+                    <button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
                     <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">💬 Friends & Social Hub</h3>
                     <span style="font-size: 0.78rem; color: var(--success); font-weight: 800;">Network</span>
                 </div>
@@ -2295,7 +2346,7 @@
                         <label><b>Add Friend by Username</b></label>
                         <div style="display:flex; gap:10px;">
                             <input type="text" id="friend-target-user" placeholder="@username" style="margin-bottom:0; flex:1;" />
-                            <button class="btn-action" onclick="sendFriendReq()" style="width:110px; margin-top:0; padding:10px; font-size:0.85rem;">Add Friend ➕</button>
+                            <button class="btn-action" onclick="window.sendFriendReq()" style="width:110px; margin-top:0; padding:10px; font-size:0.85rem;">Add Friend ➕</button>
                         </div>
                     </div>
 
@@ -2305,7 +2356,7 @@
                             ${socialData.incoming_requests.map(req => `
                                 <div style="background:var(--surface-card); padding:12px 16px; border-radius:14px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
                                     <span style="font-size:0.9rem; color:white;"><b>@${req.sender_username}</b> sent request</span>
-                                    <button class="btn-action" onclick="acceptFriend('${req.sender_username}')" style="width:90px; padding:8px; font-size:0.8rem; background:var(--success); color:white; margin-top:0;">Accept</button>
+                                    <button class="btn-action" onclick="window.acceptFriend('${req.sender_username}')" style="width:90px; padding:8px; font-size:0.8rem; background:var(--success); color:white; margin-top:0;">Accept</button>
                                 </div>
                             `).join('')}
                         </div>
@@ -2318,8 +2369,8 @@
                                 <div style="background:var(--surface-card); padding:12px 16px; border-radius:14px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
                                     <div><b style="color:white; font-size:0.9rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.78rem;">(@${f.username})</span></div>
                                     <div style="display:flex; gap:6px;">
-                                        <button class="btn-action" onclick="openPrivateChat('${f.username}', '${f.full_name}')" style="width:75px; padding:8px; font-size:0.78rem; margin-top:0; background:var(--accent); color:var(--bg-deep);">Chat 💬</button>
-                                        <button class="btn-action" onclick="open1v1Lobby()" style="width:75px; padding:8px; font-size:0.78rem; margin-top:0; background:var(--warning); color:var(--bg-deep);">1v1 ⚔</button>
+                                        <button class="btn-action" onclick="window.openPrivateChat('${f.username}', '${f.full_name}')" style="width:75px; padding:8px; font-size:0.78rem; margin-top:0; background:var(--accent); color:var(--bg-deep);">Chat 💬</button>
+                                        <button class="btn-action" onclick="window.open1v1Lobby()" style="width:75px; padding:8px; font-size:0.78rem; margin-top:0; background:var(--warning); color:var(--bg-deep);">1v1 ⚔</button>
                                     </div>
                                 </div>
                             `).join('')}
@@ -2331,7 +2382,7 @@
                             <div id="group-chat-box" style="height:160px; overflow-y:auto; background:var(--bg-deep); padding:10px; border-radius:12px; margin-bottom:10px; border:1px solid var(--border-glow); display:flex; flex-direction:column; gap:6px;"></div>
                             <div style="display:flex; gap:8px;">
                                 <input type="text" id="group-msg-input" placeholder="Type message..." style="margin-bottom:0; flex:1;" />
-                                <button class="btn-action" onclick="sendGroupMessage()" style="width:90px; margin-top:0; padding:8px; font-size:0.85rem;">Send ✈️</button>
+                                <button class="btn-action" onclick="window.sendGroupMessage()" style="width:90px; margin-top:0; padding:8px; font-size:0.85rem;">Send ✈️</button>
                             </div>
                         </div>
                     ` : ''}
@@ -2339,6 +2390,7 @@
             `;
             if(sessionUser.group_code) startGroupChatPolling();
         }
+        window.openSocialHub = openSocialHub;
 
         async function sendFriendReq() {
             playSound('click');
@@ -2352,6 +2404,7 @@
             if(res.ok) { showToast('Friend request sent!'); openSocialHub(); }
             else { showToast('User not found', true); }
         }
+        window.sendFriendReq = sendFriendReq;
 
         async function acceptFriend(friendUser) {
             playSound('click');
@@ -2362,6 +2415,7 @@
             });
             if(res.ok) { showToast('Friend accepted!'); openSocialHub(); }
         }
+        window.acceptFriend = acceptFriend;
 
         function startGroupChatPolling() {
             if(groupMsgPollingInterval) clearInterval(groupMsgPollingInterval);
@@ -2397,6 +2451,7 @@
             });
             fetchGroupMessages();
         }
+        window.sendGroupMessage = sendGroupMessage;
 
         function openPrivateChat(friendUsername, friendFullName) {
             playSound('click');
@@ -2406,7 +2461,7 @@
             const box = document.getElementById('simulation-box');
             box.innerHTML = `
                 <div class="feature-topbar">
-                    <button class="btn-action" onclick="openSocialHub()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
+                    <button class="btn-action" onclick="window.openSocialHub()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
                     <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">💬 Chat with ${friendFullName}</h3>
                     <div style="width:85px;"></div>
                 </div>
@@ -2414,12 +2469,13 @@
                     <div id="dm-chat-box" style="flex:1; overflow-y:auto; background:var(--bg-deep); padding:14px; border-radius:18px; margin-bottom:12px; border:1px solid var(--border-glow); display:flex; flex-direction:column; gap:8px; min-height:285px;"></div>
                     <div style="display:flex; gap:8px; margin-bottom:1.5rem;">
                         <input type="text" id="dm-msg-input" placeholder="Type private message..." style="margin-bottom:0; flex:1;" />
-                        <button class="btn-action" onclick="sendPrivateMessage('${friendUsername}')" style="width:90px; margin-top:0; padding:8px; font-size:0.85rem;">Send ✈️</button>
+                        <button class="btn-action" onclick="window.sendPrivateMessage('${friendUsername}')" style="width:90px; margin-top:0; padding:8px; font-size:0.85rem;">Send ✈️</button>
                     </div>
                 </div>
             `;
             startDMPolling(friendUsername);
         }
+        window.openPrivateChat = openPrivateChat;
 
         function startDMPolling(friendUsername) {
             fetchDMs(friendUsername);
@@ -2454,6 +2510,7 @@
             });
             fetchDMs(friendUsername);
         }
+        window.sendPrivateMessage = sendPrivateMessage;
 
         /* 1V1 BATTLE ARENA LOBBY WITH INSTANT FEEDBACK & REWARDS */
         async function open1v1Lobby() {
@@ -2466,7 +2523,7 @@
 
             box.innerHTML = `
                 <div class="feature-topbar">
-                    <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
+                    <button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
                     <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">⚔️ 1v1 Battle Arena</h3>
                     <span style="font-size: 0.78rem; color: var(--gold); font-weight: 800;">Duel</span>
                 </div>
@@ -2478,13 +2535,14 @@
                             socialData.friends.map(f => `
                                 <div style="background:var(--surface-card); padding:14px 18px; border-radius:16px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border-glow);">
                                     <div><b style="color:white; font-size:0.95rem;">${f.full_name}</b> <span style="color:var(--text-muted); font-size:0.78rem;">(@${f.username})</span></div>
-                                    <button class="btn-action" onclick="send1v1Challenge('${f.username}', '${f.full_name}')" style="width:105px; padding:8px; font-size:0.8rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Challenge ⚔️</button>
+                                    <button class="btn-action" onclick="window.send1v1Challenge('${f.username}', '${f.full_name}')" style="width:105px; padding:8px; font-size:0.8rem; background:var(--warning); color:var(--bg-deep); margin-top:0;">Challenge ⚔️</button>
                                 </div>
                             `).join('')}
                     </div>
                 </div>
             `;
         }
+        window.open1v1Lobby = open1v1Lobby;
 
         async function send1v1Challenge(friendUsername, friendFullName) {
             playSound('click');
@@ -2496,7 +2554,7 @@
                 <div style="text-align:center; padding: 1.5rem 0;">
                     <div style="font-size: 3.5rem; margin-bottom: 12px;">⚔️</div>
                     <h3 style="font-size: 1.25rem; color:var(--accent); font-weight:900; margin-bottom:0.6rem;">Challenging ${friendFullName}</h3>
-                    <button class="btn-action" onclick="cancel1v1Challenge()" style="background:var(--danger); color:white; margin-top:0; padding:1.1rem;">Cancel Invitation ❌</button>
+                    <button class="btn-action" onclick="window.cancel1v1Challenge()" style="background:var(--danger); color:white; margin-top:0; padding:1.1rem;">Cancel Invitation ❌</button>
                 </div>
             `;
 
@@ -2518,6 +2576,7 @@
                 modal.style.display = 'none';
             }
         }
+        window.send1v1Challenge = send1v1Challenge;
 
         function cancel1v1Challenge() {
             playSound('click');
@@ -2531,6 +2590,7 @@
             activeMatchId = null;
             document.getElementById('battle-arena-modal').style.display = 'none';
         }
+        window.cancel1v1Challenge = cancel1v1Challenge;
 
         function pollBattleAcceptance(matchId) {
             const pollTimer = setInterval(async () => {
@@ -2579,8 +2639,8 @@
                     <h3 style="font-size: 1.3rem; color:var(--gold); font-weight:900; margin-bottom:0.6rem;">Incoming 1v1 Challenge!</h3>
                     <p style="font-size:0.92rem; color:white; margin-bottom:1.6rem; line-height:1.6;"><b>${invite.sender_name}</b> challenged you!</p>
                     <div style="display:flex; gap:12px;">
-                        <button class="btn-action" onclick="respondBattleInvite('${invite.match_id}', false)" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0; padding:1.1rem;">Reject ❌</button>
-                        <button class="btn-action" onclick="respondBattleInvite('${invite.match_id}', true)" style="background:var(--success); color:white; margin-top:0; padding:1.1rem;">Accept ⚔️</button>
+                        <button class="btn-action" onclick="window.respondBattleInvite('${invite.match_id}', false)" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0; padding:1.1rem;">Reject ❌</button>
+                        <button class="btn-action" onclick="window.respondBattleInvite('${invite.match_id}', true)" style="background:var(--success); color:white; margin-top:0; padding:1.1rem;">Accept ⚔️</button>
                     </div>
                 </div>
             `;
@@ -2601,6 +2661,7 @@
                 document.getElementById('battle-arena-modal').style.display = 'none';
             }
         }
+        window.respondBattleInvite = respondBattleInvite;
 
         function start1v1BattleWithQuestions(questions, matchId) {
             battleQuestions = questions;
@@ -2628,7 +2689,7 @@
                     <b style="color:white; font-size:1rem; display:block; margin-bottom:14px; line-height:1.5;">${qObj.q}</b>
                     <div style="display:flex; flex-direction:column; gap:10px;" id="battle-options-container">
                         ${qObj.options.map((opt, idx) => `
-                            <button class="btn-action battle-opt-btn" onclick="answerModalBattleQuestion(${idx === qObj.correct}, this)" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:13px; font-size:0.9rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)})${opt}</button>
+                            <button class="btn-action battle-opt-btn" onclick="window.answerModalBattleQuestion(${idx === qObj.correct}, this)" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:13px; font-size:0.9rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)})${opt}</button>
                         `).join('')}
                     </div>
                 </div>
@@ -2657,6 +2718,7 @@
                 renderBattleQuestionModal();
             }, 900);
         }
+        window.answerModalBattleQuestion = answerModalBattleQuestion;
 
         async function finish1v1BattleModal() {
             const res = await fetch('/api/battle/submit', {
@@ -2698,10 +2760,14 @@
             playSound('click'); 
             document.getElementById('avatar-studio-modal').style.display = 'flex'; 
         }
+        window.openAvatarStudio = openAvatarStudio;
+
         function closeAvatarStudio() { 
             playSound('click'); 
             document.getElementById('avatar-studio-modal').style.display = 'none'; 
         }
+        window.closeAvatarStudio = closeAvatarStudio;
+
         async function saveAvatarChanges() {
             playSound('click');
             const avatar_gender = document.getElementById('mod-gender').value;
@@ -2712,4 +2778,93 @@
             });
             const data = await res.json();
             if(res.ok) {
-                sessionUser = data.user
+                sessionUser = data.user;
+                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                updateDashboardUI();
+                closeAvatarStudio();
+                showToast('Avatar updated!');
+            }
+        }
+        window.saveAvatarChanges = saveAvatarChanges;
+
+        function openSettingsModal() { 
+            playSound('click'); 
+            document.getElementById('settings-modal').style.display = 'flex'; 
+        }
+        window.openSettingsModal = openSettingsModal;
+
+        function closeSettingsModal() { 
+            playSound('click'); 
+            document.getElementById('settings-modal').style.display = 'none'; 
+        }
+        window.closeSettingsModal = closeSettingsModal;
+
+        async function submitPasswordChangeModal() {
+            playSound('click');
+            const recovery_pin = document.getElementById('set-pin').value.trim();
+            const new_password = document.getElementById('set-new-pass').value.trim();
+            if(!recovery_pin || !new_password) { showToast('Fill fields', true); return; }
+            const res = await fetch('/api/user/password-change', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ phone_number: sessionUser.phone_number, recovery_pin, new_password })
+            });
+            if(res.ok) { showToast('Password updated!'); closeSettingsModal(); }
+            else { showToast('Invalid PIN', true); }
+        }
+        window.submitPasswordChangeModal = submitPasswordChangeModal;
+
+        async function openShop() {
+            playSound('click');
+            const box = document.getElementById('simulation-box');
+            box.classList.add('feature-fullscreen-view');
+            const res = await fetch('/api/shop/skins');
+            const data = await res.json();
+
+            box.innerHTML = `
+                <div class="feature-topbar">
+                    <button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
+                    <h3 style="font-size: 1.1rem; color: #a78bfa; font-weight: 900;">🎁 Boutique</h3>
+                    <span style="font-size: 0.82rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
+                </div>
+                <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem;">
+                        ${data.skins.map(skin => {
+                            const isEquipped = sessionUser.active_skin === skin.skin_name_en;
+                            return `
+                            <div style="background: var(--surface-card); padding: 1rem 1.2rem; border-radius: 16px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 14px;">
+                                    <span style="font-size: 1.8rem;">${skin.preview_svg}</span>
+                                    <div style="color: white; font-size: 0.9rem;"><b style="font-size:0.95rem;">${skin.skin_name_en}</b></div>
+                                </div>
+                                <button class="btn-action" onclick="window.buySkin('${skin.skin_name_en}',${skin.cost})" style="width:110px; padding:8px; font-size:0.8rem; background:${isEquipped ? 'var(--success)' : '#8b5cf6'}; color:white; margin-top:0;">${isEquipped ? 'Equipped ✓' : skin.cost + ' ⭐'}</button>
+                            </div>
+                        `;}).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        window.openShop = openShop;
+
+        async function buySkin(skinName, cost) {
+            playSound('click');
+            const res = await fetch('/api/shop/buy', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ phone_number: sessionUser.phone_number, skin_name: skinName, cost })
+            });
+            const data = await res.json();
+            if(res.ok) {
+                sessionUser = data.user;
+                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                updateDashboardUI();
+                showToast('Equipped ' + skinName + ' successfully!');
+                openShop();
+            } else {
+                showToast(data.detail || 'Purchase failed', true);
+            }
+        }
+        window.buySkin = buySkin;
+    </script>
+</body>
+</html>
