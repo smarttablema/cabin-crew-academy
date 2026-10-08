@@ -235,8 +235,8 @@
             </select>
 
             <div id="teacher-code-box" class="hidden" style="background: rgba(56, 189, 248, 0.08); padding: 12px; border-radius: 14px; border: 1px dashed var(--accent); margin-bottom: 1.1rem;">
-                <label style="color: var(--accent);">🔒 6-Digit Teacher Verification Code</label>
-                <input type="password" id="reg-teacher-code" placeholder="Enter 6-digit teacher code" maxlength="6" style="letter-spacing: 3px; text-align: center; margin-bottom:0;" />
+                <label style="color: var(--accent);">🔒 Teacher Verification Code</label>
+                <input type="password" id="reg-teacher-code" placeholder="Enter teacher code" style="letter-spacing: 2px; text-align: center; margin-bottom:0;" />
             </div>
 
             <label id="tr-reg-name-lbl">Full Name</label>
@@ -1420,7 +1420,7 @@
                     <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1.5rem; text-align:center;">
                         <div style="font-size:3.5rem; margin-bottom:10px; cursor:pointer;" onclick="triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" title="Tap microphone to speak word">🎙️</div>
                         <h2 style="color:var(--accent); font-size:1.8rem; font-weight:900; margin-bottom:0.5rem;" id="vocab-word-display">${q.en}</h2>
-                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;" id="vocab-status-label">Speak "${q.en}" or tap below</p>
+                        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;" id="vocab-status-label">Clearly speak "${q.en}" into microphone</p>
                         <button class="btn-action" id="vocab-mic-btn" onclick="triggerVocabSpeech('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--accent); color:var(--bg-deep); max-width:280px; margin:0 auto; padding:1.1rem; margin-bottom:10px;">Tap Mic to Speak 🎙️</button>
                         <button class="btn-action" id="vocab-reveal-btn" onclick="revealVocabWithTimerGlobal('${q.en.replace(/'/g, "\\'")}', '${q.ar.replace(/'/g, "\\'")}')" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); max-width:280px; margin:0 auto; padding:0.9rem;">Reveal Translation ➡</button>
                     </div>
@@ -1471,15 +1471,31 @@
             }, 900);
         }
 
+        /* STRICT SPEECH RECOGNITION VALIDATOR WITH FUZZY ACCENT/TYPO TOLERANCE */
+        function checkSpokenWordMatch(spoken, target) {
+            const s = spoken.toLowerCase().trim();
+            const t = target.toLowerCase().trim();
+            if(s === t || s.includes(t) || t.includes(s)) return true;
+            
+            // Allow minor character omissions/accents (Levenshtein distance <= 2 for words >= 4 chars)
+            if(Math.abs(s.length - t.length) > 3) return false;
+            let matches = 0;
+            for(let i = 0; i < Math.min(s.length, t.length); i++) {
+                if(s[i] === t[i]) matches++;
+            }
+            return matches >= Math.floor(t.length * 0.65);
+        }
+
         function triggerVocabSpeech(enWord, arWord) {
             if(vocabAnswerLocked) return;
             vocabAnswerLocked = true;
             playSound('click');
             const statusEl = document.getElementById('vocab-status-label');
-            if(statusEl) statusEl.innerText = 'Listening... Speak "' + enWord + '" into microphone';
+            if(statusEl) statusEl.innerText = 'Listening... Speak "' + enWord + '" clearly';
 
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
+                showToast('Speech Recognition not supported in this browser. Reveal used.', true);
                 revealVocabWithTimerGlobal(enWord, arWord);
                 return;
             }
@@ -1487,9 +1503,9 @@
             const recognition = new SpeechRecognition();
             recognition.lang = 'en-US';
             recognition.interimResults = false;
-            recognition.maxAlternatives = 3;
+            recognition.maxAlternatives = 5;
 
-            let speechAccepted = false;
+            let speechResolved = false;
 
             recognition.onresult = (event) => {
                 const results = event.results[0];
@@ -1497,40 +1513,45 @@
                 
                 for(let i = 0; i < results.length; i++) {
                     const transcript = results[i].transcript.toLowerCase().trim();
-                    const target = enWord.toLowerCase().trim();
-                    
-                    if(transcript.includes(target) || target.includes(transcript) || (target.length >= 3 && transcript.startsWith(target.substring(0, 3)))) {
+                    if(checkSpokenWordMatch(transcript, enWord)) {
                         matched = true;
                         break;
                     }
                 }
 
                 if(matched) {
-                    speechAccepted = true;
+                    speechResolved = true;
+                    showToast('Pronunciation Correct! 🎙️⭐');
                     revealVocabWithTimerGlobal(enWord, arWord);
                 } else {
-                    const heard = results[0].transcript;
-                    showToast('Heard "' + heard + '". Accepted for effort! ✈️');
-                    revealVocabWithTimerGlobal(enWord, arWord);
+                    speechResolved = true;
+                    playSound('error');
+                    if(statusEl) statusEl.innerHTML = `<span style="color:var(--danger);">❌ Incorrect word spoken. Target was "${enWord}".</span>`;
+                    showToast('Incorrect pronunciation. Try again or reveal.', true);
+                    vocabAnswerLocked = false;
                 }
             };
 
             recognition.onerror = () => {
-                if(!speechAccepted) revealVocabWithTimerGlobal(enWord, arWord);
+                if(!speechResolved) {
+                    vocabAnswerLocked = false;
+                    if(statusEl) statusEl.innerText = 'Microphone error. Tap to retry or reveal.';
+                }
             };
 
             recognition.onend = () => {
                 setTimeout(() => {
-                    if(!speechAccepted) {
-                        revealVocabWithTimerGlobal(enWord, arWord);
+                    if(!speechResolved) {
+                        vocabAnswerLocked = false;
+                        if(statusEl) statusEl.innerText = 'No speech detected. Tap mic to try again.';
                     }
-                }, 1500);
+                }, 1000);
             };
 
             try {
                 recognition.start();
             } catch(e) {
-                revealVocabWithTimerGlobal(enWord, arWord);
+                vocabAnswerLocked = false;
             }
         }
 
@@ -1884,11 +1905,11 @@
                 const qType = block.querySelector('.q-type-select').value;
                 if(qText) {
                     if(qType === 'true_false') {
-                        printWindow.document.write(`<li style="margin-bottom: 20px;">${qText}<br>&nbsp;&nbsp;&nbsp;&nbsp; [ &nbsp; ] True &nbsp;&nbsp;&nbsp;&nbsp; [ &nbsp; ] False<div style="border-bottom:1px dotted #888; width:100%; height:15px;"></div></li>`);
+                        printWindow.document.write(`<li style="margin-bottom: 20px;"><b>${qText}</b><br>&nbsp;&nbsp;&nbsp;&nbsp; [ &nbsp; ] True &nbsp;&nbsp;&nbsp;&nbsp; [ &nbsp; ] False<div style="border-bottom:1px dotted #888; width:100%; height:15px;"></div></li>`);
                     } else if(qType === 'mcq') {
-                        printWindow.document.write(`<li style="margin-bottom: 20px;">${qText}<br>&nbsp;&nbsp;&nbsp;&nbsp; A) ______________ &nbsp;&nbsp;&nbsp;&nbsp; B) ______________<br>&nbsp;&nbsp;&nbsp;&nbsp; C) ______________ &nbsp;&nbsp;&nbsp;&nbsp; D) ______________<div style="border-bottom:1px dotted #888; width:100%; height:15px;"></div></li>`);
+                        printWindow.document.write(`<li style="margin-bottom: 20px;"><b>${qText}</b><br>&nbsp;&nbsp;&nbsp;&nbsp; A) ______________ &nbsp;&nbsp;&nbsp;&nbsp; B) ______________<br>&nbsp;&nbsp;&nbsp;&nbsp; C) ______________ &nbsp;&nbsp;&nbsp;&nbsp; D) ______________<div style="border-bottom:1px dotted #888; width:100%; height:15px;"></div></li>`);
                     } else {
-                        printWindow.document.write(`<li style="margin-bottom: 20px;">${qText}<br><div style="border-bottom:1px dotted #888; width:100%; height:30px;"></div></li>`);
+                        printWindow.document.write(`<li style="margin-bottom: 20px;"><b>${qText}</b><br><div style="border-bottom:1px dotted #888; width:100%; height:30px;"></div></li>`);
                     }
                 }
             });
@@ -1905,7 +1926,7 @@
         async function publishAdvancedExam() {
             playSound('click');
             const title = document.getElementById('ex-title').value.trim();
-            const groupCode = document.getElementById('ex-code').value.trim() || sessionUser.group_code;
+            const groupCode = document.getElementById('ex-code').value.trim();
             if(!title) { showToast('Enter exam title', true); return; }
             if(!groupCode) { showToast('Enter a custom teacher exam code', true); return; }
 
@@ -1937,7 +1958,7 @@
             playSound('click');
             const title = document.getElementById('pdf-doc-title').value.trim();
             const url = document.getElementById('pdf-doc-url').value.trim();
-            const groupCode = document.getElementById('pdf-code').value.trim() || sessionUser.group_code;
+            const groupCode = document.getElementById('pdf-code').value.trim();
 
             if(!title || !url) { showToast('Enter PDF title and URL', true); return; }
             if(!groupCode) { showToast('Enter a custom teacher code', true); return; }
