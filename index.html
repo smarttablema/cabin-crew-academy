@@ -235,7 +235,7 @@
             </select>
 
             <div id="teacher-code-box" class="hidden" style="background: rgba(56, 189, 248, 0.08); padding: 12px; border-radius: 14px; border: 1px dashed var(--accent); margin-bottom: 1.1rem;">
-                <label style="color: var(--accent);">🔒 Teacher Verification Code</label>
+                <label style="color: var(--accent);" id="tr-lbl-teacher-code">🔒 Teacher Verification Code</label>
                 <input type="password" id="reg-teacher-code" placeholder="Enter teacher code" style="letter-spacing: 2px; text-align: center; margin-bottom:0;" />
             </div>
 
@@ -258,8 +258,8 @@
             
             <label id="tr-avatar-type-lbl">Avatar Type</label>
             <select id="reg-gender" onchange="updateRegAvatarPreview()">
-                <option value="steward">👔 Steward</option>
-                <option value="hostess">👗 Hostess</option>
+                <option value="steward" id="tr-opt-steward">👔 Steward</option>
+                <option value="hostess" id="tr-opt-hostess">👗 Hostess</option>
             </select>
             
             <button class="btn-action" onclick="submitRegister()" style="background: #10b981; color: white;" id="tr-complete-reg-btn">Complete Registration</button>
@@ -321,7 +321,7 @@
                 </div>
                 <div class="mode-tile" onclick="openSpinningWheelModal()">
                     <span style="font-size: 1.5rem;">🎡</span>
-                    <h4>Daily Spinning Wheel (24h)</h4>
+                    <h4 id="tr-tile-wheel">Daily Spinning Wheel (24h)</h4>
                 </div>
                 <div class="mode-tile" onclick="open1v1Lobby()">
                     <span style="font-size: 1.5rem;">⚔</span>
@@ -337,7 +337,7 @@
                 </div>
                 <div class="mode-tile" onclick="openFlightLogbookModal()" style="grid-column: span 2; background: linear-gradient(135deg, rgba(3, 105, 161, 0.85), rgba(2, 6, 23, 0.95));">
                     <span style="font-size: 1.8rem;">📖✈️</span>
-                    <h4 style="font-size: 0.9rem; margin-top: 6px;">Flight Logbook & The Hangar of Errors (Mistake Review)</h4>
+                    <h4 id="tr-tile-hangar" style="font-size: 0.9rem; margin-top: 6px;">Flight Logbook & The Hangar of Errors (Mistake Review)</h4>
                 </div>
             </div>
 
@@ -357,8 +357,8 @@
     <div id="spinning-wheel-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.95); display:none; justify-content:center; align-items:center; z-index:5000;">
         <div style="background:var(--surface-card); border:1px solid var(--border-glow); border-radius:32px; padding:2rem; width:90%; max-width:440px; text-align:center; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.9);">
             <button onclick="closeSpinningWheelModal()" style="position:absolute; top:18px; right:18px; background:none; border:none; color:var(--text-muted); font-size:1.3rem; cursor:pointer;">✕</button>
-            <h3 style="font-size:1.25rem; font-weight:900; color:var(--gold); margin-bottom:0.3rem;">🎡 Daily Aviation Spinning Wheel</h3>
-            <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.4rem;">Strictly 1 spin every 24 hours. Win XP, hearts, or exclusive Pilot Hat skins!</p>
+            <h3 style="font-size:1.25rem; font-weight:900; color:var(--gold); margin-bottom:0.3rem;" id="tr-wheel-title">🎡 Daily Aviation Spinning Wheel</h3>
+            <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1.4rem;" id="tr-wheel-sub">Strictly 1 spin every 24 hours. Win XP, hearts, or exclusive Pilot Hat skins!</p>
             
             <div style="position:relative; width:260px; height:260px; margin:0 auto 1.4rem auto; display:flex; justify-content:center; align-items:center;">
                 <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent; border-top:24px solid var(--warning); z-index:20;"></div>
@@ -380,8 +380,8 @@
             <div class="avatar-preview-box" id="modal-avatar-preview">👔</div>
             <label id="tr-modal-gender-lbl">Gender / Style</label>
             <select id="mod-gender" onchange="updateModalAvatarPreview()">
-                <option value="steward">👔 Steward</option>
-                <option value="hostess">👗 Hostess</option>
+                <option value="steward" id="tr-opt-steward2">👔 Steward</option>
+                <option value="hostess" id="tr-opt-hostess2">👗 Hostess</option>
             </select>
             <button class="btn-action" onclick="saveAvatarChanges()" style="background:var(--success); color:white;" id="tr-save-avatar-btn">Save Avatar 💾</button>
         </div>
@@ -414,6 +414,19 @@
         </div>
     </div>
 
+    <!-- EDIT TEAM MEMBER MODAL -->
+    <div id="edit-team-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.9); display:none; justify-content:center; align-items:center; z-index:9000;">
+        <div style="background:var(--surface-card); border:1px solid var(--accent); border-radius:28px; padding:2rem; width:90%; max-width:400px;">
+            <h3 style="color:var(--accent); font-size:1.1rem; font-weight:900; margin-bottom:10px;" id="tr-edit-team-title">✏️ Edit Team Member</h3>
+            <label id="tr-edit-member-name-lbl">Member Name</label>
+            <input type="text" id="edit-member-name-input" placeholder="Student name..." style="margin-bottom:1rem;" />
+            <div style="display:flex; gap:10px;">
+                <button class="btn-action" onclick="closeEditTeamModal()" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0;" id="tr-cancel-btn">Cancel</button>
+                <button class="btn-action" onclick="saveTeamMemberEdit()" style="background:var(--success); color:white; margin-top:0;" id="tr-save-btn">Save Changes 💾</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let sessionUser = JSON.parse(localStorage.getItem('aero_crew_user_pro22') || 'null');
         let groupInfo = { group: null, members: [], lessons: [], exams: [], submissions: [] };
@@ -430,6 +443,7 @@
         let activeMatchId = null;
 
         let pendingNodeExecution = null;
+        let activeEditGroupData = { groupName: '', teamIdx: '', memberIdx: '', currentName: '' };
 
         window.currentRoadmapSession = {
             questions: [],
@@ -489,19 +503,23 @@
                 regNav: "Create Account", resetNav: "Forgot Password?",
                 regTitle: "Cadet & Instructor Enrollment", regSub: "Register your profile, choose your role, and design your avatar.",
                 regRoleLbl: "Register As", optCadet: "🎓 Cadet / Student", optTeacher: "👨‍🏫 Instructor / Teacher",
+                teacherCodeLbl: "🔒 Teacher Verification Code",
                 regNameLbl: "Full Name", regUserLbl: "Unique Username", regPassLbl: "Password", regPinLbl: "Recovery PIN (4 digits)",
                 avatarStudioTitle: "🎨 Avatar Customization", avatarTypeLbl: "Avatar Type", optSteward: "👔 Steward", optHostess: "👗 Hostess",
                 completeRegBtn: "Complete Registration", backLogin: "Already have an account? Sign In",
                 resetTitle: "Recovery PIN Reset", resetSub: "Enter your phone and secret recovery PIN.", resetNewLbl: "New Password",
                 updateCredBtn: "Update Credentials", backLogin2: "Back to Sign In",
                 tileY1: "First Year Path (100 Nodes)", tileY2: "Second Year Path (Locked)", tileEng: "Aviation English & ICAO Mastery",
-                tileVocab: "English Vocabulary to Arabic (5k)",
+                tileVocab: "English Vocabulary to Arabic (5k)", tileWheel: "Daily Spinning Wheel (24h)",
                 tile1v1: "1v1 Battle Arena (Challenge)", tileStudy: "Lessons, Quizzes & Exams Studio", tileSocial: "Friends, Private Chat & Groups",
+                tileHangar: "Flight Logbook & The Hangar of Errors (Mistake Review)",
                 centerTitle: "EASA Professional Training Center", centerDesc: "Select <b>First Year Path</b>, <b>Second Year Path</b>, <b>Aviation English</b>, <b>English Vocabulary</b>, or the <b>1v1 Battle Arena</b> above to begin your training adventure.",
                 hubBtn: "← Hub", logoutBtn: "Logout 🚪",
                 modalAvatarTitle: "🎨 Edit Avatar", modalGenderLbl: "Genre / Style", saveAvatarBtn: "Save Avatar 💾",
                 settingsTitle: "⚙ Academy Settings", langLbl: "Interface Language", passChangeLbl: "Change Password", updatePassBtn: "Update Password 🔒",
-                myUsernameLbl: "My Username"
+                myUsernameLbl: "My Username",
+                wheelTitle: "🎡 Daily Aviation Spinning Wheel", wheelSub: "Strictly 1 spin every 24 hours. Win XP, hearts, or exclusive Pilot Hat skins!",
+                editTeamTitle: "✏️ Edit Team Member", editMemberNameLbl: "Member Name", cancelBtn: "Cancel", saveBtn: "Save Changes 💾"
             },
             fr: {
                 brand: "Aero Crew",
@@ -510,19 +528,23 @@
                 regNav: "Créer un compte", resetNav: "Mot de passe oublié ?",
                 regTitle: "Inscription Cadet & Instructeur", regSub: "Enregistrez votre profil, choisissez votre rôle et votre avatar.",
                 regRoleLbl: "S'inscrire en tant que", optCadet: "🎓 Cadet / Étudiant", optTeacher: "👨‍🏫 Instructeur / Professeur",
+                teacherCodeLbl: "🔒 Code de vérification enseignant",
                 regNameLbl: "Nom complet", regUserLbl: "Nom d'utilisateur unique", regPassLbl: "Mot de passe", regPinLbl: "PIN de récupération (4 chiffres)",
                 avatarStudioTitle: "🎨 Personnalisation d'Avatar", avatarTypeLbl: "Type d'avatar", optSteward: "👔 Steward", optHostess: "👗 Hôtesse",
                 completeRegBtn: "Terminer l'inscription", backLogin: "Déjà un compte ? Se connecter",
                 resetTitle: "Réinitialisation du PIN", resetSub: "Entrez votre téléphone et votre PIN de récupération secret.", resetNewLbl: "Nouveau mot de passe",
                 updateCredBtn: "Mettre à jour", backLogin2: "Retour à la connexion",
                 tileY1: "Parcours 1ère Année (100 Nœuds)", tileY2: "Parcours 2ème Année (Verrouillé)", tileEng: "Anglais Aéronautique & ICAO",
-                tileVocab: "Vocabulaire Anglais-Arabe (5k)",
+                tileVocab: "Vocabulaire Anglais-Arabe (5k)", tileWheel: "Roue de la Fortune Quotidienne (24h)",
                 tile1v1: "Arène de Combat 1v1 (Défi)", tileStudy: "Studio Leçons, Quiz & Examens", tileSocial: "Amis, Chat Privé & Groupes",
+                tileHangar: "Carnet de Vol & Hangar des Erreurs",
                 centerTitle: "Centre de Formation Professionnelle EASA", centerDesc: "Sélectionnez <b>Parcours 1ère Année</b>, <b>2ème Année</b>, <b>Anglais Aéronautique</b> ou <b>Vocabulaire</b> pour débuter.",
                 hubBtn: "← Accueil", logoutBtn: "Déconnexion 🚪",
                 modalAvatarTitle: "🎨 Modifier l'Avatar", modalGenderLbl: "Genre / Style", saveAvatarBtn: "Enregistrer 💾",
                 settingsTitle: "⚙ Paramètres", langLbl: "Langue de l'interface", passChangeLbl: "Changer le mot de passe", updatePassBtn: "Mettre à jour 🔒",
-                myUsernameLbl: "Mon Nom d'utilisateur"
+                myUsernameLbl: "Mon Nom d'utilisateur",
+                wheelTitle: "🎡 Roue de la Fortune Aéronautique", wheelSub: "Gagnez des XP, des cœurs ou des skins toutes les 24 heures !",
+                editTeamTitle: "✏️ Modifier le Membre", editMemberNameLbl: "Nom du membre", cancelBtn: "Annuler", saveBtn: "Enregistrer 💾"
             },
             ar: {
                 brand: "Aero Crew",
@@ -531,19 +553,23 @@
                 regNav: "إنشاء حساب", resetNav: "نسيت كلمة المرور؟",
                 regTitle: "تسجيل المتدربين والمدربين", regSub: "سجل ملفك الشخصي واجتاز التدريب وصمم صورتك الرمزية.",
                 regRoleLbl: "التسجيل كـ", optCadet: "🎓 متدرب / طالب", optTeacher: "👨‍🏫 مدرب / معلم",
+                teacherCodeLbl: "🔒 رمز تحقق المعلم",
                 regNameLbl: "الاسم الكامل", regUserLbl: "اسم المستخدم الفريد", regPassLbl: "كلمة المرور", regPinLbl: "رقم الاسترداد السري (4 أرقام)",
                 avatarStudioTitle: "🎨 تخصيص الصورة الرمزية", avatarTypeLbl: "نوع الصورة", optSteward: "👔 مضيف جوي", optHostess: "👗 مضيفة جوية",
                 completeRegBtn: "إتمام التسجيل", backLogin: "لديك حساب بالفعل؟ سجل دخولك",
                 resetTitle: "إعادة تعيين رقم الاسترداد", resetSub: "أدخل هاتفك ورقم الاسترداد السري الخاص بك.", resetNewLbl: "كلمة المرور الجديدة",
                 updateCredBtn: "تحديث بيانات الاعتماد", backLogin2: "العودة لتسجيل الدخول",
                 tileY1: "مسار السنة الأولى (100 نقطة)", tileY2: "مسار السنة الثانية (مغلق)", tileEng: "اللغة الإنجليزية للطيران وإيكاو",
-                tileVocab: "مفردات طيران إنجليزية إلى العربية (5k)",
+                tileVocab: "مفردات طيران إنجليزية إلى العربية (5k)", tileWheel: "عجلة الحظ اليومية (24 ساعة)",
                 tile1v1: "حلبة تحدي 1 ضد 1", tileStudy: "استوديو الدروس والاختبارات", tileSocial: "الأصدقاء والمحادثة الخاصة والمجموعات",
+                tileHangar: "سجل الرحلات وهنجار الأخطاء",
                 centerTitle: "مركز تدريب الطيران الاحترافي EASA", centerDesc: "اختر مسار التعلم لعرض الخريطة المتعرجة مع أسئلة عشوائية مضادة للغش.",
                 hubBtn: "← الرئيسية", logoutBtn: "تسجيل الخروج 🚪",
                 modalAvatarTitle: "🎨 تعديل الرمزية", modalGenderLbl: "الجنس / النمط", saveAvatarBtn: "حفظ 💾",
                 settingsTitle: "⚙️ إعدادات الأكاديمية", langLbl: "لغة الواجهة", passChangeLbl: "تغيير كلمة المرور", updatePassBtn: "تحديث كلمة المرور 🔒",
-                myUsernameLbl: "اسم المستخدم الخاص بي"
+                myUsernameLbl: "اسم المستخدم الخاص بي",
+                wheelTitle: "🎡 عجلة الحظ اليومية للطيران", wheelSub: "لف العجلة مرة كل 24 ساعة واربح نقاط خبرة أو قلوب أو مظهر قبعة الكابتن!",
+                editTeamTitle: "✏️ تعديل عضو الفريق", editMemberNameLbl: "اسم العضو", cancelBtn: "إلغاء", saveBtn: "حفظ التغييرات 💾"
             }
         };
 
@@ -626,6 +652,7 @@
                 document.getElementById('tr-reg-role-lbl').innerText = t.regRoleLbl;
                 document.getElementById('tr-opt-cadet').innerText = t.optCadet;
                 document.getElementById('tr-opt-teacher').innerText = t.optTeacher;
+                document.getElementById('tr-lbl-teacher-code').innerText = t.teacherCodeLbl;
                 document.getElementById('tr-reg-name-lbl').innerText = t.regNameLbl;
                 document.getElementById('tr-reg-user-lbl').innerText = t.regUserLbl;
                 document.getElementById('tr-reg-phone-lbl').innerText = t.phoneLbl;
@@ -635,6 +662,8 @@
                 document.getElementById('tr-avatar-type-lbl').innerText = t.avatarTypeLbl;
                 document.getElementById('tr-opt-steward').innerText = t.optSteward;
                 document.getElementById('tr-opt-hostess').innerText = t.optHostess;
+                if(document.getElementById('tr-opt-steward2')) document.getElementById('tr-opt-steward2').innerText = t.optSteward;
+                if(document.getElementById('tr-opt-hostess2')) document.getElementById('tr-opt-hostess2').innerText = t.optHostess;
                 document.getElementById('tr-complete-reg-btn').innerText = t.completeRegBtn;
                 document.getElementById('tr-back-login').innerText = t.backLogin;
 
@@ -650,9 +679,11 @@
                 document.getElementById('tr-tile-y2').innerText = t.tileY2;
                 document.getElementById('tr-tile-eng').innerText = t.tileEng;
                 document.getElementById('tr-tile-vocab').innerText = t.tileVocab;
+                document.getElementById('tr-tile-wheel').innerText = t.tileWheel;
                 document.getElementById('tr-tile-1v1').innerText = t.tile1v1;
                 document.getElementById('tr-tile-study').innerText = t.tileStudy;
                 document.getElementById('tr-tile-social').innerText = t.tileSocial;
+                document.getElementById('tr-tile-hangar').innerText = t.tileHangar;
                 document.getElementById('tr-center-title').innerText = t.centerTitle;
                 document.getElementById('tr-center-desc').innerHTML = t.centerDesc;
                 document.getElementById('tr-hub-btn').innerText = t.hubBtn;
@@ -667,6 +698,12 @@
                 document.getElementById('tr-pass-change-lbl').innerText = t.passChangeLbl;
                 document.getElementById('tr-update-pass-btn').innerText = t.updatePassBtn;
                 document.getElementById('tr-my-username-lbl').innerText = t.myUsernameLbl;
+                document.getElementById('tr-wheel-title').innerText = t.wheelTitle;
+                document.getElementById('tr-wheel-sub').innerText = t.wheelSub;
+                document.getElementById('tr-edit-team-title').innerText = t.editTeamTitle;
+                document.getElementById('tr-edit-member-name-lbl').innerText = t.editMemberNameLbl;
+                document.getElementById('tr-cancel-btn').innerText = t.cancelBtn;
+                document.getElementById('tr-save-btn').innerText = t.saveBtn;
                 if(sessionUser) document.getElementById('settings-my-username').innerText = '@' + sessionUser.username;
             }
         }
@@ -1471,13 +1508,10 @@
             }, 900);
         }
 
-        /* STRICT SPEECH RECOGNITION VALIDATOR WITH FUZZY ACCENT/TYPO TOLERANCE */
         function checkSpokenWordMatch(spoken, target) {
             const s = spoken.toLowerCase().trim();
             const t = target.toLowerCase().trim();
             if(s === t || s.includes(t) || t.includes(s)) return true;
-            
-            // Allow minor character omissions/accents (Levenshtein distance <= 2 for words >= 4 chars)
             if(Math.abs(s.length - t.length) > 3) return false;
             let matches = 0;
             for(let i = 0; i < Math.min(s.length, t.length); i++) {
@@ -1583,6 +1617,7 @@
 
         /* STUDY & EXAMS STUDIO & NAMED CLASSROOM GROUPS */
         let teacherGroups = JSON.parse(localStorage.getItem('aero_teacher_groups_v1') || '{}');
+        let currentShuffledTeams = [];
 
         async function openStudyHub() {
             playSound('click');
@@ -1617,7 +1652,7 @@
                         <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Advanced Interactive Exam Studio</h4>
                         <div>
                             <label><b>Custom Teacher Exam Code (e.g. AERO2026)</b></label>
-                            <input type="text" id="ex-code" value="${sessionUser.group_code || ''}" placeholder="Enter unique exam/class code" style="margin-bottom:8px; font-weight:800;" />
+                            <input type="text" id="ex-code" placeholder="Enter unique exam/class code" style="margin-bottom:8px; font-weight:800;" />
                             
                             <label><b>Exam Title</b></label>
                             <input type="text" id="ex-title" placeholder="e.g. EASA Regulations Midterm" style="margin-bottom:8px;" />
@@ -1647,7 +1682,7 @@
                     <div style="background:var(--surface-card); padding:1.2rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
                         <h4 style="color:var(--gold); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">📄 PDF Document Material Upload (Custom Code)</h4>
                         <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Upload or link a PDF study guide/exam for your students under your custom code.</p>
-                        <input type="text" id="pdf-code" value="${sessionUser.group_code || ''}" placeholder="Custom Code for PDF Material" style="margin-bottom:8px; font-weight:800;" />
+                        <input type="text" id="pdf-code" placeholder="Custom Code for PDF Material" style="margin-bottom:8px; font-weight:800;" />
                         <input type="text" id="pdf-doc-title" placeholder="PDF Document Title (e.g. EASA Chapter 4 PDF)" style="margin-bottom:8px;" />
                         <input type="text" id="pdf-doc-url" placeholder="PDF File URL or Link (https://...)" style="margin-bottom:8px;" />
                         <button class="btn-action" onclick="publishPDFDocument()" style="padding:10px; font-size:0.9rem; background:var(--gold); color:#020617; margin-top:0;">Publish PDF Material 📑</button>
@@ -1656,7 +1691,7 @@
                     <!-- NAMED CLASSROOM GROUPS & SHUFFLER -->
                     <div style="background:var(--surface-card); padding:1.2rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
                         <h4 style="color:var(--warning); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">🔀 Named Classroom Groups & Smart Shuffler</h4>
-                        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Create named groups (e.g. Alpha, Echo), add students one by one, and shuffle specific groups instantly.</p>
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Create named groups (e.g. Alpha, Echo), add students one by one, shuffle, and edit/delete team members.</p>
                         
                         <div style="display:flex; gap:8px; margin-bottom:10px;">
                             <input type="text" id="new-group-name-input" placeholder="Group Name (e.g. Group Alpha)" style="margin-bottom:0; flex:1;" />
@@ -2058,23 +2093,72 @@
             let shuffled = [...students];
             shuffled.sort(() => Math.random() - 0.5);
 
-            let teams = [];
+            currentShuffledTeams = [];
             for (let i = 0; i < shuffled.length; i += teamSize) {
                 const chunk = shuffled.slice(i, i + teamSize);
-                teams.push({ team_name: `Team ${teams.length + 1}`, members: chunk });
+                currentShuffledTeams.push({ team_name: `Team ${currentShuffledTeams.length + 1}`, members: chunk });
             }
 
+            renderShuffledTeamsUI(groupName);
+            showToast(`Group ${groupName} shuffled into teams successfully! 🔀`);
+        }
+
+        function renderShuffledTeamsUI(groupName) {
             const outputBox = document.getElementById('shuffled-teams-output');
+            if(!outputBox) return;
+
             outputBox.innerHTML = `
                 <b style="color:var(--accent); font-size:0.85rem; display:block; margin-bottom:4px;">Shuffled Teams for ${groupName}:</b>
-                ${teams.map(t => `
-                    <div style="background:var(--bg-deep); padding:10px 14px; border-radius:12px; border:1px solid var(--border-glow);">
-                        <b style="color:var(--gold); font-size:0.9rem;">${t.team_name} (${t.members.length} cadets)</b>
-                        <div style="font-size:0.82rem; color:white; margin-top:4px;">${t.members.join(', ')}</div>
+                ${currentShuffledTeams.map((t, tIdx) => `
+                    <div style="background:var(--bg-deep); padding:10px 14px; border-radius:12px; border:1px solid var(--border-glow); margin-bottom:6px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <b style="color:var(--gold); font-size:0.9rem;">${t.team_name} (${t.members.length} cadets)</b>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:4px;">
+                            ${t.members.map((m, mIdx) => `
+                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; color:white; background:rgba(255,255,255,0.03); padding:4px 8px; border-radius:8px;">
+                                    <span>• ${m}</span>
+                                    <div style="display:flex; gap:6px;">
+                                        <span onclick="openEditTeamMember('${groupName}', ${tIdx}, ${mIdx}, '${m}')" style="color:var(--accent); cursor:pointer; font-weight:800;" title="Edit">✏️</span>
+                                        <span onclick="deleteTeamMember('${groupName}', ${tIdx}, ${mIdx})" style="color:var(--danger); cursor:pointer; font-weight:800;" title="Delete">🗑️</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
                 `).join('')}
             `;
-            showToast(`Group ${groupName} shuffled into teams successfully! 🔀`);
+        }
+
+        function openEditTeamMember(groupName, teamIdx, memberIdx, currentName) {
+            playSound('click');
+            activeEditGroupData = { groupName, teamIdx, memberIdx, currentName };
+            document.getElementById('edit-member-name-input').value = currentName;
+            document.getElementById('edit-team-modal').style.display = 'flex';
+        }
+
+        function closeEditTeamModal() {
+            playSound('click');
+            document.getElementById('edit-team-modal').style.display = 'none';
+        }
+
+        function saveTeamMemberEdit() {
+            playSound('click');
+            const newName = document.getElementById('edit-member-name-input').value.trim();
+            if(!newName) { showToast('Name cannot be empty', true); return; }
+
+            const { teamIdx, memberIdx, groupName } = activeEditGroupData;
+            currentShuffledTeams[teamIdx].members[memberIdx] = newName;
+            closeEditTeamModal();
+            renderShuffledTeamsUI(groupName);
+            showToast('Team member updated successfully! 💾');
+        }
+
+        function deleteTeamMember(groupName, teamIdx, memberIdx) {
+            playSound('click');
+            currentShuffledTeams[teamIdx].members.splice(memberIdx, 1);
+            renderShuffledTeamsUI(groupName);
+            showToast('Team member removed.');
         }
 
         function confirmDeleteExam(examId) {
@@ -2146,7 +2230,7 @@
                             if(q.type === 'true_false') {
                                 return `
                                     <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${q.question}</label>
+                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}:${q.question}</label>
                                         <select class="exam-answer-input" data-correct="${q.correct}" style="margin-bottom:0;">
                                             <option value="">Select True / False...</option>
                                             <option value="True">True</option>
@@ -2157,7 +2241,7 @@
                             } else {
                                 return `
                                     <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${q.question}</label>
+                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}:${q.question}</label>
                                         <input type="text" class="exam-answer-input" data-correct="${q.correct}" placeholder="Your answer..." style="margin-bottom:0;" />
                                     </div>
                                 `;
@@ -2628,84 +2712,4 @@
             });
             const data = await res.json();
             if(res.ok) {
-                sessionUser = data.user;
-                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                updateDashboardUI();
-                closeAvatarStudio();
-                showToast('Avatar updated!');
-            }
-        }
-        function openSettingsModal() { 
-            playSound('click'); 
-            document.getElementById('settings-modal').style.display = 'flex'; 
-        }
-        function closeSettingsModal() { 
-            playSound('click'); 
-            document.getElementById('settings-modal').style.display = 'none'; 
-        }
-        async function submitPasswordChangeModal() {
-            playSound('click');
-            const recovery_pin = document.getElementById('set-pin').value.trim();
-            const new_password = document.getElementById('set-new-pass').value.trim();
-            if(!recovery_pin || !new_password) { showToast('Fill fields', true); return; }
-            const res = await fetch('/api/user/password-change', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, recovery_pin, new_password })
-            });
-            if(res.ok) { showToast('Password updated!'); closeSettingsModal(); }
-            else { showToast('Invalid PIN', true); }
-        }
-
-        async function openShop() {
-            playSound('click');
-            const box = document.getElementById('simulation-box');
-            box.classList.add('feature-fullscreen-view');
-            const res = await fetch('/api/shop/skins');
-            const data = await res.json();
-
-            box.innerHTML = `
-                <div class="feature-topbar">
-                    <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: #a78bfa; font-weight: 900;">🎁 Boutique</h3>
-                    <span style="font-size: 0.82rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
-                </div>
-                <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
-                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem;">
-                        ${data.skins.map(skin => {
-                            const isEquipped = sessionUser.active_skin === skin.skin_name_en;
-                            return `
-                            <div style="background: var(--surface-card); padding: 1rem 1.2rem; border-radius: 16px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;">
-                                <div style="display: flex; align-items: center; gap: 14px;">
-                                    <span style="font-size: 1.8rem;">${skin.preview_svg}</span>
-                                    <div style="color: white; font-size: 0.9rem;"><b style="font-size:0.95rem;">${skin.skin_name_en}</b></div>
-                                </div>
-                                <button class="btn-action" onclick="buySkin('${skin.skin_name_en}',${skin.cost})" style="width:110px; padding:8px; font-size:0.8rem; background:${isEquipped ? 'var(--success)' : '#8b5cf6'}; color:white; margin-top:0;">${isEquipped ? 'Equipped ✓' : skin.cost + ' ⭐'}</button>
-                            </div>
-                        `;}).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        async function buySkin(skinName, cost) {
-            playSound('click');
-            const res = await fetch('/api/shop/buy', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, skin_name: skinName, cost })
-            });
-            const data = await res.json();
-            if(res.ok) {
-                sessionUser = data.user;
-                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                updateDashboardUI();
-                showToast('Equipped ' + skinName + ' successfully!');
-                openShop();
-            } else {
-                showToast(data.detail || 'Purchase failed', true);
-            }
-        }
-    </script>
-</body>
-</html>
+                sessionUser = data.user
