@@ -1687,15 +1687,21 @@
                             <input type="text" id="ex-title" placeholder="e.g. EASA Regulations Midterm" style="margin-bottom:8px;" />
                             
                             <div id="advanced-exam-questions-container" style="display:flex; flex-direction:column; gap:10px; margin-bottom:10px;">
-                                <div class="adv-exam-q-block" style="background:var(--surface-card); padding:10px; border-radius:12px; border:1px solid var(--border-glow);">
-                                    <select class="q-type-select" onchange="window.onQuestionTypeChange(this)" style="margin-bottom:6px; padding:6px; font-size:0.8rem;">
-                                        <option value="mcq">Multiple Choice (A, B, C, D)</option>
+                                <div class="adv-exam-q-block" style="background:var(--surface-card); padding:12px; border-radius:12px; border:1px solid var(--border-glow);">
+                                    <select class="q-type-select" onchange="window.onQuestionTypeChange(this)" style="margin-bottom:8px; padding:6px; font-size:0.8rem;">
+                                        <option value="mcq">Multiple Choice (A, B, C, D with custom answers)</option>
                                         <option value="true_false">True / False</option>
                                         <option value="short_text">Short Text (Fuzzy Matching)</option>
                                     </select>
-                                    <input type="text" placeholder="Question text..." class="adv-q-text" style="margin-bottom:6px;" />
+                                    <input type="text" placeholder="Question text..." class="adv-q-text" style="margin-bottom:8px;" />
                                     <div class="q-answer-container">
-                                        <input type="text" placeholder="Correct Answer (e.g. Alpha)" class="adv-q-correct" style="margin-bottom:0;" />
+                                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:6px;">
+                                            <input type="text" placeholder="Option A" class="adv-opt-a" style="margin-bottom:0; padding:8px;" />
+                                            <input type="text" placeholder="Option B" class="adv-opt-b" style="margin-bottom:0; padding:8px;" />
+                                            <input type="text" placeholder="Option C" class="adv-opt-c" style="margin-bottom:0; padding:8px;" />
+                                            <input type="text" placeholder="Option D" class="adv-opt-d" style="margin-bottom:0; padding:8px;" />
+                                        </div>
+                                        <input type="text" placeholder="Exact Correct Answer (e.g. Option A text)" class="adv-q-correct" style="margin-bottom:0; padding:8px;" />
                                     </div>
                                 </div>
                             </div>
@@ -1918,16 +1924,22 @@
             const container = document.getElementById('advanced-exam-questions-container');
             const block = document.createElement('div');
             block.className = 'adv-exam-q-block';
-            block.style.cssText = 'background:var(--surface-card); padding:10px; border-radius:12px; border:1px solid var(--border-glow); margin-top:6px;';
+            block.style.cssText = 'background:var(--surface-card); padding:12px; border-radius:12px; border:1px solid var(--border-glow); margin-top:8px;';
             block.innerHTML = `
-                <select class="q-type-select" onchange="window.onQuestionTypeChange(this)" style="margin-bottom:6px; padding:6px; font-size:0.8rem;">
-                    <option value="mcq">Multiple Choice (A, B, C, D)</option>
+                <select class="q-type-select" onchange="window.onQuestionTypeChange(this)" style="margin-bottom:8px; padding:6px; font-size:0.8rem;">
+                    <option value="mcq">Multiple Choice (A, B, C, D with custom answers)</option>
                     <option value="true_false">True / False</option>
                     <option value="short_text">Short Text (Fuzzy Matching)</option>
                 </select>
-                <input type="text" placeholder="Question text..." class="adv-q-text" style="margin-bottom:6px;" />
+                <input type="text" placeholder="Question text..." class="adv-q-text" style="margin-bottom:8px;" />
                 <div class="q-answer-container">
-                    <input type="text" placeholder="Correct Answer" class="adv-q-correct" style="margin-bottom:0;" />
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:6px;">
+                        <input type="text" placeholder="Option A" class="adv-opt-a" style="margin-bottom:0; padding:8px;" />
+                        <input type="text" placeholder="Option B" class="adv-opt-b" style="margin-bottom:0; padding:8px;" />
+                        <input type="text" placeholder="Option C" class="adv-opt-c" style="margin-bottom:0; padding:8px;" />
+                        <input type="text" placeholder="Option D" class="adv-opt-d" style="margin-bottom:0; padding:8px;" />
+                    </div>
+                    <input type="text" placeholder="Exact Correct Answer" class="adv-q-correct" style="margin-bottom:0; padding:8px;" />
                 </div>
             `;
             container.appendChild(block);
@@ -1941,14 +1953,24 @@
 
             if(type === 'true_false') {
                 answerContainer.innerHTML = `
-                    <select class="adv-q-correct" style="margin-bottom:0;">
+                    <select class="adv-q-correct" style="margin-bottom:0; padding:8px;">
                         <option value="True">True</option>
                         <option value="False">False</option>
                     </select>
                 `;
+            } else if(type === 'mcq') {
+                answerContainer.innerHTML = `
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:6px;">
+                        <input type="text" placeholder="Option A" class="adv-opt-a" style="margin-bottom:0; padding:8px;" />
+                        <input type="text" placeholder="Option B" class="adv-opt-b" style="margin-bottom:0; padding:8px;" />
+                        <input type="text" placeholder="Option C" class="adv-opt-c" style="margin-bottom:0; padding:8px;" />
+                        <input type="text" placeholder="Option D" class="adv-opt-d" style="margin-bottom:0; padding:8px;" />
+                    </div>
+                    <input type="text" placeholder="Exact Correct Answer" class="adv-q-correct" style="margin-bottom:0; padding:8px;" />
+                `;
             } else {
                 answerContainer.innerHTML = `
-                    <input type="text" placeholder="${type === 'mcq' ? 'Correct Answer (e.g. Alpha)' : 'Correct Answer'}" class="adv-q-correct" style="margin-bottom:0;" />
+                    <input type="text" placeholder="Correct Answer" class="adv-q-correct" style="margin-bottom:0; padding:8px;" />
                 `;
             }
         }
@@ -1966,7 +1988,7 @@
                     <h3 style="text-align:center; color:#555; margin-top:0;">${title}</h3>
                     <p><b>Student Name:</b> _______________________________________ &nbsp;&nbsp;&nbsp;&nbsp; <b>Date:</b> ______________</p>
                     <hr style="margin: 20px 0;"/>
-                    <ol style="line-height: 2.2; font-size: 1.1rem;">
+                    <ol style="line-height: 2.2; font-size: 1.05rem;">
             `);
 
             document.querySelectorAll('.adv-exam-q-block').forEach((block) => {
@@ -1974,11 +1996,23 @@
                 const qType = block.querySelector('.q-type-select').value;
                 if(qText) {
                     if(qType === 'true_false') {
-                        printWindow.document.write(`<li style="margin-bottom: 20px;"><b>${qText}</b><br>&nbsp;&nbsp;&nbsp;&nbsp; [ &nbsp; ] True &nbsp;&nbsp;&nbsp;&nbsp; [ &nbsp; ] False<div style="border-bottom:1px dotted #888; width:100%; height:15px;"></div></li>`);
+                        printWindow.document.write(`<li style="margin-bottom: 25px;"><b>${qText}</b><br>&nbsp;&nbsp;&nbsp;&nbsp; [ &nbsp; ] True &nbsp;&nbsp;&nbsp;&nbsp; [ &nbsp; ] False</li>`);
                     } else if(qType === 'mcq') {
-                        printWindow.document.write(`<li style="margin-bottom: 20px;"><b>${qText}</b><br>&nbsp;&nbsp;&nbsp;&nbsp; A) ______________ &nbsp;&nbsp;&nbsp;&nbsp; B) ______________<br>&nbsp;&nbsp;&nbsp;&nbsp; C) ______________ &nbsp;&nbsp;&nbsp;&nbsp; D) ______________<div style="border-bottom:1px dotted #888; width:100%; height:15px;"></div></li>`);
+                        const optA = block.querySelector('.adv-opt-a').value.trim() || 'Option A';
+                        const optB = block.querySelector('.adv-opt-b').value.trim() || 'Option B';
+                        const optC = block.querySelector('.adv-opt-c').value.trim() || 'Option C';
+                        const optD = block.querySelector('.adv-opt-d').value.trim() || 'Option D';
+                        printWindow.document.write(`
+                            <li style="margin-bottom: 25px;">
+                                <b>${qText}</b><br>
+                                &nbsp;&nbsp;&nbsp;&nbsp; A) [ &nbsp; ] ${optA}<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp; B) [ &nbsp; ] ${optB}<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp; C) [ &nbsp; ] ${optC}<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp; D) [ &nbsp; ] ${optD}
+                            </li>
+                        `);
                     } else {
-                        printWindow.document.write(`<li style="margin-bottom: 20px;"><b>${qText}</b><br><div style="border-bottom:1px dotted #888; width:100%; height:30px;"></div></li>`);
+                        printWindow.document.write(`<li style="margin-bottom: 25px;"><b>${qText}</b><br><div style="border-bottom:1px dotted #888; width:100%; height:30px;"></div></li>`);
                     }
                 }
             });
@@ -2006,7 +2040,18 @@
                 const aEl = b.querySelector('.adv-q-correct');
                 const a = aEl ? aEl.value.trim() : '';
                 const type = b.querySelector('.q-type-select').value;
-                if(q && a) exam_data.push({ question: q, correct: a, type: type });
+                
+                if(q && a) {
+                    if(type === 'mcq') {
+                        const optA = b.querySelector('.adv-opt-a').value.trim() || 'Option A';
+                        const optB = b.querySelector('.adv-opt-b').value.trim() || 'Option B';
+                        const optC = b.querySelector('.adv-opt-c').value.trim() || 'Option C';
+                        const optD = b.querySelector('.adv-opt-d').value.trim() || 'Option D';
+                        exam_data.push({ question: q, correct: a, type: type, options: [optA, optB, optC, optD] });
+                    } else {
+                        exam_data.push({ question: q, correct: a, type: type });
+                    }
+                }
             });
 
             if(exam_data.length === 0) { showToast('Add at least one question', true); return; }
@@ -2279,7 +2324,7 @@
                             if(q.type === 'true_false') {
                                 return `
                                     <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${q.question}</label>
+                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}:${q.question}</label>
                                         <select class="exam-answer-input" data-correct="${q.correct}" style="margin-bottom:0;">
                                             <option value="">Select True / False...</option>
                                             <option value="True">True</option>
@@ -2290,7 +2335,7 @@
                             } else {
                                 return `
                                     <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${q.question}</label>
+                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}:${q.question}</label>
                                         <input type="text" class="exam-answer-input" data-correct="${q.correct}" placeholder="Your answer..." style="margin-bottom:0;" />
                                     </div>
                                 `;
@@ -2544,327 +2589,4 @@
         }
         window.open1v1Lobby = open1v1Lobby;
 
-        async function send1v1Challenge(friendUsername, friendFullName) {
-            playSound('click');
-            const modal = document.getElementById('battle-arena-modal');
-            const contentEl = document.getElementById('battle-modal-content');
-            modal.style.display = 'flex';
-
-            contentEl.innerHTML = `
-                <div style="text-align:center; padding: 1.5rem 0;">
-                    <div style="font-size: 3.5rem; margin-bottom: 12px;">⚔️</div>
-                    <h3 style="font-size: 1.25rem; color:var(--accent); font-weight:900; margin-bottom:0.6rem;">Challenging ${friendFullName}</h3>
-                    <button class="btn-action" onclick="window.cancel1v1Challenge()" style="background:var(--danger); color:white; margin-top:0; padding:1.1rem;">Cancel Invitation ❌</button>
-                </div>
-            `;
-
-            try {
-                const res = await fetch('/api/battle/invite', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ sender_username: sessionUser.username, sender_name: sessionUser.full_name, receiver_username: friendUsername })
-                });
-                const data = await res.json();
-                if(res.ok && data.match_id) {
-                    activeMatchId = data.match_id;
-                    pollBattleAcceptance(activeMatchId);
-                } else {
-                    showToast(data.detail || 'Failed to send challenge', true);
-                    modal.style.display = 'none';
-                }
-            } catch(e) {
-                modal.style.display = 'none';
-            }
-        }
-        window.send1v1Challenge = send1v1Challenge;
-
-        function cancel1v1Challenge() {
-            playSound('click');
-            if(activeMatchId) {
-                fetch('/api/battle/cancel', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ match_id: String(activeMatchId) })
-                }).catch(e => {});
-            }
-            activeMatchId = null;
-            document.getElementById('battle-arena-modal').style.display = 'none';
-        }
-        window.cancel1v1Challenge = cancel1v1Challenge;
-
-        function pollBattleAcceptance(matchId) {
-            const pollTimer = setInterval(async () => {
-                if(!activeMatchId) { clearInterval(pollTimer); return; }
-                try {
-                    const res = await fetch('/api/battle/status?match_id=' + encodeURIComponent(matchId));
-                    const data = await res.json();
-                    if(data.status === 'accepted') {
-                        clearInterval(pollTimer);
-                        showToast('Opponent accepted! Starting 1v1 Arena...');
-                        start1v1BattleWithQuestions(data.questions, matchId);
-                    } else if(data.status === 'rejected' || data.status === 'canceled') {
-                        clearInterval(pollTimer);
-                        document.getElementById('battle-arena-modal').style.display = 'none';
-                    }
-                } catch(e) {}
-            }, 2000);
-        }
-
-        let battleInvitePollingInterval = null;
-        function startBattleInvitePolling() {
-            if(battleInvitePollingInterval) clearInterval(battleInvitePollingInterval);
-            battleInvitePollingInterval = setInterval(async () => {
-                if(!sessionUser) return;
-                try {
-                    const res = await fetch('/api/battle/incoming?username=' + encodeURIComponent(sessionUser.username));
-                    const data = await res.json();
-                    if(data.invite) {
-                        playSound('success');
-                        showIncomingBattleModal(data.invite);
-                    }
-                } catch(e) {}
-            }, 3000);
-        }
-
-        function showIncomingBattleModal(invite) {
-            const modal = document.getElementById('battle-arena-modal');
-            if(modal.style.display === 'flex') return;
-            modal.style.display = 'flex';
-            activeMatchId = invite.match_id;
-
-            const contentEl = document.getElementById('battle-modal-content');
-            contentEl.innerHTML = `
-                <div style="text-align:center; padding: 1.5rem 0;">
-                    <div style="font-size: 4rem; margin-bottom: 12px;">⚔️</div>
-                    <h3 style="font-size: 1.3rem; color:var(--gold); font-weight:900; margin-bottom:0.6rem;">Incoming 1v1 Challenge!</h3>
-                    <p style="font-size:0.92rem; color:white; margin-bottom:1.6rem; line-height:1.6;"><b>${invite.sender_name}</b> challenged you!</p>
-                    <div style="display:flex; gap:12px;">
-                        <button class="btn-action" onclick="window.respondBattleInvite('${invite.match_id}', false)" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0; padding:1.1rem;">Reject ❌</button>
-                        <button class="btn-action" onclick="window.respondBattleInvite('${invite.match_id}', true)" style="background:var(--success); color:white; margin-top:0; padding:1.1rem;">Accept ⚔️</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        async function respondBattleInvite(matchId, accept) {
-            playSound('click');
-            const res = await fetch('/api/battle/respond', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ match_id: String(matchId), accept: accept })
-            });
-            const data = await res.json();
-            if(accept && res.ok) {
-                showToast('Battle accepted!');
-                start1v1BattleWithQuestions(data.questions, matchId);
-            } else {
-                document.getElementById('battle-arena-modal').style.display = 'none';
-            }
-        }
-        window.respondBattleInvite = respondBattleInvite;
-
-        function start1v1BattleWithQuestions(questions, matchId) {
-            battleQuestions = questions;
-            battleCurrentIdx = 0;
-            battleScore = 0;
-            activeMatchId = matchId;
-            document.getElementById('battle-arena-modal').style.display = 'flex';
-            renderBattleQuestionModal();
-        }
-
-        function renderBattleQuestionModal() {
-            if(battleCurrentIdx >= battleQuestions.length) {
-                finish1v1BattleModal();
-                return;
-            }
-
-            const qObj = battleQuestions[battleCurrentIdx];
-            const contentEl = document.getElementById('battle-modal-content');
-
-            contentEl.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
-                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔ 1v1 BATTLE • Q${battleCurrentIdx+1} / ${battleQuestions.length}</span>
-                </div>
-                <div style="background:var(--bg-deep); padding:1.4rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.2rem; text-align:left;">
-                    <b style="color:white; font-size:1rem; display:block; margin-bottom:14px; line-height:1.5;">${qObj.q}</b>
-                    <div style="display:flex; flex-direction:column; gap:10px;" id="battle-options-container">
-                        ${qObj.options.map((opt, idx) => `
-                            <button class="btn-action battle-opt-btn" onclick="window.answerModalBattleQuestion(${idx === qObj.correct}, this)" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:13px; font-size:0.9rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)})${opt}</button>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        async function answerModalBattleQuestion(isCorrect, btnEl) {
-            const allBtns = document.querySelectorAll('.battle-opt-btn');
-            allBtns.forEach(b => b.disabled = true);
-
-            if(isCorrect) {
-                playSound('success');
-                battleScore++;
-                btnEl.style.background = 'var(--success)';
-                btnEl.style.borderColor = 'var(--success)';
-                showToast('Correct! ⭐');
-            } else {
-                playSound('error');
-                btnEl.style.background = 'var(--danger)';
-                btnEl.style.borderColor = 'var(--danger)';
-                showToast('Incorrect ❌', true);
-            }
-
-            setTimeout(() => {
-                battleCurrentIdx++;
-                renderBattleQuestionModal();
-            }, 900);
-        }
-        window.answerModalBattleQuestion = answerModalBattleQuestion;
-
-        async function finish1v1BattleModal() {
-            const res = await fetch('/api/battle/submit', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ match_id: String(activeMatchId), username: sessionUser.username, score: battleScore })
-            });
-            const data = await res.json();
-            
-            const oppScore = data.opponent_score || 0;
-            let resultTitle = 'Battle Concluded (Draw)';
-            let rewardText = 'Great effort!';
-            if(battleScore > oppScore) {
-                sessionUser.xp_points = (sessionUser.xp_points || 0) + 100;
-                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                updateDashboardUI();
-                resultTitle = 'Victory! 🏆';
-                rewardText = 'You won the 1v1 Duel and earned +100 XP Stars ⭐!';
-            } else if(battleScore < oppScore) {
-                resultTitle = 'Defeat 😢';
-                rewardText = 'Opponent scored higher. Better luck next time!';
-            }
-
-            await refreshUserData(false);
-
-            const contentEl = document.getElementById('battle-modal-content');
-            contentEl.innerHTML = `
-                <div style="text-align:center; padding: 2rem 0;">
-                    <div style="font-size: 4rem; margin-bottom: 1.2rem;">🏆</div>
-                    <h3 style="font-size: 1.4rem; color: var(--gold); font-weight: 900; margin-bottom: 0.6rem;">${resultTitle}</h3>
-                    <p style="font-size: 0.92rem; color: white; margin-bottom: 0.5rem;">Your Score: <b>${battleScore}</b> | Opponent Score: <b>${oppScore}</b></p>
-                    <p style="font-size: 0.85rem; color: var(--warning); margin-bottom: 2rem; font-weight:700;">${rewardText}</p>
-                    <button class="btn-action" onclick="document.getElementById('battle-arena-modal').style.display='none';" style="background:var(--success); color:white; padding:1.1rem;">Close Arena 🚀</button>
-                </div>
-            `;
-        }
-
-        function openAvatarStudio() { 
-            playSound('click'); 
-            document.getElementById('avatar-studio-modal').style.display = 'flex'; 
-        }
-        window.openAvatarStudio = openAvatarStudio;
-
-        function closeAvatarStudio() { 
-            playSound('click'); 
-            document.getElementById('avatar-studio-modal').style.display = 'none'; 
-        }
-        window.closeAvatarStudio = closeAvatarStudio;
-
-        async function saveAvatarChanges() {
-            playSound('click');
-            const avatar_gender = document.getElementById('mod-gender').value;
-            const res = await fetch('/api/user/avatar-update', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, avatar_gender })
-            });
-            const data = await res.json();
-            if(res.ok) {
-                sessionUser = data.user;
-                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                updateDashboardUI();
-                closeAvatarStudio();
-                showToast('Avatar updated!');
-            }
-        }
-        window.saveAvatarChanges = saveAvatarChanges;
-
-        function openSettingsModal() { 
-            playSound('click'); 
-            document.getElementById('settings-modal').style.display = 'flex'; 
-        }
-        window.openSettingsModal = openSettingsModal;
-
-        function closeSettingsModal() { 
-            playSound('click'); 
-            document.getElementById('settings-modal').style.display = 'none'; 
-        }
-        window.closeSettingsModal = closeSettingsModal;
-
-        async function submitPasswordChangeModal() {
-            playSound('click');
-            const recovery_pin = document.getElementById('set-pin').value.trim();
-            const new_password = document.getElementById('set-new-pass').value.trim();
-            if(!recovery_pin || !new_password) { showToast('Fill fields', true); return; }
-            const res = await fetch('/api/user/password-change', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, recovery_pin, new_password })
-            });
-            if(res.ok) { showToast('Password updated!'); closeSettingsModal(); }
-            else { showToast('Invalid PIN', true); }
-        }
-        window.submitPasswordChangeModal = submitPasswordChangeModal;
-
-        async function openShop() {
-            playSound('click');
-            const box = document.getElementById('simulation-box');
-            box.classList.add('feature-fullscreen-view');
-            const res = await fetch('/api/shop/skins');
-            const data = await res.json();
-
-            box.innerHTML = `
-                <div class="feature-topbar">
-                    <button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                    <h3 style="font-size: 1.1rem; color: #a78bfa; font-weight: 900;">🎁 Boutique</h3>
-                    <span style="font-size: 0.82rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
-                </div>
-                <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
-                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem;">
-                        ${data.skins.map(skin => {
-                            const isEquipped = sessionUser.active_skin === skin.skin_name_en;
-                            return `
-                            <div style="background: var(--surface-card); padding: 1rem 1.2rem; border-radius: 16px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;">
-                                <div style="display: flex; align-items: center; gap: 14px;">
-                                    <span style="font-size: 1.8rem;">${skin.preview_svg}</span>
-                                    <div style="color: white; font-size: 0.9rem;"><b style="font-size:0.95rem;">${skin.skin_name_en}</b></div>
-                                </div>
-                                <button class="btn-action" onclick="window.buySkin('${skin.skin_name_en}',${skin.cost})" style="width:110px; padding:8px; font-size:0.8rem; background:${isEquipped ? 'var(--success)' : '#8b5cf6'}; color:white; margin-top:0;">${isEquipped ? 'Equipped ✓' : skin.cost + ' ⭐'}</button>
-                            </div>
-                        `;}).join('')}
-                    </div>
-                </div>
-            `;
-        }
-        window.openShop = openShop;
-
-        async function buySkin(skinName, cost) {
-            playSound('click');
-            const res = await fetch('/api/shop/buy', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ phone_number: sessionUser.phone_number, skin_name: skinName, cost })
-            });
-            const data = await res.json();
-            if(res.ok) {
-                sessionUser = data.user;
-                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                updateDashboardUI();
-                showToast('Equipped ' + skinName + ' successfully!');
-                openShop();
-            } else {
-                showToast(data.detail || 'Purchase failed', true);
-            }
-        }
-        window.buySkin = buySkin;
-    </script>
-</body>
-</html>
+        async function send1v1Challenge(friendUsername, friendFullName)
