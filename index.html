@@ -1560,7 +1560,9 @@
             }, 1000);
         }
 
-        /* STUDY & EXAMS STUDIO & SMART GROUP SEPARATOR */
+        /* STUDY & EXAMS STUDIO & NAMED CLASSROOM GROUPS */
+        let teacherGroups = JSON.parse(localStorage.getItem('aero_teacher_groups_v1') || '{}');
+
         async function openStudyHub() {
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
@@ -1587,9 +1589,11 @@
 
             let teacherControls = '';
             if(isTeacher) {
+                const groupNames = Object.keys(teacherGroups);
                 teacherControls = `
+                    <!-- ADVANCED EXAM STUDIO -->
                     <div style="background:var(--bg-deep); padding:1.2rem; border-radius:18px; border:1px solid var(--accent); margin-bottom:1.5rem;">
-                        <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Advanced Exam Studio (MCQ, True/False, Short Answer & PDF Print)</h4>
+                        <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Advanced Interactive Exam Studio</h4>
                         <div>
                             <label><b>Custom Teacher Exam Code (e.g. AERO2026)</b></label>
                             <input type="text" id="ex-code" value="${sessionUser.group_code || ''}" placeholder="Enter unique exam/class code" style="margin-bottom:8px; font-weight:800;" />
@@ -1614,28 +1618,48 @@
                                 <button class="btn-action" onclick="addAdvancedQuestionRow()" style="padding:8px; font-size:0.78rem; background:var(--surface-card); color:var(--accent); margin-top:0; flex:1;">+ Add Question</button>
                                 <button class="btn-action" onclick="generatePrintablePDFHandout()" style="padding:8px; font-size:0.78rem; background:var(--warning); color:var(--bg-deep); margin-top:0; flex:1;">🖨️ Print PDF Handout</button>
                             </div>
-                            <button class="btn-action" onclick="publishAdvancedExam()" style="padding:10px; font-size:0.9rem; background:var(--success); color:white; margin-top:0;">Publish Exam 🏆</button>
+                            <button class="btn-action" onclick="publishAdvancedExam()" style="padding:10px; font-size:0.9rem; background:var(--success); color:white; margin-top:0;">Publish Interactive Exam 🏆</button>
                         </div>
                     </div>
 
-                    <!-- PDF DOCUMENT EXAM UPLOAD TAB FOR TEACHERS -->
+                    <!-- PDF DOCUMENT EXAM UPLOAD TAB WITH CUSTOM CODE -->
                     <div style="background:var(--surface-card); padding:1.2rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
-                        <h4 style="color:var(--gold); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">📄 PDF Document Exam / Material Upload</h4>
+                        <h4 style="color:var(--gold); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">📄 PDF Document Material Upload (Custom Code)</h4>
                         <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Upload or link a PDF study guide/exam for your students under your custom code.</p>
+                        <input type="text" id="pdf-code" value="${sessionUser.group_code || ''}" placeholder="Custom Code for PDF Material" style="margin-bottom:8px; font-weight:800;" />
                         <input type="text" id="pdf-doc-title" placeholder="PDF Document Title (e.g. EASA Chapter 4 PDF)" style="margin-bottom:8px;" />
                         <input type="text" id="pdf-doc-url" placeholder="PDF File URL or Link (https://...)" style="margin-bottom:8px;" />
-                        <button class="btn-action" onclick="publishPDFDocument()" style="padding:10px; font-size:0.9rem; background:var(--gold); color:#020617; margin-top:0;">Upload PDF Material 📑</button>
+                        <button class="btn-action" onclick="publishPDFDocument()" style="padding:10px; font-size:0.9rem; background:var(--gold); color:#020617; margin-top:0;">Publish PDF Material 📑</button>
                     </div>
 
+                    <!-- NAMED CLASSROOM GROUPS & SHUFFLER -->
                     <div style="background:var(--surface-card); padding:1.2rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
-                        <h4 style="color:var(--warning); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">🔀 Smart Group Separator (Classroom Shuffler)</h4>
-                        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Enter students and team size to automatically shuffle balanced teams.</p>
-                        <label><b>Student Names (comma or line separated)</b></label>
-                        <textarea id="shuffler-names-input" placeholder="Alex, Sarah, Marc, John, Fatima, Omar..." style="margin-bottom:10px; height:80px; resize:vertical;"></textarea>
+                        <h4 style="color:var(--warning); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">🔀 Named Classroom Groups & Smart Shuffler</h4>
+                        <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Create named groups (e.g. Alpha, Echo), add students one by one, and shuffle specific groups instantly.</p>
                         
+                        <div style="display:flex; gap:8px; margin-bottom:10px;">
+                            <input type="text" id="new-group-name-input" placeholder="Group Name (e.g. Group Alpha)" style="margin-bottom:0; flex:1;" />
+                            <button class="btn-action" onclick="createTeacherGroup()" style="width:110px; margin-top:0; padding:8px; font-size:0.85rem; background:var(--accent); color:var(--bg-deep);">Create Group +</button>
+                        </div>
+
+                        <label><b>Select Classroom Group</b></label>
+                        <select id="selected-teacher-group" onchange="renderGroupStudentsManager()" style="margin-bottom:10px;">
+                            <option value="">-- Choose Group --</option>
+                            ${groupNames.map(g => `<option value="${g}">${g}</option>`).join('')}
+                        </select>
+
+                        <div id="group-students-manager-container" class="hidden" style="background:var(--bg-deep); padding:10px; border-radius:12px; border:1px solid var(--border-glow); margin-bottom:10px;">
+                            <label><b>Add Student Name</b></label>
+                            <div style="display:flex; gap:8px; margin-bottom:8px;">
+                                <input type="text" id="single-student-name-input" placeholder="Student Full Name" style="margin-bottom:0; flex:1;" />
+                                <button class="btn-action" onclick="addStudentToSelectedGroup()" style="width:90px; margin-top:0; padding:6px; font-size:0.8rem; background:var(--success); color:white;">Add ➕</button>
+                            </div>
+                            <div id="group-roster-list" style="font-size:0.82rem; color:white; margin-bottom:8px; max-height:100px; overflow-y:auto;"></div>
+                        </div>
+
                         <div style="display:flex; gap:10px; margin-bottom:10px;">
                             <input type="number" id="team-size-input" value="4" min="1" max="20" placeholder="Size per team" style="margin-bottom:0; flex:1;" />
-                            <button class="btn-action" onclick="runSmartGroupSeparator()" style="width:150px; margin-top:0; padding:10px; font-size:0.85rem; background:var(--warning); color:var(--bg-deep);">Shuffle Teams ⚡</button>
+                            <button class="btn-action" onclick="runNamedGroupShuffler()" style="width:150px; margin-top:0; padding:10px; font-size:0.85rem; background:var(--warning); color:var(--bg-deep);">Shuffle Teams ⚡</button>
                         </div>
                         <div id="shuffled-teams-output" style="display:flex; flex-direction:column; gap:8px; margin-top:10px;"></div>
                     </div>
@@ -1659,6 +1683,9 @@
                 `;
             }
 
+            const pdfExamsList = examsList.filter(e => e.is_pdf);
+            const interactiveExamsList = examsList.filter(e => !e.is_pdf);
+
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
@@ -1670,9 +1697,9 @@
                     <div style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(2, 6, 23, 0.9)); padding: 1.4rem; border-radius: 20px; border: 1px solid var(--accent); margin-bottom: 1.5rem;">
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
                             <span style="font-size:1.5rem;">🔑</span>
-                            <h4 style="color:var(--accent); font-size:1rem; font-weight:900; margin-bottom:0;">Enter Teacher's Custom Exam Code</h4>
+                            <h4 style="color:var(--accent); font-size:1rem; font-weight:900; margin-bottom:0;">Enter Teacher's Custom Code</h4>
                         </div>
-                        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">Enter the unique custom code provided by your instructor to view and take their specific exams.</p>
+                        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.5;">Enter the unique custom code provided by your instructor to view and take their specific exams and PDFs.</p>
                         <div style="display:flex; gap:10px;">
                             <input type="text" id="student-group-code-input" value="${targetCode}" placeholder="Enter custom code..." style="margin-bottom:0; flex:1; text-align:center; font-weight:800; letter-spacing:2px;" />
                             <button class="btn-action" onclick="updateStudentGroupCode()" style="width:130px; margin-top:0; padding:10px; font-size:0.85rem; background:var(--success); color:white;">Load Exams 🚀</button>
@@ -1681,10 +1708,16 @@
 
                     ${teacherControls}
 
-                    <h4 style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.6rem; text-transform:uppercase; font-weight:800;">Official Exams & PDF Materials (${examsList.length})</h4>
-                    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.5rem;">
-                        ${examsList.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No exams available for this custom code. Please enter the correct code provided by your teacher above.</div>' :
-                            examsList.map(e => {
+                    <!-- STUDENT EXAM vs PDF TAB SELECTOR -->
+                    <div style="display:flex; gap:10px; margin-bottom:1.2rem;">
+                        <button class="btn-action" onclick="switchStudentMaterialTab('interactive')" id="tab-btn-interactive" style="background:var(--accent); color:var(--bg-deep); margin-top:0; padding:10px; font-size:0.85rem; flex:1;">🏆 Interactive Exams (${interactiveExamsList.length})</button>
+                        <button class="btn-action" onclick="switchStudentMaterialTab('pdf')" id="tab-btn-pdf" style="background:var(--surface-card); color:var(--text-muted); border:1px solid var(--border-glow); margin-top:0; padding:10px; font-size:0.85rem; flex:1;">📄 PDF Documents (${pdfExamsList.length})</button>
+                    </div>
+
+                    <!-- INTERACTIVE EXAMS TAB CONTENT -->
+                    <div id="student-tab-interactive" style="display:flex; flex-direction:column; gap:10px; margin-bottom:1.5rem;">
+                        ${interactiveExamsList.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No interactive exams available for this custom code.</div>' :
+                            interactiveExamsList.map(e => {
                                 const existingSub = submissionsList.find(s => s.exam_id === e.id && s.student_username === sessionUser.username);
                                 const teacherName = e.teacher_username ? '@' + e.teacher_username : 'Instructor';
 
@@ -1696,8 +1729,6 @@
                                             <button class="btn-action" onclick="confirmDeleteExam(${e.id})" style="width:75px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;">Delete 🗑️</button>
                                         </div>
                                     `;
-                                } else if(e.is_pdf) {
-                                    actionBtnHtml = `<a href="${e.pdf_url}" target="_blank" class="btn-action" style="width:110px; padding:8px; font-size:0.8rem; background:var(--gold); color:#020617; text-decoration:none; text-align:center; margin-top:0;">Open PDF 📑</a>`;
                                 } else if(existingSub) {
                                     actionBtnHtml = `<span style="color:var(--success); font-weight:800; font-size:0.85rem;">Completed ✓ (${existingSub.score}/${existingSub.total_questions})</span>`;
                                 } else {
@@ -1707,7 +1738,7 @@
                                 return `
                                     <div style="background:var(--surface-card); padding:14px; border-radius:16px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
                                         <div>
-                                            <b style="color:white; font-size:0.95rem;">${e.is_pdf ? '📄' : '🏆'} ${e.title}</b>
+                                            <b style="color:white; font-size:0.95rem;">🏆 ${e.title}</b>
                                             <div style="font-size:0.75rem; color:var(--accent); margin-top:2px;">Created by: <b>${teacherName}</b></div>
                                         </div>
                                         ${actionBtnHtml}
@@ -1715,8 +1746,60 @@
                                 `;
                             }).join('')}
                     </div>
+
+                    <!-- PDF DOCUMENTS TAB CONTENT -->
+                    <div id="student-tab-pdf" class="hidden" style="display:none; flex-direction:column; gap:10px; margin-bottom:1.5rem;">
+                        ${pdfExamsList.length === 0 ? '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:1.5rem;">No PDF documents available for this custom code.</div>' :
+                            pdfExamsList.map(e => {
+                                const teacherName = e.teacher_username ? '@' + e.teacher_username : 'Instructor';
+                                let actionBtnHtml = '';
+                                if(isTeacher) {
+                                    actionBtnHtml = `<button class="btn-action" onclick="confirmDeleteExam(${e.id})" style="width:75px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;">Delete 🗑️</button>`;
+                                } else {
+                                    actionBtnHtml = `<a href="${e.pdf_url}" target="_blank" class="btn-action" style="width:110px; padding:8px; font-size:0.8rem; background:var(--gold); color:#020617; text-decoration:none; text-align:center; margin-top:0;">Open PDF 📑</a>`;
+                                }
+                                return `
+                                    <div style="background:var(--surface-card); padding:14px; border-radius:16px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
+                                        <div>
+                                            <b style="color:white; font-size:0.95rem;">📄 ${e.title}</b>
+                                            <div style="font-size:0.75rem; color:var(--accent); margin-top:2px;">Created by: <b>${teacherName}</b></div>
+                                        </div>
+                                        ${actionBtnHtml}
+                                    </div>
+                                `;
+                            }).join('')}
+                    </div>
+
                 </div>
             `;
+        }
+
+        function switchStudentMaterialTab(tabName) {
+            playSound('click');
+            const interactiveTab = document.getElementById('student-tab-interactive');
+            const pdfTab = document.getElementById('student-tab-pdf');
+            const btnInteractive = document.getElementById('tab-btn-interactive');
+            const btnPdf = document.getElementById('tab-btn-pdf');
+
+            if(tabName === 'interactive') {
+                interactiveTab.style.display = 'flex';
+                pdfTab.style.display = 'none';
+                btnInteractive.style.background = 'var(--accent)';
+                btnInteractive.style.color = 'var(--bg-deep)';
+                btnInteractive.style.border = 'none';
+                btnPdf.style.background = 'var(--surface-card)';
+                btnPdf.style.color = 'var(--text-muted)';
+                btnPdf.style.border = '1px solid var(--border-glow)';
+            } else {
+                interactiveTab.style.display = 'none';
+                pdfTab.style.display = 'flex';
+                btnPdf.style.background = 'var(--accent)';
+                btnPdf.style.color = 'var(--bg-deep)';
+                btnPdf.style.border = 'none';
+                btnInteractive.style.background = 'var(--surface-card)';
+                btnInteractive.style.color = 'var(--text-muted)';
+                btnInteractive.style.border = '1px solid var(--border-glow)';
+            }
         }
 
         async function updateStudentGroupCode() {
@@ -1801,9 +1884,11 @@
                 const qType = block.querySelector('.q-type-select').value;
                 if(qText) {
                     if(qType === 'true_false') {
-                        printWindow.document.write(`<li style="margin-bottom: 15px;">${qText}<br>&nbsp;&nbsp;&nbsp;&nbsp; [ &nbsp; ] True &nbsp;&nbsp;&nbsp;&nbsp; [ &nbsp; ] False<div style="border-bottom:1px dotted #888; width:100%; height:15px;"></div></li>`);
+                        printWindow.document.write(`<li style="margin-bottom: 20px;">${qText}<br>&nbsp;&nbsp;&nbsp;&nbsp; [ &nbsp; ] True &nbsp;&nbsp;&nbsp;&nbsp; [ &nbsp; ] False<div style="border-bottom:1px dotted #888; width:100%; height:15px;"></div></li>`);
+                    } else if(qType === 'mcq') {
+                        printWindow.document.write(`<li style="margin-bottom: 20px;">${qText}<br>&nbsp;&nbsp;&nbsp;&nbsp; A) ______________ &nbsp;&nbsp;&nbsp;&nbsp; B) ______________<br>&nbsp;&nbsp;&nbsp;&nbsp; C) ______________ &nbsp;&nbsp;&nbsp;&nbsp; D) ______________<div style="border-bottom:1px dotted #888; width:100%; height:15px;"></div></li>`);
                     } else {
-                        printWindow.document.write(`<li style="margin-bottom: 15px;">${qText}<br><div style="border-bottom:1px dotted #888; width:100%; height:25px;"></div></li>`);
+                        printWindow.document.write(`<li style="margin-bottom: 20px;">${qText}<br><div style="border-bottom:1px dotted #888; width:100%; height:30px;"></div></li>`);
                     }
                 }
             });
@@ -1852,7 +1937,7 @@
             playSound('click');
             const title = document.getElementById('pdf-doc-title').value.trim();
             const url = document.getElementById('pdf-doc-url').value.trim();
-            const groupCode = document.getElementById('ex-code').value.trim() || sessionUser.group_code;
+            const groupCode = document.getElementById('pdf-code').value.trim() || sessionUser.group_code;
 
             if(!title || !url) { showToast('Enter PDF title and URL', true); return; }
             if(!groupCode) { showToast('Enter a custom teacher code', true); return; }
@@ -1870,37 +1955,105 @@
             }
         }
 
-        async function runSmartGroupSeparator() {
+        /* NAMED GROUPS & SHUFFLER LOGIC */
+        function createTeacherGroup() {
             playSound('click');
-            const teamSize = parseInt(document.getElementById('team-size-input').value) || 4;
-            const namesRaw = document.getElementById('shuffler-names-input').value.trim();
-            
-            if(!namesRaw) {
-                showToast('Please enter student names for shuffling', true);
+            const nameInput = document.getElementById('new-group-name-input');
+            const groupName = nameInput ? nameInput.value.trim() : '';
+            if(!groupName) { showToast('Enter a group name (e.g. Group Alpha)', true); return; }
+
+            if(!teacherGroups[groupName]) {
+                teacherGroups[groupName] = [];
+                localStorage.setItem('aero_teacher_groups_v1', JSON.stringify(teacherGroups));
+                nameInput.value = '';
+                showToast(`Group "${groupName}" created!`);
+                openStudyHub();
+            } else {
+                showToast('Group already exists', true);
+            }
+        }
+
+        function renderGroupStudentsManager() {
+            playSound('click');
+            const selectEl = document.getElementById('selected-teacher-group');
+            const container = document.getElementById('group-students-manager-container');
+            const rosterList = document.getElementById('group-roster-list');
+            if(!selectEl || !container) return;
+
+            const groupName = selectEl.value;
+            if(!groupName) {
+                container.classList.add('hidden');
                 return;
             }
 
-            const namesList = namesRaw.split(/[\n,]+/).map(n => n.trim()).filter(n => n.length > 0);
-            if(namesList.length === 0) {
-                showToast('No valid student names found', true);
-                return;
-            }
+            container.classList.remove('hidden');
+            const students = teacherGroups[groupName] || [];
+            rosterList.innerHTML = students.length === 0 ? '<i>No students added yet.</i>' : students.map((s, idx) => `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <span>• ${s}</span>
+                    <span onclick="removeStudentFromGroup('${groupName}', ${idx})" style="color:var(--danger); cursor:pointer; font-weight:800;">✕</span>
+                </div>
+            `).join('');
+        }
 
-            namesList.sort(() => Math.random() - 0.5);
+        function addStudentToSelectedGroup() {
+            playSound('click');
+            const selectEl = document.getElementById('selected-teacher-group');
+            const nameInput = document.getElementById('single-student-name-input');
+            const groupName = selectEl ? selectEl.value : '';
+            const studentName = nameInput ? nameInput.value.trim() : '';
+
+            if(!groupName) { showToast('Select a group first', true); return; }
+            if(!studentName) { showToast('Enter student name', true); return; }
+
+            if(!teacherGroups[groupName]) teacherGroups[groupName] = [];
+            teacherGroups[groupName].push(studentName);
+            localStorage.setItem('aero_teacher_groups_v1', JSON.stringify(teacherGroups));
+            nameInput.value = '';
+            renderGroupStudentsManager();
+            showToast(`Added ${studentName} to ${groupName}!`);
+        }
+
+        function removeStudentFromGroup(groupName, index) {
+            playSound('click');
+            if(teacherGroups[groupName]) {
+                teacherGroups[groupName].splice(index, 1);
+                localStorage.setItem('aero_teacher_groups_v1', JSON.stringify(teacherGroups));
+                renderGroupStudentsManager();
+            }
+        }
+
+        function runNamedGroupShuffler() {
+            playSound('click');
+            const selectEl = document.getElementById('selected-teacher-group');
+            const teamSizeInput = document.getElementById('team-size-input');
+            const groupName = selectEl ? selectEl.value : '';
+            const teamSize = parseInt(teamSizeInput ? teamSizeInput.value : 4) || 4;
+
+            if(!groupName) { showToast('Select a group to shuffle', true); return; }
+            const students = teacherGroups[groupName] || [];
+            if(students.length === 0) { showToast('Selected group has no students', true); return; }
+
+            let shuffled = [...students];
+            shuffled.sort(() => Math.random() - 0.5);
+
             let teams = [];
-            for (let i = 0; i < namesList.length; i += teamSize) {
-                const chunk = namesList.slice(i, i + teamSize);
-                teams.push({ team_name: `Team ${teams.length + 1}`, members: chunk.map(n => ({ full_name: n })) });
+            for (let i = 0; i < shuffled.length; i += teamSize) {
+                const chunk = shuffled.slice(i, i + teamSize);
+                teams.push({ team_name: `Team ${teams.length + 1}`, members: chunk });
             }
 
             const outputBox = document.getElementById('shuffled-teams-output');
-            outputBox.innerHTML = teams.map(t => `
-                <div style="background:var(--bg-deep); padding:10px 14px; border-radius:12px; border:1px solid var(--border-glow);">
-                    <b style="color:var(--accent); font-size:0.9rem;">${t.team_name} (${t.members.length} cadets)</b>
-                    <div style="font-size:0.82rem; color:white; margin-top:4px;">${t.members.map(m => m.full_name).join(', ')}</div>
-                </div>
-            `).join('');
-            showToast('Teams generated successfully! 🔀');
+            outputBox.innerHTML = `
+                <b style="color:var(--accent); font-size:0.85rem; display:block; margin-bottom:4px;">Shuffled Teams for ${groupName}:</b>
+                ${teams.map(t => `
+                    <div style="background:var(--bg-deep); padding:10px 14px; border-radius:12px; border:1px solid var(--border-glow);">
+                        <b style="color:var(--gold); font-size:0.9rem;">${t.team_name} (${t.members.length} cadets)</b>
+                        <div style="font-size:0.82rem; color:white; margin-top:4px;">${t.members.join(', ')}</div>
+                    </div>
+                `).join('')}
+            `;
+            showToast(`Group ${groupName} shuffled into teams successfully! 🔀`);
         }
 
         function confirmDeleteExam(examId) {
@@ -1972,7 +2125,7 @@
                             if(q.type === 'true_false') {
                                 return `
                                     <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}:${q.question}</label>
+                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${q.question}</label>
                                         <select class="exam-answer-input" data-correct="${q.correct}" style="margin-bottom:0;">
                                             <option value="">Select True / False...</option>
                                             <option value="True">True</option>
@@ -1983,7 +2136,7 @@
                             } else {
                                 return `
                                     <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}:${q.question}</label>
+                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${q.question}</label>
                                         <input type="text" class="exam-answer-input" data-correct="${q.correct}" placeholder="Your answer..." style="margin-bottom:0;" />
                                     </div>
                                 `;
