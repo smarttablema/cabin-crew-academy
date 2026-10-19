@@ -379,6 +379,8 @@
         .lg-pod.p2{animation-delay:.12s}.lg-pod.p3{animation-delay:.24s}
         .lg-me{background:rgba(56,189,248,.1)}
         @media(prefers-reduced-motion:reduce){.lg-pod{animation:none}}
+
+        #bell-dot{position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#f87171;border:2px solid var(--bg-deep);animation:urgentPulse 1.8s ease-in-out infinite}
         /* Teacher Copilot */
         #copilot{position:fixed;right:20px;bottom:24px;width:min(360px,calc(100% - 32px));z-index:5500;padding:16px 18px 14px;border-radius:20px;background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(11,15,25,.96));border:1px solid var(--border-glow);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 34px var(--accent-glow);color:var(--text-main);transform:translateY(140%);opacity:0;transition:transform .55s cubic-bezier(.2,.9,.25,1.1),opacity .4s}
         #copilot.show{transform:none;opacity:1}
@@ -444,6 +446,7 @@
                 <div class="header-controls hidden" id="dash-header-icons">
                     <div class="header-icon-btn" onclick="window.refreshUserData()" title="Universal Refresh Balance">🔄</div>
                     <div class="header-icon-btn" onclick="window.openAvatarStudio()" title="Avatar">👤</div>
+                    <div class="header-icon-btn" id="bell-btn" style="display:none; position:relative;" onclick="window.openAnnouncements()" title="Messages from your teacher">🔔<span id="bell-dot" style="display:none"></span></div>
                     <div class="header-icon-btn" onclick="window.openShop()" title="Boutique">🎁</div>
                     <div class="header-icon-btn" onclick="window.openSettingsModal()" title="Settings">⚙</div>
                 </div>
@@ -724,12 +727,13 @@
         o = o || {};
         const url = typeof u === 'string' ? u : ((u && u.url) || '');
         const api = url.startsWith('/api/');
-        if(api) { const t = localStorage.getItem('aero_token'); if(t) o.headers = Object.assign({}, o.headers || {}, { 'Authorization': 'Bearer ' + t }); }
+        let meNow = null; try { meNow = (typeof sessionUser !== 'undefined' && sessionUser) ? sessionUser.username : null; } catch(e) {}
+        if(api && meNow) { const t = localStorage.getItem('aero_token_' + meNow); if(t) o.headers = Object.assign({}, o.headers || {}, { 'Authorization': 'Bearer ' + t }); }
         const r = await rawFetch(u, o);
         if(api && !r.ok) { const L = (window.__aeroLog = window.__aeroLog || []); L.push(new Date().toISOString().slice(11, 19) + ' API ' + r.status + ' ' + url.split('?')[0]); if(L.length > 40) L.shift(); }
-        if(api && r.ok && /^\/api\/(login|register)/.test(url)) { try { const d = await r.clone().json(); if(d && d.token) localStorage.setItem('aero_token', d.token); } catch(e) {} }
+        if(api && r.ok && /^\/api\/(login|register)/.test(url)) { try { const d = await r.clone().json(); if(d && d.token && d.user) localStorage.setItem('aero_token_' + d.user.username, d.token); } catch(e) {} }
         if(api && r.status === 401 && !/^\/api\/(login|register|user\/password-change)/.test(url) && localStorage.getItem('aero_crew_user_pro22')) {
-            localStorage.removeItem('aero_token'); localStorage.removeItem('aero_crew_user_pro22');
+            if(meNow) localStorage.removeItem('aero_token_' + meNow); localStorage.removeItem('aero_crew_user_pro22');
             const nowT = Date.now(), lastT = +(sessionStorage.getItem('aero_last_401') || 0); sessionStorage.setItem('aero_last_401', String(nowT));
             if(nowT - lastT > 10000) setTimeout(() => location.reload(), 600);
             else setTimeout(() => showToast('Your session could not be restored. Please log in again.', true), 300);
@@ -2874,6 +2878,7 @@
             const box = document.getElementById('simulation-box');
             box.classList.add('feature-fullscreen-view');
             const res = await fetch('/api/friends/list?username=' + sessionUser.username);
+            if(!res.ok) { showToast('Could not load your friends. Please log in again.', true); resetToMenu(); return; }
             socialData = await res.json();
 
             box.innerHTML = `
@@ -3305,6 +3310,10 @@
             box.innerHTML = top + `<div class="ci-wrap" id="ci-print">
                 <div class="ci-kpis">${kpi(s.students, 'STUDENTS')}${kpi(s.avg_nodes, 'AVG NODES')}${kpi(s.avg_xp, 'AVG XP')}${kpi(s.active + '/' + s.students, 'ACTIVE')}</div>
                 <div class="ci-card ci-tips"><h4>💡 Suggested for your next session</h4>${tips.map(t => `<p>${t}</p>`).join('')}</div>
+                <div class="ci-card"><h4>🔑 Your class code</h4>
+                    <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:8px">Students type this code to join your class and load your exams. Choose any code you like (3-20 letters, numbers, - or _).</p>
+                    <input id="cc-input" value="${escH(code)}" maxlength="20" style="margin-bottom:8px;text-align:center;font-weight:800;letter-spacing:.1em">
+                    <button class="btn-action" onclick="window.changeClassCode('${escH(code)}')" style="margin:0">Save my class code</button></div>
                 <div class="ci-card"><h4>📣 Announce to your class</h4>
                     <textarea id="an-input" rows="3" maxlength="280" placeholder="e.g. Tomorrow we start the safety demonstration unit. Review Unit 2 tonight!" style="margin-bottom:8px"></textarea>
                     <button class="btn-action" onclick="window.sendAnnouncement('${escH(code)}')" style="margin:0">Send to students</button>
@@ -3539,22 +3548,39 @@
         window.sendAnnouncement = sendAnnouncement; window.deleteAnnouncement = deleteAnnouncement;
         let lastAnnLoad = 0;
         async function loadAnnouncement() {
-            const card = document.getElementById('announce-card');
-            if(!card || !sessionUser || sessionUser.role !== 'student' || !sessionUser.group_code) { if(card) card.style.display = 'none'; return; }
+            const card = document.getElementById('announce-card'), bell = document.getElementById('bell-btn'), dot = document.getElementById('bell-dot');
+            const student = sessionUser && sessionUser.role === 'student' && sessionUser.group_code;
+            if(bell) bell.style.display = student ? 'flex' : 'none';
+            if(!card || !student) { if(card) card.style.display = 'none'; return; }
             if(Date.now() - lastAnnLoad < 60000) return;
             lastAnnLoad = Date.now();
             try {
                 const r = await fetch('/api/announce/latest?group_code=' + encodeURIComponent(sessionUser.group_code)); if(!r.ok) return;
                 const a = (await r.json()).announcements[0], seenKey = 'aero_ann_seen_' + sessionUser.username;
-                if(!a || String(localStorage.getItem(seenKey)) === String(a.id)) { card.style.display = 'none'; return; }
+                const unseen = !!a && String(localStorage.getItem(seenKey)) !== String(a.id);
+                if(dot) dot.style.display = unseen ? 'block' : 'none';
+                if(!unseen) { card.style.display = 'none'; return; }
                 const T = { en: 'Message from your teacher', fr: 'Message de votre enseignant', ar: 'رسالة من معلمك' }[(typeof activeLang !== 'undefined' && ['en', 'fr', 'ar'].includes(activeLang)) ? activeLang : 'en'];
                 document.getElementById('an-title').textContent = '📣 ' + T;
                 document.getElementById('an-text').textContent = a.message;
                 document.getElementById('an-meta').textContent = '@' + a.teacher_username + ' · ' + timeAgo(a.created_at);
-                document.getElementById('an-x').onclick = () => { localStorage.setItem(seenKey, String(a.id)); card.style.display = 'none'; playSound('click'); };
+                document.getElementById('an-x').onclick = () => { localStorage.setItem(seenKey, String(a.id)); card.style.display = 'none'; if(dot) dot.style.display = 'none'; playSound('click'); };
                 card.style.display = '';
             } catch(e) {}
         }
+        async function openAnnouncements() {
+            playSound('click');
+            const box = document.getElementById('simulation-box'); box.classList.add('feature-fullscreen-view');
+            const top = `<div class="feature-topbar"><button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button><h3 style="font-size:1.1rem; color:var(--accent); font-weight:900;">🔔 Messages</h3><div style="width:85px;"></div></div>`;
+            box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card" style="text-align:center">Loading…</div></div>`;
+            let list = [];
+            try { const r = await fetch('/api/announce/latest?group_code=' + encodeURIComponent(sessionUser.group_code)); if(r.ok) list = (await r.json()).announcements; } catch(e) {}
+            if(list[0]) localStorage.setItem('aero_ann_seen_' + sessionUser.username, String(list[0].id));
+            const dot = document.getElementById('bell-dot'); if(dot) dot.style.display = 'none';
+            const ac = document.getElementById('announce-card'); if(ac) ac.style.display = 'none';
+            box.innerHTML = top + `<div class="ci-wrap">${list.map(a => `<div class="ci-card ci-tips"><h4>📣 @${escH(a.teacher_username)}</h4><p dir="auto">${escH(a.message)}</p><small style="color:var(--text-muted)">${escH(timeAgo(a.created_at))}</small></div>`).join('') || '<div class="ci-card" style="text-align:center;color:var(--text-muted)">No messages from your teacher yet.</div>'}</div>`;
+        }
+        window.openAnnouncements = openAnnouncements;
         window.loadAnnouncement = loadAnnouncement;
     
         /* STREAK RESCUE: friendly reminder when today's practice is still missing */
@@ -3689,6 +3715,17 @@
             showToast('Diagnostics copied ✓ Paste it in your message.');
         }
         window.copyDiagnostics = copyDiagnostics;
+    
+        async function changeClassCode(oldCode) {
+            const nc = document.getElementById('cc-input').value.trim();
+            if(!/^[A-Za-z0-9_-]{3,20}$/.test(nc)) { showToast('Use 3-20 letters, numbers, - or _', true); return; }
+            const r = await fetch('/api/teacher/set-code', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ teacher_username: sessionUser.username, new_code: nc }) });
+            const d = await r.json().catch(() => ({}));
+            if(!r.ok) { showToast(d.detail || 'Could not change the code.', true); return; }
+            sessionUser.group_code = nc; localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser)); localStorage.setItem('aero_insights_code', nc);
+            showToast('Class code is now ' + nc + ' ✓'); playSound('success'); openClassInsights(nc);
+        }
+        window.changeClassCode = changeClassCode;
     </script>
 </body>
 </html>
