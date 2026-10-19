@@ -211,7 +211,7 @@ def startup_db():
             role VARCHAR(20) DEFAULT 'student',
             avatar_gender VARCHAR(20) DEFAULT 'steward',
             active_skin VARCHAR(100) DEFAULT 'Cabin Fire Extinguisher',
-            group_code VARCHAR(50) DEFAULT '7842',
+            group_code VARCHAR(50) DEFAULT '',
             friends TEXT[] DEFAULT ARRAY[]::TEXT[],
             xp_points INT DEFAULT 1500,
             hearts INT DEFAULT 5,
@@ -349,12 +349,6 @@ def startup_db():
         ON CONFLICT DO NOTHING;
     """)
 
-    cur.execute("""
-        INSERT INTO aero_v22_groups (group_name, group_code, teacher_username)
-        VALUES ('EASA Alpha Professional Flight 1', '7842', 'instructor_boss')
-        ON CONFLICT (group_code) DO NOTHING;
-    """)
-
     conn.commit()
     cur.close()
     conn.close()
@@ -368,7 +362,7 @@ class RegisterModel(BaseModel):
     recovery_pin: str
     role: str = 'student'
     avatar_gender: str = 'steward'
-    group_code: str = '7842'
+    group_code: str = ''
     teacher_code: str = None
 
 class LoginModel(BaseModel):
@@ -495,7 +489,7 @@ def register(data: RegisterModel):
             conn.close()
             raise HTTPException(status_code=403, detail="Invalid teacher access code.")
         assigned_role = "teacher"
-        group_code = str(random.randint(1000, 9999))
+        group_code = ""
 
     if data.role == "admin":
         invite = os.getenv("ADMIN_INVITE_CODE")
@@ -1289,9 +1283,20 @@ def create_advanced_exam(data: AdvancedExamModel):
         cur.close()
         conn.close()
         raise HTTPException(status_code=403, detail="Only teachers can publish exams.")
+    import re
+    code = data.group_code.strip().upper()
+    if not re.fullmatch(r"[A-Z0-9_-]{3,30}", code):
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=400, detail="Choose a code of 3-30 letters, numbers, - or _.")
+    cur.execute("SELECT 1 FROM aero_v22_exams WHERE group_code = %s AND teacher_username <> %s LIMIT 1;", (code, data.teacher_username))
+    if cur.fetchone():
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=409, detail="This code already belongs to another teacher. Choose a different code.")
     cur.execute(
         "INSERT INTO aero_v22_exams (group_code, teacher_username, title, exam_data, pdf_url) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
-        (data.group_code, data.teacher_username, data.title, json.dumps(data.exam_data), data.pdf_url if data.is_pdf else None)
+        (code, data.teacher_username, data.title, json.dumps(data.exam_data), data.pdf_url if data.is_pdf else None)
     )
     exam = cur.fetchone()
     conn.commit()
@@ -1620,8 +1625,8 @@ class SetCodeModel(BaseModel):
 @app.post("/api/teacher/set-code")
 def set_class_code(data: SetCodeModel):
     import re
-    new = data.new_code.strip()
-    if not re.fullmatch(r"[A-Za-z0-9_-]{3,20}", new):
+    new = data.new_code.strip().upper()
+    if not re.fullmatch(r"[A-Z0-9_-]{3,20}", new):
         raise HTTPException(status_code=400, detail="Use 3-20 letters, numbers, - or _.")
     conn = get_db_connection()
     cur = conn.cursor()
