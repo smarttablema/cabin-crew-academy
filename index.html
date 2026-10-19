@@ -2,7 +2,13 @@
 <html lang="en" id="html-root">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#020617">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Aerostar">
+    <link rel="apple-touch-icon" href="/icon-192.png">
     <title>Aero Crew Academy</title>
     <link rel="icon" href="https://img.icons8.com/color/48/airplane-take-off.png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@450;700;900&display=swap" rel="stylesheet">
@@ -148,10 +154,252 @@
 
         .toast-popup { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--success); color: white; padding: 14px 28px; border-radius: 35px; font-weight: 800; font-size: 0.9rem; transition: transform 0.3s; z-index: 6000; pointer-events: none; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); }
         .toast-popup.show { transform: translateX(-50%) translateY(0); }
+
+
+        /* ===== v2 design system: glass, texture, motion ===== */
+        :root{--glass:linear-gradient(145deg,rgba(18,27,46,.82),rgba(8,12,22,.92));--ease:cubic-bezier(.2,.8,.2,1)}
+        *{scrollbar-width:thin;scrollbar-color:rgba(56,189,248,.4) transparent}
+        :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+        body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.07;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+        .stats-dashboard,.card-container{background:var(--glass);backdrop-filter:blur(14px) saturate(1.3);box-shadow:0 12px 34px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.07)}
+        .mode-tile{--tc:56,189,248;isolation:isolate;background:radial-gradient(120% 90% at 50% 0%,rgba(var(--tc),.28),transparent 62%),var(--glass);border:1px solid rgba(var(--tc),.35);border-radius:20px;padding:1.4rem 1rem;box-shadow:0 10px 26px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08);transition:transform .35s var(--ease),box-shadow .35s,border-color .35s;animation:tileIn .6s var(--ease) both}
+        .mode-tile::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.16) 50%,transparent 65%);transform:translateX(-120%);transition:transform .8s var(--ease)}
+        .mode-tile:hover{transform:translateY(-4px) scale(1.015);border-color:rgba(var(--tc),.8);box-shadow:0 16px 36px rgba(0,0,0,.45),0 0 28px rgba(var(--tc),.35)}
+        .mode-tile:hover::after{transform:translateX(120%)}
+        .mode-tile:active{transform:scale(.97)}
+        .mode-tile>span{display:inline-block;font-size:2rem!important;filter:drop-shadow(0 0 12px rgba(var(--tc),.75));animation:tileFloat 4s ease-in-out infinite}
+        .mode-tile h4{text-shadow:none;letter-spacing:.01em}
+        .mode-tile:nth-child(1){--tc:56,189,248}.mode-tile:nth-child(2){--tc:251,191,36}.mode-tile:nth-child(3){--tc:45,212,191}.mode-tile:nth-child(4){--tc:167,139,250}
+        .mode-tile:nth-child(5){--tc:244,114,182}.mode-tile:nth-child(6){--tc:248,113,113}.mode-tile:nth-child(7){--tc:74,222,128}.mode-tile:nth-child(8){--tc:129,140,248}
+        .mode-tile:nth-child(2){animation-delay:.06s}.mode-tile:nth-child(3){animation-delay:.12s}.mode-tile:nth-child(4){animation-delay:.18s}.mode-tile:nth-child(5){animation-delay:.24s}.mode-tile:nth-child(6){animation-delay:.3s}.mode-tile:nth-child(7){animation-delay:.36s}.mode-tile:nth-child(8){animation-delay:.42s}
+        .mode-tile:nth-child(even)>span{animation-delay:-2s}
+        .btn-action{position:relative;overflow:hidden;transition:transform .25s var(--ease),box-shadow .3s}
+        .btn-action:hover{transform:translateY(-2px);box-shadow:0 10px 28px var(--accent-glow)}
+        .header-icon-btn:hover{transform:translateY(-2px) scale(1.06)}
+        @keyframes tileIn{from{opacity:0;transform:translateY(18px) scale(.96)}}
+        @keyframes tileFloat{50%{transform:translateY(-4px)}}
+        @media(min-width:820px){.mode-grid{gap:18px}}
+        @media(max-width:420px){.mode-tile{padding:1.05rem .7rem}.mode-tile h4{font-size:.74rem}.mode-tile>span{font-size:1.7rem!important}}
+        @media(prefers-reduced-motion:reduce){.mode-tile,.mode-tile>span{animation:none}.mode-tile,.mode-tile::after{transition:none}}
+
+        /* ===== v2 first-year path ===== */
+        .duo-path-container{gap:22px;padding:18px 10px 90px;background:linear-gradient(180deg,rgba(2,6,23,.25),rgba(2,6,23,.55))}
+        .duo-path-container::before{content:"";position:absolute;left:50%;top:70px;bottom:40px;border-left:3px dashed rgba(186,230,253,.14)}
+        .duo-node-wrapper,.duo-node-wrapper:nth-child(odd),.duo-node-wrapper:nth-child(even){justify-content:center;padding:0}
+        .duo-node-wrapper .duo-node{margin-left:var(--o,0)}
+        .unit-banner{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;margin:10px 4px 4px;padding:10px 16px;border-radius:16px;background:linear-gradient(135deg,rgba(14,116,144,.93),rgba(30,64,175,.93));border:1px solid rgba(186,230,253,.35);box-shadow:0 8px 22px rgba(0,0,0,.4);font-size:.82rem;letter-spacing:.14em;font-weight:800;backdrop-filter:blur(8px)}
+        .unit-banner span{color:var(--gold)}
+        .duo-node.locked{cursor:not-allowed;filter:saturate(.4)}.duo-node.locked:hover{transform:none}
+        .duo-node.active{animation:nodePulse 1.8s ease-in-out infinite}
+        .duo-node:active:not(.locked){transform:translateY(5px);box-shadow:0 5px 0 rgba(0,0,0,.5)}
+        @keyframes nodePulse{0%,100%{box-shadow:0 10px 0 #0369a1,0 0 0 0 rgba(56,189,248,.55)}50%{box-shadow:0 10px 0 #0369a1,0 0 0 18px rgba(56,189,248,0)}}
+        .start-bubble{position:absolute;top:-36px;left:50%;transform:translateX(-50%);padding:4px 12px;border-radius:12px;background:#fff;color:#0369a1;font-size:.7rem;font-weight:900;letter-spacing:.1em;white-space:nowrap;animation:startBob 1.2s ease-in-out infinite;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+        .start-bubble::after{content:"";position:absolute;bottom:-5px;left:50%;margin-left:-5px;border:5px solid transparent;border-top-color:#fff;border-bottom:0}
+        @keyframes startBob{50%{transform:translateX(-50%) translateY(-5px)}}
+        .path-progress{position:relative;height:18px;margin:0 2px 10px;border-radius:999px;background:rgba(2,6,23,.6);border:1px solid var(--border-glow);overflow:hidden}
+        .path-progress i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#38bdf8,#fbbf24);transition:width 1s var(--ease)}
+        .path-progress span{position:absolute;inset:0;display:grid;place-items:center;font-size:.68rem;font-weight:800;letter-spacing:.08em}
+        @media(prefers-reduced-motion:reduce){.duo-node.active,.start-bubble{animation:none}}
+
+        /* ===== v2 lesson screens ===== */
+        .lesson-top{display:flex;align-items:center;gap:12px;max-width:560px;margin:0 auto;padding:6px 2px 14px}
+        .lesson-x{background:none;border:0;color:var(--text-muted);font-size:1.4rem;cursor:pointer;padding:4px 8px;border-radius:10px}
+        .lesson-x:hover{color:#fff;background:rgba(255,255,255,.08)}
+        .lesson-bar{flex:1;height:14px;border-radius:999px;background:rgba(2,6,23,.65);border:1px solid var(--border-glow);overflow:hidden}
+        .lesson-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#4ade80,#38bdf8);box-shadow:0 0 12px rgba(74,222,128,.5);transition:width .7s var(--ease)}
+        .lesson-hearts{font-weight:900;color:#f87171;font-size:1rem;min-width:46px;text-align:right}
+        .lesson-hearts.break{animation:heartBreak .6s}
+        @keyframes heartBreak{30%{transform:scale(1.5) rotate(-12deg)}60%{transform:scale(.85)}}
+        .lesson-wrap{max-width:560px;width:100%;margin:0 auto;padding:0 2px 190px;animation:tileIn .5s var(--ease) both}
+        .lesson-chip{display:inline-block;padding:4px 12px;border-radius:999px;background:rgba(56,189,248,.14);border:1px solid rgba(56,189,248,.35);color:var(--accent);font-size:.68rem;font-weight:800;letter-spacing:.12em}
+        .lesson-q{margin:14px 0 22px;font-size:1.2rem;line-height:1.55;font-weight:800;color:#fff}
+        .lesson-opts{display:flex;flex-direction:column;gap:12px}
+        .lesson-opt{display:flex;align-items:center;gap:14px;width:100%;text-align:start;padding:14px 16px;border-radius:16px;background:var(--glass);border:2px solid var(--border-glow);color:#fff;font:inherit;font-size:.96rem;cursor:pointer;box-shadow:0 5px 0 rgba(2,6,23,.7);transition:transform .15s,border-color .2s,background .2s}
+        .lesson-opt:hover:not(:disabled){border-color:var(--accent);transform:translateY(-2px)}
+        .lesson-opt:active:not(:disabled){transform:translateY(3px);box-shadow:0 2px 0 rgba(2,6,23,.7)}
+        .lo-k{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:9px;background:rgba(56,189,248,.14);font-weight:900;font-size:.8rem;color:var(--accent)}
+        .lesson-opt:disabled{cursor:default}
+        .lesson-opt.right{border-color:#4ade80;background:rgba(74,222,128,.16);animation:optPop .45s}
+        .lesson-opt.right .lo-k{background:#4ade80;color:#052e16}
+        .lesson-opt.wrong{border-color:#f87171;background:rgba(248,113,113,.14);animation:optShake .45s}
+        .lesson-opt.wrong .lo-k{background:#f87171;color:#450a0a}
+        .lesson-opt:disabled:not(.right):not(.wrong){opacity:.45}
+        @keyframes optPop{40%{transform:scale(1.03)}}
+        @keyframes optShake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+        .lesson-feedback{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px max(18px,calc(50% - 280px)) calc(18px + env(safe-area-inset-bottom));transform:translateY(110%);transition:transform .4s var(--ease)}
+        .lesson-feedback.show{transform:none}
+        .lesson-feedback.good{background:linear-gradient(180deg,#14532d,#052e16);border-top:2px solid #4ade80}
+        .lesson-feedback.bad{background:linear-gradient(180deg,#7f1d1d,#450a0a);border-top:2px solid #f87171}
+        .lf-msg{display:flex;flex-direction:column;gap:2px}.lf-msg b{font-size:1.05rem}.lf-msg span{font-size:.9rem;opacity:.92}
+        .lf-btn{width:auto!important;margin:0!important;padding:.85rem 1.8rem!important;flex:none}
+        .lesson-feedback.good .lf-btn{background:#4ade80;color:#052e16}.lesson-feedback.bad .lf-btn{background:#f87171;color:#450a0a}
+        .done-wrap{position:relative;overflow:hidden;text-align:center;padding:3rem 1rem 2rem;min-height:60vh}
+        .done-trophy{font-size:5.5rem;animation:trophyIn .9s var(--ease) both;filter:drop-shadow(0 0 28px rgba(251,191,36,.6))}
+        @keyframes trophyIn{0%{transform:scale(0) rotate(-30deg)}60%{transform:scale(1.25) rotate(8deg)}100%{transform:none}}
+        .done-title{margin:10px 0 22px;font-size:1.6rem;font-weight:900;color:var(--gold)}
+        .done-stats{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+        .done-stats div{min-width:92px;padding:12px 10px;border-radius:16px;background:var(--glass);border:1px solid var(--border-glow);animation:tileIn .6s var(--ease) both}
+        .done-stats div:nth-child(2){animation-delay:.15s}.done-stats div:nth-child(3){animation-delay:.3s}
+        .done-stats b{display:block;font-size:1.3rem;color:#fff}.done-stats small{font-size:.62rem;letter-spacing:.14em;color:var(--text-muted);font-weight:800}
+        .confetti{position:absolute;inset:0;pointer-events:none}
+        .confetti i{position:absolute;top:-14px;width:9px;height:14px;border-radius:2px;animation:confFall linear infinite}
+        @keyframes confFall{to{transform:translateY(105vh) rotate(720deg)}}
+        @media(prefers-reduced-motion:reduce){.confetti i,.done-trophy,.lesson-opt.right,.lesson-opt.wrong,.lesson-hearts.break{animation:none}}
+
+        /* ===== v2 teacher dashboard ===== */
+        .ci-wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px;padding:4px 2px 40px}
+        .ci-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+        .ci-kpi{padding:14px 6px;text-align:center;border-radius:16px;background:var(--glass);border:1px solid var(--border-glow);animation:tileIn .5s var(--ease) both}
+        .ci-kpi b{display:block;font-size:1.35rem;color:var(--accent)}.ci-kpi small{font-size:.6rem;letter-spacing:.12em;color:var(--text-muted);font-weight:800}
+        .ci-card{padding:16px;border-radius:18px;background:var(--glass);border:1px solid var(--border-glow)}
+        .ci-card h4{font-size:.92rem;font-weight:900;margin-bottom:10px;color:var(--accent)}
+        .ci-tips{border-color:rgba(251,191,36,.45)}.ci-tips h4{color:var(--gold)}.ci-tips p{font-size:.86rem;line-height:1.5;margin:6px 0}
+        .ci-row{display:grid;grid-template-columns:24px 1.4fr 1fr 52px auto;align-items:center;gap:10px;padding:9px 6px;border-radius:12px;border-inline-start:4px solid #4ade80}
+        .ci-row+.ci-row{border-top:1px solid rgba(148,163,184,.12)}
+        .ci-row.at_risk{border-inline-start-color:#fbbf24}.ci-row.inactive{border-inline-start-color:#f87171}
+        .ci-rank{font-weight:900;color:var(--text-muted);font-size:.8rem}
+        .ci-name b{display:block;font-size:.88rem}.ci-name small,.ci-hq small{display:block;font-size:.68rem;color:var(--text-muted)}
+        .ci-prog{height:8px;border-radius:99px;background:rgba(2,6,23,.7);overflow:hidden}.ci-prog i{display:block;height:100%;background:linear-gradient(90deg,#38bdf8,#4ade80);border-radius:99px}
+        .ci-nodes{font-size:.72rem;font-weight:800}.ci-meta{font-size:.74rem;white-space:nowrap}
+        .ci-hq{display:flex;gap:12px;align-items:center;padding:8px 0}.ci-hq>span{flex:none;min-width:46px;text-align:center;padding:6px 8px;border-radius:10px;background:rgba(248,113,113,.14);color:#fca5a5;font-weight:900;font-size:.85rem}
+        .ci-hq b{font-size:.86rem;line-height:1.4}
+        .ci-actions{display:flex;gap:10px;flex-wrap:wrap}.ci-actions>*{flex:1;min-width:150px}
+        @media(max-width:560px){.ci-kpis{grid-template-columns:repeat(2,1fr)}.ci-row{grid-template-columns:20px 1fr 44px;row-gap:4px}.ci-prog{grid-column:2/-1;order:5}.ci-meta{grid-column:2/-1;order:6}}
+        @media print{body>*:not(#app-shell):not(.app-container){}body{background:#fff!important}body::before,.feature-topbar,.ci-actions{display:none!important}.ci-card,.ci-kpi{background:#fff!important;color:#000!important;border:1px solid #bbb!important;box-shadow:none!important}.ci-card h4,.ci-kpi b{color:#000!important}}
+
+        /* ===== v2 battle arena ===== */
+        .bt-bars{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+        .bt-bars small{display:block;margin-bottom:4px;font-size:.66rem;letter-spacing:.12em;font-weight:800;color:var(--text-muted)}.bt-bars b{color:var(--gold)}
+        .bt-bar{height:10px;border-radius:99px;background:rgba(2,6,23,.7);overflow:hidden;border:1px solid var(--border-glow)}
+        .bt-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#38bdf8,#4ade80);transition:width .6s var(--ease)}
+        .bt-bar.opp i{background:linear-gradient(90deg,#f472b6,#fbbf24)}
+
+        /* ===== v2 auth + shop ===== */
+        #screen-login,#screen-register,#screen-reset{animation:tileIn .6s var(--ease) both}
+        .auth-hero{display:grid;place-items:center;width:78px;height:78px;margin:0 auto 14px;border-radius:50%;font-size:2.2rem;background:radial-gradient(circle,rgba(56,189,248,.28),rgba(56,189,248,.04) 70%);border:1px solid var(--border-glow);box-shadow:0 0 30px var(--accent-glow)}
+        .auth-hero span{display:block;animation:tileFloat 3.4s ease-in-out infinite}
+        #screen-login>h2,#screen-register>h2,#screen-reset>h2{text-align:center}
+        #screen-login>.sub-desc,#screen-register>.sub-desc,#screen-reset>.sub-desc{text-align:center}
+        input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.18)}
+        .footer-nav span{padding:6px 10px;border-radius:999px;transition:background .2s}.footer-nav span:hover{background:rgba(56,189,248,.12);text-decoration:none}
+        .pw-wrap{position:relative}.pw-wrap input{padding-inline-end:48px}
+        .pw-eye{position:absolute;top:0;inset-inline-end:6px;height:calc(100% - 1.1rem);min-height:44px;width:42px;background:none;border:0;color:var(--text-muted);font-size:1.05rem;cursor:pointer}
+        .pw-meter{height:6px;border-radius:99px;background:rgba(2,6,23,.7);margin:-4px 0 4px;overflow:hidden}
+        .pw-meter i{display:block;height:100%;width:0;border-radius:99px;transition:width .3s,background .3s}
+        .pw-hint{display:block;min-height:1.1em;margin-bottom:1rem;font-size:.72rem;color:var(--text-muted)}
+        .role-seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.1rem}
+        .role-seg button{padding:.9rem .6rem;border-radius:14px;border:2px solid var(--border-glow);background:var(--bg-deep);color:var(--text-muted);font:inherit;font-weight:800;font-size:.85rem;cursor:pointer;transition:all .2s}
+        .role-seg button.on{border-color:var(--accent);color:#fff;background:rgba(56,189,248,.14);box-shadow:0 0 18px var(--accent-glow)}
+        #reg-role{display:none}
+        .teacher-hint{font-size:.78rem;line-height:1.5;color:var(--text-muted);margin-bottom:10px}
+        .btn-action:disabled{opacity:.6;cursor:wait}
+        .shop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:2rem}
+        @media(min-width:700px){.shop-grid{grid-template-columns:repeat(3,1fr)}}
+        .shop-card{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px;border-radius:18px;background:var(--glass);border:1px solid var(--border-glow);text-align:center;transition:transform .25s var(--ease),box-shadow .25s}
+        .shop-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(139,92,246,.25)}
+        .shop-card.equipped{border-color:#4ade80;box-shadow:0 0 22px rgba(74,222,128,.25)}
+        .shop-card.poor{opacity:.6}
+        .shop-prev{font-size:2.6rem;filter:drop-shadow(0 0 12px rgba(167,139,250,.6))}
+        .shop-name{font-size:.82rem;line-height:1.3}
+        .shop-btn{width:100%!important;padding:.6rem!important;margin:0!important;font-size:.8rem!important;background:#8b5cf6!important;color:#fff!important}
+        .shop-card.equipped .shop-btn{background:#16a34a!important}
+
+        /* ===== v2 hubs + daily goal ===== */
+        .goal-card{display:flex;align-items:center;gap:14px;padding:12px 16px;margin-bottom:1.2rem;border-radius:18px;background:var(--glass);border:1px solid var(--border-glow);box-shadow:0 8px 24px rgba(0,0,0,.28);animation:tileIn .6s var(--ease) both}
+        .goal-card svg{flex:none;transform:rotate(-90deg)}
+        .gr-bg{fill:none;stroke:rgba(148,163,184,.2);stroke-width:7}
+        .gr-fg{fill:none;stroke:var(--accent);stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 1s var(--ease),stroke .4s;filter:drop-shadow(0 0 6px var(--accent-glow))}
+        .goal-card.hit .gr-fg{stroke:var(--gold);filter:drop-shadow(0 0 8px rgba(251,191,36,.7))}
+        .goal-txt{display:flex;flex-direction:column;gap:2px;flex:1}.goal-txt b{font-size:.95rem}.goal-txt small{font-size:.78rem;color:var(--text-muted);font-weight:700}
+        .goal-flame{font-size:1.7rem}.goal-card.hit .goal-flame{animation:tileFloat 2s ease-in-out infinite}
+        #simulation-box [style*="--surface-card"]{background:var(--glass)!important;backdrop-filter:blur(10px);box-shadow:0 8px 24px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.05)}
+        #simulation-box [style*="background:var(--bg-deep)"],#simulation-box [style*="background: var(--bg-deep)"]{box-shadow:inset 0 2px 12px rgba(0,0,0,.35)}
+        .feature-topbar{position:sticky;top:0;z-index:20;padding:10px 10px;margin-bottom:10px;border-radius:0 0 18px 18px;border-bottom:1px solid var(--border-glow);background:rgba(8,12,22,.78);backdrop-filter:blur(12px)}
+        #settings-modal input{margin-bottom:.9rem}
+        @media(prefers-reduced-motion:reduce){.goal-card,.goal-card.hit .goal-flame{animation:none}}
+
+        /* ===== v2 install pill + owned skins ===== */
+        #install-pill{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:5400;display:flex;align-items:center;gap:2px;padding:4px 4px 4px 6px;border-radius:999px;background:rgba(15,23,42,.94);border:1px solid var(--border-glow);box-shadow:0 12px 34px rgba(0,0,0,.5),0 0 24px var(--accent-glow);animation:tileIn .6s var(--ease) both}
+        #install-pill button{border:0;cursor:pointer;font:inherit}
+        #ip-go{padding:9px 16px;border-radius:999px;background:var(--accent);color:#04121f;font-weight:800;font-size:.82rem}
+        #ip-x{background:none;color:var(--text-muted);padding:6px 10px;font-size:.9rem}
+        .shop-card.owned{border-color:rgba(167,139,250,.6)}.shop-card.owned .shop-btn{background:transparent!important;border:2px solid #8b5cf6!important}
+        @media (display-mode: standalone){body{padding-top:env(safe-area-inset-top)}}
+
+        /* ===== v2 lesson editor ===== */
+        .le-card{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:18px;background:var(--glass);border:1px solid var(--border-glow);animation:tileIn .5s var(--ease) both}
+        .le-card.done{border-color:rgba(74,222,128,.5)}
+        .le-info{flex:1;display:flex;flex-direction:column;gap:3px}.le-info b{font-size:.95rem}.le-info small{font-size:.72rem;color:var(--text-muted)}
+        .le-play{width:48px!important;padding:.7rem!important;margin:0!important;flex:none}
+        .le-x{background:none;border:0;font-size:1.1rem;cursor:pointer;padding:6px;border-radius:10px}.le-x:hover{background:rgba(248,113,113,.15)}
+        .le-qh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;color:var(--accent)}
+        .le-q input[type=text],.le-q>input{margin-bottom:8px}
+        .le-opt{display:flex;align-items:center;gap:10px;margin:0 0 8px;text-transform:none}
+        .le-opt input[type=radio]{width:22px;height:22px;margin:0;padding:0;flex:none;accent-color:#4ade80}
+        .le-opt input[type=text]{margin:0;flex:1}
+
+        /* ===== v2 academy overview ===== */
+        .ad-bars{display:flex;align-items:flex-end;gap:8px;height:130px;padding-top:6px}
+        .ad-col{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px}
+        .ad-col i{display:block;width:100%;max-width:38px;min-height:3px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,#38bdf8,#0369a1);transition:height .8s var(--ease)}
+        .ad-col span{font-size:.72rem;font-weight:800}.ad-col small{font-size:.62rem;color:var(--text-muted)}
+
+        /* ===== v2 announcements ===== */
+        .announce-card{padding:14px 16px;margin-bottom:1.2rem;border-radius:18px;background:linear-gradient(135deg,rgba(251,191,36,.16),rgba(15,23,42,.9));border:1px solid rgba(251,191,36,.5);box-shadow:0 8px 24px rgba(0,0,0,.3),0 0 22px rgba(251,191,36,.12);animation:tileIn .6s var(--ease) both}
+        .an-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.an-head b{font-size:.8rem;letter-spacing:.06em;color:var(--gold)}
+        .an-head button{background:none;border:0;color:var(--text-muted);font-size:1rem;cursor:pointer;padding:2px 6px}
+        .announce-card p{margin:8px 0 6px;font-size:.95rem;line-height:1.55;font-weight:600}.announce-card small{font-size:.7rem;color:var(--text-muted)}
+        @media(prefers-reduced-motion:reduce){.announce-card{animation:none}}
+
+        /* ===== v2 streak rescue ===== */
+        .streak-card{display:flex;align-items:center;gap:14px;padding:12px 16px;margin-bottom:1.2rem;border-radius:18px;background:linear-gradient(135deg,rgba(251,146,60,.2),rgba(15,23,42,.92));border:1px solid rgba(251,146,60,.55);box-shadow:0 8px 24px rgba(0,0,0,.3);animation:tileIn .6s var(--ease) both}
+        .streak-card.urgent{border-color:#f87171;animation:tileIn .6s var(--ease) both,urgentPulse 2.2s ease-in-out 1s infinite}
+        @keyframes urgentPulse{50%{box-shadow:0 8px 24px rgba(0,0,0,.3),0 0 26px rgba(248,113,113,.45)}}
+        .sc-flame{font-size:2rem;animation:tileFloat 1.8s ease-in-out infinite}
+        .sc-txt{flex:1;display:flex;flex-direction:column;gap:3px}.sc-txt b{font-size:.92rem;line-height:1.3}.sc-txt small{font-size:.72rem;color:var(--text-muted);font-weight:700}
+        .sc-go{width:auto!important;margin:0!important;padding:.7rem 1.1rem!important;flex:none;background:#fb923c!important;color:#431407!important;font-size:.82rem!important}
+        @media(max-width:420px){.streak-card{flex-wrap:wrap}.sc-go{width:100%!important}}
+        @media(prefers-reduced-motion:reduce){.streak-card,.sc-flame,.streak-card.urgent{animation:none}}
+
+        /* ===== v2 listening lab ===== */
+        .ls-wave{display:flex;justify-content:center;align-items:center;gap:5px;height:56px;margin:14px 0}
+        .ls-wave i{display:block;width:6px;height:12px;border-radius:4px;background:linear-gradient(180deg,#38bdf8,#4ade80);opacity:.5;transition:opacity .3s}
+        .ls-wave.on i{opacity:1;animation:lsBar .9s ease-in-out infinite}
+        .ls-wave.on i:nth-child(2){animation-delay:.1s}.ls-wave.on i:nth-child(3){animation-delay:.25s}.ls-wave.on i:nth-child(4){animation-delay:.05s}.ls-wave.on i:nth-child(5){animation-delay:.3s}.ls-wave.on i:nth-child(6){animation-delay:.15s}.ls-wave.on i:nth-child(7){animation-delay:.2s}
+        @keyframes lsBar{0%,100%{height:10px}50%{height:50px}}
+        .ls-text{margin-top:12px;padding:14px;border-radius:14px;background:rgba(2,6,23,.55);font-size:.92rem;line-height:1.7;text-align:left}
+        @media(prefers-reduced-motion:reduce){.ls-wave.on i{animation:none;height:30px}}
+
+        /* ===== v2 class league ===== */
+        .lg-podium{display:flex;justify-content:center;align-items:flex-end;gap:10px;padding:8px 0 0}
+        .lg-pod{flex:1;max-width:130px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;animation:tileIn .6s var(--ease) both}
+        .lg-pod b{font-size:.85rem}.lg-pod small{font-size:.72rem;color:var(--gold);font-weight:800}.lg-medal{font-size:2rem}
+        .lg-pod i{display:block;width:100%;border-radius:12px 12px 0 0;background:linear-gradient(180deg,rgba(251,191,36,.35),rgba(251,191,36,.05));border:1px solid rgba(251,191,36,.4);border-bottom:0;margin-top:6px}
+        .lg-pod.p1 i{height:78px}.lg-pod.p2 i{height:56px}.lg-pod.p3 i{height:40px}
+        .lg-pod.p2{animation-delay:.12s}.lg-pod.p3{animation-delay:.24s}
+        .lg-me{background:rgba(56,189,248,.1)}
+        @media(prefers-reduced-motion:reduce){.lg-pod{animation:none}}
+        /* Teacher Copilot */
+        #copilot{position:fixed;right:20px;bottom:24px;width:min(360px,calc(100% - 32px));z-index:5500;padding:16px 18px 14px;border-radius:20px;background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(11,15,25,.96));border:1px solid var(--border-glow);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 34px var(--accent-glow);color:var(--text-main);transform:translateY(140%);opacity:0;transition:transform .55s cubic-bezier(.2,.9,.25,1.1),opacity .4s}
+        #copilot.show{transform:none;opacity:1}
+        #copilot .cp-head{display:flex;align-items:center;gap:8px;font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+        #copilot .cp-time{margin-inline-start:auto;color:var(--gold);letter-spacing:.04em}
+        #copilot .cp-x{background:none;border:0;color:var(--text-muted);font-size:1.1rem;cursor:pointer;padding:0 2px}
+        #copilot h4{margin:10px 0 4px;font-size:1rem;font-weight:800}
+        #copilot p{font-size:.86rem;line-height:1.5;color:var(--text-muted);animation:cpIn .5s both}
+        @keyframes cpIn{from{opacity:0;transform:translateY(8px)}}
+        #copilot .cp-foot{display:flex;align-items:center;gap:6px;margin-top:12px}
+        #copilot .cp-dot{width:7px;height:7px;border-radius:50%;background:rgba(148,163,184,.35);transition:all .3s}
+        #copilot .cp-dot.on{width:20px;border-radius:6px;background:var(--accent);box-shadow:0 0 10px var(--accent-glow)}
+        #copilot .cp-next{margin-inline-start:auto;background:var(--accent);color:#04121f;border:0;border-radius:999px;padding:7px 16px;font-weight:800;font-size:.8rem;cursor:pointer}
+        @media(max-width:600px){#copilot{right:16px;left:16px;width:auto;bottom:16px}}
+        @media(prefers-reduced-motion:reduce){#copilot,#copilot p{transition:none;animation:none}}
     </style>
 </head>
 <body>
     <div id="toast" class="toast-popup">Notification</div>
+    <div id="install-pill" style="display:none"><button id="ip-go">📲 Install app</button><button id="ip-x" aria-label="Dismiss">✕</button></div>
+    <div id="copilot" role="dialog" aria-live="polite"></div>
 
     <!-- CUSTOM EXAM DELETE CONFIRMATION MODAL -->
     <div id="custom-confirm-modal" style="position:fixed; inset:0; background:rgba(2,6,23,0.92); display:none; justify-content:center; align-items:center; z-index:9999; backdrop-filter:blur(12px);">
@@ -204,6 +452,7 @@
 
         <!-- LOGIN SCREEN -->
         <div id="screen-login">
+            <div class="auth-hero"><span>✈️</span></div>
             <h2 id="tr-login-title">Cabin Crew Portal</h2>
             <p class="sub-desc" id="tr-login-sub">Access accredited EASA/ICAO curriculum & live groups.</p>
             
@@ -223,6 +472,7 @@
 
         <!-- REGISTER SCREEN -->
         <div id="screen-register" class="hidden">
+            <div class="auth-hero"><span>🛫</span></div>
             <h2 id="tr-reg-title">Cadet & Instructor Enrollment</h2>
             <p class="sub-desc" id="tr-reg-sub">Register your profile, choose your role, and design your avatar.</p>
             
@@ -232,9 +482,11 @@
             <select id="reg-role" onchange="window.toggleTeacherCodeContainer()">
                 <option value="student" id="tr-opt-cadet">🎓 Cadet / Student</option>
                 <option value="teacher" id="tr-opt-teacher">👨‍🏫 Instructor / Teacher</option>
+                <option value="admin">🏫 Academy Director</option>
             </select>
 
             <div id="teacher-code-box" class="hidden" style="background: rgba(56, 189, 248, 0.08); padding: 12px; border-radius: 14px; border: 1px dashed var(--accent); margin-bottom: 1.1rem;">
+                <p class="teacher-hint" id="teacher-hint"></p>
                 <label style="color: var(--accent);" id="tr-lbl-teacher-code">🔒 Teacher Verification Code</label>
                 <input type="password" id="reg-teacher-code" placeholder="Enter teacher code" style="letter-spacing: 2px; text-align: center; margin-bottom:0;" />
             </div>
@@ -250,6 +502,7 @@
             
             <label id="tr-reg-pass-lbl">Password</label>
             <input type="password" id="reg-pass" placeholder="Secure password" />
+            <div class="pw-meter"><i id="pw-meter-bar"></i></div><small class="pw-hint" id="pw-hint"></small>
 
             <label id="tr-reg-pin-lbl">Recovery PIN (4 digits)</label>
             <input type="password" id="reg-pin" placeholder="PIN" maxlength="4" />
@@ -271,6 +524,7 @@
 
         <!-- RESET SCREEN -->
         <div id="screen-reset" class="hidden">
+            <div class="auth-hero"><span>🔑</span></div>
             <h2 id="tr-reset-title">Recovery PIN Reset</h2>
             <p class="sub-desc" id="tr-reset-sub">Enter your phone and secret recovery PIN.</p>
             <label id="tr-reset-phone-lbl">Phone Number</label>
@@ -300,6 +554,20 @@
                         <span id="dash-active-skin-icon" style="font-size: 1.1rem;">🧯</span>
                     </div>
                 </div>
+            </div>
+
+            <div class="announce-card" id="announce-card" style="display:none"><div class="an-head"><b id="an-title">📣 Message from your teacher</b><button id="an-x" aria-label="Dismiss">✕</button></div><p id="an-text" dir="auto"></p><small id="an-meta"></small></div>
+
+            <div class="streak-card" id="streak-card" style="display:none">
+                <span class="sc-flame" id="sc-flame">🔥</span>
+                <div class="sc-txt"><b id="sc-title"></b><small id="sc-sub"></small></div>
+                <button class="btn-action sc-go" id="sc-go" onclick="window.launchRoadmap('year1')"></button>
+            </div>
+
+            <div class="goal-card" id="goal-card" style="display:none">
+                <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><circle cx="32" cy="32" r="26" class="gr-bg"/><circle cx="32" cy="32" r="26" class="gr-fg" id="goal-fg"/></svg>
+                <div class="goal-txt"><b id="goal-title">Daily goal</b><small id="goal-sub">0 / 50 XP</small></div>
+                <span class="goal-flame" id="goal-flame">🎯</span>
             </div>
 
             <div class="mode-grid">
@@ -334,6 +602,26 @@
                 <div class="mode-tile" onclick="window.openSocialHub()">
                     <span style="font-size: 1.5rem;">💬</span>
                     <h4 id="tr-tile-social">Friends, Private Chat & Groups</h4>
+                </div>
+                <div class="mode-tile" id="tile-insights" style="display:none; grid-column:1 / -1;" onclick="window.openClassInsights()">
+                    <span style="font-size: 1.5rem;">📊</span>
+                    <h4>Class Insights (Teacher Dashboard)</h4>
+                </div>
+                <div class="mode-tile" id="tile-admin" style="display:none; grid-column:1 / -1;" onclick="window.openAcademyOverview()">
+                    <span style="font-size: 1.5rem;">🏫</span>
+                    <h4>Academy Overview (Director)</h4>
+                </div>
+                <div class="mode-tile" id="tile-league" style="grid-column:1 / -1;" onclick="window.openClassLeague()">
+                    <span style="font-size: 1.5rem;">🏆</span>
+                    <h4>Class League (this week)</h4>
+                </div>
+                <div class="mode-tile" id="tile-listen" style="grid-column:1 / -1;" onclick="window.openListeningLab()">
+                    <span style="font-size: 1.5rem;">🎧</span>
+                    <h4>Cabin Announcements (Listening Lab)</h4>
+                </div>
+                <div class="mode-tile" id="tile-lessons" style="grid-column:1 / -1;" onclick="window.openClassLessons()">
+                    <span style="font-size: 1.5rem;">📚</span>
+                    <h4>Class Lessons (made by your teacher)</h4>
                 </div>
                 <div class="mode-tile" onclick="window.openFlightLogbookModal()" style="grid-column: span 2; background: linear-gradient(135deg, rgba(3, 105, 161, 0.85), rgba(2, 6, 23, 0.95));">
                     <span style="font-size: 1.8rem;">📖✈️</span>
@@ -411,6 +699,7 @@
             <input type="password" id="set-pin" placeholder="Recovery PIN (4 digits)" maxlength="4" />
             <input type="password" id="set-new-pass" placeholder="New Password" />
             <button class="btn-action" onclick="window.submitPasswordChangeModal()" style="background:var(--warning); color:var(--bg-deep);" id="tr-update-pass-btn">Update Password 🔒</button>
+            <button class="btn-action" onclick="window.copyDiagnostics()" style="background:transparent; border:1px solid var(--border-glow); color:var(--text-muted); font-size:0.8rem;">🩺 Copy diagnostics (for support)</button>
         </div>
     </div>
 
@@ -428,6 +717,24 @@
     </div>
 
     <script>
+/* v2 security: attach the login token to every API call */
+(function() {
+    const rawFetch = window.fetch.bind(window);
+    window.fetch = async function(u, o) {
+        o = o || {};
+        const url = typeof u === 'string' ? u : ((u && u.url) || '');
+        const api = url.startsWith('/api/');
+        if(api) { const t = localStorage.getItem('aero_token'); if(t) o.headers = Object.assign({}, o.headers || {}, { 'Authorization': 'Bearer ' + t }); }
+        const r = await rawFetch(u, o);
+        if(api && !r.ok) { const L = (window.__aeroLog = window.__aeroLog || []); L.push(new Date().toISOString().slice(11, 19) + ' API ' + r.status + ' ' + url.split('?')[0]); if(L.length > 40) L.shift(); }
+        if(api && r.ok && /^\/api\/(login|register)/.test(url)) r.clone().json().then(d => { if(d && d.token) localStorage.setItem('aero_token', d.token); }).catch(() => {});
+        if(api && r.status === 401 && !/^\/api\/(login|register|user\/password-change)/.test(url) && localStorage.getItem('aero_crew_user_pro22')) {
+            localStorage.removeItem('aero_token'); localStorage.removeItem('aero_crew_user_pro22');
+            setTimeout(() => location.reload(), 600);
+        }
+        return r;
+    };
+})();
         let sessionUser = JSON.parse(localStorage.getItem('aero_crew_user_pro22') || 'null');
         let groupInfo = { group: null, members: [], lessons: [], exams: [], submissions: [] };
         let socialData = { friends: [], incoming_requests: [], friend_groups: [] };
@@ -748,8 +1055,11 @@
             const roleEl = document.getElementById('reg-role');
             const box = document.getElementById('teacher-code-box');
             if(!roleEl || !box) return;
-            if(roleEl.value === 'teacher') {
+            if(roleEl.value === 'teacher' || roleEl.value === 'admin') {
                 box.classList.remove('hidden');
+                const H = { en: 'Enter the academy director code.', fr: 'Saisissez le code de direction de l\'académie.', ar: 'أدخل رمز مدير الأكاديمية.' };
+                if(roleEl.value === 'admin') document.getElementById('teacher-hint').textContent = H[(typeof activeLang !== 'undefined' && H[activeLang]) ? activeLang : 'en'];
+                else if(window.syncAuthUI) window.syncAuthUI();
             } else {
                 box.classList.add('hidden');
                 document.getElementById('reg-teacher-code').value = '';
@@ -872,9 +1182,15 @@
             const skinEmoji = skinEmojiMap[activeSkin] || '🧯';
             document.getElementById('dash-active-skin-icon').innerText = skinEmoji;
 
-            const roleText = sessionUser.role === 'teacher' ? 'Instructor / Teacher' : 'Cadet / Student';
+            const roleText = sessionUser.role === 'admin' ? 'Academy Director' : sessionUser.role === 'teacher' ? 'Instructor / Teacher' : 'Cadet / Student';
             document.getElementById('dash-role-badge').innerText = roleText;
             document.getElementById('settings-my-username').innerText = '@' + sessionUser.username;
+            showTeacherCopilot();
+            renderDailyGoal();
+            renderStreakRescue();
+            loadAnnouncement();
+            const isAdm = sessionUser.role === 'admin';
+            document.querySelectorAll('.mode-grid > .mode-tile').forEach(t => { t.style.display = t.id === 'tile-admin' ? (isAdm ? '' : 'none') : isAdm ? 'none' : (t.id === 'tile-insights' ? (sessionUser.role === 'teacher' ? '' : 'none') : ''); });
         }
 
         function logoutUser() {
@@ -1368,35 +1684,31 @@
 
             const activeSkinEmoji = skinEmojiMap[sessionUser.active_skin || 'Cabin Fire Extinguisher'] || '🧯';
 
+            const lockedY2 = poolKey === 'year2' && parseInt(localStorage.getItem('aero_progress_' + sessionUser.username + '_year1') || '1') <= 100;
+            if(!lockedY2) currentUnlocked = window.roadmapUnlocked(poolKey);
+            const done = lockedY2 ? 0 : Math.min(totalNodes, Math.max(0, currentUnlocked - 1));
             let nodesHtml = '';
             for(let i = 1; i <= totalNodes; i++) {
-                let statusClass = 'locked';
-                let icon = '🔒';
-                if(poolKey === 'year2' && parseInt(localStorage.getItem('aero_progress_' + sessionUser.username + '_year1') || '1') <= 100) {
-                    statusClass = 'locked';
-                    icon = '🔒';
-                } else if(i < currentUnlocked) { 
-                    statusClass = 'completed'; 
-                    icon = '⭐'; 
-                } else if(i === currentUnlocked) { 
-                    statusClass = 'active'; 
-                    icon = poolKey === 'vocab' ? '🎙' : '✈'; 
+                let st = 'locked', icon = '🔒';
+                if(!lockedY2) {
+                    if(i < currentUnlocked) { st = 'completed'; icon = '⭐'; }
+                    else if(i === currentUnlocked) { st = 'active'; icon = poolKey === 'vocab' ? '🎙' : '✈'; }
                 }
-
-                let mascotHtml = '';
-                if(i === currentUnlocked) {
-                    mascotHtml = `<div class="floating-roadmap-skin" style="top: -38px; right: -28px;">${activeSkinEmoji}</div>`;
+                if((i - 1) % 10 === 0) {
+                    const u = (i - 1) / 10 + 1, d = Math.max(0, Math.min(10, done - (u - 1) * 10));
+                    nodesHtml += `<div class="unit-banner"><b>UNIT ${u}</b><span>${d}/10</span></div>`;
                 }
-
+                const off = Math.round(Math.sin(i * 0.85) * 58);
+                const extra = (st === 'active') ? `<div class="floating-roadmap-skin" style="top: -38px; right: -28px;">${activeSkinEmoji}</div><div class="start-bubble">START</div>` : '';
+                const click = st === 'locked' ? '' : `onclick="window.triggerCinematicIntro(() => window.startRoadmapLesson('${poolKey}', ${i}, ${totalNodes}))"`;
                 nodesHtml += `
-                    <div class="duo-node-wrapper">
-                        <div class="duo-node ${statusClass}" onclick="window.triggerCinematicIntro(() => window.startRoadmapLesson('${poolKey}', ${i}, ${totalNodes}))">
+                    <div class="duo-node-wrapper" style="--o:${off}px">
+                        <div class="duo-node ${st}" ${click}>
                             <span style="font-size:1.4rem;">${icon}</span>
                             <span style="font-size:0.65rem; font-weight:800; margin-top:2px;">#${i}</span>
-                            ${mascotHtml}
+                            ${extra}
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }
 
             container.innerHTML = `
@@ -1405,16 +1717,27 @@
                     <h3 style="font-size:1.1rem; color:var(--accent); font-weight:900;">🗺️ ${title}</h3>
                     <div style="width:85px;"></div>
                 </div>
+                <div class="path-progress"><i style="width:${Math.round(done / totalNodes * 100)}%"></i><span>${done} / ${totalNodes}</span></div>
                 <div class="duo-path-container">
                     ${nodesHtml}
                 </div>
             `;
+            setTimeout(() => { const a = container.querySelector('.duo-node.active'); if(a) a.scrollIntoView({block: 'center', behavior: 'smooth'}); }, 250);
         }
+        function roadmapUnlocked(pk) {
+            const u = sessionUser || {};
+            const loc = parseInt(localStorage.getItem('aero_progress_' + (u.username || 'guest') + '_' + pk) || '1');
+            let max = 0;
+            (u.completed_nodes || []).forEach(n => { const m = String(n).match(new RegExp('^' + pk + '_(\\d+)$')); if(m) max = Math.max(max, +m[1]); });
+            return Math.max(loc, max + 1);
+        }
+        window.roadmapUnlocked = roadmapUnlocked;
         window.renderDuoRoadmap = renderDuoRoadmap;
         window.triggerCinematicIntro = triggerCinematicIntro;
 
         function startRoadmapLesson(poolKey, nodeNum, totalNodes) {
             playSound('click');
+            if(nodeNum > window.roadmapUnlocked(poolKey)) { showToast('🔒 Finish the previous node first!', true); return; }
             if(poolKey === 'year2') {
                 const y1Prog = parseInt(localStorage.getItem('aero_progress_' + sessionUser.username + '_year1') || '1');
                 if(y1Prog <= 100) {
@@ -1442,30 +1765,47 @@
 
             if(session.currentIdx >= session.questions.length) {
                 const progressKey = 'aero_progress_' + (sessionUser ? sessionUser.username : 'guest') + '_' + session.poolKey;
-                let currentUnlocked = parseInt(localStorage.getItem(progressKey) || '1');
-                if(session.nodeNum === currentUnlocked) {
+                if(session.nodeNum >= window.roadmapUnlocked(session.poolKey)) {
                     localStorage.setItem(progressKey, String(session.nodeNum + 1));
                 }
                 if(sessionUser) {
                     sessionUser.xp_points = (sessionUser.xp_points || 0) + 50;
+                    sessionUser.last_practice_date = new Date().toISOString().split('T')[0];
                     localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                     updateDashboardUI();
+                    if(sessionUser.phone_number) {
+                        fetch('/api/node/complete', {method: 'POST', headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: session.poolKey + '_' + session.nodeNum })})
+                        .then(r => r.ok ? r.json() : null).then(d => {
+                            if(!d) return;
+                            sessionUser.completed_nodes = d.completed_nodes; sessionUser.xp_points = d.xp; sessionUser.streak = d.streak; sessionUser.flight_hours = d.flight_hours; sessionUser.last_practice_date = new Date().toISOString().split('T')[0];
+                            localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                            updateDashboardUI();
+                        }).catch(() => {});
+                    }
                 }
 
                 const box = document.getElementById('simulation-box');
+                const total = session.questions.length, acc = Math.round((session.correct || 0) / total * 100);
+                const nextTitle = session.poolKey === 'vocab' ? 'English Vocabulary to Arabic (5k)' : session.poolKey === 'english' ? 'Aviation English & ICAO Mastery' : 'First Year Path (100 Nodes)';
                 box.innerHTML = `
-                    <div class="feature-topbar">
-                        <button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
-                        <h3 style="font-size:1.1rem; color:var(--gold); font-weight:900;">🏆 Module Completed!</h3>
-                        <div style="width:85px;"></div>
-                    </div>
-                    <div style="text-align:center; padding: 2rem 1rem;">
-                        <div style="font-size:4.5rem; margin-bottom:1rem;">🏆</div>
-                        <h2 style="color:var(--gold); font-size:1.5rem; font-weight:900; margin-bottom:0.5rem;">Node #${session.nodeNum} Conquered!</h2>
-                        <p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:2rem;">Earned +50 XP Stars ⭐. Ready for the next aviation milestone?</p>
-                        <button class="btn-action" onclick="window.renderDuoRoadmap(document.getElementById('simulation-box'), '${session.poolKey === 'vocab' ? 'English Vocabulary to Arabic (5k)' : session.poolKey === 'english' ? 'Aviation English & ICAO Mastery' : 'First Year Path (100 Nodes)'}', '${session.poolKey}', ${session.totalNodes})" style="max-width:280px; margin:0 auto; background:var(--success); color:white; padding:1.1rem;">Continue Roadmap ✈</button>
-                    </div>
-                `;
+                    <div class="done-wrap">
+                        <div class="confetti" id="confetti"></div>
+                        <div class="done-trophy">🏆</div>
+                        <h2 class="done-title">Node #${session.nodeNum} conquered!</h2>
+                        <div class="done-stats">
+                            <div><b id="xp-count">0</b><small>XP</small></div>
+                            <div><b>${acc}%</b><small>ACCURACY</small></div>
+                            <div><b>🔥 ${sessionUser ? (sessionUser.streak || 0) : 0}</b><small>STREAK</small></div>
+                        </div>
+                        <button class="btn-action" id="done-continue" style="max-width:300px; margin:1.6rem auto 0; background:var(--success); color:white; padding:1.1rem;">Continue Roadmap ✈</button>
+                    </div>`;
+                document.getElementById('done-continue').onclick = String(session.poolKey).startsWith('ls') ? () => window.openListeningLab() : String(session.poolKey).startsWith('cl') ? () => window.openClassLessons() : () => window.renderDuoRoadmap(document.getElementById('simulation-box'), nextTitle, session.poolKey, session.totalNodes);
+                playSound('success');
+                const cf = document.getElementById('confetti'), cols = ['#38bdf8', '#fbbf24', '#4ade80', '#f472b6', '#a78bfa'];
+                for(let i = 0; i < 48; i++) { const p = document.createElement('i'); p.style.cssText = `left:${Math.random() * 100}%;background:${cols[i % 5]};animation-delay:${Math.random() * .8}s;animation-duration:${2 + Math.random() * 1.6}s`; cf.appendChild(p); }
+                const t0 = performance.now(), xe = document.getElementById('xp-count');
+                (function tick(t) { const p = Math.min(1, (t - t0) / 1100); xe.textContent = '+' + Math.round(50 * p); if(p < 1) requestAnimationFrame(tick); })(t0);
                 return;
             }
 
@@ -1488,52 +1828,70 @@
                     </div>
                 `;
             } else {
+                if(sessionUser && sessionUser.hearts <= 0) {
+                    box.innerHTML = `
+                        <div class="lesson-top"><button class="lesson-x" onclick="window.resetToMenu()" aria-label="Exit">✕</button><div class="lesson-bar"><i style="width:0"></i></div><div class="lesson-hearts">❤ 0</div></div>
+                        <div class="lesson-wrap" style="text-align:center;padding-top:2.5rem;">
+                            <div style="font-size:4rem">💔</div>
+                            <h3 class="lesson-q" style="margin-top:1rem">Out of hearts</h3>
+                            <p style="color:var(--text-muted);margin-bottom:1.4rem">Recover your hearts to keep flying.</p>
+                            <button class="btn-action" onclick="openHeartRecoveryLounge()" style="max-width:280px;margin:0 auto;background:var(--accent);color:var(--bg-deep);padding:1.1rem">Recover hearts ❤</button>
+                        </div>`;
+                    return;
+                }
+                const pct = Math.round(session.currentIdx / session.questions.length * 100);
                 box.innerHTML = `
-                    <div class="feature-topbar">
-                        <button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Exit</button>
-                        <h3 style="font-size:1rem; color:var(--warning); font-weight:900;">Question ${session.currentIdx + 1} / ${session.questions.length}</h3>
-                        <div style="width:85px;"></div>
+                    <div class="lesson-top">
+                        <button class="lesson-x" onclick="window.resetToMenu()" aria-label="Exit">✕</button>
+                        <div class="lesson-bar"><i style="width:${pct}%"></i></div>
+                        <div class="lesson-hearts" id="lesson-hearts">❤ ${sessionUser ? sessionUser.hearts : 5}</div>
                     </div>
-                    <div style="max-width:500px; width:100%; margin:0 auto; padding-top:1rem;">
-                        <b style="color:white; font-size:1.05rem; display:block; margin-bottom:1.5rem; line-height:1.6;" id="current-q-text">${q.q}</b>
-                        <div style="display:flex; flex-direction:column; gap:12px;">
-                            ${q.options.map((opt, idx) => `
-                                <button class="btn-action" onclick="window.handleRoadmapAnswerGlobal(${idx === q.correct}, '${q.q.replace(/'/g, "\\'")}', '${opt.replace(/'/g, "\\'")}', '${q.options[q.correct].replace(/'/g, "\\'")}')" style="background:var(--surface-card); color:white; border:1px solid var(--border-glow); text-align:left; padding:14px 18px; font-size:0.95rem; margin-top:0;">${String.fromCharCode(65+idx)}) ${opt}</button>
-                            `).join('')}
+                    <div class="lesson-wrap">
+                        <span class="lesson-chip">QUESTION ${session.currentIdx + 1} / ${session.questions.length}</span>
+                        <h3 class="lesson-q" id="current-q-text" dir="auto"></h3>
+                        <div class="lesson-opts">
+                            ${q.options.map((o, idx) => `<button class="lesson-opt" onclick="window.answerRoadmapChoice(${idx})"><span class="lo-k">${String.fromCharCode(65 + idx)}</span><span class="lo-t" dir="auto"></span></button>`).join('')}
                         </div>
                     </div>
-                `;
+                    <div class="lesson-feedback" id="lesson-feedback"></div>`;
+                box.querySelector('#current-q-text').textContent = q.q;
+                box.querySelectorAll('.lo-t').forEach((el, i) => { el.textContent = q.options[i]; });
             }
         }
         window.renderRoadmapStep = renderRoadmapStep;
 
-        async function handleRoadmapAnswerGlobal(isCorrect, questionText, chosenAnswer, correctAns) {
-            if(isCorrect) {
-                playSound('success');
-                showToast('Correct! ⭐');
-            } else {
+        function answerRoadmapChoice(idx) {
+            const s = window.currentRoadmapSession;
+            if(!s || s.locked) return;
+            s.locked = true;
+            const q = s.questions[s.currentIdx], ok = idx === q.correct, box = document.getElementById('simulation-box');
+            box.querySelectorAll('.lesson-opt').forEach((b, i) => { b.disabled = true; if(i === q.correct) b.classList.add('right'); else if(i === idx) b.classList.add('wrong'); });
+            if(ok) { s.correct = (s.correct || 0) + 1; playSound('success'); }
+            else {
                 playSound('error');
                 if(sessionUser && sessionUser.hearts > 0) {
                     sessionUser.hearts--;
                     localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                     updateDashboardUI();
+                    const hh = box.querySelector('#lesson-hearts');
+                    if(hh) { hh.textContent = '❤ ' + sessionUser.hearts; hh.classList.add('break'); }
                 }
-                showToast('Incorrect! Heart lost ❤', true);
-
                 if(sessionUser && sessionUser.username) {
-                    await fetch('/api/student/log-mistake', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ username: sessionUser.username, question_text: questionText, incorrect_answer: chosenAnswer, correct_answer: correctAns })
-                    }).catch(e => {});
+                    fetch('/api/student/log-mistake', { method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ username: sessionUser.username, question_text: q.q, incorrect_answer: q.options[idx], correct_answer: q.options[q.correct] }) }).catch(() => {});
                 }
             }
-            setTimeout(() => {
-                window.currentRoadmapSession.currentIdx++;
-                renderRoadmapStep();
-            }, 900);
+            const fb = box.querySelector('#lesson-feedback'), praise = ['Correct!', 'Great job!', 'Well done!', 'Perfect!'];
+            fb.className = 'lesson-feedback show ' + (ok ? 'good' : 'bad');
+            fb.innerHTML = '<div class="lf-msg"><b></b><span dir="auto"></span></div><button class="btn-action lf-btn"></button>';
+            fb.querySelector('b').textContent = ok ? praise[Math.floor(Math.random() * praise.length)] : 'Correct answer:';
+            fb.querySelector('span').textContent = ok ? '' : q.options[q.correct];
+            const btn = fb.querySelector('button');
+            btn.textContent = s.currentIdx + 1 >= s.questions.length ? 'Finish' : 'Continue';
+            btn.onclick = () => { playSound('click'); s.locked = false; s.currentIdx++; renderRoadmapStep(); };
+            btn.focus();
         }
-        window.handleRoadmapAnswerGlobal = handleRoadmapAnswerGlobal;
+        window.answerRoadmapChoice = answerRoadmapChoice;
 
         function checkSpokenWordMatch(spoken, target) {
             const s = spoken.toLowerCase().trim();
@@ -2270,7 +2628,7 @@
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="window.openStudyHub()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
-                    <h3 style="font-size:1.1rem; color:var(--warning); font-weight:900;">⏱️ ${exam.title}</h3>
+                    <h3 style="font-size:1.1rem; color:var(--warning); font-weight:900;">⏱️ ${escH(exam.title)}</h3>
                     <span style="font-size:0.75rem; color:var(--accent);">By @${exam.teacher_username || 'teacher'}</span>
                 </div>
                 <div style="max-width:520px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
@@ -2279,8 +2637,8 @@
                             if(q.type === 'true_false') {
                                 return `
                                     <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${q.question}</label>
-                                        <select class="exam-answer-input" data-correct="${q.correct}" style="margin-bottom:0;">
+                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${escH(q.question)}</label>
+                                        <select class="exam-answer-input" style="margin-bottom:0;">
                                             <option value="">Select True / False...</option>
                                             <option value="True">True</option>
                                             <option value="False">False</option>
@@ -2290,8 +2648,8 @@
                             } else {
                                 return `
                                     <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${q.question}</label>
-                                        <input type="text" class="exam-answer-input" data-correct="${q.correct}" placeholder="Your answer..." style="margin-bottom:0;" />
+                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${escH(q.question)}</label>
+                                        <input type="text" class="exam-answer-input" placeholder="Your answer..." style="margin-bottom:0;" />
                                     </div>
                                 `;
                             }
@@ -2304,20 +2662,15 @@
         window.takeExam = takeExam;
 
         async function submitActiveExam(examId, totalQ) {
-            let score = 0;
-            document.querySelectorAll('.exam-answer-input').forEach(inp => {
-                const userAns = inp.value.trim().toLowerCase();
-                const correctAns = inp.getAttribute('data-correct').trim().toLowerCase();
-                if(userAns === correctAns || (userAns.length >= 3 && correctAns.includes(userAns))) score++;
-            });
+            const answers = Array.from(document.querySelectorAll('.exam-answer-input')).map(inp => inp.value.trim());
             const res = await fetch('/api/exam/submit-fuzzy', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ exam_id: examId, student_username: sessionUser.username, student_name: sessionUser.full_name, score, total_questions: totalQ, time_spent_seconds: 30 })
+                body: JSON.stringify({ exam_id: examId, student_username: sessionUser.username, student_name: sessionUser.full_name, answers, time_spent_seconds: 30 })
             });
             const data = await res.json();
             if(res.ok) {
-                showToast(`Exam submitted! Score: ${score}/${totalQ}. +100 XP ⭐`);
+                showToast(`Exam submitted! Score: ${data.score !== undefined ? data.score + '/' + totalQ : 'recorded'}. +100 XP ⭐`);
                 openStudyHub();
             } else {
                 showToast(data.detail || 'Submission failed', true);
@@ -2663,97 +3016,98 @@
         }
         window.respondBattleInvite = respondBattleInvite;
 
+        let battlePoll = null;
+        function stopBattlePoll() { if(battlePoll) { clearInterval(battlePoll); battlePoll = null; } }
+        function closeBattleArena() { stopBattlePoll(); activeMatchId = null; document.getElementById('battle-arena-modal').style.display = 'none'; }
+        window.closeBattleArena = closeBattleArena;
+
         function start1v1BattleWithQuestions(questions, matchId) {
-            battleQuestions = questions;
-            battleCurrentIdx = 0;
-            battleScore = 0;
-            activeMatchId = matchId;
+            battleQuestions = questions; battleCurrentIdx = 0; battleScore = 0; activeMatchId = matchId; window.battleOppAnswered = 0;
             document.getElementById('battle-arena-modal').style.display = 'flex';
+            stopBattlePoll();
+            battlePoll = setInterval(async () => {
+                try {
+                    const r = await fetch('/api/battle/status?match_id=' + encodeURIComponent(matchId));
+                    if(!r.ok) return;
+                    const d = await r.json();
+                    window.battleOppAnswered = d.opponent_answered;
+                    const el = document.getElementById('bt-opp');
+                    if(el) el.style.width = Math.round(d.opponent_answered / battleQuestions.length * 100) + '%';
+                    if(d.status === 'canceled') { closeBattleArena(); showToast('The opponent left the battle.', true); }
+                } catch(e) {}
+            }, 2000);
             renderBattleQuestionModal();
         }
 
         function renderBattleQuestionModal() {
-            if(battleCurrentIdx >= battleQuestions.length) {
-                finish1v1BattleModal();
-                return;
-            }
-
-            const qObj = battleQuestions[battleCurrentIdx];
+            if(battleCurrentIdx >= battleQuestions.length) { finish1v1BattleModal(); return; }
+            const q = battleQuestions[battleCurrentIdx], n = battleQuestions.length;
             const contentEl = document.getElementById('battle-modal-content');
-
             contentEl.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
-                    <span style="font-size: 0.8rem; color: var(--gold); font-weight: 900;">⚔ 1v1 BATTLE • Q${battleCurrentIdx+1} / ${battleQuestions.length}</span>
+                <div class="bt-bars">
+                    <div><small>YOU · <b id="bt-score">${battleScore}</b></small><div class="bt-bar"><i style="width:${Math.round(battleCurrentIdx / n * 100)}%"></i></div></div>
+                    <div><small>OPPONENT</small><div class="bt-bar opp"><i id="bt-opp" style="width:${Math.round((window.battleOppAnswered || 0) / n * 100)}%"></i></div></div>
                 </div>
-                <div style="background:var(--bg-deep); padding:1.4rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.2rem; text-align:left;">
-                    <b style="color:white; font-size:1rem; display:block; margin-bottom:14px; line-height:1.5;">${qObj.q}</b>
-                    <div style="display:flex; flex-direction:column; gap:10px;" id="battle-options-container">
-                        ${qObj.options.map((opt, idx) => `
-                            <button class="btn-action battle-opt-btn" onclick="window.answerModalBattleQuestion(${idx === qObj.correct}, this)" style="background:var(--bg-deep); color:white; border:1px solid var(--border-glow); padding:13px; font-size:0.9rem; text-align:left; margin-top:0;">${String.fromCharCode(65+idx)})${opt}</button>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
+                <span class="lesson-chip">⚔ QUESTION ${battleCurrentIdx + 1} / ${n}</span>
+                <h3 class="lesson-q" id="bt-q" dir="auto" style="font-size:1.05rem"></h3>
+                <div class="lesson-opts">${q.options.map((o, i) => `<button class="lesson-opt bt-opt" onclick="window.answerModalBattleQuestion(${i}, this)"><span class="lo-k">${String.fromCharCode(65 + i)}</span><span class="lo-t" dir="auto"></span></button>`).join('')}</div>`;
+            contentEl.querySelector('#bt-q').textContent = q.q;
+            contentEl.querySelectorAll('.lo-t').forEach((el, i) => { el.textContent = q.options[i]; });
         }
 
-        async function answerModalBattleQuestion(isCorrect, btnEl) {
-            const allBtns = document.querySelectorAll('.battle-opt-btn');
-            allBtns.forEach(b => b.disabled = true);
-
-            if(isCorrect) {
-                playSound('success');
-                battleScore++;
-                btnEl.style.background = 'var(--success)';
-                btnEl.style.borderColor = 'var(--success)';
-                showToast('Correct! ⭐');
-            } else {
-                playSound('error');
-                btnEl.style.background = 'var(--danger)';
-                btnEl.style.borderColor = 'var(--danger)';
-                showToast('Incorrect ❌', true);
-            }
-
-            setTimeout(() => {
-                battleCurrentIdx++;
-                renderBattleQuestionModal();
-            }, 900);
+        async function answerModalBattleQuestion(idx, btnEl) {
+            const btns = Array.from(document.querySelectorAll('.bt-opt'));
+            btns.forEach(b => b.disabled = true);
+            let d = null;
+            try {
+                const r = await fetch('/api/battle/answer', { method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ match_id: String(activeMatchId), username: sessionUser.username, q_index: battleCurrentIdx, choice: idx }) });
+                if(r.ok) d = await r.json();
+            } catch(e) {}
+            if(!d) { showToast('Connection problem. Try again.', true); btns.forEach(b => b.disabled = false); return; }
+            if(btns[d.correct_index]) btns[d.correct_index].classList.add('right');
+            if(d.correct) playSound('success'); else { btnEl.classList.add('wrong'); playSound('error'); }
+            battleScore = d.your_score;
+            const sc = document.getElementById('bt-score'); if(sc) sc.textContent = battleScore;
+            setTimeout(() => { battleCurrentIdx++; renderBattleQuestionModal(); }, 1000);
         }
         window.answerModalBattleQuestion = answerModalBattleQuestion;
 
         async function finish1v1BattleModal() {
-            const res = await fetch('/api/battle/submit', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ match_id: String(activeMatchId), username: sessionUser.username, score: battleScore })
-            });
-            const data = await res.json();
-            
-            const oppScore = data.opponent_score || 0;
-            let resultTitle = 'Battle Concluded (Draw)';
-            let rewardText = 'Great effort!';
-            if(battleScore > oppScore) {
-                sessionUser.xp_points = (sessionUser.xp_points || 0) + 100;
-                localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
-                updateDashboardUI();
-                resultTitle = 'Victory! 🏆';
-                rewardText = 'You won the 1v1 Duel and earned +100 XP Stars ⭐!';
-            } else if(battleScore < oppScore) {
-                resultTitle = 'Defeat 😢';
-                rewardText = 'Opponent scored higher. Better luck next time!';
+            const contentEl = document.getElementById('battle-modal-content'), n = battleQuestions.length;
+            contentEl.innerHTML = `<div style="text-align:center;padding:2rem 0"><div style="font-size:3.5rem">⏳</div><h3 style="color:var(--accent);margin:10px 0">Waiting for your opponent…</h3><p id="bt-wait" style="color:var(--text-muted)">Your score: ${battleScore} / ${n}</p></div>`;
+            let d = null;
+            try {
+                const r = await fetch('/api/battle/submit', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ match_id: String(activeMatchId), username: sessionUser.username }) });
+                if(r.ok) d = await r.json();
+            } catch(e) {}
+            if(d && !d.result) {
+                d = await new Promise(resolve => {
+                    const t = setInterval(async () => {
+                        if(document.getElementById('battle-arena-modal').style.display === 'none') { clearInterval(t); resolve(null); return; }
+                        try {
+                            const r = await fetch('/api/battle/status?match_id=' + encodeURIComponent(activeMatchId));
+                            if(!r.ok) return;
+                            const s = await r.json();
+                            const w = document.getElementById('bt-wait'); if(w) w.textContent = `Opponent answered ${s.opponent_answered} / ${n}`;
+                            if(s.result) { clearInterval(t); resolve(s); }
+                        } catch(e) {}
+                    }, 2000);
+                });
             }
-
+            stopBattlePoll();
+            if(!d || !d.result) { contentEl.innerHTML = `<div style="text-align:center;padding:2rem 0"><h3>Result not available</h3><button class="btn-action" onclick="window.closeBattleArena()">Close</button></div>`; return; }
+            const win = d.result === 'win', draw = d.result === 'draw';
+            playSound(win ? 'success' : 'click');
             await refreshUserData(false);
-
-            const contentEl = document.getElementById('battle-modal-content');
             contentEl.innerHTML = `
-                <div style="text-align:center; padding: 2rem 0;">
-                    <div style="font-size: 4rem; margin-bottom: 1.2rem;">🏆</div>
-                    <h3 style="font-size: 1.4rem; color: var(--gold); font-weight: 900; margin-bottom: 0.6rem;">${resultTitle}</h3>
-                    <p style="font-size: 0.92rem; color: white; margin-bottom: 0.5rem;">Your Score: <b>${battleScore}</b> | Opponent Score: <b>${oppScore}</b></p>
-                    <p style="font-size: 0.85rem; color: var(--warning); margin-bottom: 2rem; font-weight:700;">${rewardText}</p>
-                    <button class="btn-action" onclick="document.getElementById('battle-arena-modal').style.display='none';" style="background:var(--success); color:white; padding:1.1rem;">Close Arena 🚀</button>
-                </div>
-            `;
+                <div style="text-align:center;padding:1.6rem 0">
+                    <div class="done-trophy" style="font-size:4.5rem">${win ? '🏆' : draw ? '🤝' : '🛫'}</div>
+                    <h3 style="font-size:1.5rem;color:var(--gold);font-weight:900;margin:10px 0">${win ? 'Victory!' : draw ? 'Draw!' : 'Defeat'}</h3>
+                    <div class="done-stats"><div><b>${d.your_score}</b><small>YOU</small></div><div><b>${d.opponent_score}</b><small>@${escH(d.opponent)}</small></div></div>
+                    <p style="font-size:.9rem;color:var(--warning);margin:1.2rem 0 1.6rem;font-weight:700">${win ? 'You earned +100 XP ⭐' : draw ? 'You earned +50 XP ⭐' : 'Better luck next time. Practice and challenge again!'}</p>
+                    <button class="btn-action" onclick="window.closeBattleArena()" style="background:var(--success);color:white;padding:1.1rem">Close Arena 🚀</button>
+                </div>`;
         }
 
         function openAvatarStudio() { 
@@ -2828,16 +3182,16 @@
                     <span style="font-size: 0.82rem; color: var(--warning); font-weight: 800;">⭐ ${sessionUser.xp_points} Stars</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
-                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem;">
+                    <div class="shop-grid">
                         ${data.skins.map(skin => {
                             const isEquipped = sessionUser.active_skin === skin.skin_name_en;
+                            const owned = (data.owned || []).includes(skin.skin_name_en) || skin.cost === 0;
+                            const afford = isEquipped || owned || sessionUser.xp_points >= skin.cost;
                             return `
-                            <div style="background: var(--surface-card); padding: 1rem 1.2rem; border-radius: 16px; border: 1px solid var(--border-glow); display: flex; justify-content: space-between; align-items: center;">
-                                <div style="display: flex; align-items: center; gap: 14px;">
-                                    <span style="font-size: 1.8rem;">${skin.preview_svg}</span>
-                                    <div style="color: white; font-size: 0.9rem;"><b style="font-size:0.95rem;">${skin.skin_name_en}</b></div>
-                                </div>
-                                <button class="btn-action" onclick="window.buySkin('${skin.skin_name_en}',${skin.cost})" style="width:110px; padding:8px; font-size:0.8rem; background:${isEquipped ? 'var(--success)' : '#8b5cf6'}; color:white; margin-top:0;">${isEquipped ? 'Equipped ✓' : skin.cost + ' ⭐'}</button>
+                            <div class="shop-card ${isEquipped ? 'equipped' : ''} ${owned && !isEquipped ? 'owned' : ''} ${afford ? '' : 'poor'}">
+                                <div class="shop-prev">${skin.preview_svg}</div>
+                                <b class="shop-name">${escH(skin.skin_name_en)}</b>
+                                <button class="btn-action shop-btn" data-n="${escH(skin.skin_name_en)}" onclick="window.buySkin(this.dataset.n, ${skin.cost})">${isEquipped ? 'Equipped ✓' : (owned ? 'Equip' : (afford ? skin.cost + ' ⭐' : '🔒 ' + skin.cost + ' ⭐'))}</button>
                             </div>
                         `;}).join('')}
                     </div>
@@ -2865,6 +3219,474 @@
             }
         }
         window.buySkin = buySkin;
+    
+        /* TEACHER COPILOT: session-flow tips for the 3-hour class block */
+        const COPILOT_TIPS = {
+            en: [
+                ['0:00 · Warm-up (10 min)', 'Open with a 5-minute ICAO alphabet drill: students call out letters in turn. It wakes the class up and revises a key skill.'],
+                ['0:15 · Teach one node', 'Pick a single roadmap node for the lesson. Teach it live, then let students complete it on their own phones while you walk around.'],
+                ['1:00 · Pair battles', 'Match a strong student with a weaker one in a Battle. Competition keeps energy high and peers explain mistakes to each other.'],
+                ['1:30 · Check the room', 'Open your group list: anyone with a broken streak or low XP deserves a quick personal word during the break.'],
+                ['2:00 · Mini exam', 'Publish a 5-question exam from Study Hub. Short and frequent exams show you what the class really understood.'],
+                ['2:40 · Mistake Hangar', 'Finish by having each student review their Mistake Hangar. Ending on corrected errors is what makes lessons stick.']
+            ],
+            fr: [
+                ['0:00 · Échauffement (10 min)', 'Commencez par 5 minutes d\'alphabet OACI : chaque élève annonce une lettre à tour de rôle. Cela réveille la classe et révise une compétence clé.'],
+                ['0:15 · Un nœud à la fois', 'Choisissez un seul nœud du parcours. Enseignez-le en direct, puis laissez les élèves le terminer sur leur téléphone pendant que vous circulez.'],
+                ['1:00 · Duels en binôme', 'Associez un élève fort et un élève plus faible dans un Duel. La compétition motive et les élèves s\'expliquent leurs erreurs.'],
+                ['1:30 · Faire le point', 'Ouvrez la liste du groupe : un élève dont la série est brisée ou avec peu d\'XP mérite un mot personnel pendant la pause.'],
+                ['2:00 · Mini-examen', 'Publiez un examen de 5 questions depuis le Study Hub. Des examens courts et fréquents montrent ce que la classe a vraiment compris.'],
+                ['2:40 · Hangar des erreurs', 'Terminez en faisant revoir à chacun son Hangar des erreurs. Finir sur des erreurs corrigées ancre l\'apprentissage.']
+            ],
+            ar: [
+                ['0:00 · الإحماء (10 دقائق)', 'ابدأ بخمس دقائق من الأبجدية الصوتية ICAO: ينطق كل طالب حرفاً بالتناوب. هذا ينشّط الصف ويراجع مهارة أساسية.'],
+                ['0:15 · درس واحد في كل مرة', 'اختر عقدة واحدة من المسار، اشرحها مباشرة، ثم دع الطلاب يُكملونها على هواتفهم بينما تتجول بينهم.'],
+                ['1:00 · مبارزات ثنائية', 'اجمع طالباً متفوقاً مع طالب أضعف في مبارزة. المنافسة ترفع الحماس ويشرح الطلاب أخطاءهم لبعضهم.'],
+                ['1:30 · تفقّد الصف', 'افتح قائمة المجموعة: من انقطعت سلسلته أو نقاطه قليلة يستحق كلمة شخصية أثناء الاستراحة.'],
+                ['2:00 · اختبار قصير', 'انشر اختباراً من 5 أسئلة من مركز الدراسة. الاختبارات القصيرة المتكررة تُظهر ما فهمه الصف فعلاً.'],
+                ['2:40 · حظيرة الأخطاء', 'اختم بأن يراجع كل طالب حظيرة أخطائه. الانتهاء بأخطاء مصحّحة هو ما يثبّت التعلّم.']
+            ]
+        };
+        let copilotIdx = 0;
+        function renderCopilot() {
+            const lang = (typeof activeLang !== 'undefined' && COPILOT_TIPS[activeLang]) ? activeLang : 'en';
+            const tips = COPILOT_TIPS[lang], tip = tips[copilotIdx % tips.length];
+            const el = document.getElementById('copilot');
+            el.innerHTML = '<div class="cp-head">✈️ Teacher Copilot<span class="cp-time"></span><button class="cp-x" aria-label="Close" onclick="closeCopilot()">✕</button></div>' +
+                '<h4></h4><p></p><div class="cp-foot">' + tips.map((_, i) => '<span class="cp-dot' + (i === copilotIdx % tips.length ? ' on' : '') + '"></span>').join('') +
+                '<button class="cp-next" onclick="nextCopilotTip()">' + (lang === 'fr' ? 'Suivant' : lang === 'ar' ? 'التالي' : 'Next tip') + ' →</button></div>';
+            el.querySelector('h4').textContent = tip[0];
+            el.querySelector('p').textContent = tip[1];
+        }
+        function nextCopilotTip() { playSound('click'); copilotIdx++; renderCopilot(); }
+        function closeCopilot() { playSound('click'); document.getElementById('copilot').classList.remove('show'); }
+        function showTeacherCopilot() {
+            if (!sessionUser || sessionUser.role !== 'teacher' || sessionStorage.getItem('aero_copilot_seen')) return;
+            sessionStorage.setItem('aero_copilot_seen', '1');
+            renderCopilot();
+            setTimeout(() => document.getElementById('copilot').classList.add('show'), 1200);
+        }
+        window.nextCopilotTip = nextCopilotTip; window.closeCopilot = closeCopilot; window.showTeacherCopilot = showTeacherCopilot;
+    
+        /* CLASS INSIGHTS: teacher dashboard */
+        const escH = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        async function openClassInsights(codeOverride) {
+            playSound('click');
+            const box = document.getElementById('simulation-box');
+            box.classList.add('feature-fullscreen-view');
+            const code = (codeOverride || sessionUser.group_code || localStorage.getItem('aero_insights_code') || '').trim();
+            const top = `<div class="feature-topbar"><button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button><h3 style="font-size:1.1rem; color:var(--accent); font-weight:900;">📊 Class Insights</h3><div style="width:85px;"></div></div>`;
+            if(!code) {
+                box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card"><h4>Which class?</h4><p style="color:var(--text-muted);margin:6px 0 12px">Enter your class code to see your students.</p><input id="ci-code" placeholder="Class code" style="margin-bottom:10px"><button class="btn-action" onclick="window.openClassInsights(document.getElementById('ci-code').value)" style="margin:0">Open dashboard</button></div></div>`;
+                return;
+            }
+            box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card" style="text-align:center">Loading class data…</div></div>`;
+            let d;
+            try {
+                const r = await fetch('/api/teacher/dashboard?group_code=' + encodeURIComponent(code) + '&teacher_username=' + encodeURIComponent(sessionUser.username));
+                if(!r.ok) throw new Error('x');
+                d = await r.json();
+            } catch(e) { box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card">Could not load the class. Check the class code and try again.</div></div>`; return; }
+            localStorage.setItem('aero_insights_code', code);
+            const s = d.summary, st = d.students;
+            let ann = []; try { const r2 = await fetch('/api/announce/latest?group_code=' + encodeURIComponent(code)); if(r2.ok) ann = (await r2.json()).announcements; } catch(e) {}
+            const away = st.filter(x => x.status !== 'active');
+            const tips = [];
+            if(away.length) tips.push(`💬 ${away.length} student${away.length > 1 ? 's haven\'t' : ' hasn\'t'} practiced in the last 2 days. A short personal message often brings them back.`);
+            if(d.hard_questions.length) tips.push(`🎯 Re-teach first: “${d.hard_questions[0].question_text}” (${d.hard_questions[0].misses} students missed it).`);
+            if(s.students && s.active === s.students) tips.push('🌟 Everyone practiced recently. Great moment for a class challenge or a battle round.');
+            if(!tips.length) tips.push('📝 No data yet. Ask students to complete a node and check back.');
+            const kpi = (n, l) => `<div class="ci-kpi"><b>${n}</b><small>${l}</small></div>`;
+            const rows = st.map((x, i) => `<div class="ci-row ${x.status}"><span class="ci-rank">${i + 1}</span><div class="ci-name"><b>${escH(x.full_name || x.username)}</b><small>@${escH(x.username)} · ${x.days_since == null ? 'never practiced' : x.days_since === 0 ? 'practiced today' : x.days_since + 'd ago'}</small></div><div class="ci-prog"><i style="width:${x.nodes_done}%"></i></div><span class="ci-nodes">${x.nodes_done}/100</span><span class="ci-meta">🔥${x.streak} ⭐${x.xp}</span></div>`).join('');
+            const hard = d.hard_questions.map(q => `<div class="ci-hq"><span>${q.misses}×</span><div><b>${escH(q.question_text)}</b><small>Answer: ${escH(q.correct_answer)}</small></div></div>`).join('') || '<small style="color:var(--text-muted)">No mistakes logged yet.</small>';
+            const ex = d.exams.map(e => `<div class="ci-hq"><span>${e.avg_pct == null ? '–' : e.avg_pct + '%'}</span><div><b>${escH(e.title)}</b><small>${e.submissions} submission${e.submissions == 1 ? '' : 's'}</small></div></div>`).join('') || '<small style="color:var(--text-muted)">No exams yet.</small>';
+            box.innerHTML = top + `<div class="ci-wrap" id="ci-print">
+                <div class="ci-kpis">${kpi(s.students, 'STUDENTS')}${kpi(s.avg_nodes, 'AVG NODES')}${kpi(s.avg_xp, 'AVG XP')}${kpi(s.active + '/' + s.students, 'ACTIVE')}</div>
+                <div class="ci-card ci-tips"><h4>💡 Suggested for your next session</h4>${tips.map(t => `<p>${t}</p>`).join('')}</div>
+                <div class="ci-card"><h4>📣 Announce to your class</h4>
+                    <textarea id="an-input" rows="3" maxlength="280" placeholder="e.g. Tomorrow we start the safety demonstration unit. Review Unit 2 tonight!" style="margin-bottom:8px"></textarea>
+                    <button class="btn-action" onclick="window.sendAnnouncement('${escH(code)}')" style="margin:0">Send to students</button>
+                    ${ann.map(a => `<div class="ci-hq" style="margin-top:8px"><div style="flex:1"><b style="font-weight:600">${escH(a.message)}</b><small>${escH(timeAgo(a.created_at))}</small></div><button class="le-x" onclick="window.deleteAnnouncement(${a.id}, '${escH(code)}')" aria-label="Delete">🗑</button></div>`).join('')}</div>
+                <div class="ci-card"><h4>Students · class ${escH(code)}</h4>${rows || '<small>No students in this class yet.</small>'}</div>
+                <div class="ci-card"><h4>🎯 Hardest questions</h4>${hard}</div>
+                <div class="ci-card"><h4>📝 Exam averages</h4>${ex}</div>
+                <div class="ci-actions"><button class="btn-action" onclick="window.downloadGradebook('${escH(code)}')" style="margin:0">⬇ Gradebook CSV</button><button class="btn-action" onclick="window.print()" style="margin:0">🖨 Print / Save PDF</button>
+                    ${st.some(x => x.username.startsWith('demo_')) ? `<button class="btn-action" onclick="window.demoData('clear', '${escH(code)}')" style="margin:0;background:#f87171;color:#450a0a">🧹 Remove demo data</button>` : (!st.length ? `<button class="btn-action" onclick="window.demoData('seed', '${escH(code)}')" style="margin:0;background:#8b5cf6;color:#fff">✨ Load demo class</button>` : '')}</div>
+            </div>`;
+        }
+        window.openClassInsights = openClassInsights;
+    
+        async function downloadGradebook(code) {
+            const r = await fetch('/api/teacher/export-csv?group_code=' + encodeURIComponent(code));
+            if(!r.ok) { showToast('Download failed', true); return; }
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(await r.blob()); a.download = 'gradebook_' + code + '.csv'; a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+        }
+        window.downloadGradebook = downloadGradebook;
+    
+        /* AUTH SCREEN POLISH: password eye, strength meter, role cards, busy buttons */
+        (function authPolish() {
+            const HINT = { en: 'Ask your academy administrator for the teacher invitation code.', fr: 'Demandez le code d\'invitation enseignant à l\'administration de l\'académie.', ar: 'اطلب رمز دعوة المعلم من إدارة الأكاديمية.' };
+            const PW = { en: ['Use at least 6 characters', 'Weak', 'Okay', 'Strong'], fr: ['Au moins 6 caractères', 'Faible', 'Moyen', 'Fort'], ar: ['6 أحرف على الأقل', 'ضعيفة', 'متوسطة', 'قوية'] };
+            const L = () => (typeof activeLang !== 'undefined' && HINT[activeLang]) ? activeLang : 'en';
+            document.querySelectorAll('input[type=password]').forEach(inp => {
+                const w = document.createElement('div'); w.className = 'pw-wrap';
+                inp.parentNode.insertBefore(w, inp); w.appendChild(inp);
+                const b = document.createElement('button'); b.type = 'button'; b.className = 'pw-eye'; b.textContent = '👁'; b.setAttribute('aria-label', 'Show password');
+                b.onclick = () => { inp.type = inp.type === 'password' ? 'text' : 'password'; b.textContent = inp.type === 'password' ? '👁' : '🙈'; };
+                w.appendChild(b);
+            });
+            const pass = document.getElementById('reg-pass'), bar = document.getElementById('pw-meter-bar'), hint = document.getElementById('pw-hint');
+            pass.addEventListener('input', () => {
+                const v = pass.value; let sc = 0;
+                if(v.length >= 6) sc++; if(v.length >= 9 && /[A-Za-z]/.test(v) && /\d/.test(v)) sc++; if(v.length >= 12 || (/[A-Z]/.test(v) && /[^A-Za-z0-9]/.test(v) && v.length >= 9)) sc++;
+                bar.style.width = (v ? Math.max(1, sc) * 33.4 : 0) + '%'; bar.style.background = ['#f87171', '#f87171', '#fbbf24', '#4ade80'][v ? Math.max(1, sc) : 0];
+                hint.textContent = v ? PW[L()][Math.max(1, sc)] : PW[L()][0];
+            });
+            const sel = document.getElementById('reg-role'), seg = document.createElement('div'); seg.className = 'role-seg';
+            sel.parentNode.insertBefore(seg, sel);
+            const paint = () => { seg.innerHTML = ''; Array.from(sel.options).forEach(o => { const b = document.createElement('button'); b.type = 'button'; b.textContent = o.textContent; b.className = o.value === sel.value ? 'on' : ''; b.onclick = () => { sel.value = o.value; sel.dispatchEvent(new Event('change')); paint(); }; seg.appendChild(b); }); };
+            window.syncAuthUI = () => { paint(); document.getElementById('teacher-hint').textContent = HINT[L()]; hint.textContent = PW[L()][0]; };
+            window.syncAuthUI();
+            if(window.setLanguage) { const sl = window.setLanguage; window.setLanguage = function() { const r = sl.apply(this, arguments); setTimeout(window.syncAuthUI, 0); return r; }; }
+            [['submitLogin', 'tr-login-btn'], ['submitRegister', 'tr-complete-reg-btn'], ['submitReset', 'tr-update-cred-btn']].forEach(([fn, id]) => {
+                const orig = window[fn]; if(!orig) return;
+                window[fn] = async function() { const btn = document.getElementById(id); if(btn.disabled) return; btn.disabled = true; try { return await orig.apply(this, arguments); } finally { btn.disabled = false; } };
+            });
+        })();
+    
+        /* DAILY GOAL RING: XP earned today vs a 50 XP goal (one node) */
+        function renderDailyGoal() {
+            const card = document.getElementById('goal-card');
+            if(!card || !sessionUser) return;
+            if(sessionUser.role !== 'student') { card.style.display = 'none'; return; }
+            const GOAL = 50, C = 2 * Math.PI * 26, key = 'aero_daily_' + sessionUser.username;
+            const d = new Date(), today = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(), xp = sessionUser.xp_points || 0;
+            let st; try { st = JSON.parse(localStorage.getItem(key)); } catch(e) {}
+            if(!st || st.d !== today) st = { d: today, start: xp, done: false };
+            if(xp < st.start) st.start = xp;
+            const earned = Math.min(GOAL, Math.max(0, xp - st.start)), p = earned / GOAL, hit = earned >= GOAL;
+            const T = { en: ['Daily goal', 'Goal reached! 🎉'], fr: ['Objectif du jour', 'Objectif atteint ! 🎉'], ar: ['هدف اليوم', 'تم تحقيق الهدف! 🎉'] }[(typeof activeLang !== 'undefined' && ['en', 'fr', 'ar'].includes(activeLang)) ? activeLang : 'en'];
+            const fg = document.getElementById('goal-fg');
+            fg.style.strokeDasharray = C; fg.style.strokeDashoffset = C * (1 - p);
+            document.getElementById('goal-title').textContent = T[0];
+            document.getElementById('goal-sub').textContent = earned + ' / ' + GOAL + ' XP';
+            document.getElementById('goal-flame').textContent = hit ? '🏅' : '🎯';
+            card.classList.toggle('hit', hit);
+            card.style.display = '';
+            if(hit && !st.done) { st.done = true; showToast(T[1]); playSound('success'); }
+            localStorage.setItem(key, JSON.stringify(st));
+        }
+        window.renderDailyGoal = renderDailyGoal;
+    
+        /* INSTALL AS APP (PWA) + offline awareness */
+        (function pwa() {
+            if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('/sw.js').catch(() => {});
+            const pill = document.getElementById('install-pill'); let deferred = null;
+            const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+            window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; if(!localStorage.getItem('aero_install_dismissed') && !standalone) pill.style.display = ''; });
+            document.getElementById('ip-go').onclick = async () => { if(deferred) { deferred.prompt(); await deferred.userChoice; deferred = null; } pill.style.display = 'none'; };
+            document.getElementById('ip-x').onclick = () => { localStorage.setItem('aero_install_dismissed', '1'); pill.style.display = 'none'; };
+            window.addEventListener('appinstalled', () => { pill.style.display = 'none'; });
+            if(/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone && !localStorage.getItem('aero_ios_hint')) {
+                localStorage.setItem('aero_ios_hint', '1');
+                setTimeout(() => showToast('To install: tap Share ⬆ then "Add to Home Screen"'), 5000);
+            }
+            window.addEventListener('offline', () => showToast('You are offline. Some features need internet.', true));
+            window.addEventListener('online', () => showToast('Back online ✓'));
+        })();
+    
+        /* CLASS LESSONS: teachers write lessons, students play them */
+        let leQs = [], leTitle = '';
+        const leTop = (back) => `<div class="feature-topbar"><button class="btn-action" onclick="${back}" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button><h3 style="font-size:1.1rem; color:var(--accent); font-weight:900;">📚 Class Lessons</h3><div style="width:85px;"></div></div>`;
+        function lessonClassCode() { return (sessionUser.group_code || localStorage.getItem('aero_insights_code') || '').trim(); }
+        async function openClassLessons(codeOverride) {
+            playSound('click');
+            const box = document.getElementById('simulation-box'); box.classList.add('feature-fullscreen-view');
+            const isT = sessionUser.role === 'teacher', code = (codeOverride || lessonClassCode()).trim();
+            if(!code) {
+                box.innerHTML = leTop('window.resetToMenu()') + `<div class="ci-wrap"><div class="ci-card"><h4>${isT ? 'Which class?' : 'No class yet'}</h4><p style="color:var(--text-muted);margin:6px 0 12px">${isT ? 'Enter your class code.' : 'Join a class with your teacher\'s code in the Study Hub first.'}</p>${isT ? `<input id="ci-code" placeholder="Class code" style="margin-bottom:10px"><button class="btn-action" onclick="window.openClassLessons(document.getElementById('ci-code').value)" style="margin:0">Open</button>` : ''}</div></div>`;
+                return;
+            }
+            box.innerHTML = leTop('window.resetToMenu()') + `<div class="ci-wrap"><div class="ci-card" style="text-align:center">Loading…</div></div>`;
+            let d; try { const r = await fetch('/api/lesson/list?group_code=' + encodeURIComponent(code)); if(!r.ok) throw 0; d = await r.json(); }
+            catch(e) { box.innerHTML = leTop('window.resetToMenu()') + `<div class="ci-wrap"><div class="ci-card">Could not load lessons for this class.</div></div>`; return; }
+            if(isT) localStorage.setItem('aero_insights_code', code);
+            const cards = d.lessons.map(l => {
+                const done = window.roadmapUnlocked('cl' + l.id) > 1;
+                return `<div class="le-card ${done ? 'done' : ''}"><div class="le-info"><b>${escH(l.title)}</b><small>${l.questions.length} questions · ${escH(l.teacher_username)}${done ? ' · ✓ completed' : ''}</small></div>
+                    <button class="btn-action le-play" onclick="window.playClassLesson(${l.id})">${done ? '↻' : '▶'}</button>${isT ? `<button class="le-x" onclick="window.deleteClassLesson(${l.id}, '${escH(code)}')" aria-label="Delete">🗑</button>` : ''}</div>`;
+            }).join('') || `<div class="ci-card" style="text-align:center;color:var(--text-muted)">${isT ? 'No lessons yet. Create your first one!' : 'Your teacher has not published lessons yet.'}</div>`;
+            box.innerHTML = leTop('window.resetToMenu()') + `<div class="ci-wrap">${isT ? `<button class="btn-action" onclick="window.newClassLesson('${escH(code)}')" style="margin:0">＋ Create a lesson</button>` : ''}${cards}</div>`;
+            window.classLessonCache = d.lessons;
+        }
+        window.openClassLessons = openClassLessons;
+        function playClassLesson(id) {
+            const l = (window.classLessonCache || []).find(x => x.id === id); if(!l) return;
+            window.currentRoadmapSession = { questions: l.questions.map(q => ({ q: q.q, options: q.options.slice(), correct: q.correct })), currentIdx: 0, poolKey: 'cl' + id, nodeNum: 1, totalNodes: 1 };
+            renderRoadmapStep();
+        }
+        window.playClassLesson = playClassLesson;
+        async function deleteClassLesson(id, code) {
+            if(!confirm('Delete this lesson?')) return;
+            await fetch('/api/lesson/delete', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ lesson_id: id, teacher_username: sessionUser.username }) });
+            openClassLessons(code);
+        }
+        window.deleteClassLesson = deleteClassLesson;
+        function newClassLesson(code) { leQs = [{ q: '', options: ['', '', '', ''], correct: 0 }]; leTitle = ''; renderLessonEditor(code); }
+        window.newClassLesson = newClassLesson;
+        function leParse(text) {
+            const out = [];
+            text.split(/\n\s*\n/).forEach(b => {
+                const L = b.split('\n').map(x => x.trim()).filter(Boolean); if(L.length < 3) return;
+                const opts = []; let c = -1;
+                L.slice(1).forEach(l => { const star = /^[*✓]/.test(l); l = l.replace(/^[*✓]\s*/, '').replace(/^[A-Da-d][).:\-]\s+/, ''); if(star) c = opts.length; opts.push(l); });
+                out.push({ q: L[0].replace(/^\d+[).:\-]\s*/, ''), options: opts.slice(0, 4).concat(['', '', '', '']).slice(0, 4), correct: Math.max(0, c) });
+            });
+            return out;
+        }
+        function renderLessonEditor(code) {
+            const box = document.getElementById('simulation-box');
+            box.innerHTML = leTop(`window.openClassLessons('${escH(code)}')`) + `<div class="ci-wrap">
+                <div class="ci-card"><h4>Lesson title</h4><input id="le-title" placeholder="e.g. Safety demonstration vocabulary" value="${escH(leTitle)}" oninput="window.leTitleSet(this.value)" style="margin:0"></div>
+                ${leQs.map((q, i) => `<div class="ci-card le-q"><div class="le-qh"><b>Question ${i + 1}</b><button class="le-x" onclick="window.leDel(${i}, '${escH(code)}')" aria-label="Delete question">🗑</button></div>
+                    <input data-qi="${i}" data-f="q" placeholder="Type the question" value="${escH(q.q)}" oninput="window.leSet(this)">
+                    ${q.options.map((o, oi) => `<label class="le-opt"><input type="radio" name="lc${i}" ${q.correct === oi ? 'checked' : ''} onchange="window.leCorrect(${i}, ${oi})"><input type="text" data-qi="${i}" data-oi="${oi}" placeholder="Option ${'ABCD'[oi]}${oi < 2 ? '' : ' (optional)'}" value="${escH(o)}" oninput="window.leSet(this)"></label>`).join('')}
+                    <small style="color:var(--text-muted)">Select the circle next to the correct answer.</small></div>`).join('')}
+                <button class="btn-action" onclick="window.leAdd('${escH(code)}')" style="margin:0;background:transparent;border:2px dashed var(--accent);color:var(--accent)">＋ Add a question</button>
+                <div class="ci-card"><h4>⚡ Paste many questions at once</h4><textarea id="le-bulk" rows="7" placeholder="Question text?&#10;A) wrong option&#10;*B) correct option (start it with *)&#10;C) wrong option&#10;&#10;Next question?&#10;A) ...&#10;*B) ..." style="margin-bottom:10px"></textarea><button class="btn-action" onclick="window.leImport('${escH(code)}')" style="margin:0;background:#8b5cf6;color:#fff">Import questions</button></div>
+                <button class="btn-action" onclick="window.leSave('${escH(code)}')" style="margin:0;background:var(--success);color:#fff;padding:1.1rem">✈ Publish lesson to class ${escH(code)}</button></div>`;
+        }
+        window.leTitleSet = v => { leTitle = v; };
+        window.leSet = el => { const q = leQs[+el.dataset.qi]; if(el.dataset.f === 'q') q.q = el.value; else q.options[+el.dataset.oi] = el.value; };
+        window.leCorrect = (i, oi) => { leQs[i].correct = oi; };
+        window.leDel = (i, code) => { leQs.splice(i, 1); if(!leQs.length) leQs.push({ q: '', options: ['', '', '', ''], correct: 0 }); renderLessonEditor(code); };
+        window.leAdd = code => { leQs.push({ q: '', options: ['', '', '', ''], correct: 0 }); renderLessonEditor(code); setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 50); };
+        window.leImport = code => {
+            const got = leParse(document.getElementById('le-bulk').value);
+            if(!got.length) { showToast('Could not read any question. Check the format.', true); return; }
+            leQs = leQs.filter(q => q.q.trim() || q.options.some(o => o.trim())).concat(got); renderLessonEditor(code); showToast(got.length + ' questions imported ✓');
+        };
+        window.leSave = async code => {
+            const qs = leQs.map(q => ({ q: q.q.trim(), options: q.options.map(o => o.trim()), correct: q.correct }));
+            qs.forEach(q => { const keep = []; let nc = -1; q.options.forEach((o, i) => { if(o) { if(i === q.correct) nc = keep.length; keep.push(o); } }); q.options = keep; q.correct = nc; });
+            const bad = qs.findIndex(q => !q.q || q.options.length < 2 || q.correct < 0);
+            if(!leTitle.trim()) { showToast('Add a lesson title.', true); return; }
+            if(bad >= 0) { showToast('Question ' + (bad + 1) + ' needs text, 2+ options and a correct answer.', true); return; }
+            const r = await fetch('/api/lesson/create', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ group_code: code, teacher_username: sessionUser.username, title: leTitle.trim(), questions: qs }) });
+            if(r.ok) { showToast('Lesson published to your class! 🎉'); playSound('success'); openClassLessons(code); }
+            else { const e = await r.json().catch(() => ({})); showToast(e.detail || 'Could not publish.', true); }
+        };
+    
+        async function demoData(kind, code) {
+            const r = await fetch('/api/demo/' + kind, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ group_code: code, teacher_username: sessionUser.username }) });
+            showToast(r.ok ? (kind === 'seed' ? 'Demo class loaded ✨' : 'Demo data removed') : 'Something went wrong', !r.ok);
+            openClassInsights(code);
+        }
+        window.demoData = demoData;
+    
+        /* ACADEMY OVERVIEW: director dashboard */
+        async function openAcademyOverview() {
+            playSound('click');
+            const box = document.getElementById('simulation-box'); box.classList.add('feature-fullscreen-view');
+            const top = `<div class="feature-topbar"><button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button><h3 style="font-size:1.1rem; color:var(--accent); font-weight:900;">🏫 Academy Overview</h3><div style="width:85px;"></div></div>`;
+            box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card" style="text-align:center">Loading…</div></div>`;
+            let d; try { const r = await fetch('/api/admin/overview'); if(!r.ok) throw 0; d = await r.json(); }
+            catch(e) { box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card">Could not load the academy data.</div></div>`; return; }
+            const t = d.totals, pct = t.students ? Math.round(t.active_7d / t.students * 100) : 0;
+            const weak = d.classes.filter(c => c.students && c.active_7d / c.students < 0.5).map(c => c.group_name);
+            const lines = [`📈 ${t.active_7d} of ${t.students} students (${pct}%) practiced in the last 7 days.`,
+                `📊 Students have completed ${t.avg_nodes} of 100 first-year nodes on average.`,
+                weak.length ? `⚠️ Low activity in: ${weak.map(escH).join(', ')}. A conversation with these teachers could help.` : (t.classes ? '🌟 Every class is active this week.' : '📝 No classes have students yet.')];
+            const kpi = (n, l) => `<div class="ci-kpi"><b>${n}</b><small>${l}</small></div>`;
+            const max = Math.max(1, ...d.activity.map(a => a.students));
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const bars = d.activity.map(a => { const dt = new Date(Date.now() - a.days_ago * 864e5); return `<div class="ad-col"><span>${a.students}</span><i style="height:${Math.round(a.students / max * 100)}%"></i><small>${days[dt.getDay()]}</small></div>`; }).join('');
+            const cls = d.classes.map(c => `<div class="ci-row ${c.students && c.active_7d / c.students >= .5 ? 'active' : 'inactive'}" style="grid-template-columns:1.5fr 1fr auto"><div class="ci-name"><b>${escH(c.group_name)}</b><small>Code ${escH(c.group_code)} · ${escH(c.teacher || 'no teacher')}</small></div><div class="ci-prog"><i style="width:${c.avg_nodes}%"></i></div><span class="ci-meta">👥${c.students} · ✅${c.active_7d} · ⭐${c.avg_xp}</span></div>`).join('') || '<small style="color:var(--text-muted)">No classes yet.</small>';
+            const tch = d.teachers.map(x => `<div class="ci-hq"><span style="background:rgba(56,189,248,.14);color:var(--accent)">👥${x.students}</span><div><b>${escH(x.full_name)}</b><small>@${escH(x.username)} · ${x.lessons} lessons · ${x.exams} exams</small></div></div>`).join('') || '<small style="color:var(--text-muted)">No teachers yet.</small>';
+            const tp = d.top.map((s, i) => `<div class="ci-hq"><span style="background:rgba(251,191,36,.14);color:var(--gold)">#${i + 1}</span><div><b>${escH(s.full_name)}</b><small>⭐ ${s.xp} · class ${escH(s.group_code || '-')}</small></div></div>`).join('') || '<small style="color:var(--text-muted)">No students yet.</small>';
+            box.innerHTML = top + `<div class="ci-wrap">
+                <div class="ci-kpis">${kpi(t.students, 'STUDENTS')}${kpi(t.teachers, 'TEACHERS')}${kpi(t.classes, 'CLASSES')}${kpi(pct + '%', 'ACTIVE 7D')}</div>
+                <div class="ci-card ci-tips"><h4>📋 Executive summary</h4>${lines.map(l => `<p>${l}</p>`).join('')}</div>
+                <div class="ci-card"><h4>Students by last practice day</h4><div class="ad-bars">${bars}</div></div>
+                <div class="ci-card"><h4>Classes</h4>${cls}</div>
+                <div class="ci-card"><h4>👨‍🏫 Teachers</h4>${tch}</div>
+                <div class="ci-card"><h4>🏆 Top students</h4>${tp}</div>
+                <div class="ci-actions"><button class="btn-action" onclick="window.print()" style="margin:0">🖨 Print / Save PDF report</button></div></div>`;
+        }
+        window.openAcademyOverview = openAcademyOverview;
+    
+        /* ANNOUNCEMENTS: teacher message to the class, shown on student dashboards */
+        function timeAgo(iso) {
+            if(!iso) return '';
+            const t = new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(iso) ? iso : iso + 'Z').getTime(), m = Math.max(0, Math.round((Date.now() - t) / 60000));
+            return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' d ago';
+        }
+        async function sendAnnouncement(code) {
+            const el = document.getElementById('an-input'), message = el.value.trim();
+            if(!message) { showToast('Write a message first.', true); return; }
+            const r = await fetch('/api/announce/create', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ group_code: code, teacher_username: sessionUser.username, message }) });
+            if(r.ok) { showToast('Announcement sent 📣'); playSound('success'); openClassInsights(code); }
+            else { const e = await r.json().catch(() => ({})); showToast(e.detail || 'Could not send.', true); }
+        }
+        async function deleteAnnouncement(id, code) {
+            await fetch('/api/announce/delete', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ announcement_id: id, teacher_username: sessionUser.username }) });
+            openClassInsights(code);
+        }
+        window.sendAnnouncement = sendAnnouncement; window.deleteAnnouncement = deleteAnnouncement;
+        let lastAnnLoad = 0;
+        async function loadAnnouncement() {
+            const card = document.getElementById('announce-card');
+            if(!card || !sessionUser || sessionUser.role !== 'student' || !sessionUser.group_code) { if(card) card.style.display = 'none'; return; }
+            if(Date.now() - lastAnnLoad < 60000) return;
+            lastAnnLoad = Date.now();
+            try {
+                const r = await fetch('/api/announce/latest?group_code=' + encodeURIComponent(sessionUser.group_code)); if(!r.ok) return;
+                const a = (await r.json()).announcements[0], seenKey = 'aero_ann_seen_' + sessionUser.username;
+                if(!a || String(localStorage.getItem(seenKey)) === String(a.id)) { card.style.display = 'none'; return; }
+                const T = { en: 'Message from your teacher', fr: 'Message de votre enseignant', ar: 'رسالة من معلمك' }[(typeof activeLang !== 'undefined' && ['en', 'fr', 'ar'].includes(activeLang)) ? activeLang : 'en'];
+                document.getElementById('an-title').textContent = '📣 ' + T;
+                document.getElementById('an-text').textContent = a.message;
+                document.getElementById('an-meta').textContent = '@' + a.teacher_username + ' · ' + timeAgo(a.created_at);
+                document.getElementById('an-x').onclick = () => { localStorage.setItem(seenKey, String(a.id)); card.style.display = 'none'; playSound('click'); };
+                card.style.display = '';
+            } catch(e) {}
+        }
+        window.loadAnnouncement = loadAnnouncement;
+    
+        /* STREAK RESCUE: friendly reminder when today's practice is still missing */
+        function renderStreakRescue() {
+            const card = document.getElementById('streak-card');
+            if(!card || !sessionUser) return;
+            if(sessionUser.role !== 'student') { card.style.display = 'none'; return; }
+            const today = new Date().toISOString().split('T')[0], last = String(sessionUser.last_practice_date || '').slice(0, 10), streak = sessionUser.streak || 0;
+            if(last === today) { card.style.display = 'none'; return; }
+            const yest = new Date(Date.now() - 864e5).toISOString().split('T')[0], atRisk = streak > 0 && last === yest, late = new Date().getHours() >= 18;
+            const next = [3, 7, 14, 30, 60, 100].find(m => m > streak) || streak + 1, left = next - streak;
+            const L = (typeof activeLang !== 'undefined' && ['en', 'fr', 'ar'].includes(activeLang)) ? activeLang : 'en';
+            const T = {
+                en: { risk: n => `Save your ${n}-day streak!`, riskLate: n => `Only a few hours left to save your ${n}-day streak!`, start: 'Start a new streak today', sub: (l, m) => `${l} more day${l > 1 ? 's' : ''} to a ${m}-day streak 🏅`, startSub: 'Complete one node to begin.', go: 'Continue ✈' },
+                fr: { risk: n => `Sauvez votre série de ${n} jours !`, riskLate: n => `Il reste peu d'heures pour sauver votre série de ${n} jours !`, start: 'Commencez une nouvelle série aujourd\'hui', sub: (l, m) => `Encore ${l} jour${l > 1 ? 's' : ''} pour une série de ${m} jours 🏅`, startSub: 'Terminez un nœud pour commencer.', go: 'Continuer ✈' },
+                ar: { risk: n => `أنقذ سلسلة ${n} أيام!`, riskLate: n => `بقيت ساعات قليلة لإنقاذ سلسلة ${n} أيام!`, start: 'ابدأ سلسلة جديدة اليوم', sub: (l, m) => `${l} يوم إضافي للوصول إلى سلسلة ${m} أيام 🏅`, startSub: 'أكمل عقدة واحدة للبدء.', go: 'تابع ✈' }
+            }[L];
+            document.getElementById('sc-title').textContent = atRisk ? (late ? T.riskLate(streak) : T.risk(streak)) : T.start;
+            document.getElementById('sc-sub').textContent = atRisk ? T.sub(left, next) : T.startSub;
+            document.getElementById('sc-go').textContent = T.go;
+            document.getElementById('sc-flame').textContent = atRisk ? '🔥' : '✨';
+            card.classList.toggle('urgent', atRisk && late);
+            card.style.display = '';
+        }
+        window.renderStreakRescue = renderStreakRescue;
+    
+        /* LISTENING LAB: cabin announcements read aloud, then comprehension questions */
+        const LISTEN = [
+            { id: 1, title: 'Welcome on board', text: "Good morning, ladies and gentlemen, and welcome aboard flight A S two one four to Marrakech. My name is Karim, and I am your cabin manager today. Our flying time will be approximately fifty minutes. Please make sure your seat belt is fastened, your seat back is upright, and your tray table is stowed. We wish you a pleasant flight.",
+              qs: [{ q: 'Where is the flight going?', options: ['Marrakech', 'Casablanca', 'Rabat'], correct: 0 }, { q: 'How long will the flight take?', options: ['About fifteen minutes', 'About fifty minutes', 'About two hours'], correct: 1 }, { q: 'What must passengers do with their tray tables?', options: ['Open them', 'Give them to the crew', 'Stow them'], correct: 2 }] },
+            { id: 2, title: 'Safety demonstration', text: "For your safety, please give your attention to the safety demonstration. There are four exits on this aircraft: two at the front and two at the rear. In an emergency, floor lighting will guide you to the nearest exit. Your life jacket is under your seat. Do not inflate it inside the aircraft. Oxygen masks will drop from above if the cabin pressure falls. Pull the mask towards you and place it over your nose and mouth.",
+              qs: [{ q: 'How many exits are there?', options: ['Two', 'Four', 'Six'], correct: 1 }, { q: 'Where is the life jacket?', options: ['Under your seat', 'In the overhead locker', 'Near the door'], correct: 0 }, { q: 'Where must you NOT inflate the life jacket?', options: ['Outside the aircraft', 'Inside the aircraft', 'On the slide'], correct: 1 }] },
+            { id: 3, title: 'Turbulence', text: "Ladies and gentlemen, the captain has switched on the fasten seat belt sign. We are expecting some turbulence for the next ten minutes. Please return to your seats and fasten your seat belts. Cabin crew, please take your seats. We will suspend the service until it is safe to continue. Thank you for your cooperation.",
+              qs: [{ q: 'Why is the seat belt sign on?', options: ['The plane is landing', 'Turbulence is expected', 'The meal is ready'], correct: 1 }, { q: 'For how long is turbulence expected?', options: ['Ten minutes', 'Thirty minutes', 'One hour'], correct: 0 }, { q: 'What happens to the service?', options: ['It continues as normal', 'It is cancelled for the flight', 'It is suspended until it is safe'], correct: 2 }] },
+            { id: 4, title: 'Descent and landing', text: "Ladies and gentlemen, we have started our descent into Casablanca. The local time is ten forty, and the temperature on the ground is twenty-two degrees. Please return to your seats, fasten your seat belts, and put your seat backs upright. Cabin crew, please prepare the cabin for landing.",
+              qs: [{ q: 'Where is the aircraft landing?', options: ['Marrakech', 'Casablanca', 'Tangier'], correct: 1 }, { q: 'What is the local time?', options: ['Ten fourteen', 'Ten forty', 'Eleven forty'], correct: 1 }, { q: 'What is the temperature on the ground?', options: ['Twelve degrees', 'Twenty-two degrees', 'Thirty-two degrees'], correct: 1 }] },
+            { id: 5, title: 'Medical assistance', text: "Ladies and gentlemen, may I have your attention please. We have a passenger who needs medical assistance. If there is a doctor, a nurse or any medical professional on board, please press your call button now, or make yourself known to a member of the cabin crew. Thank you.",
+              qs: [{ q: 'Why is the announcement being made?', options: ['A passenger needs medical help', 'The flight is delayed', 'Lunch is served'], correct: 0 }, { q: 'Who is asked to respond?', options: ['Any passenger', 'A doctor, nurse or medical professional', 'The captain'], correct: 1 }, { q: 'How can they get the crew\'s attention?', options: ['Shout loudly', 'Open the door', 'Press the call button'], correct: 2 }] },
+            { id: 6, title: 'Delay on the ground', text: "Good afternoon, ladies and gentlemen, this is your captain speaking. We are sorry for the delay. We are waiting for air traffic control clearance, and we expect to take off in about twenty minutes. Please remain seated with your seat belts fastened. The cabin crew will pass through the cabin with water.",
+              qs: [{ q: 'Why is there a delay?', options: ['Bad weather', 'Waiting for air traffic control clearance', 'A technical problem'], correct: 1 }, { q: 'When do they expect to take off?', options: ['In about twenty minutes', 'In two hours', 'Immediately'], correct: 0 }, { q: 'What will the cabin crew do?', options: ['Serve water', 'Open the doors', 'Check passports'], correct: 0 }] }
+        ];
+        const LS_T = { en: { t: 'Listening Lab', play: '▶ Play', slow: '🐢 Slow', stop: '⏹ Stop', show: 'Show transcript', hide: 'Hide transcript', go: 'Start questions ✈', hint: 'Listen first, then answer 3 questions. Replay as many times as you like.', none: 'Your browser cannot read text aloud. Use the transcript.' },
+            fr: { t: 'Laboratoire d\'écoute', play: '▶ Écouter', slow: '🐢 Lent', stop: '⏹ Stop', show: 'Afficher le texte', hide: 'Masquer le texte', go: 'Commencer les questions ✈', hint: 'Écoutez d\'abord, puis répondez à 3 questions. Réécoutez autant que vous voulez.', none: 'Votre navigateur ne peut pas lire à voix haute. Utilisez le texte.' },
+            ar: { t: 'مختبر الاستماع', play: '▶ تشغيل', slow: '🐢 بطيء', stop: '⏹ إيقاف', show: 'إظهار النص', hide: 'إخفاء النص', go: 'ابدأ الأسئلة ✈', hint: 'استمع أولاً ثم أجب عن 3 أسئلة. يمكنك الإعادة كما تشاء.', none: 'متصفحك لا يستطيع القراءة بصوت عالٍ. استخدم النص.' } };
+        const lsT = () => LS_T[(typeof activeLang !== 'undefined' && LS_T[activeLang]) ? activeLang : 'en'];
+        function lsStop() { if('speechSynthesis' in window) speechSynthesis.cancel(); const w = document.getElementById('ls-wave'); if(w) w.classList.remove('on'); }
+        function lsTop(back) { return `<div class="feature-topbar"><button class="btn-action" onclick="${back}" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button><h3 style="font-size:1.1rem; color:var(--accent); font-weight:900;">🎧 ${lsT().t}</h3><div style="width:85px;"></div></div>`; }
+        function openListeningLab() {
+            playSound('click'); lsStop();
+            const box = document.getElementById('simulation-box'); box.classList.add('feature-fullscreen-view');
+            box.innerHTML = lsTop('window.resetToMenu()') + `<div class="ci-wrap"><p style="color:var(--text-muted);font-size:.85rem;text-align:center">${lsT().hint}</p>` + LISTEN.map(a => {
+                const done = window.roadmapUnlocked('ls' + a.id) > 1;
+                return `<div class="le-card ${done ? 'done' : ''}"><div class="le-info"><b>${escH(a.title)}</b><small>3 questions${done ? ' · ✓ completed' : ''}</small></div><button class="btn-action le-play" onclick="window.openListening(${a.id})">🎧</button></div>`;
+            }).join('') + `</div>`;
+        }
+        window.openListeningLab = openListeningLab;
+        function openListening(id) {
+            playSound('click'); lsStop();
+            const a = LISTEN.find(x => x.id === id), T = lsT(), can = 'speechSynthesis' in window;
+            const box = document.getElementById('simulation-box');
+            box.innerHTML = lsTop('window.openListeningLab()') + `<div class="ci-wrap">
+                <div class="ci-card" style="text-align:center"><h4 style="font-size:1.05rem">${escH(a.title)}</h4>
+                    <div class="ls-wave" id="ls-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                    ${can ? `<div class="ci-actions" style="justify-content:center"><button class="btn-action" onclick="window.speakListening(${id}, 0.95)" style="margin:0">${T.play}</button><button class="btn-action" onclick="window.speakListening(${id}, 0.7)" style="margin:0;background:#8b5cf6;color:#fff">${T.slow}</button><button class="btn-action" onclick="window.lsStop()" style="margin:0;background:transparent;border:2px solid var(--border-glow);color:var(--text-muted)">${T.stop}</button></div>` : `<p style="color:var(--warning)">${T.none}</p>`}
+                    <p class="ls-text" id="ls-text" dir="ltr" style="display:${can ? 'none' : 'block'}">${escH(a.text)}</p>
+                    ${can ? `<button class="btn-action" id="ls-tbtn" onclick="window.lsToggleText()" style="margin:12px 0 0;background:transparent;border:2px dashed var(--border-glow);color:var(--text-muted);font-size:.8rem">${T.show}</button>` : ''}</div>
+                <button class="btn-action" onclick="window.startListeningQuiz(${id})" style="margin:0;background:var(--success);color:#fff;padding:1.1rem">${T.go}</button></div>`;
+        }
+        window.openListening = openListening; window.lsStop = lsStop;
+        window.lsToggleText = () => { const t = document.getElementById('ls-text'), b = document.getElementById('ls-tbtn'), show = t.style.display === 'none'; t.style.display = show ? 'block' : 'none'; b.textContent = show ? lsT().hide : lsT().show; };
+        function speakListening(id, rate) {
+            lsStop();
+            const a = LISTEN.find(x => x.id === id), u = new SpeechSynthesisUtterance(a.text);
+            const voices = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang));
+            u.voice = voices.find(v => /en-GB/i.test(v.lang)) || voices.find(v => /en-US/i.test(v.lang)) || voices[0] || null;
+            u.lang = u.voice ? u.voice.lang : 'en-GB'; u.rate = rate; u.pitch = 1;
+            const w = document.getElementById('ls-wave');
+            u.onstart = () => w && w.classList.add('on'); u.onend = u.onerror = () => { const x = document.getElementById('ls-wave'); if(x) x.classList.remove('on'); };
+            speechSynthesis.speak(u);
+        }
+        window.speakListening = speakListening;
+        function startListeningQuiz(id) {
+            lsStop();
+            const a = LISTEN.find(x => x.id === id);
+            window.currentRoadmapSession = { questions: a.qs.map(q => ({ q: q.q, options: q.options.slice(), correct: q.correct })), currentIdx: 0, poolKey: 'ls' + id, nodeNum: 1, totalNodes: 1 };
+            renderRoadmapStep();
+        }
+        window.startListeningQuiz = startListeningQuiz;
+        if('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => {};
+    
+        /* CLASS LEAGUE: weekly XP ranking inside the class */
+        async function openClassLeague(codeOverride) {
+            playSound('click');
+            const box = document.getElementById('simulation-box'); box.classList.add('feature-fullscreen-view');
+            const top = `<div class="feature-topbar"><button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button><h3 style="font-size:1.1rem; color:var(--accent); font-weight:900;">🏆 Class League</h3><div style="width:85px;"></div></div>`;
+            const isT = sessionUser.role === 'teacher', code = (codeOverride || sessionUser.group_code || (isT ? localStorage.getItem('aero_insights_code') : '') || '').trim();
+            if(!code) { box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card"><h4>No class yet</h4><p style="color:var(--text-muted);margin-top:6px">${isT ? 'Open Class Insights first and enter your class code.' : 'Join a class with your teacher\'s code in the Study Hub to enter the league.'}</p></div></div>`; return; }
+            box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card" style="text-align:center">Loading…</div></div>`;
+            let d; try { const r = await fetch('/api/league/class?group_code=' + encodeURIComponent(code)); if(!r.ok) throw 0; d = await r.json(); }
+            catch(e) { box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card">Could not load the league.</div></div>`; return; }
+            const m = d.members, me = m.findIndex(x => x.username === sessionUser.username);
+            const name = x => escH((x.full_name || x.username).split(' ')[0]);
+            const pod = [1, 0, 2].filter(i => m[i]).map(i => `<div class="lg-pod p${i + 1}"><span class="lg-medal">${['🥇', '🥈', '🥉'][i]}</span><b>${name(m[i])}</b><small>${m[i].week_xp} XP</small><i></i></div>`).join('');
+            const maxX = Math.max(1, ...m.map(x => x.week_xp));
+            const rows = m.map((x, i) => `<div class="ci-row ${x.username === sessionUser.username ? 'active lg-me' : 'active'}" style="grid-template-columns:28px 1.3fr 1fr auto"><span class="ci-rank">${i + 1}</span><div class="ci-name"><b>${escH(x.full_name || x.username)}${x.username === sessionUser.username ? ' (you)' : ''}</b><small>🔥 ${x.streak} · ⭐ ${x.xp}</small></div><div class="ci-prog"><i style="width:${Math.round(x.week_xp / maxX * 100)}%"></i></div><span class="ci-meta">+${x.week_xp}</span></div>`).join('');
+            let msg = '';
+            if(me === 0 && m.length > 1) msg = '👑 You lead the class this week. Keep going!';
+            else if(me > 0) msg = `🎯 You are #${me + 1}. ${Math.max(0, m[me - 1].week_xp - m[me].week_xp) + 1} more XP to pass ${name(m[me - 1])}.`;
+            box.innerHTML = top + `<div class="ci-wrap">
+                <div class="ci-card ci-tips"><h4>Week ends in ${d.days_left} day${d.days_left === 1 ? '' : 's'}</h4>${msg ? `<p>${msg}</p>` : '<p>Complete nodes and lessons to climb the ranking.</p>'}</div>
+                ${m.length ? `<div class="lg-podium">${pod}</div>` : ''}
+                <div class="ci-card"><h4>Class ${escH(code)} · XP earned this week</h4>${rows || '<small style="color:var(--text-muted)">No students yet.</small>'}<small style="display:block;margin-top:10px;color:var(--text-muted)">The league counts XP from the moment the class first opened it this week.</small></div></div>`;
+        }
+        window.openClassLeague = openClassLeague;
+    
+        /* DIAGNOSTICS: records errors so problems can be reported precisely */
+        (function diagnostics() {
+            const log = (m) => { const L = (window.__aeroLog = window.__aeroLog || []); L.push(new Date().toISOString().slice(11, 19) + ' ' + m); if(L.length > 40) L.shift(); };
+            let warned = false;
+            const warn = () => { if(warned) return; warned = true; setTimeout(() => showToast('Something went wrong. Settings → "Copy diagnostics" and send it to support.', true), 400); };
+            window.addEventListener('error', e => { log('JS ' + e.message + ' @' + String(e.filename || '').split('/').pop() + ':' + e.lineno); warn(); });
+            window.addEventListener('unhandledrejection', e => { log('PROMISE ' + String((e.reason && e.reason.message) || e.reason).slice(0, 160)); warn(); });
+        })();
+        async function copyDiagnostics() {
+            let health = 'unavailable';
+            try { const r = await fetch('/api/health'); health = JSON.stringify(await r.json()); } catch(e) {}
+            const txt = ['AEROSTAR DIAGNOSTICS', 'time: ' + new Date().toISOString(), 'role: ' + (sessionUser ? sessionUser.role : 'none'), 'lang: ' + activeLang,
+                'screen: ' + innerWidth + 'x' + innerHeight, 'standalone: ' + (window.matchMedia('(display-mode: standalone)').matches), 'agent: ' + navigator.userAgent, 'health: ' + health,
+                'log:', ...((window.__aeroLog || []).length ? window.__aeroLog : ['(no errors recorded)'])].join('\n');
+            try { await navigator.clipboard.writeText(txt); }
+            catch(e) { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch(_) {} t.remove(); }
+            showToast('Diagnostics copied ✓ Paste it in your message.');
+        }
+        window.copyDiagnostics = copyDiagnostics;
     </script>
 </body>
 </html>
