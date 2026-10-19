@@ -74,7 +74,7 @@ def read_token(tok: str):
 PUBLIC_API = {"/api/login", "/api/register", "/api/user/password-change", "/api/health"}
 TEACHER_ONLY = {"/api/teacher/adjust-xp", "/api/teacher/dashboard", "/api/teacher/export-csv", "/api/exam/create",
                 "/api/exam/create-advanced", "/api/exam/upload-pdf", "/api/exam/delete",
-                "/api/lesson/create", "/api/lesson/delete", "/api/demo/seed", "/api/demo/clear", "/api/announce/create", "/api/announce/delete"}
+                "/api/lesson/create", "/api/lesson/delete", "/api/demo/seed", "/api/demo/clear", "/api/announce/create", "/api/announce/delete", "/api/teacher/set-code"}
 ACTOR_FIELDS = ("username", "student_username", "teacher_username", "sender_username")
 
 def identity_problem(scope, body: bytes, user):
@@ -1612,6 +1612,42 @@ def class_league(group_code: str, request: Request):
              "week_xp": max(0, (m["xp_points"] or 0) - base.get(m["username"], m["xp_points"] or 0))} for m in members]
     rows.sort(key=lambda r: (-r["week_xp"], -r["xp"]))
     return {"week_start": str(monday), "days_left": 6 - today.weekday(), "members": rows}
+
+class SetCodeModel(BaseModel):
+    teacher_username: str
+    new_code: str
+
+@app.post("/api/teacher/set-code")
+def set_class_code(data: SetCodeModel):
+    import re
+    new = data.new_code.strip()
+    if not re.fullmatch(r"[A-Za-z0-9_-]{3,20}", new):
+        raise HTTPException(status_code=400, detail="Use 3-20 letters, numbers, - or _.")
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT group_code FROM aero_v22_users WHERE username = %s;", (data.teacher_username,))
+    me = cur.fetchone()
+    old = (me or {}).get("group_code") or ""
+    if new != old:
+        cur.execute("SELECT 1 FROM aero_v22_groups WHERE group_code = %s AND teacher_username <> %s;", (new, data.teacher_username))
+        taken = cur.fetchone()
+        cur.execute("SELECT 1 FROM aero_v22_users WHERE group_code = %s AND role = 'teacher' AND username <> %s;", (new, data.teacher_username))
+        if taken or cur.fetchone():
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=409, detail="This code is already used by another class. Try a different one.")
+        if old:
+            cur.execute("UPDATE aero_v22_groups SET group_code = %s WHERE group_code = %s AND teacher_username = %s;", (new, old, data.teacher_username))
+            cur.execute("UPDATE aero_v22_users SET group_code = %s WHERE group_code = %s;", (new, old))
+            for table in ("aero_v22_exams", "aero_v22_class_lessons", "aero_v22_announcements"):
+                cur.execute("UPDATE " + table + " SET group_code = %s WHERE group_code = %s;", (new, old))
+        cur.execute("UPDATE aero_v22_users SET group_code = %s WHERE username = %s;", (new, data.teacher_username))
+        cur.execute("INSERT INTO aero_v22_groups (group_name, group_code, teacher_username) VALUES (%s, %s, %s) ON CONFLICT (group_code) DO NOTHING;",
+                    ("Class " + new, new, data.teacher_username))
+        conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success", "group_code": new}
 
 @app.get("/manifest.json")
 def serve_manifest():
