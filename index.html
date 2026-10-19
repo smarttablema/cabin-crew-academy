@@ -2044,8 +2044,9 @@
                     <div style="background:var(--bg-deep); padding:1.2rem; border-radius:18px; border:1px solid var(--accent); margin-bottom:1.5rem;">
                         <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Advanced Interactive Exam Studio</h4>
                         <div>
-                            <label><b>Custom Teacher Exam Code (e.g. AERO2026)</b></label>
-                            <input type="text" id="ex-code" placeholder="Enter unique exam/class code" style="margin-bottom:8px; font-weight:800;" />
+                            <label><b>Your code for this exam (e.g. AERO2026)</b></label>
+                            <input type="text" id="ex-code" value="${escH(localStorage.getItem('aero_content_code') || sessionUser.group_code || '')}" maxlength="30" placeholder="Choose your own code" style="margin-bottom:4px; font-weight:800; text-transform:uppercase;" />
+                            <small style="display:block;margin-bottom:10px;color:var(--text-muted)">Give this code to your students. When they enter it in the Study Hub, they see this exam.</small>
                             
                             <label><b>Exam Title</b></label>
                             <input type="text" id="ex-title" placeholder="e.g. EASA Regulations Midterm" style="margin-bottom:8px;" />
@@ -2075,7 +2076,7 @@
                     <div style="background:var(--surface-card); padding:1.2rem; border-radius:18px; border:1px solid var(--border-glow); margin-bottom:1.5rem;">
                         <h4 style="color:var(--gold); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">📄 PDF Document Material Upload (Custom Code)</h4>
                         <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Upload or link a PDF study guide/exam for your students under your custom code.</p>
-                        <input type="text" id="pdf-code" placeholder="Custom Code for PDF Material" style="margin-bottom:8px; font-weight:800;" />
+                        <input type="text" id="pdf-code" value="${escH(localStorage.getItem('aero_content_code') || sessionUser.group_code || '')}" maxlength="30" placeholder="Choose your own code for this PDF" style="margin-bottom:8px; font-weight:800; text-transform:uppercase;" />
                         <input type="text" id="pdf-doc-title" placeholder="PDF Document Title (e.g. EASA Chapter 4 PDF)" style="margin-bottom:8px;" />
                         <input type="text" id="pdf-doc-url" placeholder="PDF File URL or Link (https://...)" style="margin-bottom:8px;" />
                         <button class="btn-action" onclick="window.publishPDFDocument()" style="padding:10px; font-size:0.9rem; background:var(--gold); color:#020617; margin-top:0;">Publish PDF Material 📑</button>
@@ -2381,10 +2382,11 @@
                 body: JSON.stringify({ group_code: groupCode, teacher_username: sessionUser.username, title, exam_data, is_pdf: false })
             });
             if(res.ok) {
-                showToast('Advanced exam published successfully! 🏆');
-                openStudyHub();
+                showToast('Exam published! Students enter code ' + groupCode.toUpperCase() + ' to see it. 🏆');
+                afterPublishSwitchCode(groupCode);
             } else {
-                showToast('Failed to publish exam', true);
+                const e = await res.json().catch(() => ({}));
+                showToast(e.detail || 'Failed to publish exam', true);
             }
         }
         window.publishAdvancedExam = publishAdvancedExam;
@@ -2404,13 +2406,26 @@
                 body: JSON.stringify({ group_code: groupCode, teacher_username: sessionUser.username, title, exam_data: [], is_pdf: true, pdf_url: url })
             });
             if(res.ok) {
-                showToast('PDF Document uploaded successfully! 📑');
-                openStudyHub();
+                showToast('PDF published! Students enter code ' + groupCode.toUpperCase() + ' to see it. 📑');
+                afterPublishSwitchCode(groupCode);
             } else {
-                showToast('Failed to upload PDF document', true);
+                const e = await res.json().catch(() => ({}));
+                showToast(e.detail || 'Failed to upload PDF document', true);
             }
         }
         window.publishPDFDocument = publishPDFDocument;
+        async function afterPublishSwitchCode(code) {
+            code = code.toUpperCase();
+            localStorage.setItem('aero_content_code', code);
+            const inp = document.getElementById('student-group-code-input'); if(inp) inp.value = code;
+            if(!sessionUser.group_code) {
+                try { const r = await fetch('/api/teacher/set-code', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ teacher_username: sessionUser.username, new_code: code }) });
+                    if(r.ok) { sessionUser.group_code = code; localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser)); } } catch(e) {}
+            }
+            openStudyHub();
+        }
+        window.afterPublishSwitchCode = afterPublishSwitchCode;
+
 
         /* NAMED GROUPS & SHUFFLER LOGIC */
         function createTeacherGroup() {
@@ -3726,6 +3741,8 @@
             showToast('Class code is now ' + nc + ' ✓'); playSound('success'); openClassInsights(nc);
         }
         window.changeClassCode = changeClassCode;
+    
+        document.addEventListener('input', e => { const id = e.target && e.target.id; if(['ex-code', 'pdf-code', 'cc-input', 'student-group-code-input', 'ci-code'].includes(id)) { const p = e.target.selectionStart; e.target.value = e.target.value.toUpperCase(); try { e.target.setSelectionRange(p, p); } catch(_) {} } });
     </script>
 </body>
 </html>
