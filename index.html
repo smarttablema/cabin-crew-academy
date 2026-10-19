@@ -727,10 +727,12 @@
         if(api) { const t = localStorage.getItem('aero_token'); if(t) o.headers = Object.assign({}, o.headers || {}, { 'Authorization': 'Bearer ' + t }); }
         const r = await rawFetch(u, o);
         if(api && !r.ok) { const L = (window.__aeroLog = window.__aeroLog || []); L.push(new Date().toISOString().slice(11, 19) + ' API ' + r.status + ' ' + url.split('?')[0]); if(L.length > 40) L.shift(); }
-        if(api && r.ok && /^\/api\/(login|register)/.test(url)) r.clone().json().then(d => { if(d && d.token) localStorage.setItem('aero_token', d.token); }).catch(() => {});
+        if(api && r.ok && /^\/api\/(login|register)/.test(url)) { try { const d = await r.clone().json(); if(d && d.token) localStorage.setItem('aero_token', d.token); } catch(e) {} }
         if(api && r.status === 401 && !/^\/api\/(login|register|user\/password-change)/.test(url) && localStorage.getItem('aero_crew_user_pro22')) {
             localStorage.removeItem('aero_token'); localStorage.removeItem('aero_crew_user_pro22');
-            setTimeout(() => location.reload(), 600);
+            const nowT = Date.now(), lastT = +(sessionStorage.getItem('aero_last_401') || 0); sessionStorage.setItem('aero_last_401', String(nowT));
+            if(nowT - lastT > 10000) setTimeout(() => location.reload(), 600);
+            else setTimeout(() => showToast('Your session could not be restored. Please log in again.', true), 300);
         }
         return r;
     };
