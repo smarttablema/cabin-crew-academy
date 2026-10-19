@@ -1,20 +1,199 @@
 import os
+import json
+import base64
+import hmac
+import time
+import hashlib
 import random
 import csv
 import io
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
+from fastapi.responses import FileResponse, StreamingResponse, JSONResponse
 from pydantic import BaseModel
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_7aYbfrQdjcq6@ep-cold-lake-b1djlrzp-pooler.c-5.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is not set. Add it in Railway > Variables (never put it in the code).")
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-app = FastAPI(title="Aero Crew Academy - Millennium Edition", version="32.0.0")
+SECRET_KEYS = {"password", "recovery_pin"}
+
+def _strip_secrets(x):
+    if isinstance(x, dict):
+        return {k: _strip_secrets(v) for k, v in x.items() if k not in SECRET_KEYS}
+    if isinstance(x, list):
+        return [_strip_secrets(v) for v in x]
+    return x
+
+class SafeJSONResponse(JSONResponse):
+    """Never lets password hashes or recovery PINs leave the server."""
+    def render(self, content):
+        return super().render(_strip_secrets(content))
+
+def hash_password(pw: str) -> str:
+    salt = os.urandom(16)
+    dk = hashlib.pbkdf2_hmac("sha256", pw.encode(), salt, 200_000)
+    return "p1$" + salt.hex() + "$" + dk.hex()
+
+def verify_password(pw: str, stored: str) -> bool:
+    stored = stored or ""
+    if stored.startswith("p1$"):
+        try:
+            _, salt_hex, dk_hex = stored.split("$")
+            dk = hashlib.pbkdf2_hmac("sha256", pw.encode(), bytes.fromhex(salt_hex), 200_000)
+            return hmac.compare_digest(dk.hex(), dk_hex)
+        except Exception:
+            return False
+    return hmac.compare_digest(stored.encode(), pw.encode())  # old plain-text account, upgraded at login
+
+SECRET = (os.getenv("SECRET_KEY") or hashlib.sha256(DATABASE_URL.encode()).hexdigest()).encode()
+
+def make_token(user) -> str:
+    payload = "|".join([user["username"], user["phone_number"], user["role"], str(int(time.time()) + 30 * 86400)])
+    sig = hmac.new(SECRET, payload.encode(), "sha256").hexdigest()
+    return base64.urlsafe_b64encode(payload.encode()).decode() + "." + sig
+
+def read_token(tok: str):
+    try:
+        b, sig = tok.rsplit(".", 1)
+        payload = base64.urlsafe_b64decode(b.encode()).decode()
+        if not hmac.compare_digest(hmac.new(SECRET, payload.encode(), "sha256").hexdigest(), sig):
+            return None
+        username, phone, role, exp = payload.split("|")
+        if int(exp) < time.time():
+            return None
+        return {"username": username, "phone": phone, "role": role}
+    except Exception:
+        return None
+
+PUBLIC_API = {"/api/login", "/api/register", "/api/user/password-change", "/api/health"}
+TEACHER_ONLY = {"/api/teacher/adjust-xp", "/api/teacher/dashboard", "/api/teacher/export-csv", "/api/exam/create",
+                "/api/exam/create-advanced", "/api/exam/upload-pdf", "/api/exam/delete",
+                "/api/lesson/create", "/api/lesson/delete", "/api/demo/seed", "/api/demo/clear", "/api/announce/create", "/api/announce/delete"}
+ACTOR_FIELDS = ("username", "student_username", "teacher_username", "sender_username")
+
+def identity_problem(scope, body: bytes, user):
+    from urllib.parse import parse_qs
+    if scope["path"] in TEACHER_ONLY and user["role"] != "teacher":
+        return "Teachers only."
+    if scope["path"] == "/api/admin/overview" and user["role"] != "admin":
+        return "Academy directors only."
+    fields = {k: v[0] for k, v in parse_qs(scope.get("query_string", b"").decode()).items()}
+    try:
+        j = json.loads(body) if body else None
+        if isinstance(j, dict):
+            fields.update({k: v for k, v in j.items() if isinstance(v, (str, int))})
+    except Exception:
+        pass
+    for f in ACTOR_FIELDS:
+        if f in fields and str(fields[f]) != user["username"]:
+            return "You can only act as yourself."
+    if "phone_number" in fields and str(fields["phone_number"]) != user["phone"]:
+        return "You can only act as yourself."
+    return None
+
+class AuthMiddleware:
+    def __init__(self, app):
+        self.app = app
+    async def __call__(self, scope, receive, send):
+        path = scope.get("path", "")
+        if scope["type"] != "http" or not path.startswith("/api/") or path in PUBLIC_API:
+            return await self.app(scope, receive, send)
+        auth = dict(scope["headers"]).get(b"authorization", b"").decode()
+        user = read_token(auth[7:]) if auth.startswith("Bearer ") else None
+        if not user:
+            return await SafeJSONResponse({"detail": "Session expired. Please log in again."}, status_code=401)(scope, receive, send)
+        body, more = b"", True
+        while more:
+            msg = await receive()
+            body += msg.get("body", b"")
+            more = msg.get("more_body", False)
+        problem = identity_problem(scope, body, user)
+        if problem:
+            return await SafeJSONResponse({"detail": problem}, status_code=403)(scope, receive, send)
+        sent = False
+        async def replay():
+            nonlocal sent
+            if not sent:
+                sent = True
+                return {"type": "http.request", "body": body, "more_body": False}
+            return await receive()
+        scope.setdefault("state", {})["auth"] = user
+        await self.app(scope, replay, send)
+
+LOGIN_FAILS = {}
+def login_blocked(key: str) -> bool:
+    n, t0 = LOGIN_FAILS.get(key, (0, 0))
+    if time.time() - t0 > 600:
+        LOGIN_FAILS.pop(key, None)
+        return False
+    return n >= 8
+def login_failed(key: str):
+    n, t0 = LOGIN_FAILS.get(key, (0, time.time()))
+    LOGIN_FAILS[key] = (n + 1, t0)
+
+app = FastAPI(default_response_class=SafeJSONResponse)
+app.add_middleware(AuthMiddleware)
+
+STARTUP_ERRORS = []
+
+def startup_extras():
+    """Newer tables. Each statement is isolated so one failure can never stop the site from starting."""
+    statements = [
+        "ALTER TABLE aero_v22_users ALTER COLUMN password TYPE TEXT;",
+        """CREATE TABLE IF NOT EXISTS aero_v22_class_lessons (
+               id SERIAL PRIMARY KEY, group_code VARCHAR(50), teacher_username VARCHAR(50),
+               title VARCHAR(120), questions JSONB, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);""",
+        """CREATE TABLE IF NOT EXISTS aero_v22_owned_skins (
+               id SERIAL PRIMARY KEY, username VARCHAR(50), skin_name_en VARCHAR(50), UNIQUE (username, skin_name_en));""",
+        """INSERT INTO aero_v22_owned_skins (username, skin_name_en)
+               SELECT username, active_skin FROM aero_v22_users WHERE active_skin IS NOT NULL ON CONFLICT DO NOTHING;""",
+        """CREATE TABLE IF NOT EXISTS aero_v22_announcements (
+               id SERIAL PRIMARY KEY, group_code VARCHAR(50), teacher_username VARCHAR(50),
+               message VARCHAR(300), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);""",
+        """CREATE TABLE IF NOT EXISTS aero_v22_weekly_xp (
+               username VARCHAR(50), week_start DATE, start_xp INT, PRIMARY KEY (username, week_start));""",
+        """CREATE TABLE IF NOT EXISTS aero_v22_mistakes (
+               id SERIAL PRIMARY KEY, username VARCHAR(50), question_text TEXT, incorrect_answer TEXT, correct_answer TEXT,
+               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE (username, question_text));""",
+    ]
+    for sql in statements:
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute(sql)
+            conn.commit()
+            cur.close()
+            conn.close()
+        except Exception as e:
+            STARTUP_ERRORS.append(str(e)[:200])
+            print("STARTUP WARNING:", e)
+
+EXPECTED_TABLES = ["users", "battles", "exams", "exam_submissions", "shop_skins", "mistakes", "class_lessons", "owned_skins", "announcements", "weekly_xp"]
+
+@app.get("/api/health")
+def health():
+    """Open this address after every deploy: it shows whether all tables exist."""
+    out = {"status": "ok", "tables": {}, "startup_errors": STARTUP_ERRORS}
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
+        have = {r["table_name"] for r in cur.fetchall()}
+        cur.close()
+        conn.close()
+        for t in EXPECTED_TABLES:
+            out["tables"][t] = ("aero_v22_" + t) in have
+        if not all(out["tables"].values()) or STARTUP_ERRORS:
+            out["status"] = "needs attention"
+    except Exception as e:
+        out["status"] = "database error: " + str(e)[:120]
+    return out
 
 @app.on_event("startup")
 def startup_db():
@@ -179,6 +358,7 @@ def startup_db():
     conn.commit()
     cur.close()
     conn.close()
+    startup_extras()
 
 class RegisterModel(BaseModel):
     phone_number: str
@@ -277,7 +457,13 @@ class BattleRespondModel(BaseModel):
 class BattleSubmitModel(BaseModel):
     match_id: str
     username: str
-    score: int
+    score: int = 0
+
+class BattleAnswerModel(BaseModel):
+    match_id: str
+    username: str
+    q_index: int
+    choice: int
 
 class BattleCancelModel(BaseModel):
     match_id: str
@@ -293,14 +479,36 @@ def register(data: RegisterModel):
     
     assigned_role = "student"
     group_code = data.group_code
+    if len(data.password or "") < 6:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
     
     if data.role == "teacher":
-        if data.teacher_code != "112233":
+        invite = os.getenv("TEACHER_INVITE_CODE")
+        if not invite:
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=403, detail="Teacher registration is not enabled yet. Ask the administrator.")
+        if not hmac.compare_digest((data.teacher_code or "").encode(), invite.encode()):
             cur.close()
             conn.close()
             raise HTTPException(status_code=403, detail="Invalid teacher access code.")
         assigned_role = "teacher"
         group_code = str(random.randint(1000, 9999))
+
+    if data.role == "admin":
+        invite = os.getenv("ADMIN_INVITE_CODE")
+        if not invite:
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=403, detail="Director registration is not enabled yet. Set ADMIN_INVITE_CODE on the server.")
+        if not hmac.compare_digest((data.teacher_code or "").encode(), invite.encode()):
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=403, detail="Invalid director access code.")
+        assigned_role = "admin"
+        group_code = ""
 
     cur.execute("SELECT * FROM aero_v22_users WHERE phone_number = %s OR username = %s;", (data.phone_number, data.username))
     if cur.fetchone():
@@ -311,7 +519,7 @@ def register(data: RegisterModel):
     cur.execute(
         """INSERT INTO aero_v22_users (phone_number, username, full_name, password, recovery_pin, role, avatar_gender, group_code) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;""",
-        (data.phone_number, data.username, data.full_name, data.password, data.recovery_pin, assigned_role, data.avatar_gender, group_code)
+        (data.phone_number, data.username, data.full_name, hash_password(data.password), data.recovery_pin, assigned_role, data.avatar_gender, group_code)
     )
     user = cur.fetchone()
 
@@ -324,18 +532,26 @@ def register(data: RegisterModel):
     conn.commit()
     cur.close()
     conn.close()
-    return {"status": "success", "user": user}
+    return {"status": "success", "user": user, "token": make_token(user)}
 
 @app.post("/api/login")
 def login(data: LoginModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v22_users WHERE phone_number = %s AND password = %s;", (data.phone_number, data.password))
+    if login_blocked(data.phone_number):
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=429, detail="Too many attempts. Please wait 10 minutes and try again.")
+    cur.execute("SELECT * FROM aero_v22_users WHERE phone_number = %s;", (data.phone_number,))
     user = cur.fetchone()
-    if not user:
+    if not user or not verify_password(data.password, user["password"]):
+        login_failed(data.phone_number)
         cur.close()
         conn.close()
         raise HTTPException(status_code=401, detail="Invalid credentials.")
+    LOGIN_FAILS.pop(data.phone_number, None)
+    if not (user["password"] or "").startswith("p1$"):
+        cur.execute("UPDATE aero_v22_users SET password = %s WHERE id = %s;", (hash_password(data.password), user["id"]))
 
     today = date.today()
     last_prac = user.get("last_practice_date")
@@ -348,10 +564,11 @@ def login(data: LoginModel):
 
     cur.execute("UPDATE aero_v22_users SET streak = %s WHERE id = %s RETURNING *;", (streak, user["id"]))
     updated_user = cur.fetchone()
+    conn.commit()
 
     cur.close()
     conn.close()
-    return {"status": "success", "user": updated_user}
+    return {"status": "success", "user": updated_user, "token": make_token(updated_user)}
 
 @app.get("/api/user/refresh")
 def refresh_user(phone_number: str):
@@ -411,13 +628,22 @@ def update_avatar(data: AvatarUpdateModel):
 def change_password(data: PasswordChangeModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v22_users WHERE phone_number = %s;", (data.phone_number,))
-    user = cur.fetchone()
-    if not user or user["recovery_pin"] != data.recovery_pin:
+    if login_blocked("pin:" + data.phone_number):
         cur.close()
         conn.close()
+        raise HTTPException(status_code=429, detail="Too many attempts. Please wait 10 minutes and try again.")
+    cur.execute("SELECT * FROM aero_v22_users WHERE phone_number = %s;", (data.phone_number,))
+    user = cur.fetchone()
+    if len(data.new_password or "") < 6:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
+    if not user or not hmac.compare_digest(str(user["recovery_pin"] or "").encode(), str(data.recovery_pin or "").encode()):
+        cur.close()
+        conn.close()
+        login_failed("pin:" + data.phone_number)
         raise HTTPException(status_code=400, detail="Invalid recovery PIN.")
-    cur.execute("UPDATE aero_v22_users SET password = %s WHERE phone_number = %s;", (data.new_password, data.phone_number))
+    cur.execute("UPDATE aero_v22_users SET password = %s WHERE phone_number = %s;", (hash_password(data.new_password), data.phone_number))
     conn.commit()
     cur.close()
     conn.close()
@@ -581,7 +807,7 @@ def send_group_message(data: GroupMessageModel):
     return {"status": "success", "message": msg}
 
 @app.get("/api/group/info")
-def get_group_info(group_code: str):
+def get_group_info(group_code: str, request: Request):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("SELECT * FROM aero_v22_groups WHERE group_code = %s;", (group_code,))
@@ -600,6 +826,12 @@ def get_group_info(group_code: str):
 
     cur.close()
     conn.close()
+    if request.state.auth["role"] != "teacher":
+        for e in exams:
+            qs = e.get("exam_data")
+            if isinstance(qs, str):
+                qs = json.loads(qs)
+            e["exam_data"] = [{k: v for k, v in q.items() if k != "correct"} for q in (qs or [])]
     return {"group": grp, "members": members, "lessons": [], "exams": exams, "submissions": submissions}
 
 @app.post("/api/exam/create")
@@ -693,7 +925,6 @@ def export_gradebook_csv(group_code: str):
         headers={"Content-Disposition": f"attachment; filename=gradebook_{group_code}.csv"}
     )
 
-@app.post("/api/exam/submit")
 def submit_exam(data: SubmitExamModel):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -718,7 +949,7 @@ def submit_exam(data: SubmitExamModel):
 def complete_roadmap_node(data: NodeCompleteModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT completed_nodes, xp_points, hearts, streak, flight_hours, mistake_hangar FROM aero_v22_users WHERE phone_number = %s;", (data.phone_number,))
+    cur.execute("SELECT completed_nodes, xp_points, hearts, streak, flight_hours, mistake_hangar, last_practice_date FROM aero_v22_users WHERE phone_number = %s;", (data.phone_number,))
     user = cur.fetchone()
     if not user:
         cur.close()
@@ -748,11 +979,13 @@ def complete_roadmap_node(data: NodeCompleteModel):
         raise HTTPException(status_code=400, detail="Out of hearts! Visit the Heart Recovery Lounge.")
 
     today = date.today()
-    streak += 1
+    last_day = user.get("last_practice_date")
+    if last_day != today:
+        streak = streak + 1 if last_day == today - timedelta(days=1) else 1
 
     if data.node_id not in nodes:
         nodes.append(data.node_id)
-        cur.execute("UPDATE aero_v22_users SET completed_nodes = %s, xp_points = xp_points + 30, flight_hours = flight_hours + 1, streak = %s, last_practice_date = %s WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts, streak, flight_hours;", (nodes, streak, today, data.phone_number))
+        cur.execute("UPDATE aero_v22_users SET completed_nodes = %s, xp_points = xp_points + 50, flight_hours = flight_hours + 1, streak = %s, last_practice_date = %s WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts, streak, flight_hours;", (nodes, streak, today, data.phone_number))
     else:
         cur.execute("UPDATE aero_v22_users SET streak = %s, last_practice_date = %s WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts, streak, flight_hours;", (streak, today, data.phone_number))
     res = cur.fetchone()
@@ -762,14 +995,16 @@ def complete_roadmap_node(data: NodeCompleteModel):
     return {"status": "success", "completed_nodes": res["completed_nodes"], "xp": res["xp_points"], "hearts": res["hearts"], "streak": res["streak"], "flight_hours": res["flight_hours"]}
 
 @app.get("/api/shop/skins")
-def get_skins():
+def get_skins(request: Request):
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("SELECT * FROM aero_v22_shop_skins ORDER BY cost ASC;")
     skins = cur.fetchall()
+    cur.execute("SELECT skin_name_en FROM aero_v22_owned_skins WHERE username = %s;", (request.state.auth["username"],))
+    owned = [r["skin_name_en"] for r in cur.fetchall()]
     cur.close()
     conn.close()
-    return {"skins": skins}
+    return {"skins": skins, "owned": owned}
 
 @app.post("/api/shop/buy")
 def buy_skin(data: BuySkinModel):
@@ -781,13 +1016,23 @@ def buy_skin(data: BuySkinModel):
         cur.close()
         conn.close()
         raise HTTPException(status_code=404, detail="User not found.")
-    if user["xp_points"] < data.cost:
+    cur.execute("SELECT cost FROM aero_v22_shop_skins WHERE skin_name_en = %s LIMIT 1;", (data.skin_name,))
+    sk = cur.fetchone()
+    if not sk:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Unknown skin.")
+    cur.execute("SELECT 1 FROM aero_v22_owned_skins WHERE username = %s AND skin_name_en = %s;", (user["username"], data.skin_name))
+    already_owned = bool(cur.fetchone()) or user.get("active_skin") == data.skin_name or sk["cost"] == 0
+    price = 0 if already_owned else sk["cost"]
+    if user["xp_points"] < price:
         cur.close()
         conn.close()
         raise HTTPException(status_code=400, detail="Not enough XP stars!")
-    new_xp = user["xp_points"] - data.cost
+    new_xp = user["xp_points"] - price
     cur.execute("UPDATE aero_v22_users SET xp_points = %s, active_skin = %s WHERE phone_number = %s RETURNING *;", (new_xp, data.skin_name, data.phone_number))
     updated = cur.fetchone()
+    cur.execute("INSERT INTO aero_v22_owned_skins (username, skin_name_en) VALUES (%s, %s) ON CONFLICT DO NOTHING;", (user["username"], data.skin_name))
     conn.commit()
     cur.close()
     conn.close()
@@ -797,6 +1042,15 @@ def buy_skin(data: BuySkinModel):
 def send_battle_invite(data: BattleInviteModel):
     conn = get_db_connection()
     cur = conn.cursor()
+    if data.receiver_username == data.sender_username:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=400, detail="You cannot challenge yourself.")
+    cur.execute("SELECT 1 FROM aero_v22_users WHERE username = %s;", (data.receiver_username,))
+    if not cur.fetchone():
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Opponent not found.")
     match_id = f"match_{int(random.randint(100000, 999999))}"
     
     raw_questions = [
@@ -836,93 +1090,544 @@ def send_battle_invite(data: BattleInviteModel):
     conn.close()
     return {"match_id": match_id, "status": "sent"}
 
+def _strip_correct(qs):
+    return [{"q": q["q"], "options": q["options"]} for q in (qs or [])]
+
+def _load_match(cur, match_id, me):
+    cur.execute("SELECT * FROM aero_v22_battles WHERE match_id = %s;", (match_id,))
+    m = cur.fetchone()
+    if not m:
+        raise HTTPException(status_code=404, detail="Match not found")
+    if me not in (m["sender_username"], m["receiver_username"]):
+        raise HTTPException(status_code=403, detail="This is not your match.")
+    return m
+
+def _set_score_key(cur, match_id, key, value):
+    cur.execute("UPDATE aero_v22_battles SET scores = jsonb_set(COALESCE(scores, '{}'::jsonb), %s::text[], %s::jsonb, true) WHERE match_id = %s;",
+                ([key], json.dumps(value), match_id))
+
+def _try_finalize(cur, match_id):
+    """Decides the winner on the server once both players finished (or one finished and the other abandoned for 15 min)."""
+    cur.execute("SELECT * FROM aero_v22_battles WHERE match_id = %s;", (match_id,))
+    m = cur.fetchone()
+    sc = m.get("scores") or {}
+    if sc.get("_final") or m["status"] != "accepted":
+        return m
+    a, b = m["sender_username"], m["receiver_username"]
+    da, db = sc.get(a, {}).get("done"), sc.get(b, {}).get("done")
+    expired = bool(m.get("created_at")) and (datetime.utcnow() - m["created_at"]).total_seconds() > 900
+    if not ((da and db) or ((da or db) and expired)):
+        return m
+    cur.execute("UPDATE aero_v22_battles SET scores = jsonb_set(COALESCE(scores, '{}'::jsonb), '{_final}', 'true'::jsonb, true), status = 'completed' "
+                "WHERE match_id = %s AND NOT (COALESCE(scores, '{}'::jsonb) ? '_final') RETURNING match_id;", (match_id,))
+    if cur.fetchone():
+        sa, sb = sc.get(a, {}).get("score", 0), sc.get(b, {}).get("score", 0)
+        for user, mine, theirs in ((a, sa, sb), (b, sb, sa)):
+            if mine > theirs:
+                cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + 100, flight_hours = flight_hours + 3 WHERE username = %s;", (user,))
+            elif mine == theirs:
+                cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + 50, flight_hours = flight_hours + 1 WHERE username = %s;", (user,))
+    cur.execute("SELECT * FROM aero_v22_battles WHERE match_id = %s;", (match_id,))
+    return cur.fetchone()
+
+def _battle_view(m, me):
+    sc = m.get("scores") or {}
+    opp = m["receiver_username"] if me == m["sender_username"] else m["sender_username"]
+    mine, theirs = sc.get(me, {}), sc.get(opp, {})
+    view = {"status": m["status"], "questions": _strip_correct(m["questions"]), "opponent": opp,
+            "your_score": mine.get("score", 0), "your_answered": len(mine.get("answers", {})), "you_done": bool(mine.get("done")),
+            "opponent_answered": len(theirs.get("answers", {})), "opponent_done": bool(theirs.get("done"))}
+    if sc.get("_final"):
+        os_, ys = theirs.get("score", 0), mine.get("score", 0)
+        view.update({"opponent_score": os_, "result": "win" if ys > os_ else "draw" if ys == os_ else "loss"})
+    return view
+
 @app.get("/api/battle/incoming")
 def get_incoming_battle(username: str):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v22_battles WHERE receiver_username = %s AND status = 'pending' ORDER BY created_at DESC LIMIT 1;", (username,))
+    cur.execute("SELECT match_id, sender_username, sender_name FROM aero_v22_battles WHERE receiver_username = %s AND status = 'pending' ORDER BY created_at DESC LIMIT 1;", (username,))
     invite = cur.fetchone()
     cur.close()
     conn.close()
     return {"invite": invite}
 
 @app.post("/api/battle/respond")
-def respond_battle_invite(data: BattleRespondModel):
+def respond_battle_invite(data: BattleRespondModel, request: Request):
+    me = request.state.auth["username"]
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v22_battles WHERE match_id = %s;", (data.match_id,))
-    match = cur.fetchone()
-    if not match:
+    try:
+        m = _load_match(cur, data.match_id, me)
+        if m["receiver_username"] != me or m["status"] != "pending":
+            raise HTTPException(status_code=400, detail="This invitation can no longer be answered.")
+        new_status = "accepted" if data.accept else "rejected"
+        cur.execute("UPDATE aero_v22_battles SET status = %s, created_at = CURRENT_TIMESTAMP WHERE match_id = %s;", (new_status, data.match_id))
+        conn.commit()
+        return {"status": new_status, "questions": _strip_correct(m["questions"])}
+    finally:
         cur.close()
         conn.close()
-        raise HTTPException(status_code=404, detail="Match not found")
-        
-    new_status = "accepted" if data.accept else "rejected"
-    cur.execute("UPDATE aero_v22_battles SET status = %s WHERE match_id = %s RETURNING *;", (new_status, data.match_id))
-    updated = cur.fetchone()
-    conn.commit()
-    cur.close()
-    conn.close()
-    return {"status": new_status, "questions": updated["questions"]}
 
 @app.get("/api/battle/status")
-def get_battle_status(match_id: str):
+def get_battle_status(match_id: str, request: Request):
+    me = request.state.auth["username"]
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v22_battles WHERE match_id = %s;", (match_id,))
-    match = cur.fetchone()
-    cur.close()
-    conn.close()
-    if not match:
-        return {"status": "not_found"}
-    return {"status": match["status"], "questions": match.get("questions", [])}
+    try:
+        _load_match(cur, match_id, me)
+        m = _try_finalize(cur, match_id)
+        conn.commit()
+        return _battle_view(m, me)
+    finally:
+        cur.close()
+        conn.close()
 
 @app.post("/api/battle/cancel")
-def cancel_battle(data: BattleCancelModel):
+def cancel_battle(data: BattleCancelModel, request: Request):
+    me = request.state.auth["username"]
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("UPDATE aero_v22_battles SET status = 'canceled' WHERE match_id = %s;", (data.match_id,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return {"status": "canceled"}
+    try:
+        m = _load_match(cur, data.match_id, me)
+        if m["status"] in ("pending", "accepted") and not m.get("scores"):
+            cur.execute("UPDATE aero_v22_battles SET status = 'canceled' WHERE match_id = %s;", (data.match_id,))
+            conn.commit()
+        return {"status": "canceled"}
+    finally:
+        cur.close()
+        conn.close()
+
+@app.post("/api/battle/answer")
+def battle_answer(data: BattleAnswerModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        m = _load_match(cur, data.match_id, data.username)
+        if m["status"] != "accepted":
+            raise HTTPException(status_code=400, detail="The battle is not active.")
+        qs = m["questions"] or []
+        if data.q_index < 0 or data.q_index >= len(qs):
+            raise HTTPException(status_code=400, detail="Invalid question.")
+        mine = (m.get("scores") or {}).get(data.username) or {"answers": {}, "score": 0, "done": False}
+        if mine.get("done") or str(data.q_index) in mine["answers"]:
+            raise HTTPException(status_code=400, detail="Already answered.")
+        ok = data.choice == qs[data.q_index]["correct"]
+        mine["answers"][str(data.q_index)] = data.choice
+        mine["score"] = mine.get("score", 0) + (1 if ok else 0)
+        _set_score_key(cur, data.match_id, data.username, mine)
+        conn.commit()
+        return {"correct": ok, "correct_index": qs[data.q_index]["correct"], "your_score": mine["score"]}
+    finally:
+        cur.close()
+        conn.close()
 
 @app.post("/api/battle/submit")
 def submit_battle_score(data: BattleSubmitModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v22_battles WHERE match_id = %s;", (data.match_id,))
-    match = cur.fetchone()
-    if not match:
+    try:
+        m = _load_match(cur, data.match_id, data.username)
+        mine = (m.get("scores") or {}).get(data.username) or {"answers": {}, "score": 0, "done": False}
+        mine["done"] = True
+        _set_score_key(cur, data.match_id, data.username, mine)
+        m = _try_finalize(cur, data.match_id)
+        conn.commit()
+        return _battle_view(m, data.username)
+    finally:
         cur.close()
         conn.close()
-        raise HTTPException(status_code=404, detail="Match not found")
-        
-    scores = match.get("scores") or {}
-    scores[data.username] = data.score
-    
-    import json
-    cur.execute("UPDATE aero_v22_battles SET scores = %s WHERE match_id = %s;", (json.dumps(scores), data.match_id))
-    conn.commit()
-    
-    opponent_score = random.randint(2, 6)
-    result = "loss"
-    if data.score > opponent_score:
-        result = "win"
-        cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + 100, flight_hours = flight_hours + 3 WHERE username = %s;", (data.username,))
-    elif data.score == opponent_score:
-        result = "draw"
-        cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + 50, flight_hours = flight_hours + 1 WHERE username = %s;", (data.username,))
-    
+
+class MistakeLogModel(BaseModel):
+    username: str
+    question_text: str
+    incorrect_answer: str = ""
+    correct_answer: str = ""
+
+class AdvancedExamModel(BaseModel):
+    group_code: str
+    teacher_username: str
+    title: str
+    exam_data: list = []
+    is_pdf: bool = False
+    pdf_url: str = None
+
+@app.get("/api/student/mistakes")
+def get_student_mistakes(username: str):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT question_text, incorrect_answer, correct_answer, created_at FROM aero_v22_mistakes WHERE username = %s ORDER BY id DESC LIMIT 100;", (username,))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return {"mistakes": rows}
+
+@app.post("/api/student/log-mistake")
+def log_student_mistake(data: MistakeLogModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        """INSERT INTO aero_v22_mistakes (username, question_text, incorrect_answer, correct_answer)
+           VALUES (%s, %s, %s, %s)
+           ON CONFLICT (username, question_text)
+           DO UPDATE SET incorrect_answer = EXCLUDED.incorrect_answer, correct_answer = EXCLUDED.correct_answer, created_at = CURRENT_TIMESTAMP;""",
+        (data.username, data.question_text, data.incorrect_answer, data.correct_answer)
+    )
     conn.commit()
     cur.close()
     conn.close()
-    return {
-        "status": "completed",
-        "your_score": data.score,
-        "opponent_score": opponent_score,
-        "result": result
-    }
+    return {"status": "success"}
+
+@app.post("/api/exam/create-advanced")
+def create_advanced_exam(data: AdvancedExamModel):
+    import json
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT role FROM aero_v22_users WHERE username = %s;", (data.teacher_username,))
+    t = cur.fetchone()
+    if not t or t["role"] != "teacher":
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=403, detail="Only teachers can publish exams.")
+    cur.execute(
+        "INSERT INTO aero_v22_exams (group_code, teacher_username, title, exam_data, pdf_url) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
+        (data.group_code, data.teacher_username, data.title, json.dumps(data.exam_data), data.pdf_url if data.is_pdf else None)
+    )
+    exam = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success", "exam": exam}
+
+class SubmitFuzzyModel(BaseModel):
+    exam_id: int
+    student_username: str
+    student_name: str = ""
+    answers: list = []
+    time_spent_seconds: int = 0
+
+@app.post("/api/exam/submit-fuzzy")
+def submit_exam_fuzzy(data: SubmitFuzzyModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT exam_data FROM aero_v22_exams WHERE id = %s;", (data.exam_id,))
+    ex = cur.fetchone()
+    cur.close()
+    conn.close()
+    if not ex:
+        raise HTTPException(status_code=404, detail="Exam not found.")
+    qs = ex["exam_data"]
+    if isinstance(qs, str):
+        qs = json.loads(qs)
+    score = 0
+    for i, q in enumerate(qs):
+        given = str(data.answers[i]).strip().lower() if i < len(data.answers) else ""
+        right = str(q.get("correct", "")).strip().lower()
+        if given and (given == right or (len(given) >= 3 and given in right)):
+            score += 1
+    result = submit_exam(SubmitExamModel(exam_id=data.exam_id, student_username=data.student_username, student_name=data.student_name,
+                                         score=score, total_questions=len(qs), time_spent_seconds=min(max(data.time_spent_seconds, 0), 86400)))
+    if isinstance(result, dict):
+        result["score"] = score
+    return result
+
+@app.get("/api/teacher/dashboard")
+def teacher_dashboard(group_code: str, teacher_username: str):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT role FROM aero_v22_users WHERE username = %s;", (teacher_username,))
+    t = cur.fetchone()
+    if not t or t["role"] != "teacher":
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=403, detail="Teachers only.")
+    cur.execute("""SELECT username, full_name, xp_points, streak, hearts, completed_nodes, last_practice_date
+                   FROM aero_v22_users WHERE group_code = %s AND role = 'student' ORDER BY xp_points DESC;""", (group_code,))
+    today = date.today()
+    students = []
+    for r in cur.fetchall():
+        nodes = [n for n in (r["completed_nodes"] or []) if str(n).startswith("year1_")]
+        last = r.get("last_practice_date")
+        days = (today - last).days if last else None
+        status = "active" if days is not None and days <= 1 else ("at_risk" if days is not None and days <= 4 else "inactive")
+        students.append({"username": r["username"], "full_name": r["full_name"], "xp": r["xp_points"] or 0, "streak": r["streak"] or 0,
+                         "hearts": r["hearts"], "nodes_done": len(nodes), "days_since": days, "status": status})
+    cur.execute("""SELECT m.question_text, COUNT(*) AS misses, MAX(m.correct_answer) AS correct_answer
+                   FROM aero_v22_mistakes m JOIN aero_v22_users u ON u.username = m.username
+                   WHERE u.group_code = %s AND u.role = 'student'
+                   GROUP BY m.question_text ORDER BY misses DESC LIMIT 5;""", (group_code,))
+    hard = cur.fetchall()
+    cur.execute("""SELECT e.title, COUNT(s.id) AS submissions,
+                          ROUND(AVG(100.0 * s.score / NULLIF(s.total_questions, 0))) AS avg_pct
+                   FROM aero_v22_exams e LEFT JOIN aero_v22_exam_submissions s ON s.exam_id = e.id
+                   WHERE e.group_code = %s GROUP BY e.id, e.title ORDER BY e.id DESC LIMIT 6;""", (group_code,))
+    exams = cur.fetchall()
+    cur.close()
+    conn.close()
+    n = len(students)
+    summary = {"students": n,
+               "avg_xp": round(sum(x["xp"] for x in students) / n) if n else 0,
+               "avg_nodes": round(sum(x["nodes_done"] for x in students) / n, 1) if n else 0,
+               "active": sum(1 for x in students if x["status"] == "active"),
+               "attention": sum(1 for x in students if x["status"] != "active")}
+    return {"summary": summary, "students": students, "hard_questions": hard, "exams": exams}
+
+class LessonCreateModel(BaseModel):
+    group_code: str
+    teacher_username: str
+    title: str
+    questions: list
+
+class LessonDeleteModel(BaseModel):
+    lesson_id: int
+    teacher_username: str
+
+@app.post("/api/lesson/create")
+def create_class_lesson(data: LessonCreateModel):
+    title = data.title.strip()[:120]
+    if not title or not data.group_code.strip():
+        raise HTTPException(status_code=400, detail="A title and a class code are required.")
+    if not 1 <= len(data.questions) <= 40:
+        raise HTTPException(status_code=400, detail="A lesson needs between 1 and 40 questions.")
+    clean = []
+    for i, q in enumerate(data.questions):
+        text = str(q.get("q", "")).strip()[:300]
+        opts = [str(o).strip()[:160] for o in (q.get("options") or [])][:4]
+        opts = [o for o in opts if o]
+        c = q.get("correct")
+        if not text or len(opts) < 2 or not isinstance(c, int) or not 0 <= c < len(opts):
+            raise HTTPException(status_code=400, detail=f"Question {i + 1} is incomplete (needs text, 2+ options and a correct answer).")
+        clean.append({"q": text, "options": opts, "correct": c})
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO aero_v22_class_lessons (group_code, teacher_username, title, questions) VALUES (%s, %s, %s, %s) RETURNING id;",
+                (data.group_code.strip(), data.teacher_username, title, json.dumps(clean)))
+    new_id = cur.fetchone()["id"]
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success", "id": new_id}
+
+@app.get("/api/lesson/list")
+def list_class_lessons(group_code: str, request: Request):
+    auth = request.state.auth
+    conn = get_db_connection()
+    cur = conn.cursor()
+    if auth["role"] != "teacher":
+        cur.execute("SELECT group_code FROM aero_v22_users WHERE username = %s;", (auth["username"],))
+        me = cur.fetchone()
+        if not me or me["group_code"] != group_code:
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=403, detail="This is not your class.")
+    cur.execute("SELECT id, title, teacher_username, questions, created_at FROM aero_v22_class_lessons WHERE group_code = %s ORDER BY id DESC;", (group_code,))
+    lessons = cur.fetchall()
+    cur.close()
+    conn.close()
+    return {"lessons": lessons}
+
+@app.post("/api/lesson/delete")
+def delete_class_lesson(data: LessonDeleteModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM aero_v22_class_lessons WHERE id = %s AND teacher_username = %s;", (data.lesson_id, data.teacher_username))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success"}
+
+class DemoModel(BaseModel):
+    group_code: str
+    teacher_username: str
+
+@app.post("/api/demo/seed")
+def seed_demo(data: DemoModel):
+    code = data.group_code.strip()
+    if not code:
+        raise HTTPException(status_code=400, detail="A class code is required.")
+    people = [("Sara Benali", 2400, 12, 38, 0, 5), ("Yassine Alaoui", 1900, 7, 27, 0, 4), ("Imane Idrissi", 1500, 4, 19, 1, 5),
+              ("Omar Chraibi", 900, 0, 9, 3, 3), ("Lina Berrada", 620, 0, 5, 6, 2), ("Hamza Tazi", 150, 0, 1, None, 5)]
+    pw = hash_password(os.urandom(8).hex())
+    qs = [("What does ETA stand for?", "Early time alert", "Estimated time of arrival"),
+          ("Which phonetic word is used for the letter B?", "Beta", "Bravo"),
+          ("What should passengers do first in a decompression?", "Take off shoes", "Put on their own oxygen mask")]
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT COUNT(*) AS n FROM aero_v22_users WHERE group_code = %s AND phone_number LIKE 'demo-%%';", (code,))
+    if cur.fetchone()["n"] == 0:
+        for i, (name, xp, streak, nodes, ago, hearts) in enumerate(people, 1):
+            uname = f"demo_{i}_{code}"[:50]
+            last = (date.today() - timedelta(days=ago)) if ago is not None else None
+            cur.execute("""INSERT INTO aero_v22_users (phone_number, username, full_name, password, recovery_pin, role, group_code,
+                           xp_points, hearts, streak, completed_nodes, last_practice_date)
+                           VALUES (%s, %s, %s, %s, '0000', 'student', %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;""",
+                        (f"demo-{code}-{i}"[:20], uname, name, pw, code, xp, hearts, streak, [f"year1_{n}" for n in range(1, nodes + 1)], last))
+            for k, (q, wrong, right) in enumerate(qs):
+                if (i + k) % 3 != 0:
+                    cur.execute("INSERT INTO aero_v22_mistakes (username, question_text, incorrect_answer, correct_answer) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING;",
+                                (uname, q, wrong, right))
+        lesson = [{"q": q, "options": [wrong, right], "correct": 1} for q, wrong, right in qs]
+        cur.execute("INSERT INTO aero_v22_class_lessons (group_code, teacher_username, title, questions) VALUES (%s, %s, %s, %s);",
+                    (code, data.teacher_username, "Demo: Cabin crew basics", json.dumps(lesson)))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success"}
+
+@app.post("/api/demo/clear")
+def clear_demo(data: DemoModel):
+    code = data.group_code.strip()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM aero_v22_mistakes WHERE username IN (SELECT username FROM aero_v22_users WHERE group_code = %s AND phone_number LIKE 'demo-%%');", (code,))
+    cur.execute("DELETE FROM aero_v22_users WHERE group_code = %s AND phone_number LIKE 'demo-%%';", (code,))
+    cur.execute("DELETE FROM aero_v22_class_lessons WHERE group_code = %s AND title LIKE 'Demo:%%';", (code,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success"}
+
+@app.get("/api/admin/overview")
+def admin_overview():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT username, full_name, role, group_code, xp_points, completed_nodes, last_practice_date FROM aero_v22_users;")
+    users = cur.fetchall()
+    cur.execute("SELECT group_code, group_name, teacher_username FROM aero_v22_groups;")
+    groups = {g["group_code"]: g for g in cur.fetchall()}
+    cur.execute("SELECT teacher_username, COUNT(*) AS c FROM aero_v22_class_lessons GROUP BY teacher_username;")
+    lessons = {r["teacher_username"]: r["c"] for r in cur.fetchall()}
+    cur.execute("SELECT teacher_username, COUNT(*) AS c FROM aero_v22_exams GROUP BY teacher_username;")
+    exams = {r["teacher_username"]: r["c"] for r in cur.fetchall()}
+    cur.close()
+    conn.close()
+    today = date.today()
+    students = [u for u in users if u["role"] == "student"]
+    teachers = [u for u in users if u["role"] == "teacher"]
+    nodes = lambda u: len([n for n in (u["completed_nodes"] or []) if str(n).startswith("year1_")])
+    active = lambda u: bool(u["last_practice_date"]) and (today - u["last_practice_date"]).days <= 6
+    by_class = {}
+    for u in students:
+        by_class.setdefault(u["group_code"] or "-", []).append(u)
+    classes = []
+    for code, members in by_class.items():
+        g = groups.get(code, {})
+        classes.append({"group_code": code, "group_name": g.get("group_name") or ("Class " + code), "teacher": g.get("teacher_username"),
+                        "students": len(members), "active_7d": sum(1 for m in members if active(m)),
+                        "avg_nodes": round(sum(nodes(m) for m in members) / len(members), 1),
+                        "avg_xp": round(sum((m["xp_points"] or 0) for m in members) / len(members))})
+    classes.sort(key=lambda c: -c["students"])
+    teacher_rows = [{"username": t["username"], "full_name": t["full_name"],
+                     "students": len(by_class.get(t["group_code"], [])), "lessons": lessons.get(t["username"], 0), "exams": exams.get(t["username"], 0)} for t in teachers]
+    activity = [{"days_ago": d, "students": sum(1 for u in students if u["last_practice_date"] == today - timedelta(days=d))} for d in range(6, -1, -1)]
+    top = sorted(students, key=lambda u: -(u["xp_points"] or 0))[:5]
+    return {"totals": {"students": len(students), "teachers": len(teachers), "classes": len(classes), "active_7d": sum(1 for u in students if active(u)),
+                       "avg_nodes": round(sum(nodes(u) for u in students) / len(students), 1) if students else 0},
+            "classes": classes, "teachers": teacher_rows, "activity": activity,
+            "top": [{"full_name": u["full_name"], "xp": u["xp_points"] or 0, "group_code": u["group_code"]} for u in top]}
+
+class AnnounceModel(BaseModel):
+    group_code: str
+    teacher_username: str
+    message: str
+
+class AnnounceDeleteModel(BaseModel):
+    announcement_id: int
+    teacher_username: str
+
+@app.post("/api/announce/create")
+def create_announcement(data: AnnounceModel):
+    msg = data.message.strip()[:280]
+    if not msg or not data.group_code.strip():
+        raise HTTPException(status_code=400, detail="Write a message first.")
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT COUNT(*) AS n FROM aero_v22_announcements WHERE teacher_username = %s AND created_at > CURRENT_TIMESTAMP - INTERVAL '1 hour';", (data.teacher_username,))
+    if cur.fetchone()["n"] >= 10:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=429, detail="Too many announcements in the last hour.")
+    cur.execute("INSERT INTO aero_v22_announcements (group_code, teacher_username, message) VALUES (%s, %s, %s);", (data.group_code.strip(), data.teacher_username, msg))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success"}
+
+@app.get("/api/announce/latest")
+def latest_announcements(group_code: str, request: Request):
+    auth = request.state.auth
+    conn = get_db_connection()
+    cur = conn.cursor()
+    if auth["role"] != "teacher":
+        cur.execute("SELECT group_code FROM aero_v22_users WHERE username = %s;", (auth["username"],))
+        me = cur.fetchone()
+        if not me or me["group_code"] != group_code:
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=403, detail="This is not your class.")
+    cur.execute("SELECT id, teacher_username, message, created_at FROM aero_v22_announcements WHERE group_code = %s ORDER BY id DESC LIMIT 5;", (group_code,))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return {"announcements": rows}
+
+@app.post("/api/announce/delete")
+def delete_announcement(data: AnnounceDeleteModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM aero_v22_announcements WHERE id = %s AND teacher_username = %s;", (data.announcement_id, data.teacher_username))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success"}
+
+@app.get("/api/league/class")
+def class_league(group_code: str, request: Request):
+    auth = request.state.auth
+    conn = get_db_connection()
+    cur = conn.cursor()
+    if auth["role"] != "teacher":
+        cur.execute("SELECT group_code FROM aero_v22_users WHERE username = %s;", (auth["username"],))
+        me = cur.fetchone()
+        if not me or me["group_code"] != group_code:
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=403, detail="This is not your class.")
+    today = date.today()
+    monday = today - timedelta(days=today.weekday())
+    cur.execute("SELECT username, full_name, xp_points, streak FROM aero_v22_users WHERE group_code = %s AND role = 'student';", (group_code,))
+    members = cur.fetchall()
+    for m in members:
+        cur.execute("INSERT INTO aero_v22_weekly_xp (username, week_start, start_xp) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING;",
+                    (m["username"], monday, m["xp_points"] or 0))
+    conn.commit()
+    names = [m["username"] for m in members]
+    base = {}
+    if names:
+        cur.execute("SELECT username, start_xp FROM aero_v22_weekly_xp WHERE week_start = %s AND username = ANY(%s);", (monday, names))
+        base = {r["username"]: r["start_xp"] for r in cur.fetchall()}
+    cur.close()
+    conn.close()
+    rows = [{"username": m["username"], "full_name": m["full_name"], "xp": m["xp_points"] or 0, "streak": m["streak"] or 0,
+             "week_xp": max(0, (m["xp_points"] or 0) - base.get(m["username"], m["xp_points"] or 0))} for m in members]
+    rows.sort(key=lambda r: (-r["week_xp"], -r["xp"]))
+    return {"week_start": str(monday), "days_left": 6 - today.weekday(), "members": rows}
+
+@app.get("/manifest.json")
+def serve_manifest():
+    return FileResponse("manifest.json", media_type="application/manifest+json")
+
+@app.get("/sw.js")
+def serve_service_worker():
+    return FileResponse("sw.js", media_type="application/javascript", headers={"Cache-Control": "no-cache", "Service-Worker-Allowed": "/"})
+
+@app.get("/icon-192.png")
+def serve_icon_192():
+    return FileResponse("icon-192.png")
+
+@app.get("/icon-512.png")
+def serve_icon_512():
+    return FileResponse("icon-512.png")
 
 @app.get("/")
 def serve_frontend():
