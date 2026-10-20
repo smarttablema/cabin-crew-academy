@@ -1652,6 +1652,65 @@
             }
         };
         const AERO_UNITS = { year1: ['alphabet', 'basics', 'safety', 'emergency', 'service', 'security', 'basics', 'safety', 'emergency', 'security'], year2: ['regs', 'crm', 'emergency2', 'medical', 'dg', 'radio', 'crm', 'emergency2', 'regs', 'dg'] };
+
+        /* MORE TOPICS from official standards (ICAO Annexes, IATA codes and DGR, EASA, ICAO language levels) */
+        Object.assign(AERO_BANK.year1, {
+            codes: { src: 'IATA / ICAO location and airline designators', q: [
+                ["What is the IATA code of Casablanca Mohammed V Airport?", "CMN", "CAS", "MOH"],
+                ["What is the IATA code of Marrakech Menara Airport?", "RAK", "MRK", "MNR"],
+                ["What is the IATA code of Tangier Ibn Battouta Airport?", "TNG", "TAN", "TGR"],
+                ["What is the IATA code of Rabat-Sale Airport?", "RBA", "RAB", "SLE"],
+                ["What is the IATA code of Agadir Al Massira Airport?", "AGA", "AGD", "AGM"],
+                ["What is the IATA code of Paris Charles de Gaulle Airport?", "CDG", "PAR", "PCG"],
+                ["What is the IATA code of London Heathrow Airport?", "LHR", "LON", "HTW"],
+                ["Which IATA airline code does Royal Air Maroc use?", "AT", "RM", "RA"],
+                ["How many letters does an IATA airport code have?", "Three", "Two", "Four"],
+                ["How many letters does an ICAO airport code have?", "Four", "Three", "Two"],
+                ["What is the ICAO code of Casablanca Mohammed V Airport?", "GMMN", "GMMC", "CMNX"] ] },
+            orgs: { src: 'ICAO / IATA / EASA mandates and ICAO Annexes', q: [
+                ["What does ICAO stand for?", "International Civil Aviation Organization", "International Cargo Airlines Office", "Intergovernmental Cabin Authority"],
+                ["What does IATA stand for?", "International Air Transport Association", "Independent Air Traffic Authority", "International Aircraft Testing Agency"],
+                ["What does EASA stand for?", "European Union Aviation Safety Agency", "European Airline Staff Association", "Eurasian Air Service Authority"],
+                ["Which ICAO Annex deals with aviation security?", "Annex 17", "Annex 14", "Annex 2"],
+                ["Which ICAO Annex deals with the safe transport of dangerous goods by air?", "Annex 18", "Annex 5", "Annex 11"],
+                ["Which ICAO Annex deals with the operation of aircraft?", "Annex 6", "Annex 1", "Annex 14"],
+                ["Which ICAO Annex deals with personnel licensing?", "Annex 1", "Annex 13", "Annex 17"],
+                ["Which ICAO Annex deals with aircraft accident and incident investigation?", "Annex 13", "Annex 6", "Annex 9"],
+                ["Which ICAO Annex deals with aerodromes?", "Annex 14", "Annex 3", "Annex 10"] ] },
+            time: { src: 'ICAO Annexes 3 and 5 (UTC) / airline timetables', q: [
+                ["What does UTC stand for?", "Coordinated Universal Time", "Universal Time Control", "United Time Convention"],
+                ["In aviation, what does Zulu time refer to?", "UTC", "Local time", "Daylight saving time"],
+                ["How is 6:30 PM written in 24-hour time?", "1830", "0630", "1630"],
+                ["How is 1415 written in 12-hour time?", "2:15 PM", "1:45 PM", "4:15 PM"],
+                ["What does a delayed flight mean?", "It leaves later than scheduled", "It is cancelled", "It leaves early"] ] },
+            firefighting: { src: 'EASA Part-CC fire-fighting training', q: [
+                ["The fire triangle is made of:", "Fuel, oxygen and heat", "Fuel, water and wind", "Heat, smoke and metal"],
+                ["What does PASS stand for when using an extinguisher?", "Pull, Aim, Squeeze, Sweep", "Push, Alert, Spray, Stop", "Point, Act, Save, Shout"],
+                ["A Class A fire involves:", "Ordinary solids such as paper and fabric", "Flammable liquids", "Electrical equipment only"],
+                ["A Class B fire involves:", "Flammable liquids", "Metals", "Paper and cloth"],
+                ["What should you do with a damaged power bank on board?", "Not use it and report it to the crew", "Keep charging it", "Plug it into the seat power"] ] }
+        });
+        Object.assign(AERO_BANK.year2, {
+            firstaid2: { src: 'ERC guidelines / EASA Part-CC first aid training', q: [
+                ["What is the recovery position used for?", "An unconscious casualty who is breathing", "A casualty with no pulse", "Preventing airsickness"],
+                ["What is hypoxia?", "Too little oxygen reaching the body tissues", "Too much oxygen", "Low body temperature"],
+                ["Which sign shows complete airway obstruction from choking?", "The person cannot speak or cough", "Loud coughing", "Normal speech"],
+                ["What is the first step for severe bleeding?", "Apply direct pressure", "Give water", "Apply heat"],
+                ["What does FAST mean in stroke recognition?", "Face, Arms, Speech, Time", "Fever, Ache, Shock, Tremor", "Fall, Alert, Stop, Treat"] ] },
+            dg2: { src: 'ICAO Annex 18 / IATA DGR (classes and divisions)', q: [
+                ["Which class covers gases?", "Class 2", "Class 1", "Class 8"],
+                ["Which class covers corrosive substances?", "Class 8", "Class 4", "Class 6"],
+                ["Which division covers infectious substances?", "Division 6.2", "Division 5.1", "Division 1.4"],
+                ["Which class covers oxidizing substances and organic peroxides?", "Class 5", "Class 4", "Class 6"],
+                ["Up to what rating can passengers usually carry lithium-ion batteries without airline approval?", "100 Wh", "20 Wh", "300 Wh"] ] },
+            langlevels: { src: 'ICAO Doc 9835 (language proficiency requirements)', q: [
+                ["How many levels does the ICAO language proficiency scale have?", "Six", "Three", "Ten"],
+                ["Which ICAO level is called Operational?", "Level 4", "Level 2", "Level 6"],
+                ["Which ICAO level is called Expert?", "Level 6", "Level 4", "Level 3"],
+                ["What is the minimum ICAO level required for international radiotelephony?", "Level 4", "Level 2", "Level 1"] ] }
+        });
+        AERO_UNITS.year1 = ['alphabet', 'basics', 'codes', 'safety', 'firefighting', 'emergency', 'service', 'orgs', 'time', 'security'];
+        AERO_UNITS.year2 = ['regs', 'crm', 'emergency2', 'medical', 'firstaid2', 'dg', 'dg2', 'radio', 'langlevels', 'crm'];
         function seededRandom(str) {
             let h = 1779033703 ^ str.length;
             for(let i = 0; i < str.length; i++) { h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = (h << 13) | (h >>> 19); }
