@@ -24,10 +24,13 @@ def get_db_connection():
 SECRET_KEYS = {"password", "recovery_pin"}
 
 def _strip_secrets(x):
+    """Removes secrets and neutralises HTML tags in every text sent to the browser (blocks injected scripts)."""
     if isinstance(x, dict):
-        return {k: _strip_secrets(v) for k, v in x.items() if k not in SECRET_KEYS}
+        return {k: (v if k == "preview_svg" else _strip_secrets(v)) for k, v in x.items() if k not in SECRET_KEYS}
     if isinstance(x, list):
         return [_strip_secrets(v) for v in x]
+    if isinstance(x, str):
+        return x.replace("<", "\u2039").replace(">", "\u203a")
     return x
 
 class SafeJSONResponse(JSONResponse):
@@ -473,6 +476,16 @@ def register(data: RegisterModel):
     
     assigned_role = "student"
     group_code = data.group_code
+    import re
+    if not re.fullmatch(r"[A-Za-z0-9_.-]{3,30}", data.username or ""):
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=400, detail="Username: 3-30 letters, numbers, dot, dash or underscore (no spaces).")
+    data.full_name = re.sub(r"[<>&\"'`]", "", data.full_name or "").strip()[:60]
+    if not data.full_name:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=400, detail="Please enter your full name.")
     if len(data.password or "") < 6:
         cur.close()
         conn.close()
