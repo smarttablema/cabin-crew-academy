@@ -452,6 +452,17 @@
             .lesson-wrap{padding-bottom:150px}
         }
         @media(hover:none){.mode-tile:hover,.shop-card:hover,.lesson-opt:hover:not(:disabled){transform:none}}
+
+        /* ===== v4 path polish: real S-curve, milestones, staggered entrance ===== */
+        .duo-path-container{--amp:min(24vw,140px);padding-top:10px}
+        .duo-node-wrapper .duo-node{margin-left:calc(var(--k,0) * var(--amp))!important}
+        .duo-node-wrapper{animation:tileIn .5s var(--ease) both;animation-delay:calc(var(--n,0) * 35ms)}
+        .duo-node.milestone{width:84px;height:84px;font-size:1.1rem}
+        .duo-node.milestone.locked{filter:saturate(.5) brightness(.9)}
+        .unit-banner{border-color:var(--leg,rgba(251,191,36,.45))!important;box-shadow:0 8px 22px rgba(0,0,0,.4),0 0 18px color-mix(in srgb,var(--leg,#fbbf24) 35%,transparent)}
+        .unit-banner b{color:var(--leg,#fde68a)!important}
+        .fp-plane{filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
+        @media(prefers-reduced-motion:reduce){.duo-node-wrapper{animation:none}}
         /* Teacher Copilot */
         #copilot{position:fixed;right:20px;bottom:24px;width:min(360px,calc(100% - 32px));z-index:5500;padding:16px 18px 14px;border-radius:20px;background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(11,15,25,.96));border:1px solid var(--border-glow);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 34px var(--accent-glow);color:var(--text-main);transform:translateY(140%);opacity:0;transition:transform .55s cubic-bezier(.2,.9,.25,1.1),opacity .4s}
         #copilot.show{transform:none;opacity:1}
@@ -1936,19 +1947,19 @@
             for(let i = 1; i <= totalNodes; i++) {
                 let st = 'locked', icon = '🔒';
                 if(!lockedY2) {
-                    if(i < currentUnlocked) { st = 'completed'; icon = '⭐'; }
+                    if(i < currentUnlocked) { st = 'completed'; icon = (i % 5 === 0) ? '🏆' : '⭐'; }
                     else if(i === currentUnlocked) { st = 'active'; icon = poolKey === 'vocab' ? '🎙' : '✈'; }
                 }
                 if((i - 1) % 10 === 0) {
                     const u = (i - 1) / 10 + 1, d = Math.max(0, Math.min(10, done - (u - 1) * 10));
-                    nodesHtml += `<div class="unit-banner"><b>✈ LEG ${u} · ${['BOARDING', 'TAXI', 'TAKE-OFF', 'CLIMB', 'CRUISE', 'TURBULENCE', 'APPROACH', 'LANDING', 'ARRIVAL GATE', 'DEBRIEF'][(u - 1) % 10]}</b><span>${d}/10</span></div>`;
+                    nodesHtml += `<div class="unit-banner" style="--leg:hsl(${(u * 47 + 190) % 360} 75% 62%)"><b>✈ LEG ${u} · ${['BOARDING', 'TAXI', 'TAKE-OFF', 'CLIMB', 'CRUISE', 'TURBULENCE', 'APPROACH', 'LANDING', 'ARRIVAL GATE', 'DEBRIEF'][(u - 1) % 10]}</b><span>${d}/10</span></div>`;
                 }
-                const off = Math.round(Math.sin(i * 0.85) * 58);
+                const k = Math.sin(i * 0.7).toFixed(3);
                 const extra = (st === 'active') ? `<div class="floating-roadmap-skin" style="top: -38px; right: -28px;">${activeSkinEmoji}</div><div class="start-bubble">START</div>` : '';
                 const click = st === 'locked' ? '' : `onclick="window.triggerCinematicIntro(() => window.startRoadmapLesson('${poolKey}', ${i}, ${totalNodes}))"`;
                 nodesHtml += `
-                    <div class="duo-node-wrapper" style="--o:${off}px">
-                        <div class="duo-node ${st}" ${click}>
+                    <div class="duo-node-wrapper" style="--k:${k}; --n:${Math.min(i, 14)}">
+                        <div class="duo-node ${st}${i % 5 === 0 ? ' milestone' : ''}" ${click}>
                             <span style="font-size:1.4rem;">${icon}</span>
                             <span style="font-size:0.65rem; font-weight:800; margin-top:2px;">#${i}</span>
                             ${extra}
@@ -4032,6 +4043,7 @@
             svg.setAttribute('class', 'fp-svg'); svg.setAttribute('width', pc.scrollWidth); svg.setAttribute('height', pc.scrollHeight);
             svg.innerHTML = `<path d="${dRest}" class="fp-rest"/><path d="${dDone}" class="fp-done"/>`;
             pc.insertBefore(svg, pc.firstChild);
+            if(act > 0) { const p = pts[act - 1], q = pts[act]; svg.insertAdjacentHTML('beforeend', `<text font-size="28" text-anchor="middle" dominant-baseline="central" class="fp-plane">✈<animateMotion dur="1.8s" fill="freeze" path="M ${p[0]} ${p[1]} ${seg(p, q)}"/></text>`); }
         }
         window.drawFlightPath = drawFlightPath;
         window.addEventListener('resize', () => drawFlightPath(document.querySelector('.duo-path-container')));
