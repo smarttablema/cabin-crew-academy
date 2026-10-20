@@ -406,6 +406,52 @@
         @media(prefers-reduced-motion:reduce){.duo-path-container,.fp-done,.duo-node.active::after{animation:none}}
 
         .lesson-src{display:block;margin-top:14px;font-size:.7rem;color:var(--text-muted);letter-spacing:.03em}
+
+        /* ===== v4 responsive: phones, tablets, laptops and large monitors ===== */
+        html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+        body{overflow-x:hidden;min-height:100vh;min-height:100dvh}
+        img,svg,video,canvas{max-width:100%}
+        p,h1,h2,h3,h4,b,small,span,label{overflow-wrap:anywhere}
+        /* the old blur on the app panel trapped every "full screen" view inside it: remove it so full screens really fill the screen */
+        .app-shell{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(8,12,22,.97)!important}
+        .feature-fullscreen-view{height:100vh!important;height:100dvh!important;padding:1.2rem max(1.2rem,calc((100vw - 780px)/2)) calc(1.2rem + env(safe-area-inset-bottom))!important;padding-top:calc(1.2rem + env(safe-area-inset-top))!important}
+        @media(min-width:1100px){.app-shell{max-width:760px}}
+        @media(min-width:1600px){.app-shell{max-width:820px}.feature-fullscreen-view{padding-inline:max(1.5rem,calc((100vw - 860px)/2))!important}}
+        @media(max-width:700px){
+            body{padding:0!important}
+            .app-shell{max-width:100%!important;min-height:100vh;min-height:100dvh;border-radius:0!important;border-left:0!important;border-right:0!important;padding:1.1rem 1rem calc(1.4rem + env(safe-area-inset-bottom))!important;box-shadow:none!important}
+            input,select,textarea{font-size:16px!important}
+            .header-icon-btn{width:42px;height:42px}
+            .lesson-opt{padding:13px 14px}
+            .toast-popup{max-width:92vw;padding:12px 20px;font-size:.85rem;text-align:center;bottom:calc(20px + env(safe-area-inset-bottom))}
+            #battle-arena-modal>div,#settings-modal>div,#avatar-studio-modal>div,#spinning-wheel-modal>div,#edit-team-modal>div{max-height:92dvh;overflow-y:auto}
+        }
+        @media(max-width:480px){
+            .top-header{flex-wrap:wrap;gap:10px}
+            .brand-title{font-size:1.05rem}
+            .stats-dashboard{padding:.8rem}
+            .mode-grid{gap:10px}
+            .mode-tile h4{font-size:.74rem;line-height:1.3}
+            .feature-topbar{gap:8px}
+            .feature-topbar h3{font-size:.95rem!important}
+            .ci-kpi b{font-size:1.1rem}
+            .lesson-q{font-size:1.05rem}
+            .done-title{font-size:1.35rem}
+            .shop-grid{gap:10px}
+        }
+        @media(max-width:340px){
+            .mode-grid{grid-template-columns:1fr}
+            .app-shell{padding:.9rem .8rem calc(1.2rem + env(safe-area-inset-bottom))!important}
+            .ci-kpis{grid-template-columns:1fr 1fr}
+            .feature-topbar .btn-action{width:70px!important;font-size:.72rem!important}
+        }
+        @media(max-height:520px) and (orientation:landscape){
+            .feature-fullscreen-view{padding-top:.7rem!important}
+            .feature-topbar{margin-bottom:.6rem;padding-bottom:.5rem}
+            #copilot{display:none}
+            .lesson-wrap{padding-bottom:150px}
+        }
+        @media(hover:none){.mode-tile:hover,.shop-card:hover,.lesson-opt:hover:not(:disabled){transform:none}}
         /* Teacher Copilot */
         #copilot{position:fixed;right:20px;bottom:24px;width:min(360px,calc(100% - 32px));z-index:5500;padding:16px 18px 14px;border-radius:20px;background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(11,15,25,.96));border:1px solid var(--border-glow);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 34px var(--accent-glow);color:var(--text-main);transform:translateY(140%);opacity:0;transition:transform .55s cubic-bezier(.2,.9,.25,1.1),opacity .4s}
         #copilot.show{transform:none;opacity:1}
