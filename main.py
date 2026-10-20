@@ -77,7 +77,7 @@ def read_token(tok: str):
 PUBLIC_API = {"/api/login", "/api/register", "/api/user/password-change", "/api/health"}
 TEACHER_ONLY = {"/api/teacher/adjust-xp", "/api/teacher/dashboard", "/api/teacher/export-csv", "/api/exam/create",
                 "/api/exam/create-advanced", "/api/exam/upload-pdf", "/api/exam/delete",
-                "/api/lesson/create", "/api/lesson/delete", "/api/demo/seed", "/api/demo/clear", "/api/announce/create", "/api/announce/delete", "/api/teacher/set-code", "/api/exam/reset-submission"}
+                "/api/lesson/create", "/api/lesson/delete", "/api/demo/seed", "/api/demo/clear", "/api/announce/create", "/api/announce/delete", "/api/teacher/set-code", "/api/exam/reset-submission", "/api/exam/review"}
 ACTOR_FIELDS = ("username", "student_username", "teacher_username", "sender_username")
 
 def identity_problem(scope, body: bytes, user):
@@ -93,7 +93,10 @@ def identity_problem(scope, body: bytes, user):
             fields.update({k: v for k, v in j.items() if isinstance(v, (str, int))})
     except Exception:
         pass
+    teacher_action = user["role"] == "teacher" and scope["path"] in TEACHER_ONLY
     for f in ACTOR_FIELDS:
+        if f == "student_username" and teacher_action:
+            continue
         if f in fields and str(fields[f]) != user["username"]:
             return "You can only act as yourself."
     if "phone_number" in fields and str(fields["phone_number"]) != user["phone"]:
@@ -149,6 +152,7 @@ def startup_extras():
     """Newer tables. Each statement is isolated so one failure can never stop the site from starting."""
     statements = [
         "ALTER TABLE aero_v22_users ALTER COLUMN password TYPE TEXT;",
+        "ALTER TABLE aero_v22_exam_submissions ADD COLUMN IF NOT EXISTS answers JSONB;",
         """CREATE TABLE IF NOT EXISTS aero_v22_class_lessons (
                id SERIAL PRIMARY KEY, group_code VARCHAR(50), teacher_username VARCHAR(50),
                title VARCHAR(120), questions JSONB, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);""",
@@ -842,7 +846,13 @@ def get_group_info(group_code: str, request: Request):
     conn.close()
     if request.state.auth["role"] != "teacher":
         for e in exams:
-            e["exam_data"] = [{k: v for k, v in q.items() if k != "correct"} for q in _exam_questions(e.get("exam_data"))]
+            raw = e.get("exam_data")
+            if isinstance(raw, str):
+                try:
+                    raw = json.loads(raw)
+                except Exception:
+                    raw = []
+            e["exam_data"] = [{k: v for k, v in q.items() if k not in ("correct", "accepted")} for q in (raw or []) if isinstance(q, dict)]
     return {"group": grp, "members": members, "lessons": [], "exams": exams, "submissions": submissions}
 
 @app.post("/api/exam/create")
@@ -1301,6 +1311,10 @@ def create_advanced_exam(data: AdvancedExamModel):
         conn.close()
         raise HTTPException(status_code=403, detail="Only teachers can publish exams.")
     import re
+    if len(data.exam_data) > 101:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=400, detail="An exam can have at most 100 questions.")
     code = data.group_code.strip().upper()
     if not re.fullmatch(r"[A-Z0-9_-]{3,30}", code):
         cur.close()
@@ -1332,7 +1346,7 @@ def _exam_questions(raw):
             break
     if isinstance(raw, dict):
         raw = raw.get("questions") or raw.get("exam_data") or []
-    return [q for q in (raw or []) if isinstance(q, dict)]
+    return [q for q in (raw or []) if isinstance(q, dict) and not q.get("_meta")]
 
 class SubmitFuzzyModel(BaseModel):
     exam_id: int
@@ -1355,13 +1369,35 @@ def submit_exam_fuzzy(data: SubmitFuzzyModel):
     if not qs:
         raise HTTPException(status_code=400, detail="This exam has no questions.")
     score = 0
+    total = 0
+    review = []
     for i, q in enumerate(qs):
+        try:
+            pts = max(1, min(20, int(q.get("points", 1) or 1)))
+        except Exception:
+            pts = 1
+        total += pts
         given = str(data.answers[i]).strip().lower() if i < len(data.answers) else ""
-        right = str(q.get("correct", "")).strip().lower()
-        if given and (given == right or (len(given) >= 3 and given in right)):
-            score += 1
+        right = [str(q.get("correct", "")).strip().lower()] + [str(a).strip().lower() for a in (q.get("accepted") or [])]
+        if q.get("type") in ("mcq", "true_false"):
+            ok = bool(given) and given == right[0]
+        else:
+            ok = bool(given) and any(given == r or (len(given) >= 3 and given in r) for r in right if r)
+        if ok:
+            score += pts
+        review.append({"question": q.get("question"), "type": q.get("type"), "given": (str(data.answers[i]).strip() if i < len(data.answers) else ""),
+                       "correct": q.get("correct"), "ok": ok, "points": pts})
     result = submit_exam(SubmitExamModel(exam_id=data.exam_id, student_username=data.student_username, student_name=data.student_name,
-                                         score=score, total_questions=len(qs), time_spent_seconds=min(max(data.time_spent_seconds, 0), 86400)))
+                                         score=score, total_questions=total, time_spent_seconds=min(max(data.time_spent_seconds, 0), 86400)))
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("UPDATE aero_v22_exam_submissions SET answers = %s WHERE exam_id = %s AND student_username = %s;", (json.dumps(review), data.exam_id, data.student_username))
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print("answers not stored:", e)
     if isinstance(result, dict):
         result["score"] = score
     return result
@@ -1398,7 +1434,7 @@ def teacher_dashboard(group_code: str, teacher_username: str):
                    FROM aero_v22_exams e LEFT JOIN aero_v22_exam_submissions s ON s.exam_id = e.id
                    WHERE e.teacher_username = %s GROUP BY e.id, e.title ORDER BY e.id DESC LIMIT 8;""", (teacher_username,))
     exams = cur.fetchall()
-    cur.execute("""SELECT e.title, s.student_name, s.student_username, s.score, s.total_questions, s.time_spent_seconds, s.submitted_at
+    cur.execute("""SELECT s.exam_id, e.title, s.student_name, s.student_username, s.score, s.total_questions, s.time_spent_seconds, s.submitted_at
                    FROM aero_v22_exam_submissions s JOIN aero_v22_exams e ON e.id = s.exam_id
                    WHERE e.teacher_username = %s ORDER BY s.submitted_at DESC LIMIT 60;""", (teacher_username,))
     results = cur.fetchall()
@@ -1712,6 +1748,24 @@ def reset_submission(data: ResetSubmissionModel):
     cur.close()
     conn.close()
     return {"status": "success"}
+
+@app.get("/api/exam/review")
+def exam_review(exam_id: int, student: str, request: Request):
+    me = request.state.auth["username"]
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""SELECT s.answers, s.score, s.total_questions, s.student_name, e.title
+                   FROM aero_v22_exam_submissions s JOIN aero_v22_exams e ON e.id = s.exam_id
+                   WHERE s.exam_id = %s AND s.student_username = %s AND e.teacher_username = %s;""", (exam_id, student, me))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Result not found.")
+    ans = row["answers"]
+    if isinstance(ans, str):
+        ans = json.loads(ans)
+    return {"title": row["title"], "student": row["student_name"], "score": row["score"], "total": row["total_questions"], "review": ans or []}
 
 @app.get("/manifest.json")
 def serve_manifest():
