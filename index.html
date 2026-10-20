@@ -463,6 +463,12 @@
         .unit-banner b{color:var(--leg,#fde68a)!important}
         .fp-plane{filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
         @media(prefers-reduced-motion:reduce){.duo-node-wrapper{animation:none}}
+
+        /* ===== v4 exam builder + taking ===== */
+        .eb-opt{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:8px;border:2px solid var(--border-glow);border-radius:12px;cursor:pointer;transition:border-color .2s,background .2s;text-transform:none}
+        .eb-opt:has(input:checked){border-color:var(--accent);background:rgba(56,189,248,.12)}
+        .eb-opt input{width:20px;height:20px;margin:0;flex:none;accent-color:#38bdf8}
+        .eb-opt span{font-size:.92rem;line-height:1.4}
         /* Teacher Copilot */
         #copilot{position:fixed;right:20px;bottom:24px;width:min(360px,calc(100% - 32px));z-index:5500;padding:16px 18px 14px;border-radius:20px;background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(11,15,25,.96));border:1px solid var(--border-glow);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 34px var(--accent-glow);color:var(--text-main);transform:translateY(140%);opacity:0;transition:transform .55s cubic-bezier(.2,.9,.25,1.1),opacity .4s}
         #copilot.show{transform:none;opacity:1}
@@ -1103,6 +1109,7 @@
         window.setLanguage = setLanguage;
 
         function showToast(text, isError = false) {
+            if(typeof trPhrase === 'function') text = trPhrase(text);
             playSound(isError ? 'error' : 'success');
             const t = document.getElementById('toast');
             t.innerText = text;
@@ -2294,6 +2301,7 @@
                     <!-- ADVANCED EXAM STUDIO -->
                     <div style="background:var(--bg-deep); padding:1.2rem; border-radius:18px; border:1px solid var(--accent); margin-bottom:1.5rem;">
                         <h4 style="color:var(--accent); font-size:0.95rem; margin-bottom:0.8rem; font-weight:900;">👨‍🏫 Advanced Interactive Exam Studio</h4>
+                        <button class="btn-action" onclick="window.openExamBuilder()" style="margin:0 0 12px;background:linear-gradient(135deg,#8b5cf6,#38bdf8);color:#fff">✨ Open the Advanced Exam Builder</button>
                         <div>
                             <label><b>Your code for this exam (e.g. AERO2026)</b></label>
                             <input type="text" id="ex-code" value="${escH(localStorage.getItem('aero_content_code') || sessionUser.group_code || '')}" maxlength="30" placeholder="Choose your own code" style="margin-bottom:4px; font-weight:800; text-transform:uppercase;" />
@@ -2375,6 +2383,7 @@
                                         <div style="color:var(--accent); font-size:0.8rem; margin-top:2px;">Exam ID #${sub.exam_id} | Score: <b>${sub.total_questions ? sub.score + '/' + sub.total_questions : '—'}</b> | ⏱ <b>${fmtDuration(sub.time_spent_seconds)}</b></div>
                                     </div>
                                     <div style="display:flex; gap:6px; align-items:center;">
+                                        <button class="btn-action" title="See this student's answers" onclick="window.openExamReview(${sub.exam_id}, '${sub.student_username}')" style="margin:0; padding:6px 10px; font-size:0.75rem; background:#0ea5e9; color:#fff; width:auto;">👁</button>
                                         <button class="btn-action" title="Allow this student to retake the exam" onclick="window.resetSubmission(${sub.exam_id}, '${sub.student_username}')" style="margin:0; padding:6px 10px; font-size:0.75rem; background:#8b5cf6; color:#fff; width:auto;">↺ Retake</button>
                                         <button class="btn-action" onclick="window.adjustStudentXP('${sub.student_username}', 50)" style="width:50px; padding:6px; font-size:0.75rem; background:var(--success); color:white; margin-top:0;" title="Reward +50 XP">+50⭐</button>
                                         <button class="btn-action" onclick="window.adjustStudentXP('${sub.student_username}', -50)" style="width:50px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;" title="Deduction -50 XP">-50⭐</button>
@@ -2907,49 +2916,46 @@
         function takeExam(exam) {
             playSound('click');
             if(questionTimerInterval) clearInterval(questionTimerInterval);
-            let questions = exam.exam_data;
-            if(typeof questions === 'string') questions = JSON.parse(questions);
+            let raw = exam.exam_data; if(typeof raw === 'string') raw = JSON.parse(raw);
+            const meta = raw.find(q => q._meta) || {}, qs = raw.filter(q => !q._meta);
+            const rnd = seededRandom((sessionUser ? sessionUser.username : 'guest') + '|exam|' + exam.id);
+            let order = qs.map((q, i) => i); if(meta.shuffle_q) order = seededShuffle(order, rnd);
+            const limit = (+meta.time_limit || 0) * 60, fmt = t => String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
             window.examStartedAt = Date.now();
-            const clockTimer = setInterval(() => { const c = document.getElementById('exam-clock'); if(!c) { clearInterval(clockTimer); return; } const t = Math.floor((Date.now() - window.examStartedAt) / 1000); c.textContent = '⏱ ' + String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); }, 1000);
+            const clockTimer = setInterval(() => {
+                const c = document.getElementById('exam-clock'); if(!c) { clearInterval(clockTimer); return; }
+                const t = Math.floor((Date.now() - window.examStartedAt) / 1000);
+                if(limit) { const left = Math.max(0, limit - t); c.textContent = '⏳ ' + fmt(left); c.style.color = left <= 60 ? '#f87171' : 'var(--gold)'; if(left <= 0) { clearInterval(clockTimer); showToast("Time is up! Submitting your answers…"); window.submitActiveExam(exam.id, qs.length); } }
+                else c.textContent = '⏱ ' + fmt(t);
+            }, 1000);
+            const card = (i, inner, q) => `<div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);"><label style="color:white; font-size:0.92rem; margin-bottom:10px; display:block; font-weight:700;">${escH(q.question)} <small style="color:var(--text-muted);font-weight:600">(${q.points || 1} pt)</small></label>${inner}</div>`;
+            const body = order.map((oi, n) => {
+                const q = qs[oi]; q._n = n + 1;
+                if(q.type === 'mcq' && (q.options || []).length) {
+                    const opts = meta.shuffle_o ? seededShuffle(q.options, rnd) : q.options;
+                    return card(oi, opts.map(o => `<label class="eb-opt"><input type="radio" name="q${oi}" value="${escH(o)}" data-oi="${oi}"><span>${escH(o)}</span></label>`).join(''), q);
+                }
+                if(q.type === 'true_false') return card(oi, `<select data-oi="${oi}" style="margin-bottom:0;"><option value="">Select True / False...</option><option value="True">True</option><option value="False">False</option></select>`, q);
+                return card(oi, `<input type="text" data-oi="${oi}" placeholder="Your answer..." style="margin-bottom:0;" />`, q);
+            }).join('');
             const box = document.getElementById('simulation-box');
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="window.openStudyHub()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
-                    <h3 style="font-size:1.1rem; color:var(--warning); font-weight:900;">⏱️ ${escH(exam.title)}</h3>
-                    <span id="exam-clock" style="font-size:0.85rem; color:var(--gold); font-weight:800;">⏱ 00:00</span>
+                    <h3 style="font-size:1.1rem; color:var(--warning); font-weight:900;">${escH(exam.title)}</h3>
+                    <span id="exam-clock" style="font-size:0.85rem; color:var(--gold); font-weight:800;">${limit ? '⏳ ' + fmt(limit) : '⏱ 00:00'}</span>
                 </div>
-                <div style="max-width:520px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
-                    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:1.5rem;">
-                        ${questions.map((q, idx) => {
-                            if(q.type === 'true_false') {
-                                return `
-                                    <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${escH(q.question)}</label>
-                                        <select class="exam-answer-input" style="margin-bottom:0;">
-                                            <option value="">Select True / False...</option>
-                                            <option value="True">True</option>
-                                            <option value="False">False</option>
-                                        </select>
-                                    </div>
-                                `;
-                            } else {
-                                return `
-                                    <div style="background:var(--surface-card); padding:16px; border-radius:16px; border:1px solid var(--border-glow);">
-                                        <label style="color:white; font-size:0.92rem; margin-bottom:8px; display:block; font-weight:700;">Q${idx+1}: ${escH(q.question)}</label>
-                                        <input type="text" class="exam-answer-input" placeholder="Your answer..." style="margin-bottom:0;" />
-                                    </div>
-                                `;
-                            }
-                        }).join('')}
-                    </div>
-                    <button class="btn-action" onclick="window.submitActiveExam(${exam.id}, ${questions.length})" style="background:var(--success); color:white; padding:1.1rem; margin-bottom:2rem;">Submit Official Exam 🏆</button>
-                </div>
-            `;
+                <div style="max-width:560px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
+                    ${limit ? `<p style="text-align:center;color:var(--text-muted);font-size:.8rem;margin-bottom:10px">Time limit: ${meta.time_limit} min. Your answers are sent automatically when time is up.</p>` : ''}
+                    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:1.5rem;">${body}</div>
+                    <button class="btn-action" onclick="window.submitActiveExam(${exam.id}, ${qs.length})" style="background:var(--success); color:white; padding:1.1rem; margin-bottom:2rem;">Submit Official Exam 🏆</button>
+                </div>`;
         }
         window.takeExam = takeExam;
 
         async function submitActiveExam(examId, totalQ) {
-            const answers = Array.from(document.querySelectorAll('.exam-answer-input')).map(inp => inp.value.trim());
+            const answers = Array(totalQ).fill('');
+            document.querySelectorAll('[data-oi]').forEach(el => { const i = +el.dataset.oi; if(el.type === 'radio') { if(el.checked) answers[i] = el.value; } else answers[i] = el.value.trim(); });
             const res = await fetch('/api/exam/submit-fuzzy', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -3585,7 +3591,7 @@
             if(s.students && s.active === s.students) tips.push('🌟 Everyone practiced recently. Great moment for a class challenge or a battle round.');
             if(!tips.length) tips.push('📝 No data yet. Ask students to complete a node and check back.');
             const kpi = (n, l) => `<div class="ci-kpi"><b>${n}</b><small>${l}</small></div>`;
-            const resRows = (d.results || []).map(r => { const pct = r.total_questions ? Math.round(r.score / r.total_questions * 100) : null; return `<div class="ci-hq"><span style="background:${pct == null ? 'rgba(148,163,184,.15)' : pct >= 50 ? 'rgba(74,222,128,.15)' : 'rgba(248,113,113,.14)'};color:${pct == null ? '#94a3b8' : pct >= 50 ? '#4ade80' : '#fca5a5'}">${r.total_questions ? r.score + '/' + r.total_questions : '—'}</span><div><b>${escH(r.student_name || r.student_username)}</b><small>${escH(r.title)} · ${pct == null ? '' : pct + '% · '}⏱ ${fmtDuration(r.time_spent_seconds)}</small></div></div>`; }).join('') || '<small style="color:var(--text-muted)">No student has submitted an exam yet.</small>';
+            const resRows = (d.results || []).map(r => { const pct = r.total_questions ? Math.round(r.score / r.total_questions * 100) : null; return `<div class="ci-hq" style="cursor:pointer" onclick="window.openExamReview(${r.exam_id}, '${escH(r.student_username)}')"><span style="background:${pct == null ? 'rgba(148,163,184,.15)' : pct >= 50 ? 'rgba(74,222,128,.15)' : 'rgba(248,113,113,.14)'};color:${pct == null ? '#94a3b8' : pct >= 50 ? '#4ade80' : '#fca5a5'}">${r.total_questions ? r.score + '/' + r.total_questions : '—'}</span><div><b>${escH(r.student_name || r.student_username)}</b><small>${escH(r.title)} · ${pct == null ? '' : pct + '% · '}⏱ ${fmtDuration(r.time_spent_seconds)} · 👁 view answers</small></div></div>`; }).join('') || '<small style="color:var(--text-muted)">No student has submitted an exam yet.</small>';
             const rows = st.map((x, i) => `<div class="ci-row ${x.status}"><span class="ci-rank">${i + 1}</span><div class="ci-name"><b>${escH(x.full_name || x.username)}</b><small>@${escH(x.username)} · ${x.days_since == null ? 'never practiced' : x.days_since === 0 ? 'practiced today' : x.days_since + 'd ago'}</small></div><div class="ci-prog"><i style="width:${x.nodes_done}%"></i></div><span class="ci-nodes">${x.nodes_done}/100</span><span class="ci-meta">🔥${x.streak} ⭐${x.xp}</span></div>`).join('');
             const hard = d.hard_questions.map(q => `<div class="ci-hq"><span>${q.misses}×</span><div><b>${escH(q.question_text)}</b><small>Answer: ${escH(q.correct_answer)}</small></div></div>`).join('') || '<small style="color:var(--text-muted)">No mistakes logged yet.</small>';
             const ex = d.exams.map(e => `<div class="ci-hq"><span>${e.avg_pct == null ? '–' : e.avg_pct + '%'}</span><div><b>${escH(e.title)}</b><small>${e.submissions} submission${e.submissions == 1 ? '' : 's'}${e.avg_seconds != null ? ' · average time ' + fmtDuration(e.avg_seconds) : ''}</small></div></div>`).join('') || '<small style="color:var(--text-muted)">No exams yet.</small>';
@@ -4054,6 +4060,133 @@
             return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + 'm ' + String(s).padStart(2, '0') + 's';
         }
         window.fmtDuration = fmtDuration;
+    
+        /* ADVANCED EXAM BUILDER */
+        let eb = { title: '', code: '', limit: 0, shufQ: false, shufO: false, qs: [] };
+        const ebNew = type => ({ type: type || 'mcq', text: '', options: ['', '', '', ''], correct: 0, short: '', accepted: '', tf: 'True', points: 1 });
+        function openExamBuilder() {
+            playSound('click');
+            const box = document.getElementById('simulation-box'); box.classList.add('feature-fullscreen-view');
+            if(!eb.qs.length) { eb = { title: '', code: localStorage.getItem('aero_content_code') || sessionUser.group_code || '', limit: 0, shufQ: false, shufO: false, qs: [ebNew()] }; }
+            renderExamBuilder();
+        }
+        window.openExamBuilder = openExamBuilder;
+        function renderExamBuilder() {
+            const box = document.getElementById('simulation-box'), pts = eb.qs.reduce((a, q) => a + (+q.points || 1), 0);
+            const typeSel = (q, i) => `<select onchange="window.ebType(${i}, this.value)" style="margin-bottom:8px"><option value="mcq" ${q.type === 'mcq' ? 'selected' : ''}>Multiple choice</option><option value="true_false" ${q.type === 'true_false' ? 'selected' : ''}>True / False</option><option value="short" ${q.type === 'short' ? 'selected' : ''}>Short answer</option></select>`;
+            const qBody = (q, i) => q.type === 'mcq' ? q.options.map((o, oi) => `<label class="le-opt"><input type="radio" name="ebc${i}" ${q.correct === oi ? 'checked' : ''} onchange="window.ebCorrect(${i},${oi})"><input type="text" data-i="${i}" data-oi="${oi}" placeholder="Option ${'ABCDEF'[oi]}${oi < 2 ? '' : ' (optional)'}" value="${escH(o)}" oninput="window.ebSet(this)"></label>`).join('') + (q.options.length < 6 ? `<button class="btn-action" onclick="window.ebAddOpt(${i})" style="margin:0 0 6px;padding:6px;font-size:.75rem;background:transparent;border:1px dashed var(--border-glow);color:var(--text-muted)">＋ option</button>` : '')
+                : q.type === 'true_false' ? `<select onchange="window.ebTF(${i}, this.value)"><option ${q.tf === 'True' ? 'selected' : ''}>True</option><option ${q.tf === 'False' ? 'selected' : ''}>False</option></select>`
+                : `<input type="text" data-i="${i}" data-f="short" placeholder="Correct answer" value="${escH(q.short)}" oninput="window.ebSet(this)"><input type="text" data-i="${i}" data-f="accepted" placeholder="Other accepted answers, separated by | (optional)" value="${escH(q.accepted)}" oninput="window.ebSet(this)">`;
+            box.innerHTML = `<div class="feature-topbar"><button class="btn-action" onclick="window.openStudyHub()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button><h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">✨ Exam Builder</h3><span style="font-size:.8rem;color:var(--gold);font-weight:800">${eb.qs.length} Q · ${pts} pts</span></div>
+            <div class="ci-wrap">
+              <div class="ci-card"><h4>Exam settings</h4>
+                <input placeholder="Exam title" value="${escH(eb.title)}" oninput="eb.title=this.value">
+                <input id="ex-code" placeholder="Your code for students (e.g. AERO2026)" maxlength="30" value="${escH(eb.code)}" oninput="eb.code=this.value" style="font-weight:800">
+                <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><label style="flex:1;min-width:150px;margin:0">Time limit (minutes, 0 = none)<input type="number" min="0" max="300" value="${eb.limit}" oninput="eb.limit=+this.value||0" style="margin:4px 0 0"></label></div>
+                <label class="le-opt" style="margin-top:8px"><input type="checkbox" ${eb.shufQ ? 'checked' : ''} onchange="eb.shufQ=this.checked" style="width:20px;height:20px;margin:0"><span>Shuffle question order for each student</span></label>
+                <label class="le-opt"><input type="checkbox" ${eb.shufO ? 'checked' : ''} onchange="eb.shufO=this.checked" style="width:20px;height:20px;margin:0"><span>Shuffle answer options for each student</span></label></div>
+              ${eb.qs.map((q, i) => `<div class="ci-card le-q"><div class="le-qh"><b>Question ${i + 1}</b><span><button class="le-x" onclick="window.ebMove(${i},-1)" aria-label="Move up">⬆</button><button class="le-x" onclick="window.ebMove(${i},1)" aria-label="Move down">⬇</button><button class="le-x" onclick="window.ebDup(${i})" aria-label="Duplicate">⧉</button><button class="le-x" onclick="window.ebDel(${i})" aria-label="Delete">🗑</button></span></div>
+                ${typeSel(q, i)}<input data-i="${i}" data-f="text" placeholder="Type the question" value="${escH(q.text)}" oninput="window.ebSet(this)">${qBody(q, i)}
+                <label style="margin:6px 0 0;display:flex;align-items:center;gap:8px">Points <input type="number" min="1" max="20" value="${q.points}" oninput="eb.qs[${i}].points=Math.max(1,Math.min(20,+this.value||1))" style="width:80px;margin:0"></label></div>`).join('')}
+              <button class="btn-action" onclick="window.ebAdd()" style="margin:0;background:transparent;border:2px dashed var(--accent);color:var(--accent)">＋ Add a question</button>
+              <div class="ci-card"><h4>⚡ Paste many questions at once</h4><textarea id="eb-bulk" rows="6" placeholder="Question text?&#10;A) wrong&#10;*B) correct (start with *)&#10;C) wrong" style="margin-bottom:8px"></textarea><button class="btn-action" onclick="window.ebImport()" style="margin:0;background:#8b5cf6;color:#fff">Import as multiple choice</button></div>
+              <button class="btn-action" onclick="window.ebPublish()" style="margin:0;background:var(--success);color:#fff;padding:1.1rem">🏆 Publish exam</button></div>`;
+        }
+        window.ebSet = el => { const q = eb.qs[+el.dataset.i]; if(el.dataset.f) q[el.dataset.f] = el.value; else q.options[+el.dataset.oi] = el.value; };
+        window.ebCorrect = (i, oi) => { eb.qs[i].correct = oi; };
+        window.ebTF = (i, v) => { eb.qs[i].tf = v; };
+        window.ebType = (i, t) => { eb.qs[i].type = t; renderExamBuilder(); };
+        window.ebAddOpt = i => { eb.qs[i].options.push(''); renderExamBuilder(); };
+        window.ebAdd = () => { eb.qs.push(ebNew()); renderExamBuilder(); setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 50); };
+        window.ebDel = i => { eb.qs.splice(i, 1); if(!eb.qs.length) eb.qs.push(ebNew()); renderExamBuilder(); };
+        window.ebDup = i => { eb.qs.splice(i + 1, 0, JSON.parse(JSON.stringify(eb.qs[i]))); renderExamBuilder(); };
+        window.ebMove = (i, d) => { const j = i + d; if(j < 0 || j >= eb.qs.length) return; [eb.qs[i], eb.qs[j]] = [eb.qs[j], eb.qs[i]]; renderExamBuilder(); };
+        window.ebImport = () => {
+            const got = leParse(document.getElementById('eb-bulk').value);
+            if(!got.length) { showToast('Could not read any question. Check the format.', true); return; }
+            eb.qs = eb.qs.filter(q => q.text.trim() || q.options.some(o => o.trim())).concat(got.map(g => Object.assign(ebNew(), { text: g.q, options: g.options, correct: g.correct })));
+            renderExamBuilder(); showToast(got.length + ' questions imported ✓');
+        };
+        window.ebPublish = async () => {
+            const code = (eb.code || '').trim().toUpperCase();
+            if(!eb.title.trim()) { showToast('Add an exam title.', true); return; }
+            if(!code) { showToast('Choose your code for students.', true); return; }
+            const data = [{ _meta: true, time_limit: eb.limit, shuffle_q: eb.shufQ, shuffle_o: eb.shufO }];
+            for(let i = 0; i < eb.qs.length; i++) {
+                const q = eb.qs[i], text = q.text.trim(), pts = Math.max(1, Math.min(20, +q.points || 1));
+                if(!text) { showToast('Question ' + (i + 1) + ' has no text.', true); return; }
+                if(q.type === 'mcq') {
+                    const opts = []; let c = -1; q.options.forEach((o, oi) => { if(o.trim()) { if(oi === q.correct) c = opts.length; opts.push(o.trim()); } });
+                    if(opts.length < 2 || c < 0) { showToast('Question ' + (i + 1) + ': add 2+ options and mark the correct one.', true); return; }
+                    data.push({ question: text, type: 'mcq', options: opts, correct: opts[c], points: pts });
+                } else if(q.type === 'true_false') data.push({ question: text, type: 'true_false', correct: q.tf, points: pts });
+                else {
+                    if(!q.short.trim()) { showToast('Question ' + (i + 1) + ' needs a correct answer.', true); return; }
+                    data.push({ question: text, type: 'short', correct: q.short.trim(), accepted: q.accepted.split('|').map(x => x.trim()).filter(Boolean), points: pts });
+                }
+            }
+            const res = await fetch('/api/exam/create-advanced', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ group_code: code, teacher_username: sessionUser.username, title: eb.title.trim(), exam_data: data, is_pdf: false }) });
+            if(res.ok) { showToast('Exam published! Students enter code ' + code + ' to see it. 🏆'); playSound('success'); eb = { title: '', code: '', limit: 0, shufQ: false, shufO: false, qs: [] }; afterPublishSwitchCode(code); }
+            else { const e = await res.json().catch(() => ({})); showToast(e.detail || 'Failed to publish exam', true); }
+        };
+
+        /* TRANSLATION LAYER for the newer screens (French and Arabic) */
+        const PHR = {
+            'Class Insights': ['Analyse de la classe', 'تحليلات الفصل'], 'Class Insights (Teacher Dashboard)': ['Analyse de la classe (enseignant)', 'تحليلات الفصل (المعلم)'],
+            'STUDENTS': ['ÉLÈVES', 'الطلاب'], 'AVG NODES': ['NŒUDS MOY.', 'متوسط العقد'], 'AVG XP': ['XP MOY.', 'متوسط النقاط'], 'ACTIVE': ['ACTIFS', 'نشطون'], 'TEACHERS': ['ENSEIGNANTS', 'المعلمون'], 'CLASSES': ['CLASSES', 'الفصول'],
+            '💡 Suggested for your next session': ['💡 Suggestions pour votre prochaine séance', '💡 اقتراحات لحصتك القادمة'], '🔑 Your class code': ['🔑 Code de votre classe', '🔑 رمز فصلك'],
+            'Save my class code': ['Enregistrer le code', 'حفظ رمز الفصل'], 'Remove my class code': ['Supprimer le code', 'حذف رمز الفصل'], '📣 Announce to your class': ['📣 Annoncer à votre classe', '📣 أعلن لفصلك'],
+            'Send to students': ['Envoyer aux élèves', 'إرسال للطلاب'], '🎯 Hardest questions': ['🎯 Questions les plus difficiles', '🎯 أصعب الأسئلة'], '📝 Exam averages': ['📝 Moyennes des examens', '📝 متوسطات الاختبارات'],
+            '🧾 Student exam results': ['🧾 Résultats des examens', '🧾 نتائج الطلاب'], '⬇ Gradebook CSV': ['⬇ Carnet de notes CSV', '⬇ سجل الدرجات CSV'], '🖨 Print / Save PDF': ['🖨 Imprimer / PDF', '🖨 طباعة / PDF'],
+            'Class League (this week)': ['Classement (cette semaine)', 'دوري الفصل (هذا الأسبوع)'], '🏆 Class League': ['🏆 Classement de la classe', '🏆 دوري الفصل'], 'Cabin Announcements (Listening Lab)': ['Annonces en cabine (écoute)', 'إعلانات المقصورة (مختبر الاستماع)'],
+            'Academy Overview (Director)': ['Vue d\'ensemble (directeur)', 'نظرة عامة على الأكاديمية (المدير)'], '🏫 Academy Overview': ['🏫 Vue d\'ensemble de l\'académie', '🏫 نظرة عامة على الأكاديمية'], '📋 Executive summary': ['📋 Résumé', '📋 ملخص تنفيذي'],
+            '🔔 Messages': ['🔔 Messages', '🔔 الرسائل'], 'No messages from your teacher yet.': ['Aucun message de votre enseignant.', 'لا توجد رسائل من معلمك بعد.'], 'Loading…': ['Chargement…', 'جارٍ التحميل…'],
+            '↺ Retake': ['↺ Repasser', '↺ إعادة'], 'Classes': ['Classes', 'الفصول'], '👨‍🏫 Teachers': ['👨‍🏫 Enseignants', '👨‍🏫 المعلمون'], '🏆 Top students': ['🏆 Meilleurs élèves', '🏆 أفضل الطلاب'],
+            '✨ Load demo class': ['✨ Charger une classe démo', '✨ تحميل فصل تجريبي'], '🧹 Remove demo data': ['🧹 Supprimer la démo', '🧹 حذف البيانات التجريبية'], '✨ Open the Advanced Exam Builder': ['✨ Ouvrir le créateur d\'examens avancé', '✨ فتح منشئ الاختبارات المتقدم'],
+            '✨ Exam Builder': ['✨ Créateur d\'examens', '✨ منشئ الاختبارات'], 'Exam settings': ['Paramètres de l\'examen', 'إعدادات الاختبار'], '＋ Add a question': ['＋ Ajouter une question', '＋ إضافة سؤال'], '🏆 Publish exam': ['🏆 Publier l\'examen', '🏆 نشر الاختبار'],
+            'Shuffle question order for each student': ['Mélanger l\'ordre des questions pour chaque élève', 'خلط ترتيب الأسئلة لكل طالب'], 'Shuffle answer options for each student': ['Mélanger les choix de réponse pour chaque élève', 'خلط خيارات الإجابة لكل طالب'],
+            'Multiple choice': ['Choix multiple', 'اختيار من متعدد'], 'True / False': ['Vrai / Faux', 'صح / خطأ'], 'Short answer': ['Réponse courte', 'إجابة قصيرة'], 'Submit Official Exam 🏆': ['Envoyer l\'examen 🏆', 'إرسال الاختبار 🏆'],
+            'Your code for students': ['Votre code pour les élèves', 'رمزك للطلاب']
+        };
+        const PAT = [
+            [/^Week ends in (\d+) days?$/, m => ['La semaine se termine dans ' + m[1] + ' jour(s)', 'ينتهي الأسبوع بعد ' + m[1] + ' يوم']],
+            [/^🎯 You are #(\d+)\. (\d+) more XP to pass (.+)\.$/, m => ['🎯 Vous êtes #' + m[1] + '. Encore ' + m[2] + ' XP pour dépasser ' + m[3] + '.', '🎯 أنت رقم ' + m[1] + '. تحتاج ' + m[2] + ' نقطة لتتجاوز ' + m[3] + '.']],
+            [/^👑 You lead the class this week\. Keep going!$/, m => ['👑 Vous êtes en tête cette semaine. Continuez !', '👑 أنت في الصدارة هذا الأسبوع. واصل!']],
+            [/^Exam published! Students enter code (.+) to see it\. 🏆$/, m => ['Examen publié ! Les élèves saisissent le code ' + m[1] + '. 🏆', 'تم نشر الاختبار! يدخل الطلاب الرمز ' + m[1] + '. 🏆']],
+            [/^Announcement sent 📣$/, m => ['Annonce envoyée 📣', 'تم إرسال الإعلان 📣']], [/^Back online ✓$/, m => ['De nouveau en ligne ✓', 'عاد الاتصال ✓']],
+            [/^Your score: (\d+) \/ (\d+)$/, m => ['Votre score : ' + m[1] + ' / ' + m[2], 'نتيجتك: ' + m[1] + ' / ' + m[2]]]
+        ];
+        function trPhrase(s) {
+            const L = (typeof activeLang !== 'undefined') ? activeLang : 'en'; if(L === 'en' || !s) return s;
+            const i = L === 'fr' ? 0 : L === 'ar' ? 1 : -1; if(i < 0) return s;
+            const t = s.trim(); if(!t) return s;
+            if(PHR[t]) return s.replace(t, PHR[t][i]);
+            for(const [re, f] of PAT) { const m = t.match(re); if(m) return s.replace(t, f(m)[i]); }
+            return s;
+        }
+        window.trPhrase = trPhrase;
+        function trWalk(root) {
+            if(!root) return;
+            if(root.nodeType === 3) { const v = trPhrase(root.nodeValue); if(v !== root.nodeValue) root.nodeValue = v; return; }
+            if(root.nodeType !== 1 || /^(SCRIPT|STYLE|TEXTAREA)$/.test(root.tagName)) return;
+            if(root.placeholder) { const p = trPhrase(root.placeholder); if(p !== root.placeholder) root.placeholder = p; }
+            const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n; while((n = w.nextNode())) { const v = trPhrase(n.nodeValue); if(v !== n.nodeValue) n.nodeValue = v; }
+        }
+        new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(trWalk))).observe(document.body, { childList: true, subtree: true });
+        { const st = window.showToast || showToast; }
+    
+        async function openExamReview(examId, student) {
+            playSound('click');
+            const box = document.getElementById('simulation-box'); box.classList.add('feature-fullscreen-view');
+            const back = `openClassInsights('${escH(sessionUser.group_code || localStorage.getItem('aero_insights_code') || '')}')`;
+            const top = `<div class="feature-topbar"><button class="btn-action" onclick="${back}" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button><h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">👁 Answers</h3><div style="width:85px;"></div></div>`;
+            box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card" style="text-align:center">Loading…</div></div>`;
+            let d; try { const r = await fetch('/api/exam/review?exam_id=' + examId + '&student=' + encodeURIComponent(student)); if(!r.ok) throw 0; d = await r.json(); }
+            catch(e) { box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card">Could not load this result.</div></div>`; return; }
+            const rows = d.review.map((q, i) => `<div class="ci-card" style="border-color:${q.ok ? 'rgba(74,222,128,.5)' : 'rgba(248,113,113,.5)'}"><div style="display:flex;justify-content:space-between;gap:8px"><b style="font-size:.9rem">${i + 1}. ${escH(q.question)}</b><span style="font-weight:900;color:${q.ok ? '#4ade80' : '#f87171'};white-space:nowrap">${q.ok ? '✓ +' + q.points : '✗ 0/' + q.points}</span></div><p style="margin-top:8px;font-size:.85rem">Student answered: <b style="color:${q.ok ? '#4ade80' : '#fca5a5'}">${q.given ? escH(q.given) : '(no answer)'}</b></p>${q.ok ? '' : `<p style="font-size:.85rem">Correct answer: <b style="color:#4ade80">${escH(q.correct)}</b></p>`}</div>`).join('') || '<div class="ci-card" style="text-align:center;color:var(--text-muted)">The detailed answers were not saved for this older result. New submissions will show them.</div>';
+            box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card ci-tips"><h4>${escH(d.title)}</h4><p>${escH(d.student || student)} · ${d.score}/${d.total}</p></div>${rows}</div>`;
+        }
+        window.openExamReview = openExamReview;
     </script>
 </body>
 </html>
