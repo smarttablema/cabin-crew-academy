@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-title" content="Aerostar">
     <link rel="apple-touch-icon" href="/icon-192.png">
     <title>Aero Crew Academy</title>
-    <link rel="icon" href="https://img.icons8.com/color/48/airplane-take-off.png">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%20width%3D%2238%22%20height%3D%2238%22%20aria-hidden%3D%22true%22%3E%3Cdefs%3E%3CradialGradient%20id%3D%22fvg%22%20cx%3D%2235%25%22%20cy%3D%2228%25%22%20r%3D%2280%25%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%2338bdf8%22/%3E%3Cstop%20offset%3D%22.55%22%20stop-color%3D%22%230369a1%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230b1d3a%22/%3E%3C/radialGradient%3E%3ClinearGradient%20id%3D%22fvr%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fde68a%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23d97706%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2230%22%20fill%3D%22url%28%23fvg%29%22/%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2229%22%20fill%3D%22none%22%20stroke%3D%22url%28%23fvr%29%22%20stroke-width%3D%222.6%22/%3E%3Cpath%20d%3D%22M9%2044Q31%2056%2056%2033%22%20fill%3D%22none%22%20stroke%3D%22%23fde68a%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20stroke-dasharray%3D%221%205%22%20opacity%3D%22.9%22/%3E%3Cg%20transform%3D%22rotate%28-38%2032%2032%29%20translate%280%20-2%29%22%3E%3Cpath%20d%3D%22M32%2011l3%209v14l15%209v4l-15-5v10l5%204v3l-8-2-8%202v-3l5-4v-10l-15%205v-4l15-9v-14z%22%20fill%3D%22%23fff%22/%3E%3C/g%3E%3Ccircle%20cx%3D%2248%22%20cy%3D%2214%22%20r%3D%221.6%22%20fill%3D%22%23fde68a%22/%3E%3Ccircle%20cx%3D%2214%22%20cy%3D%2218%22%20r%3D%221.1%22%20fill%3D%22%23fde68a%22%20opacity%3D%22.8%22/%3E%3C/svg%3E">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@450;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -52,7 +52,7 @@
         
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.4rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
         .brand-title { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.2rem; color: var(--accent); text-shadow: 0 0 15px var(--accent-glow); }
-        .brand-title img { width: 34px; height: 34px; }
+        .brand-title img, .brand-mark { width: 38px; height: 38px; filter: drop-shadow(0 0 10px rgba(56,189,248,.55)); }
         
         .header-controls { display: flex; align-items: center; gap: 8px; }
         .header-icon-btn { background: var(--surface-card); border: 1px solid var(--border-glow); border-radius: 12px; width: 38px; height: 38px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.1rem; transition: all 0.2s; }
@@ -381,6 +381,31 @@
         @media(prefers-reduced-motion:reduce){.lg-pod{animation:none}}
 
         #bell-dot{position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#f87171;border:2px solid var(--bg-deep);animation:urgentPulse 1.8s ease-in-out infinite}
+
+        /* ===== v3 aviation flight path ===== */
+        .duo-path-container{position:relative;border-radius:22px;overflow:hidden;background:
+            radial-gradient(60% 40% at 15% 12%,rgba(255,255,255,.1),transparent 70%),
+            radial-gradient(50% 35% at 85% 38%,rgba(255,255,255,.08),transparent 70%),
+            radial-gradient(60% 40% at 25% 70%,rgba(255,255,255,.07),transparent 70%),
+            linear-gradient(180deg,#0b1d3a 0%,#123a63 45%,#1b5a78 75%,#e08a3c 135%);background-size:100% 100%,100% 100%,100% 100%,100% 100%;animation:skyDrift 40s linear infinite}
+        @keyframes skyDrift{to{background-position:60px 0,-80px 0,50px 0,0 0}}
+        .fp-svg{position:absolute;left:0;top:0;pointer-events:none;z-index:0;overflow:visible}
+        .fp-rest{fill:none;stroke:rgba(186,230,253,.28);stroke-width:5;stroke-linecap:round;stroke-dasharray:2 14}
+        .fp-done{fill:none;stroke:#fbbf24;stroke-width:6;stroke-linecap:round;stroke-dasharray:14 12;filter:drop-shadow(0 0 6px rgba(251,191,36,.7));animation:fpFlow 1.4s linear infinite}
+        @keyframes fpFlow{to{stroke-dashoffset:-26}}
+        .duo-path-container::before{display:none}
+        .duo-node-wrapper{position:relative;z-index:1}
+        .duo-node{border-radius:50%;border:3px solid rgba(255,255,255,.55)}
+        .duo-node.completed{background:radial-gradient(circle at 35% 30%,#fde68a,#f59e0b 70%)!important;border-color:#fff7d6;box-shadow:0 8px 0 #b45309,0 0 22px rgba(251,191,36,.55)}
+        .duo-node.active{background:radial-gradient(circle at 35% 30%,#7dd3fc,#0284c7 70%)!important;border-color:#e0f2fe}
+        .duo-node.locked{background:radial-gradient(circle at 35% 30%,#64748b,#334155 75%)!important;border-color:rgba(255,255,255,.2);box-shadow:0 8px 0 #1e293b}
+        .duo-node.active::after{content:"";position:absolute;inset:-12px;border-radius:50%;border:3px dashed rgba(224,242,254,.7);animation:runwaySpin 9s linear infinite}
+        @keyframes runwaySpin{to{transform:rotate(360deg)}}
+        .unit-banner{background:linear-gradient(135deg,rgba(2,6,23,.88),rgba(30,64,175,.88));border:1px solid rgba(251,191,36,.45)}
+        .unit-banner b{color:#fde68a;letter-spacing:.16em}
+        @media(prefers-reduced-motion:reduce){.duo-path-container,.fp-done,.duo-node.active::after{animation:none}}
+
+        .lesson-src{display:block;margin-top:14px;font-size:.7rem;color:var(--text-muted);letter-spacing:.03em}
         /* Teacher Copilot */
         #copilot{position:fixed;right:20px;bottom:24px;width:min(360px,calc(100% - 32px));z-index:5500;padding:16px 18px 14px;border-radius:20px;background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(11,15,25,.96));border:1px solid var(--border-glow);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 34px var(--accent-glow);color:var(--text-main);transform:translateY(140%);opacity:0;transition:transform .55s cubic-bezier(.2,.9,.25,1.1),opacity .4s}
         #copilot.show{transform:none;opacity:1}
@@ -434,7 +459,7 @@
     <div class="app-shell" id="main-app-shell">
         <div class="top-header">
             <div class="brand-title">
-                <img src="https://img.icons8.com/color/48/airplane-take-off.png" alt="Logo">
+                <svg class="brand-mark" viewBox="0 0 64 64" width="38" height="38" aria-hidden="true"><defs><radialGradient id="lgg" cx="35%" cy="28%" r="80%"><stop offset="0" stop-color="#38bdf8"/><stop offset=".55" stop-color="#0369a1"/><stop offset="1" stop-color="#0b1d3a"/></radialGradient><linearGradient id="lgr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fde68a"/><stop offset="1" stop-color="#d97706"/></linearGradient></defs><circle cx="32" cy="32" r="30" fill="url(#lgg)"/><circle cx="32" cy="32" r="29" fill="none" stroke="url(#lgr)" stroke-width="2.6"/><path d="M9 44Q31 56 56 33" fill="none" stroke="#fde68a" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="1 5" opacity=".9"/><g transform="rotate(-38 32 32) translate(0 -2)"><path d="M32 11l3 9v14l15 9v4l-15-5v10l5 4v3l-8-2-8 2v-3l5-4v-10l-15 5v-4l15-9v-14z" fill="#fff"/></g><circle cx="48" cy="14" r="1.6" fill="#fde68a"/><circle cx="14" cy="18" r="1.1" fill="#fde68a" opacity=".8"/></svg>
                 <span id="brand-logo-text">Aero Crew</span>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
@@ -622,10 +647,7 @@
                     <span style="font-size: 1.5rem;">🎧</span>
                     <h4>Cabin Announcements (Listening Lab)</h4>
                 </div>
-                <div class="mode-tile" id="tile-lessons" style="grid-column:1 / -1;" onclick="window.openClassLessons()">
-                    <span style="font-size: 1.5rem;">📚</span>
-                    <h4>Class Lessons (made by your teacher)</h4>
-                </div>
+
                 <div class="mode-tile" onclick="window.openFlightLogbookModal()" style="grid-column: span 2; background: linear-gradient(135deg, rgba(3, 105, 161, 0.85), rgba(2, 6, 23, 0.95));">
                     <span style="font-size: 1.8rem;">📖✈️</span>
                     <h4 id="tr-tile-hangar" style="font-size: 0.9rem; margin-top: 6px;">Flight Logbook & The Hangar of Errors (Mistake Review)</h4>
@@ -1538,6 +1560,117 @@
         }
         window.openFlightLogbookModal = openFlightLogbookModal;
 
+
+        /* QUESTION BANK: original questions based on public aviation standards. Format: [question, correct answer, wrong 1, wrong 2] */
+        const AERO_BANK = {
+            year1: {
+                alphabet: { src: 'ICAO Annex 10 / Doc 9432 (spelling alphabet)', q: [
+                    ["Which word represents the letter B in the ICAO spelling alphabet?", "Bravo", "Beta", "Baker"],
+                    ["Which word represents the letter F?", "Foxtrot", "Frank", "Fred"],
+                    ["Which word represents the letter Q?", "Quebec", "Queen", "Quartz"],
+                    ["Which word represents the letter W?", "Whiskey", "Winter", "William"],
+                    ["Which word represents the letter X?", "X-ray", "Xenon", "Xylophone"],
+                    ["Which word represents the letter J?", "Juliet", "Jupiter", "Jack"],
+                    ["Which word represents the letter Z?", "Zulu", "Zebra", "Zero"],
+                    ["How is the number 9 pronounced in radiotelephony?", "Niner", "Nine", "Nonner"],
+                    ["How is the number 3 pronounced in radiotelephony?", "Tree", "Three", "Thir"],
+                    ["Which letter does the word Kilo stand for?", "K", "C", "L"],
+                    ["Which letter does the word Hotel stand for?", "H", "O", "T"],
+                    ["Which letter does the word Papa stand for?", "P", "F", "B"] ] },
+                basics: { src: 'Common airline and airport terminology', q: [
+                    ["What does ETA stand for?", "Estimated time of arrival", "Early take-off approval", "Emergency transport area"],
+                    ["What does ETD stand for?", "Estimated time of departure", "Emergency tower dispatch", "Engine temperature display"],
+                    ["What does PAX mean in airline language?", "Passengers", "Pilots", "Packages"],
+                    ["Which part of the aircraft mainly produces lift?", "The wings", "The landing gear", "The galley"],
+                    ["What is the galley?", "The area where food and drinks are prepared", "The pilots rest area", "The cargo door"],
+                    ["What is another name for the cockpit?", "The flight deck", "The galley", "The hold"],
+                    ["What does a boarding pass allow a passenger to do?", "Board a specific flight", "Skip security", "Change the aircraft"],
+                    ["Why is cabin crew uniform important?", "Passengers can recognise crew in an emergency", "It sets the ticket price", "It controls the lights"] ] },
+                safety: { src: 'EASA Part-CC safety equipment training', q: [
+                    ["What is a life jacket used for?", "Keeping you afloat in water", "Keeping you warm in the cabin", "Protecting against turbulence"],
+                    ["How should a seat belt be worn for take-off and landing?", "Low and tight across the hips", "Loosely across the stomach", "Over the shoulders only"],
+                    ["Which extinguishing agent must NOT be used on an electrical fire?", "Water", "Halon", "Carbon dioxide"],
+                    ["What is the purpose of floor path emergency lighting?", "To guide passengers to the exits", "To warm the cabin", "To signal meal service"],
+                    ["What does an oxygen mask provide?", "Supplemental oxygen at altitude", "Cool air for comfort", "Noise protection"],
+                    ["Where should hand baggage be stowed for take-off?", "Under a seat or in a closed overhead locker", "In the aisle", "On the seat beside you"] ] },
+                emergency: { src: 'EASA Part-CC emergency procedures / ICAO Annex 6', q: [
+                    ["What is the purpose of the brace position?", "To reduce injury from impact", "To speed up the evacuation", "To save oxygen"],
+                    ["What must passengers do with hand baggage during an evacuation?", "Leave it behind", "Carry it to the slide", "Throw it out first"],
+                    ["Which shoes should be removed before using an evacuation slide?", "High-heeled shoes", "Flat shoes", "Sports shoes"],
+                    ["What does a MAYDAY call indicate?", "Grave and imminent danger (distress)", "A routine position report", "A request for catering"],
+                    ["What does a PAN-PAN call indicate?", "An urgency situation", "A meal request", "A weather forecast"],
+                    ["What is ditching?", "An emergency landing on water", "A routine night landing", "A go-around"],
+                    ["What must crew check before opening an exit in an emergency?", "Conditions outside such as fire or obstruction", "The meal service list", "Passenger seat numbers"],
+                    ["Who has overall authority on board during the flight?", "The commander (captain)", "The most senior passenger", "The ground handler"] ] },
+                service: { src: 'EASA Part-CC cabin crew duties', q: [
+                    ["What is the primary role of cabin crew?", "The safety of passengers and crew", "Selling duty-free items", "Cleaning the cabin"],
+                    ["What does a door cross-check mean?", "Another crew member verifies the door position", "The door is painted twice", "Passengers check their tickets"],
+                    ["How should you speak to a nervous passenger?", "Calmly and with clear reassurance", "Quickly and loudly", "Avoid eye contact"],
+                    ["What should you do if a passenger appears intoxicated?", "Stop serving alcohol", "Offer more drinks", "Ignore the situation"],
+                    ["When should the galley be secured?", "Before take-off and landing", "Only at the end of the flight", "Never"] ] },
+                security: { src: 'ICAO Annex 17 / IATA Dangerous Goods Regulations', q: [
+                    ["Where must spare lithium batteries and power banks be carried?", "In cabin baggage", "In checked baggage", "In the cargo hold"],
+                    ["Which item is not allowed in cabin baggage by security rules?", "A sharp knife", "A paperback book", "A scarf"],
+                    ["What should crew do with an unattended bag found in the cabin?", "Report it according to procedures", "Open it", "Ignore it"],
+                    ["Why is the flight deck door kept locked in flight?", "For the security of the flight", "To keep it cool", "To save weight"] ] }
+            },
+            year2: {
+                regs: { src: 'EASA Part-CC (Reg. (EU) No 1178/2011, Annex V)', q: [
+                    ["Cabin crew requirements in the EU are found in which regulation?", "Regulation (EU) No 1178/2011, Part-CC", "Regulation (EU) 2016/679 (GDPR)", "Regulation (EC) No 261/2004 (passenger rights)"],
+                    ["What is the minimum age for EASA cabin crew?", "18 years", "16 years", "21 years"],
+                    ["Which document confirms completion of cabin crew initial training?", "Cabin Crew Attestation", "A boarding pass", "A baggage tag"],
+                    ["In the certification test, how long do passengers have to evacuate?", "90 seconds", "30 seconds", "180 seconds"],
+                    ["What does the sterile flight deck rule restrict?", "Non-essential communication in critical phases", "Cabin lighting", "Galley service for the whole flight"],
+                    ["How high is cabin altitude usually kept in a pressurised aircraft?", "Around 6,000 to 8,000 feet", "At sea level", "At 35,000 feet"] ] },
+                crm: { src: 'ICAO Doc 9683 / EASA CRM training', q: [
+                    ["What does CRM stand for?", "Crew Resource Management", "Cabin Rescue Method", "Critical Runway Marking"],
+                    ["What does TEM stand for?", "Threat and Error Management", "Time and Emergency Map", "Total Engine Monitoring"],
+                    ["Which skill is central to good CRM?", "Clear communication and teamwork", "Working alone", "Avoiding feedback"],
+                    ["What is a silent review?", "Mentally reviewing emergency procedures before critical phases", "A quiet meal service", "A night shift handover"],
+                    ["What should you do if you notice a colleague making a safety error?", "Speak up politely and correct it", "Say nothing", "Report it next month"] ] },
+                emergency2: { src: 'EASA Part-CC advanced emergency training', q: [
+                    ["After a rapid decompression, what do crew do first?", "Use the nearest oxygen mask", "Serve water", "Open the doors"],
+                    ["What is the first priority when fire is found in the cabin?", "Inform the flight crew and fight the fire", "Take a photo", "Finish the service"],
+                    ["How should a burning lithium battery device be treated?", "Cool it with water or a non-alcoholic liquid", "Cover it with a blanket", "Carry it to the cockpit"],
+                    ["When should life jackets be inflated in a ditching?", "Just outside the aircraft exit", "Inside the cabin at the seat", "Before the descent"],
+                    ["During severe turbulence, what should crew do?", "Secure the cabin and fasten themselves in a seat", "Continue serving hot drinks", "Open the overhead lockers"] ] },
+                medical: { src: 'ERC resuscitation guidelines / cabin crew first aid', q: [
+                    ["What is the usual adult CPR compression to breath ratio?", "30 compressions to 2 breaths", "15 to 1", "5 to 5"],
+                    ["What compression rate is recommended for adult CPR?", "100 to 120 per minute", "40 per minute", "200 per minute"],
+                    ["What does AED stand for?", "Automated External Defibrillator", "Aircraft Emergency Door", "Airway Entry Device"],
+                    ["After decompression at very high altitude, useful consciousness without oxygen lasts:", "Only seconds to a minute", "About thirty minutes", "Several hours"] ] },
+                dg: { src: 'ICAO Annex 18 / IATA DGR (hazard classes)', q: [
+                    ["In dangerous goods, which class covers flammable liquids?", "Class 3", "Class 1", "Class 7"],
+                    ["Which class includes lithium batteries?", "Class 9", "Class 2", "Class 6"],
+                    ["Which class covers explosives?", "Class 1", "Class 5", "Class 8"],
+                    ["Which class covers radioactive material?", "Class 7", "Class 4", "Class 3"] ] },
+                radio: { src: 'ICAO Doc 9432 (radiotelephony phraseology)', q: [
+                    ["What does Roger mean in radiotelephony?", "Message received", "Yes", "Cancel"],
+                    ["What does Wilco mean?", "Will comply", "Weather clear", "Wait one"],
+                    ["What does Say again mean?", "Repeat your last message", "Speak slowly", "Stop transmitting"],
+                    ["What does Standby mean?", "Wait, I will call you", "Go ahead", "Disregard"] ] }
+            }
+        };
+        const AERO_UNITS = { year1: ['alphabet', 'basics', 'safety', 'emergency', 'service', 'security', 'basics', 'safety', 'emergency', 'security'], year2: ['regs', 'crm', 'emergency2', 'medical', 'dg', 'radio', 'crm', 'emergency2', 'regs', 'dg'] };
+        function seededRandom(str) {
+            let h = 1779033703 ^ str.length;
+            for(let i = 0; i < str.length; i++) { h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = (h << 13) | (h >>> 19); }
+            let a = (h ^ (h >>> 16)) >>> 0;
+            return function() { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+        }
+        function seededShuffle(arr, rnd) { const a = arr.slice(); for(let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+        function bankQuestions(poolKey, nodeNum) {
+            const bank = AERO_BANK[poolKey], units = AERO_UNITS[poolKey], user = sessionUser ? sessionUser.username : 'guest';
+            const rnd = seededRandom(user + '|' + poolKey + '|' + nodeNum);
+            const topicKey = units[Math.floor((nodeNum - 1) / 10) % units.length], topic = bank[topicKey];
+            let pool = seededShuffle(topic.q.map(q => ({ q, src: topic.src })), rnd);
+            if(pool.length < 5) { const extra = seededShuffle([].concat(...Object.values(bank).map(t => t.q.map(q => ({ q, src: t.src })))), rnd).filter(x => !pool.includes(x)); pool = pool.concat(extra); }
+            return pool.slice(0, 5).map(item => {
+                const [text, right, ...wrong] = item.q, opts = seededShuffle([right, ...wrong], rnd);
+                return { q: text, options: opts, correct: opts.indexOf(right), src: item.src };
+            });
+        }
+
         /* DIVERSIFIED 100-NODE QUESTION POOLS WITH RANDOMIZATION */
         const diversifiedQuestionPools = {
             year1: [
@@ -1624,6 +1757,7 @@
         };
 
         function getDiversifiedQuestions(poolKey, nodeNum) {
+            if(AERO_BANK[poolKey]) return bankQuestions(poolKey, nodeNum);
             const pools = diversifiedQuestionPools[poolKey] || diversifiedQuestionPools['year1'];
             const idx = (nodeNum - 1) % pools.length;
             const baseList = pools[idx] || pools[0];
@@ -1702,7 +1836,7 @@
                 }
                 if((i - 1) % 10 === 0) {
                     const u = (i - 1) / 10 + 1, d = Math.max(0, Math.min(10, done - (u - 1) * 10));
-                    nodesHtml += `<div class="unit-banner"><b>UNIT ${u}</b><span>${d}/10</span></div>`;
+                    nodesHtml += `<div class="unit-banner"><b>✈ LEG ${u} · ${['BOARDING', 'TAXI', 'TAKE-OFF', 'CLIMB', 'CRUISE', 'TURBULENCE', 'APPROACH', 'LANDING', 'ARRIVAL GATE', 'DEBRIEF'][(u - 1) % 10]}</b><span>${d}/10</span></div>`;
                 }
                 const off = Math.round(Math.sin(i * 0.85) * 58);
                 const extra = (st === 'active') ? `<div class="floating-roadmap-skin" style="top: -38px; right: -28px;">${activeSkinEmoji}</div><div class="start-bubble">START</div>` : '';
@@ -1728,7 +1862,7 @@
                     ${nodesHtml}
                 </div>
             `;
-            setTimeout(() => { const a = container.querySelector('.duo-node.active'); if(a) a.scrollIntoView({block: 'center', behavior: 'smooth'}); }, 250);
+            setTimeout(() => { drawFlightPath(container.querySelector('.duo-path-container')); const a = container.querySelector('.duo-node.active'); if(a) a.scrollIntoView({block: 'center', behavior: 'smooth'}); }, 250);
         }
         function roadmapUnlocked(pk) {
             const u = sessionUser || {};
@@ -1862,6 +1996,7 @@
                     <div class="lesson-feedback" id="lesson-feedback"></div>`;
                 box.querySelector('#current-q-text').textContent = q.q;
                 box.querySelectorAll('.lo-t').forEach((el, i) => { el.textContent = q.options[i]; });
+                if(q.src) { const sc = document.createElement('small'); sc.className = 'lesson-src'; sc.textContent = '📘 Source: ' + q.src; box.querySelector('.lesson-opts').after(sc); }
             }
         }
         window.renderRoadmapStep = renderRoadmapStep;
@@ -2121,9 +2256,10 @@
                                 <div style="background:var(--surface-card); padding:14px; border-radius:16px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
                                     <div>
                                         <b style="color:white; font-size:0.9rem;">👤 ${sub.student_name}</b> <span style="color:var(--text-muted); font-size:0.78rem;">(@${sub.student_username})</span>
-                                        <div style="color:var(--accent); font-size:0.8rem; margin-top:2px;">Exam ID #${sub.exam_id} | Score: <b>${sub.score}/${sub.total_questions}</b></div>
+                                        <div style="color:var(--accent); font-size:0.8rem; margin-top:2px;">Exam ID #${sub.exam_id} | Score: <b>${sub.total_questions ? sub.score + '/' + sub.total_questions : '—'}</b> | ⏱ <b>${fmtDuration(sub.time_spent_seconds)}</b></div>
                                     </div>
                                     <div style="display:flex; gap:6px; align-items:center;">
+                                        <button class="btn-action" title="Allow this student to retake the exam" onclick="window.resetSubmission(${sub.exam_id}, '${sub.student_username}')" style="margin:0; padding:6px 10px; font-size:0.75rem; background:#8b5cf6; color:#fff; width:auto;">↺ Retake</button>
                                         <button class="btn-action" onclick="window.adjustStudentXP('${sub.student_username}', 50)" style="width:50px; padding:6px; font-size:0.75rem; background:var(--success); color:white; margin-top:0;" title="Reward +50 XP">+50⭐</button>
                                         <button class="btn-action" onclick="window.adjustStudentXP('${sub.student_username}', -50)" style="width:50px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;" title="Deduction -50 XP">-50⭐</button>
                                     </div>
@@ -2140,7 +2276,7 @@
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button>
                     <h3 style="font-size: 1.1rem; color: var(--accent); font-weight: 900;">📚 Study & Exams Studio</h3>
-                    <span style="font-size: 0.78rem; color: var(--success); font-weight: 800;">${sessionUser.group_code ? 'Code: ' + sessionUser.group_code : 'No Code'}</span>
+                    <span style="font-size: 0.78rem; color: var(--success); font-weight: 800;">${sessionUser.group_code ? 'Code: ' + sessionUser.group_code : 'No Code'}${sessionUser.group_code && sessionUser.role === 'student' ? ' <button onclick="window.leaveClass()" title="Leave this class" style="background:none;border:0;color:#f87171;cursor:pointer;font-size:.85rem">✕</button>' : ''}</span>
                 </div>
                 <div style="max-width:540px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
                     
@@ -2657,12 +2793,14 @@
             if(questionTimerInterval) clearInterval(questionTimerInterval);
             let questions = exam.exam_data;
             if(typeof questions === 'string') questions = JSON.parse(questions);
+            window.examStartedAt = Date.now();
+            const clockTimer = setInterval(() => { const c = document.getElementById('exam-clock'); if(!c) { clearInterval(clockTimer); return; } const t = Math.floor((Date.now() - window.examStartedAt) / 1000); c.textContent = '⏱ ' + String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); }, 1000);
             const box = document.getElementById('simulation-box');
             box.innerHTML = `
                 <div class="feature-topbar">
                     <button class="btn-action" onclick="window.openStudyHub()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button>
                     <h3 style="font-size:1.1rem; color:var(--warning); font-weight:900;">⏱️ ${escH(exam.title)}</h3>
-                    <span style="font-size:0.75rem; color:var(--accent);">By @${exam.teacher_username || 'teacher'}</span>
+                    <span id="exam-clock" style="font-size:0.85rem; color:var(--gold); font-weight:800;">⏱ 00:00</span>
                 </div>
                 <div style="max-width:520px; width:100%; margin:0 auto; padding-top:0.5rem; flex:1; overflow-y:auto; scrollbar-width:none;">
                     <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:1.5rem;">
@@ -2699,11 +2837,11 @@
             const res = await fetch('/api/exam/submit-fuzzy', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ exam_id: examId, student_username: sessionUser.username, student_name: sessionUser.full_name, answers, time_spent_seconds: 30 })
+                body: JSON.stringify({ exam_id: examId, student_username: sessionUser.username, student_name: sessionUser.full_name, answers, time_spent_seconds: Math.max(1, Math.round((Date.now() - (window.examStartedAt || Date.now())) / 1000)) })
             });
             const data = await res.json();
             if(res.ok) {
-                showToast(`Exam submitted! Score: ${data.score !== undefined ? data.score + '/' + totalQ : 'recorded'}. +100 XP ⭐`);
+                showToast(`Exam submitted! Score: ${data.submission ? data.submission.score + '/' + data.submission.total_questions : 'recorded'}. +100 XP ⭐`);
                 openStudyHub();
             } else {
                 showToast(data.detail || 'Submission failed', true);
@@ -3331,16 +3469,18 @@
             if(s.students && s.active === s.students) tips.push('🌟 Everyone practiced recently. Great moment for a class challenge or a battle round.');
             if(!tips.length) tips.push('📝 No data yet. Ask students to complete a node and check back.');
             const kpi = (n, l) => `<div class="ci-kpi"><b>${n}</b><small>${l}</small></div>`;
+            const resRows = (d.results || []).map(r => { const pct = r.total_questions ? Math.round(r.score / r.total_questions * 100) : null; return `<div class="ci-hq"><span style="background:${pct == null ? 'rgba(148,163,184,.15)' : pct >= 50 ? 'rgba(74,222,128,.15)' : 'rgba(248,113,113,.14)'};color:${pct == null ? '#94a3b8' : pct >= 50 ? '#4ade80' : '#fca5a5'}">${r.total_questions ? r.score + '/' + r.total_questions : '—'}</span><div><b>${escH(r.student_name || r.student_username)}</b><small>${escH(r.title)} · ${pct == null ? '' : pct + '% · '}⏱ ${fmtDuration(r.time_spent_seconds)}</small></div></div>`; }).join('') || '<small style="color:var(--text-muted)">No student has submitted an exam yet.</small>';
             const rows = st.map((x, i) => `<div class="ci-row ${x.status}"><span class="ci-rank">${i + 1}</span><div class="ci-name"><b>${escH(x.full_name || x.username)}</b><small>@${escH(x.username)} · ${x.days_since == null ? 'never practiced' : x.days_since === 0 ? 'practiced today' : x.days_since + 'd ago'}</small></div><div class="ci-prog"><i style="width:${x.nodes_done}%"></i></div><span class="ci-nodes">${x.nodes_done}/100</span><span class="ci-meta">🔥${x.streak} ⭐${x.xp}</span></div>`).join('');
             const hard = d.hard_questions.map(q => `<div class="ci-hq"><span>${q.misses}×</span><div><b>${escH(q.question_text)}</b><small>Answer: ${escH(q.correct_answer)}</small></div></div>`).join('') || '<small style="color:var(--text-muted)">No mistakes logged yet.</small>';
-            const ex = d.exams.map(e => `<div class="ci-hq"><span>${e.avg_pct == null ? '–' : e.avg_pct + '%'}</span><div><b>${escH(e.title)}</b><small>${e.submissions} submission${e.submissions == 1 ? '' : 's'}</small></div></div>`).join('') || '<small style="color:var(--text-muted)">No exams yet.</small>';
+            const ex = d.exams.map(e => `<div class="ci-hq"><span>${e.avg_pct == null ? '–' : e.avg_pct + '%'}</span><div><b>${escH(e.title)}</b><small>${e.submissions} submission${e.submissions == 1 ? '' : 's'}${e.avg_seconds != null ? ' · average time ' + fmtDuration(e.avg_seconds) : ''}</small></div></div>`).join('') || '<small style="color:var(--text-muted)">No exams yet.</small>';
             box.innerHTML = top + `<div class="ci-wrap" id="ci-print">
                 <div class="ci-kpis">${kpi(s.students, 'STUDENTS')}${kpi(s.avg_nodes, 'AVG NODES')}${kpi(s.avg_xp, 'AVG XP')}${kpi(s.active + '/' + s.students, 'ACTIVE')}</div>
                 <div class="ci-card ci-tips"><h4>💡 Suggested for your next session</h4>${tips.map(t => `<p>${t}</p>`).join('')}</div>
                 <div class="ci-card"><h4>🔑 Your class code</h4>
                     <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:8px">Students type this code to join your class and load your exams. Choose any code you like (3-20 letters, numbers, - or _).</p>
                     <input id="cc-input" value="${escH(code)}" maxlength="20" style="margin-bottom:8px;text-align:center;font-weight:800;letter-spacing:.1em">
-                    <button class="btn-action" onclick="window.changeClassCode('${escH(code)}')" style="margin:0">Save my class code</button></div>
+                    <button class="btn-action" onclick="window.changeClassCode('${escH(code)}')" style="margin:0">Save my class code</button>
+                    <button class="btn-action" onclick="window.changeClassCode('${escH(code)}', true)" style="margin:8px 0 0;background:transparent;border:2px solid #f87171;color:#f87171">Remove my class code</button></div>
                 <div class="ci-card"><h4>📣 Announce to your class</h4>
                     <textarea id="an-input" rows="3" maxlength="280" placeholder="e.g. Tomorrow we start the safety demonstration unit. Review Unit 2 tonight!" style="margin-bottom:8px"></textarea>
                     <button class="btn-action" onclick="window.sendAnnouncement('${escH(code)}')" style="margin:0">Send to students</button>
@@ -3348,6 +3488,7 @@
                 <div class="ci-card"><h4>Students · class ${escH(code)}</h4>${rows || '<small>No students in this class yet.</small>'}</div>
                 <div class="ci-card"><h4>🎯 Hardest questions</h4>${hard}</div>
                 <div class="ci-card"><h4>📝 Exam averages</h4>${ex}</div>
+                <div class="ci-card"><h4>🧾 Student exam results</h4>${resRows}</div>
                 <div class="ci-actions"><button class="btn-action" onclick="window.downloadGradebook('${escH(code)}')" style="margin:0">⬇ Gradebook CSV</button><button class="btn-action" onclick="window.print()" style="margin:0">🖨 Print / Save PDF</button>
                     ${st.some(x => x.username.startsWith('demo_')) ? `<button class="btn-action" onclick="window.demoData('clear', '${escH(code)}')" style="margin:0;background:#f87171;color:#450a0a">🧹 Remove demo data</button>` : (!st.length ? `<button class="btn-action" onclick="window.demoData('seed', '${escH(code)}')" style="margin:0;background:#8b5cf6;color:#fff">✨ Load demo class</button>` : '')}</div>
             </div>`;
@@ -3456,7 +3597,7 @@
                 return `<div class="le-card ${done ? 'done' : ''}"><div class="le-info"><b>${escH(l.title)}</b><small>${l.questions.length} questions · ${escH(l.teacher_username)}${done ? ' · ✓ completed' : ''}</small></div>
                     <button class="btn-action le-play" onclick="window.playClassLesson(${l.id})">${done ? '↻' : '▶'}</button>${isT ? `<button class="le-x" onclick="window.deleteClassLesson(${l.id}, '${escH(code)}')" aria-label="Delete">🗑</button>` : ''}</div>`;
             }).join('') || `<div class="ci-card" style="text-align:center;color:var(--text-muted)">${isT ? 'No lessons yet. Create your first one!' : 'Your teacher has not published lessons yet.'}</div>`;
-            box.innerHTML = leTop('window.resetToMenu()') + `<div class="ci-wrap">${isT ? `<button class="btn-action" onclick="window.newClassLesson('${escH(code)}')" style="margin:0">＋ Create a lesson</button>` : ''}${cards}</div>`;
+            box.innerHTML = leTop('window.resetToMenu()') + `<div class="ci-wrap">${cards}</div>`;
             window.classLessonCache = d.lessons;
         }
         window.openClassLessons = openClassLessons;
@@ -3743,18 +3884,59 @@
         }
         window.copyDiagnostics = copyDiagnostics;
     
-        async function changeClassCode(oldCode) {
-            const nc = document.getElementById('cc-input').value.trim();
-            if(!/^[A-Za-z0-9_-]{3,20}$/.test(nc)) { showToast('Use 3-20 letters, numbers, - or _', true); return; }
+        async function changeClassCode(oldCode, remove) {
+            const nc = remove ? '' : document.getElementById('cc-input').value.trim();
+            if(remove && !confirm('Remove the class code? Students will leave this class. Your exams and PDFs stay available with their own codes.')) return;
+            if(!remove && !/^[A-Za-z0-9_-]{3,20}$/.test(nc)) { showToast('Use 3-20 letters, numbers, - or _', true); return; }
             const r = await fetch('/api/teacher/set-code', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ teacher_username: sessionUser.username, new_code: nc }) });
             const d = await r.json().catch(() => ({}));
             if(!r.ok) { showToast(d.detail || 'Could not change the code.', true); return; }
-            sessionUser.group_code = nc; localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser)); localStorage.setItem('aero_insights_code', nc);
-            showToast('Class code is now ' + nc + ' ✓'); playSound('success'); openClassInsights(nc);
+            sessionUser.group_code = nc.toUpperCase(); localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+            if(remove) { ['aero_insights_code', 'aero_content_code', 'aero_study_code_' + sessionUser.username].forEach(k => localStorage.removeItem(k)); showToast('Class code removed ✓'); updateDashboardUI(); openClassInsights(''); return; }
+            localStorage.setItem('aero_insights_code', nc.toUpperCase());
+            showToast('Class code is now ' + nc.toUpperCase() + ' ✓'); playSound('success'); openClassInsights(nc.toUpperCase());
         }
+        async function leaveClass() {
+            if(!confirm('Leave this class?')) return;
+            const r = await fetch('/api/user/group-update', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ phone_number: sessionUser.phone_number, group_code: '' }) });
+            if(r.ok) { sessionUser = (await r.json()).user; localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser)); localStorage.removeItem('aero_study_code_' + sessionUser.username); updateDashboardUI(); showToast('You left the class.'); openStudyHub(); }
+        }
+        async function resetSubmission(examId, student) {
+            if(!confirm('Allow @' + student + ' to retake this exam? Their current score is deleted.')) return;
+            const r = await fetch('/api/exam/reset-submission', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ exam_id: examId, student_username: student, teacher_username: sessionUser.username }) });
+            showToast(r.ok ? 'The student can retake the exam.' : 'Could not reset.', !r.ok); if(r.ok) openStudyHub();
+        }
+        window.leaveClass = leaveClass; window.resetSubmission = resetSubmission;
         window.changeClassCode = changeClassCode;
     
         document.addEventListener('input', e => { const id = e.target && e.target.id; if(['ex-code', 'pdf-code', 'cc-input', 'student-group-code-input', 'ci-code'].includes(id)) { const p = e.target.selectionStart; e.target.value = e.target.value.toUpperCase(); try { e.target.setSelectionRange(p, p); } catch(_) {} } });
+    
+        /* FLIGHT PATH: smooth route drawn through every waypoint, with a plane on the current one */
+        function drawFlightPath(pc) {
+            if(!pc) return;
+            const old = pc.querySelector('.fp-svg'); if(old) old.remove();
+            const nodes = Array.from(pc.querySelectorAll('.duo-node')); if(nodes.length < 2) return;
+            const cr = pc.getBoundingClientRect();
+            const pts = nodes.map(n => { const r = n.getBoundingClientRect(); return [r.left + r.width / 2 - cr.left + pc.scrollLeft, r.top + r.height / 2 - cr.top + pc.scrollTop]; });
+            const act = Math.max(0, nodes.findIndex(n => n.classList.contains('active')));
+            const seg = (a, b) => { const my = (a[1] + b[1]) / 2; return `C ${a[0]} ${my}, ${b[0]} ${my}, ${b[0]} ${b[1]}`; };
+            let dDone = `M ${pts[0][0]} ${pts[0][1]}`, dRest = `M ${pts[act][0]} ${pts[act][1]}`;
+            for(let i = 1; i <= act; i++) dDone += ' ' + seg(pts[i - 1], pts[i]);
+            for(let i = act + 1; i < pts.length; i++) dRest += ' ' + seg(pts[i - 1], pts[i]);
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('class', 'fp-svg'); svg.setAttribute('width', pc.scrollWidth); svg.setAttribute('height', pc.scrollHeight);
+            svg.innerHTML = `<path d="${dRest}" class="fp-rest"/><path d="${dDone}" class="fp-done"/>`;
+            pc.insertBefore(svg, pc.firstChild);
+        }
+        window.drawFlightPath = drawFlightPath;
+        window.addEventListener('resize', () => drawFlightPath(document.querySelector('.duo-path-container')));
+    
+        function fmtDuration(sec) {
+            if(sec == null) return '—';
+            sec = Math.max(0, Math.round(+sec)); const m = Math.floor(sec / 60), s = sec % 60;
+            return m >= 60 ? Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm' : m + 'm ' + String(s).padStart(2, '0') + 's';
+        }
+        window.fmtDuration = fmtDuration;
     </script>
 </body>
 </html>
