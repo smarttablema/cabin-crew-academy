@@ -2019,7 +2019,7 @@
             box.classList.add('feature-fullscreen-view');
             
             const inputField = document.getElementById('student-group-code-input');
-            let targetCode = inputField ? inputField.value.trim() : (sessionUser ? sessionUser.group_code : '');
+            let targetCode = inputField ? inputField.value.trim() : (sessionUser ? (localStorage.getItem('aero_study_code_' + sessionUser.username) || sessionUser.group_code) : '');
 
             if(targetCode) {
                 try {
@@ -2257,7 +2257,7 @@
         async function updateStudentGroupCode() {
             playSound('click');
             const codeInput = document.getElementById('student-group-code-input');
-            const newCode = codeInput ? codeInput.value.trim() : '';
+            const newCode = (codeInput ? codeInput.value.trim() : '').toUpperCase();
             if(!newCode) { showToast('Enter a valid custom code', true); return; }
 
             const res = await fetch('/api/user/group-update', {
@@ -2265,13 +2265,25 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ phone_number: sessionUser.phone_number, group_code: newCode })
             });
-            const data = await res.json();
+            const data = await res.json().catch(() => ({}));
             if(res.ok) {
                 sessionUser = data.user;
                 localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
+                localStorage.removeItem('aero_study_code_' + sessionUser.username);
                 updateDashboardUI();
-                showToast('Custom code updated successfully! Loading exams...');
+                showToast('Class joined! Loading content...');
                 openStudyHub();
+            } else if(res.status === 404) {
+                // Not a class code: it may be a code a teacher chose for an exam, a PDF or a lesson. Just show that content.
+                let info = null;
+                try { const r = await fetch('/api/group/info?group_code=' + encodeURIComponent(newCode)); if(r.ok) info = await r.json(); } catch(e) {}
+                if(info && (info.exams || []).length) {
+                    localStorage.setItem('aero_study_code_' + sessionUser.username, newCode);
+                    showToast('Code accepted! Loading content...');
+                    openStudyHub();
+                } else {
+                    showToast('No exam or PDF was found for this code. Check it with your teacher.', true);
+                }
             } else {
                 showToast(data.detail || 'Failed to update code', true);
             }
@@ -2416,7 +2428,7 @@
         window.publishPDFDocument = publishPDFDocument;
         async function afterPublishSwitchCode(code) {
             code = code.toUpperCase();
-            localStorage.setItem('aero_content_code', code);
+            localStorage.setItem('aero_content_code', code); localStorage.setItem('aero_study_code_' + sessionUser.username, code);
             const inp = document.getElementById('student-group-code-input'); if(inp) inp.value = code;
             if(!sessionUser.group_code) {
                 try { const r = await fetch('/api/teacher/set-code', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ teacher_username: sessionUser.username, new_code: code }) });
