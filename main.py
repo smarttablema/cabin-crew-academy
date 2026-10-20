@@ -647,14 +647,14 @@ def change_password(data: PasswordChangeModel):
 def update_user_group(data: GroupUpdateModel):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM aero_v22_groups WHERE group_code = %s;", (data.group_code,))
+    cur.execute("SELECT * FROM aero_v22_groups WHERE UPPER(group_code) = UPPER(%s);", (data.group_code.strip(),))
     grp = cur.fetchone()
     if not grp:
         cur.close()
         conn.close()
         raise HTTPException(status_code=404, detail="Invalid teacher/group code.")
-        
-    cur.execute("UPDATE aero_v22_users SET group_code = %s WHERE phone_number = %s RETURNING *;", (data.group_code, data.phone_number))
+
+    cur.execute("UPDATE aero_v22_users SET group_code = %s WHERE phone_number = %s RETURNING *;", (grp["group_code"], data.phone_number))
     updated_user = cur.fetchone()
     conn.commit()
     cur.close()
