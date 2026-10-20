@@ -74,7 +74,7 @@ def read_token(tok: str):
 PUBLIC_API = {"/api/login", "/api/register", "/api/user/password-change", "/api/health"}
 TEACHER_ONLY = {"/api/teacher/adjust-xp", "/api/teacher/dashboard", "/api/teacher/export-csv", "/api/exam/create",
                 "/api/exam/create-advanced", "/api/exam/upload-pdf", "/api/exam/delete",
-                "/api/lesson/create", "/api/lesson/delete", "/api/demo/seed", "/api/demo/clear", "/api/announce/create", "/api/announce/delete", "/api/teacher/set-code"}
+                "/api/lesson/create", "/api/lesson/delete", "/api/demo/seed", "/api/demo/clear", "/api/announce/create", "/api/announce/delete", "/api/teacher/set-code", "/api/exam/reset-submission"}
 ACTOR_FIELDS = ("username", "student_username", "teacher_username", "sender_username")
 
 def identity_problem(scope, body: bytes, user):
@@ -647,6 +647,13 @@ def change_password(data: PasswordChangeModel):
 def update_user_group(data: GroupUpdateModel):
     conn = get_db_connection()
     cur = conn.cursor()
+    if not data.group_code.strip():
+        cur.execute("UPDATE aero_v22_users SET group_code = '' WHERE phone_number = %s RETURNING *;", (data.phone_number,))
+        left = cur.fetchone()
+        conn.commit()
+        cur.close()
+        conn.close()
+        return {"status": "success", "user": left}
     cur.execute("SELECT * FROM aero_v22_groups WHERE UPPER(group_code) = UPPER(%s);", (data.group_code.strip(),))
     grp = cur.fetchone()
     if not grp:
@@ -822,10 +829,7 @@ def get_group_info(group_code: str, request: Request):
     conn.close()
     if request.state.auth["role"] != "teacher":
         for e in exams:
-            qs = e.get("exam_data")
-            if isinstance(qs, str):
-                qs = json.loads(qs)
-            e["exam_data"] = [{k: v for k, v in q.items() if k != "correct"} for q in (qs or [])]
+            e["exam_data"] = [{k: v for k, v in q.items() if k != "correct"} for q in _exam_questions(e.get("exam_data"))]
     return {"group": grp, "members": members, "lessons": [], "exams": exams, "submissions": submissions}
 
 @app.post("/api/exam/create")
@@ -1304,6 +1308,19 @@ def create_advanced_exam(data: AdvancedExamModel):
     conn.close()
     return {"status": "success", "exam": exam}
 
+def _exam_questions(raw):
+    for _ in range(3):
+        if isinstance(raw, str):
+            try:
+                raw = json.loads(raw)
+            except Exception:
+                return []
+        else:
+            break
+    if isinstance(raw, dict):
+        raw = raw.get("questions") or raw.get("exam_data") or []
+    return [q for q in (raw or []) if isinstance(q, dict)]
+
 class SubmitFuzzyModel(BaseModel):
     exam_id: int
     student_username: str
@@ -1321,9 +1338,9 @@ def submit_exam_fuzzy(data: SubmitFuzzyModel):
     conn.close()
     if not ex:
         raise HTTPException(status_code=404, detail="Exam not found.")
-    qs = ex["exam_data"]
-    if isinstance(qs, str):
-        qs = json.loads(qs)
+    qs = _exam_questions(ex["exam_data"])
+    if not qs:
+        raise HTTPException(status_code=400, detail="This exam has no questions.")
     score = 0
     for i, q in enumerate(qs):
         given = str(data.answers[i]).strip().lower() if i < len(data.answers) else ""
@@ -1363,10 +1380,15 @@ def teacher_dashboard(group_code: str, teacher_username: str):
                    GROUP BY m.question_text ORDER BY misses DESC LIMIT 5;""", (group_code,))
     hard = cur.fetchall()
     cur.execute("""SELECT e.title, COUNT(s.id) AS submissions,
-                          ROUND(AVG(100.0 * s.score / NULLIF(s.total_questions, 0))) AS avg_pct
+                          ROUND(AVG(100.0 * s.score / NULLIF(s.total_questions, 0))) AS avg_pct,
+                          ROUND(AVG(s.time_spent_seconds)) AS avg_seconds
                    FROM aero_v22_exams e LEFT JOIN aero_v22_exam_submissions s ON s.exam_id = e.id
-                   WHERE e.group_code = %s GROUP BY e.id, e.title ORDER BY e.id DESC LIMIT 6;""", (group_code,))
+                   WHERE e.teacher_username = %s GROUP BY e.id, e.title ORDER BY e.id DESC LIMIT 8;""", (teacher_username,))
     exams = cur.fetchall()
+    cur.execute("""SELECT e.title, s.student_name, s.student_username, s.score, s.total_questions, s.time_spent_seconds, s.submitted_at
+                   FROM aero_v22_exam_submissions s JOIN aero_v22_exams e ON e.id = s.exam_id
+                   WHERE e.teacher_username = %s ORDER BY s.submitted_at DESC LIMIT 60;""", (teacher_username,))
+    results = cur.fetchall()
     cur.close()
     conn.close()
     n = len(students)
@@ -1375,7 +1397,7 @@ def teacher_dashboard(group_code: str, teacher_username: str):
                "avg_nodes": round(sum(x["nodes_done"] for x in students) / n, 1) if n else 0,
                "active": sum(1 for x in students if x["status"] == "active"),
                "attention": sum(1 for x in students if x["status"] != "active")}
-    return {"summary": summary, "students": students, "hard_questions": hard, "exams": exams}
+    return {"summary": summary, "students": students, "hard_questions": hard, "exams": exams, "results": results}
 
 class LessonCreateModel(BaseModel):
     group_code: str
@@ -1626,13 +1648,21 @@ class SetCodeModel(BaseModel):
 def set_class_code(data: SetCodeModel):
     import re
     new = data.new_code.strip().upper()
-    if not re.fullmatch(r"[A-Z0-9_-]{3,20}", new):
+    if new and not re.fullmatch(r"[A-Z0-9_-]{3,20}", new):
         raise HTTPException(status_code=400, detail="Use 3-20 letters, numbers, - or _.")
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("SELECT group_code FROM aero_v22_users WHERE username = %s;", (data.teacher_username,))
     me = cur.fetchone()
     old = (me or {}).get("group_code") or ""
+    if new == "":
+        if old:
+            cur.execute("UPDATE aero_v22_users SET group_code = '' WHERE group_code = %s;", (old,))
+            cur.execute("DELETE FROM aero_v22_groups WHERE group_code = %s AND teacher_username = %s;", (old, data.teacher_username))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return {"status": "success", "group_code": ""}
     if new != old:
         cur.execute("SELECT 1 FROM aero_v22_groups WHERE group_code = %s AND teacher_username <> %s;", (new, data.teacher_username))
         taken = cur.fetchone()
@@ -1653,6 +1683,22 @@ def set_class_code(data: SetCodeModel):
     cur.close()
     conn.close()
     return {"status": "success", "group_code": new}
+
+class ResetSubmissionModel(BaseModel):
+    exam_id: int
+    student_username: str
+    teacher_username: str
+
+@app.post("/api/exam/reset-submission")
+def reset_submission(data: ResetSubmissionModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM aero_v22_exam_submissions WHERE exam_id = %s AND student_username = %s AND exam_id IN (SELECT id FROM aero_v22_exams WHERE teacher_username = %s);",
+                (data.exam_id, data.student_username, data.teacher_username))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success"}
 
 @app.get("/manifest.json")
 def serve_manifest():
