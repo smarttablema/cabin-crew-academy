@@ -77,14 +77,14 @@ def read_token(tok: str):
 PUBLIC_API = {"/api/login", "/api/register", "/api/user/password-change", "/api/health"}
 TEACHER_ONLY = {"/api/teacher/adjust-xp", "/api/teacher/dashboard", "/api/teacher/export-csv", "/api/exam/create",
                 "/api/exam/create-advanced", "/api/exam/upload-pdf", "/api/exam/delete",
-                "/api/lesson/create", "/api/lesson/delete", "/api/demo/seed", "/api/demo/clear", "/api/announce/create", "/api/announce/delete", "/api/teacher/set-code", "/api/exam/reset-submission", "/api/exam/review"}
+                "/api/lesson/create", "/api/lesson/delete", "/api/attendance/groups", "/api/attendance/students", "/api/attendance/group/save", "/api/attendance/group/delete", "/api/attendance/roll", "/api/attendance/mark", "/api/demo/seed", "/api/demo/clear", "/api/announce/create", "/api/announce/delete", "/api/teacher/set-code", "/api/exam/reset-submission", "/api/exam/review"}
 ACTOR_FIELDS = ("username", "student_username", "teacher_username", "sender_username")
 
 def identity_problem(scope, body: bytes, user):
     from urllib.parse import parse_qs
     if scope["path"] in TEACHER_ONLY and user["role"] != "teacher":
         return "Teachers only."
-    if scope["path"] == "/api/admin/overview" and user["role"] != "admin":
+    if scope["path"].startswith("/api/admin/") and user["role"] != "admin":
         return "Academy directors only."
     fields = {k: v[0] for k, v in parse_qs(scope.get("query_string", b"").decode()).items()}
     try:
@@ -132,6 +132,39 @@ class AuthMiddleware:
         scope.setdefault("state", {})["auth"] = user
         await self.app(scope, replay, send)
 
+def today_local():
+    """The academy day follows Morocco time, not UTC, so a student practising at 00:30 is counted on the right day."""
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(ZoneInfo("Africa/Casablanca")).date()
+    except Exception:
+        return (datetime.utcnow() + timedelta(hours=1)).date()
+
+def log_day(cur, username=None, phone=None):
+    """Remembers every day a student practised (used for attendance sheets). Never breaks the caller."""
+    try:
+        cur.execute("SAVEPOINT logday")
+        if phone:
+            cur.execute("INSERT INTO aero_v22_activity (username, day) SELECT username, %s FROM aero_v22_users WHERE phone_number = %s ON CONFLICT DO NOTHING;", (today_local(), phone))
+        else:
+            cur.execute("INSERT INTO aero_v22_activity (username, day) VALUES (%s, %s) ON CONFLICT DO NOTHING;", (username, today_local()))
+        cur.execute("RELEASE SAVEPOINT logday")
+    except Exception:
+        cur.execute("ROLLBACK TO SAVEPOINT logday")
+
+def bump_streak(cur, username):
+    log_day(cur, username)
+    cur.execute("SELECT streak, last_practice_date FROM aero_v22_users WHERE username = %s;", (username,))
+    u = cur.fetchone()
+    if not u:
+        return
+    today = today_local()
+    last = u["last_practice_date"]
+    if last == today:
+        return
+    streak = (u["streak"] or 0) + 1 if last == today - timedelta(days=1) else 1
+    cur.execute("UPDATE aero_v22_users SET streak = %s, last_practice_date = %s WHERE username = %s;", (streak, today, username))
+
 LOGIN_FAILS = {}
 def login_blocked(key: str) -> bool:
     n, t0 = LOGIN_FAILS.get(key, (0, 0))
@@ -165,6 +198,17 @@ def startup_extras():
                message VARCHAR(300), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);""",
         """CREATE TABLE IF NOT EXISTS aero_v22_weekly_xp (
                username VARCHAR(50), week_start DATE, start_xp INT, PRIMARY KEY (username, week_start));""",
+        """CREATE TABLE IF NOT EXISTS aero_v22_payments (
+               username VARCHAR(50) PRIMARY KEY, paid_until DATE, monthly_fee INT, remind_days INT DEFAULT 3,
+               message VARCHAR(300), updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);""",
+        "ALTER TABLE aero_v22_users ADD COLUMN IF NOT EXISTS created_at TIMESTAMP;",
+        "ALTER TABLE aero_v22_users ALTER COLUMN created_at SET DEFAULT CURRENT_TIMESTAMP;",
+        "ALTER TABLE aero_v22_groups ADD COLUMN IF NOT EXISTS capacity INT DEFAULT 30;",
+        "CREATE TABLE IF NOT EXISTS aero_v22_att_groups (id SERIAL PRIMARY KEY, teacher_username VARCHAR(50), name VARCHAR(80), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);",
+        "CREATE TABLE IF NOT EXISTS aero_v22_att_members (group_id INT, student_username VARCHAR(50), PRIMARY KEY (group_id, student_username));",
+        "CREATE TABLE IF NOT EXISTS aero_v22_attendance (group_id INT, student_username VARCHAR(50), day DATE, status VARCHAR(10), marked_by VARCHAR(50), marked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (group_id, student_username, day));",
+        "CREATE TABLE IF NOT EXISTS aero_v22_activity (username VARCHAR(50), day DATE, PRIMARY KEY (username, day));",
+        "CREATE TABLE IF NOT EXISTS aero_v22_payment_log (id SERIAL PRIMARY KEY, username VARCHAR(50), amount INT, months INT, paid_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);",
         """CREATE TABLE IF NOT EXISTS aero_v22_mistakes (
                id SERIAL PRIMARY KEY, username VARCHAR(50), question_text TEXT, incorrect_answer TEXT, correct_answer TEXT,
                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE (username, question_text));""",
@@ -181,7 +225,7 @@ def startup_extras():
             STARTUP_ERRORS.append(str(e)[:200])
             print("STARTUP WARNING:", e)
 
-EXPECTED_TABLES = ["users", "battles", "exams", "exam_submissions", "shop_skins", "mistakes", "class_lessons", "owned_skins", "announcements", "weekly_xp"]
+EXPECTED_TABLES = ["users", "battles", "exams", "exam_submissions", "shop_skins", "mistakes", "class_lessons", "owned_skins", "announcements", "weekly_xp", "payments", "activity", "payment_log", "att_groups", "att_members", "attendance"]
 
 @app.get("/api/health")
 def health():
@@ -528,8 +572,8 @@ def register(data: RegisterModel):
         raise HTTPException(status_code=400, detail="Phone number or username already taken.")
     
     cur.execute(
-        """INSERT INTO aero_v22_users (phone_number, username, full_name, password, recovery_pin, role, avatar_gender, group_code) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;""",
+        """INSERT INTO aero_v22_users (phone_number, username, full_name, password, recovery_pin, role, avatar_gender, group_code, xp_points, streak, flight_hours) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 0, 0, 0) RETURNING *;""",
         (data.phone_number, data.username, data.full_name, hash_password(data.password), data.recovery_pin, assigned_role, data.avatar_gender, group_code)
     )
     user = cur.fetchone()
@@ -564,7 +608,7 @@ def login(data: LoginModel):
     if not (user["password"] or "").startswith("p1$"):
         cur.execute("UPDATE aero_v22_users SET password = %s WHERE id = %s;", (hash_password(data.password), user["id"]))
 
-    today = date.today()
+    today = today_local()
     last_prac = user.get("last_practice_date")
     streak = user.get("streak", 21)
 
@@ -587,6 +631,12 @@ def refresh_user(phone_number: str):
     cur = conn.cursor()
     cur.execute("SELECT * FROM aero_v22_users WHERE phone_number = %s;", (phone_number,))
     user = cur.fetchone()
+    if user:
+        last = user.get("last_practice_date")
+        if (not last or last < today_local() - timedelta(days=1)) and (user.get("streak") or 0) != 0:
+            cur.execute("UPDATE aero_v22_users SET streak = 0 WHERE id = %s RETURNING *;", (user["id"],))
+            user = cur.fetchone()
+            conn.commit()
     cur.close()
     conn.close()
     if not user:
@@ -961,6 +1011,7 @@ def submit_exam(data: SubmitExamModel):
     )
     sub = cur.fetchone()
     cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + 100, flight_hours = flight_hours + 5 WHERE username = %s;", (data.student_username,))
+    bump_streak(cur, data.student_username)
     conn.commit()
     cur.close()
     conn.close()
@@ -988,7 +1039,7 @@ def complete_roadmap_node(data: NodeCompleteModel):
         hearts = max(0, hearts - 1)
         if data.mistake_question and data.mistake_question not in mistakes:
             mistakes.append(data.mistake_question)
-        cur.execute("UPDATE aero_v22_users SET hearts = %s, last_heart_loss_date = %s, mistake_hangar = %s WHERE phone_number = %s;", (hearts, date.today(), mistakes, data.phone_number))
+        cur.execute("UPDATE aero_v22_users SET hearts = %s, last_heart_loss_date = %s, mistake_hangar = %s WHERE phone_number = %s;", (hearts, today_local(), mistakes, data.phone_number))
         conn.commit()
         cur.close()
         conn.close()
@@ -999,7 +1050,7 @@ def complete_roadmap_node(data: NodeCompleteModel):
         conn.close()
         raise HTTPException(status_code=400, detail="Out of hearts! Visit the Heart Recovery Lounge.")
 
-    today = date.today()
+    today = today_local()
     last_day = user.get("last_practice_date")
     if last_day != today:
         streak = streak + 1 if last_day == today - timedelta(days=1) else 1
@@ -1010,6 +1061,7 @@ def complete_roadmap_node(data: NodeCompleteModel):
     else:
         cur.execute("UPDATE aero_v22_users SET streak = %s, last_practice_date = %s WHERE phone_number = %s RETURNING completed_nodes, xp_points, hearts, streak, flight_hours;", (streak, today, data.phone_number))
     res = cur.fetchone()
+    log_day(cur, phone=data.phone_number)
     conn.commit()
     cur.close()
     conn.close()
@@ -1143,6 +1195,8 @@ def _try_finalize(cur, match_id):
                 "WHERE match_id = %s AND NOT (COALESCE(scores, '{}'::jsonb) ? '_final') RETURNING match_id;", (match_id,))
     if cur.fetchone():
         sa, sb = sc.get(a, {}).get("score", 0), sc.get(b, {}).get("score", 0)
+        bump_streak(cur, a)
+        bump_streak(cur, b)
         for user, mine, theirs in ((a, sa, sb), (b, sb, sa)):
             if mine > theirs:
                 cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + 100, flight_hours = flight_hours + 3 WHERE username = %s;", (user,))
@@ -1325,9 +1379,18 @@ def create_advanced_exam(data: AdvancedExamModel):
         cur.close()
         conn.close()
         raise HTTPException(status_code=409, detail="This code already belongs to another teacher. Choose a different code.")
+    pdf = None
+    if data.is_pdf:
+        pdf = (data.pdf_url or "").strip()
+        if pdf and not re.match(r"^https?://", pdf, re.I):
+            pdf = "https://" + pdf
+        if not re.match(r"^https?://[^\s/]+\.[^\s/]+", pdf) or len(pdf) > 600:
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=400, detail="Enter a valid web link for the PDF (for example https://drive.google.com/...).")
     cur.execute(
         "INSERT INTO aero_v22_exams (group_code, teacher_username, title, exam_data, pdf_url) VALUES (%s, %s, %s, %s, %s) RETURNING *;",
-        (code, data.teacher_username, data.title, json.dumps(data.exam_data), data.pdf_url if data.is_pdf else None)
+        (code, data.teacher_username, data.title, json.dumps(data.exam_data), pdf)
     )
     exam = cur.fetchone()
     conn.commit()
@@ -1414,7 +1477,7 @@ def teacher_dashboard(group_code: str, teacher_username: str):
         raise HTTPException(status_code=403, detail="Teachers only.")
     cur.execute("""SELECT username, full_name, xp_points, streak, hearts, completed_nodes, last_practice_date
                    FROM aero_v22_users WHERE group_code = %s AND role = 'student' ORDER BY xp_points DESC;""", (group_code,))
-    today = date.today()
+    today = today_local()
     students = []
     for r in cur.fetchall():
         nodes = [n for n in (r["completed_nodes"] or []) if str(n).startswith("year1_")]
@@ -1533,7 +1596,7 @@ def seed_demo(data: DemoModel):
     if cur.fetchone()["n"] == 0:
         for i, (name, xp, streak, nodes, ago, hearts) in enumerate(people, 1):
             uname = f"demo_{i}_{code}"[:50]
-            last = (date.today() - timedelta(days=ago)) if ago is not None else None
+            last = (today_local() - timedelta(days=ago)) if ago is not None else None
             cur.execute("""INSERT INTO aero_v22_users (phone_number, username, full_name, password, recovery_pin, role, group_code,
                            xp_points, hearts, streak, completed_nodes, last_practice_date)
                            VALUES (%s, %s, %s, %s, '0000', 'student', %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING;""",
@@ -1577,7 +1640,7 @@ def admin_overview():
     exams = {r["teacher_username"]: r["c"] for r in cur.fetchall()}
     cur.close()
     conn.close()
-    today = date.today()
+    today = today_local()
     students = [u for u in users if u["role"] == "student"]
     teachers = [u for u in users if u["role"] == "teacher"]
     nodes = lambda u: len([n for n in (u["completed_nodes"] or []) if str(n).startswith("year1_")])
@@ -1637,11 +1700,9 @@ def latest_announcements(group_code: str, request: Request):
     if auth["role"] != "teacher":
         cur.execute("SELECT group_code FROM aero_v22_users WHERE username = %s;", (auth["username"],))
         me = cur.fetchone()
-        if not me or me["group_code"] != group_code:
-            cur.close()
-            conn.close()
-            raise HTTPException(status_code=403, detail="This is not your class.")
-    cur.execute("SELECT id, teacher_username, message, created_at FROM aero_v22_announcements WHERE group_code = %s ORDER BY id DESC LIMIT 5;", (group_code,))
+        group_code = (me or {}).get("group_code") or "-"
+    codes = [group_code, "*TEACHERS*" if auth["role"] == "teacher" else "*STUDENTS*"]
+    cur.execute("SELECT id, teacher_username, message, created_at FROM aero_v22_announcements WHERE group_code = ANY(%s) ORDER BY id DESC LIMIT 5;", (codes,))
     rows = cur.fetchall()
     cur.close()
     conn.close()
@@ -1669,7 +1730,7 @@ def class_league(group_code: str, request: Request):
             cur.close()
             conn.close()
             raise HTTPException(status_code=403, detail="This is not your class.")
-    today = date.today()
+    today = today_local()
     monday = today - timedelta(days=today.weekday())
     cur.execute("SELECT username, full_name, xp_points, streak FROM aero_v22_users WHERE group_code = %s AND role = 'student';", (group_code,))
     members = cur.fetchall()
@@ -1766,6 +1827,405 @@ def exam_review(exam_id: int, student: str, request: Request):
     if isinstance(ans, str):
         ans = json.loads(ans)
     return {"title": row["title"], "student": row["student_name"], "score": row["score"], "total": row["total_questions"], "review": ans or []}
+
+WHEEL = [("100 XP ⭐", "xp", 100, 4), ("Pilot Hat 🧢", "skin", "Captain Pilot Hat", 2), ("50 XP ⭐", "xp", 50, 12), ("5 Hearts ❤", "hearts", 5, 8),
+         ("25 XP ⭐", "xp", 25, 20), ("0 XP 😢", "xp", 0, 22), ("2 Hearts ❤", "hearts", 2, 14), ("10 XP ⭐", "xp", 10, 18)]
+
+@app.post("/api/wheel/spin")
+def wheel_spin(request: Request):
+    import time
+    me = request.state.auth["username"]
+    now = int(time.time() * 1000)
+    day = 24 * 60 * 60 * 1000
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE aero_v22_users SET last_spin_timestamp = %s WHERE username = %s AND COALESCE(last_spin_timestamp, 0) <= %s RETURNING id;", (now, me, now - day))
+    if not cur.fetchone():
+        cur.execute("SELECT last_spin_timestamp FROM aero_v22_users WHERE username = %s;", (me,))
+        row = cur.fetchone() or {}
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=429, detail="One spin every 24 hours. Come back later!")
+    idx = random.choices(range(len(WHEEL)), weights=[w[3] for w in WHEEL])[0]
+    text, kind, val, _ = WHEEL[idx]
+    if kind == "xp" and val:
+        cur.execute("UPDATE aero_v22_users SET xp_points = xp_points + %s WHERE username = %s;", (val, me))
+    elif kind == "hearts":
+        cur.execute("UPDATE aero_v22_users SET hearts = LEAST(5, COALESCE(hearts, 5) + %s) WHERE username = %s;", (val, me))
+    elif kind == "skin":
+        cur.execute("UPDATE aero_v22_users SET active_skin = %s WHERE username = %s;", (val, me))
+        cur.execute("INSERT INTO aero_v22_owned_skins (username, skin_name_en) VALUES (%s, %s) ON CONFLICT DO NOTHING;", (me, val))
+    cur.execute("SELECT * FROM aero_v22_users WHERE username = %s;", (me,))
+    user = cur.fetchone()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"index": idx, "prize": {"text": text, "type": kind, "val": val}, "user": user}
+
+def add_months(d, n):
+    import calendar
+    m = d.month - 1 + n
+    y, m = d.year + m // 12, m % 12 + 1
+    return date(y, m, min(d.day, calendar.monthrange(y, m)[1]))
+
+def pay_status(paid_until, remind_days):
+    if not paid_until:
+        return "none", None
+    left = (paid_until - today_local()).days
+    return ("overdue" if left < 0 else "due_soon" if left <= (remind_days if remind_days is not None else 3) else "paid"), left
+
+class PaymentUpdateModel(BaseModel):
+    student: str
+    action: str = "save"
+    months: int = 1
+    paid_until: str = None
+    monthly_fee: int = None
+    remind_days: int = None
+    message: str = None
+
+@app.get("/api/admin/payments")
+def admin_payments():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""SELECT u.username, u.full_name, u.group_code, u.phone_number, p.paid_until, p.monthly_fee, p.remind_days, p.message
+                   FROM aero_v22_users u LEFT JOIN aero_v22_payments p ON p.username = u.username
+                   WHERE u.role = 'student' ORDER BY u.full_name;""")
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    for r in rows:
+        r["status"], r["days_left"] = pay_status(r["paid_until"], r["remind_days"])
+    return {"students": rows}
+
+@app.post("/api/admin/payments/update")
+def admin_payments_update(data: PaymentUpdateModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT 1 FROM aero_v22_users WHERE username = %s AND role = 'student';", (data.student,))
+    if not cur.fetchone():
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Student not found.")
+    cur.execute("SELECT * FROM aero_v22_payments WHERE username = %s;", (data.student,))
+    row = cur.fetchone() or {}
+    paid_until, fee, rem, msg = row.get("paid_until"), row.get("monthly_fee"), row.get("remind_days"), row.get("message")
+    today = today_local()
+    if data.action == "paid":
+        base = paid_until if paid_until and paid_until >= today else today
+        paid_until = add_months(base, max(1, min(12, data.months)))
+    elif data.paid_until:
+        try:
+            paid_until = datetime.strptime(data.paid_until, "%Y-%m-%d").date()
+        except Exception:
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=400, detail="Use the date format YYYY-MM-DD.")
+    if data.monthly_fee is not None:
+        fee = max(0, min(100000, data.monthly_fee))
+    if data.remind_days is not None:
+        rem = max(0, min(30, data.remind_days))
+    if data.message is not None:
+        msg = data.message.strip()[:300]
+    if data.action == "paid":
+        cur.execute("INSERT INTO aero_v22_payment_log (username, amount, months) VALUES (%s, %s, %s);", (data.student, (fee or 0) * max(1, min(12, data.months)), max(1, min(12, data.months))))
+    cur.execute("""INSERT INTO aero_v22_payments (username, paid_until, monthly_fee, remind_days, message, updated_at)
+                   VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                   ON CONFLICT (username) DO UPDATE SET paid_until = EXCLUDED.paid_until, monthly_fee = EXCLUDED.monthly_fee,
+                   remind_days = EXCLUDED.remind_days, message = EXCLUDED.message, updated_at = CURRENT_TIMESTAMP;""",
+                (data.student, paid_until, fee, 3 if rem is None else rem, msg))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success", "paid_until": str(paid_until) if paid_until else None}
+
+@app.get("/api/payments/mine")
+def my_payment(request: Request):
+    me = request.state.auth["username"]
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM aero_v22_payments WHERE username = %s;", (me,))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    if not row:
+        return {"status": "none"}
+    st, left = pay_status(row["paid_until"], row["remind_days"])
+    return {"status": st, "days_left": left, "paid_until": str(row["paid_until"]) if row["paid_until"] else None,
+            "fee": row["monthly_fee"], "message": row["message"], "remind_days": row["remind_days"]}
+
+class BroadcastModel(BaseModel):
+    audience: str
+    message: str
+
+class CapacityModel(BaseModel):
+    group_code: str
+    capacity: int
+
+@app.post("/api/admin/broadcast")
+def admin_broadcast(data: BroadcastModel, request: Request):
+    msg = data.message.strip()[:280]
+    targets = {"students": ["*STUDENTS*"], "teachers": ["*TEACHERS*"], "all": ["*STUDENTS*", "*TEACHERS*"]}.get(data.audience)
+    if not msg or not targets:
+        raise HTTPException(status_code=400, detail="Write a message and choose who receives it.")
+    conn = get_db_connection()
+    cur = conn.cursor()
+    for t in targets:
+        cur.execute("INSERT INTO aero_v22_announcements (group_code, teacher_username, message) VALUES (%s, %s, %s);", (t, request.state.auth["username"], msg))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success"}
+
+@app.post("/api/admin/class-capacity")
+def admin_capacity(data: CapacityModel):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE aero_v22_groups SET capacity = %s WHERE group_code = %s;", (max(1, min(500, data.capacity)), data.group_code))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success"}
+
+@app.get("/api/admin/attendance")
+def admin_attendance(group_code: str, month: str):
+    import calendar
+    try:
+        start = datetime.strptime(month + "-01", "%Y-%m-%d").date()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Use the month format YYYY-MM.")
+    end = add_months(start, 1)
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT username, full_name FROM aero_v22_users WHERE role = 'student' AND group_code = %s ORDER BY full_name;", (group_code,))
+    studs = cur.fetchall()
+    days = {}
+    if studs:
+        cur.execute("SELECT username, day FROM aero_v22_activity WHERE day >= %s AND day < %s AND username = ANY(%s);", (start, end, [x["username"] for x in studs]))
+        for r in cur.fetchall():
+            days.setdefault(r["username"], []).append(r["day"].day)
+    cur.close()
+    conn.close()
+    return {"days_in_month": calendar.monthrange(start.year, start.month)[1],
+            "students": [{"username": x["username"], "full_name": x["full_name"], "days": sorted(days.get(x["username"], []))} for x in studs]}
+
+@app.get("/api/admin/reports")
+def admin_reports():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""SELECT u.username, u.full_name, u.role, u.group_code, u.phone_number, u.completed_nodes, u.last_practice_date, u.created_at,
+                          p.paid_until, p.monthly_fee, p.remind_days FROM aero_v22_users u LEFT JOIN aero_v22_payments p ON p.username = u.username;""")
+    users = cur.fetchall()
+    cur.execute("SELECT group_code, group_name, capacity, teacher_username FROM aero_v22_groups;")
+    groups = {g["group_code"]: g for g in cur.fetchall()}
+    counts = {}
+    for q, key in (("SELECT teacher_username, COUNT(*) AS c FROM aero_v22_exams GROUP BY teacher_username;", "exams"),
+                   ("SELECT teacher_username, COUNT(*) AS c FROM aero_v22_announcements GROUP BY teacher_username;", "ann"),
+                   ("SELECT teacher_username, COUNT(*) AS c FROM aero_v22_class_lessons GROUP BY teacher_username;", "lessons")):
+        cur.execute(q)
+        counts[key] = {r["teacher_username"]: r["c"] for r in cur.fetchall()}
+    today = today_local()
+    month_start = today.replace(day=1)
+    month_end = add_months(month_start, 1) - timedelta(days=1)
+    cur.execute("SELECT COALESCE(SUM(amount), 0) AS t FROM aero_v22_payment_log WHERE paid_at >= %s;", (month_start,))
+    collected = int(cur.fetchone()["t"])
+    cur.close()
+    conn.close()
+    students = [u for u in users if u["role"] == "student"]
+    due = overdue = 0
+    due_week, inactive, new_regs, certs = [], [], [], []
+    for u in students:
+        fee = u["monthly_fee"] or 0
+        st, left = pay_status(u["paid_until"], u["remind_days"])
+        if u["paid_until"] and u["paid_until"] <= month_end:
+            due += fee
+        if st == "overdue":
+            overdue += fee
+        base = {"username": u["username"], "full_name": u["full_name"], "phone": u["phone_number"], "group_code": u["group_code"]}
+        if u["paid_until"] and u["paid_until"] <= today + timedelta(days=7):
+            due_week.append(dict(base, days_left=left, paid_until=str(u["paid_until"]), fee=fee))
+        last = u["last_practice_date"]
+        if not last or (today - last).days >= 7:
+            inactive.append(dict(base, days=(today - last).days if last else None))
+        if u["created_at"] and u["created_at"].date() >= today - timedelta(days=7):
+            new_regs.append(dict(base, created=str(u["created_at"].date())))
+        nodes = [str(n) for n in (u["completed_nodes"] or [])]
+        y1, y2 = sum(1 for n in nodes if n.startswith("year1_")), sum(1 for n in nodes if n.startswith("year2_"))
+        for path, k in (("First Year Path", y1), ("Second Year Path", y2)):
+            if k >= 100:
+                certs.append(dict(base, path=path))
+    classes = {}
+    for u in students:
+        classes.setdefault(u["group_code"] or "-", 0)
+        classes[u["group_code"] or "-"] += 1
+    class_rows = [{"group_code": c, "name": (groups.get(c) or {}).get("group_name") or ("Class " + c), "students": n, "capacity": (groups.get(c) or {}).get("capacity") or 30} for c, n in classes.items()]
+    teachers = [{"username": t["username"], "full_name": t["full_name"], "students": classes.get(t["group_code"], 0), "exams": counts["exams"].get(t["username"], 0),
+                 "announcements": counts["ann"].get(t["username"], 0), "lessons": counts["lessons"].get(t["username"], 0)} for t in users if t["role"] == "teacher"]
+    return {"money": {"collected": collected, "due": due, "overdue": overdue, "month": str(month_start)[:7]},
+            "totals": {"students": len(students), "teachers": len(teachers), "classes": len(class_rows)},
+            "due_week": due_week, "inactive": sorted(inactive, key=lambda x: -(x["days"] or 999)), "new_regs": new_regs, "classes": class_rows, "teachers": teachers, "certificates": certs}
+
+class AttGroupModel(BaseModel):
+    name: str
+    members: list = []
+    group_id: int = None
+
+class AttDeleteModel(BaseModel):
+    group_id: int
+
+class AttMarkModel(BaseModel):
+    group_id: int
+    student: str
+    status: str
+    day: str = None
+
+def _own_group(cur, group_id, me):
+    cur.execute("SELECT id, name FROM aero_v22_att_groups WHERE id = %s AND teacher_username = %s;", (group_id, me))
+    g = cur.fetchone()
+    if not g:
+        raise HTTPException(status_code=404, detail="Group not found.")
+    return g
+
+@app.get("/api/attendance/students")
+def att_students():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT username, full_name, group_code FROM aero_v22_users WHERE role = 'student' ORDER BY full_name LIMIT 1000;")
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return {"students": rows}
+
+@app.get("/api/attendance/groups")
+def att_groups(request: Request):
+    me = request.state.auth["username"]
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT id, name FROM aero_v22_att_groups WHERE teacher_username = %s ORDER BY id;", (me,))
+    groups = cur.fetchall()
+    members = {}
+    if groups:
+        cur.execute("""SELECT m.group_id, u.username, u.full_name FROM aero_v22_att_members m JOIN aero_v22_users u ON u.username = m.student_username
+                       WHERE m.group_id = ANY(%s) ORDER BY u.full_name;""", ([g["id"] for g in groups],))
+        for r in cur.fetchall():
+            members.setdefault(r["group_id"], []).append({"username": r["username"], "full_name": r["full_name"]})
+    cur.close()
+    conn.close()
+    for g in groups:
+        g["members"] = members.get(g["id"], [])
+    return {"groups": groups}
+
+@app.post("/api/attendance/group/save")
+def att_group_save(data: AttGroupModel, request: Request):
+    me = request.state.auth["username"]
+    name = data.name.strip()[:80]
+    if not name:
+        raise HTTPException(status_code=400, detail="Give the group a name.")
+    wanted = list({str(m).strip() for m in data.members if str(m).strip()})[:200]
+    conn = get_db_connection()
+    cur = conn.cursor()
+    if data.group_id:
+        _own_group(cur, data.group_id, me)
+        cur.execute("UPDATE aero_v22_att_groups SET name = %s WHERE id = %s;", (name, data.group_id))
+        gid = data.group_id
+    else:
+        cur.execute("INSERT INTO aero_v22_att_groups (teacher_username, name) VALUES (%s, %s) RETURNING id;", (me, name))
+        gid = cur.fetchone()["id"]
+    cur.execute("DELETE FROM aero_v22_att_members WHERE group_id = %s;", (gid,))
+    if wanted:
+        cur.execute("SELECT username FROM aero_v22_users WHERE role = 'student' AND username = ANY(%s);", (wanted,))
+        for r in cur.fetchall():
+            cur.execute("INSERT INTO aero_v22_att_members (group_id, student_username) VALUES (%s, %s) ON CONFLICT DO NOTHING;", (gid, r["username"]))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success", "id": gid}
+
+@app.post("/api/attendance/group/delete")
+def att_group_delete(data: AttDeleteModel, request: Request):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    _own_group(cur, data.group_id, request.state.auth["username"])
+    cur.execute("DELETE FROM aero_v22_att_members WHERE group_id = %s;", (data.group_id,))
+    cur.execute("DELETE FROM aero_v22_att_groups WHERE id = %s;", (data.group_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success"}
+
+@app.get("/api/attendance/roll")
+def att_roll(group_id: int, request: Request, day: str = None):
+    me = request.state.auth["username"]
+    d = datetime.strptime(day, "%Y-%m-%d").date() if day else today_local()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    g = _own_group(cur, group_id, me)
+    cur.execute("""SELECT u.username, u.full_name, a.status FROM aero_v22_att_members m JOIN aero_v22_users u ON u.username = m.student_username
+                   LEFT JOIN aero_v22_attendance a ON a.group_id = m.group_id AND a.student_username = m.student_username AND a.day = %s
+                   WHERE m.group_id = %s ORDER BY u.full_name;""", (d, group_id))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return {"group": g, "day": str(d), "students": rows}
+
+@app.post("/api/attendance/mark")
+def att_mark(data: AttMarkModel, request: Request):
+    me = request.state.auth["username"]
+    if data.status not in ("present", "absent", "late"):
+        raise HTTPException(status_code=400, detail="Invalid status.")
+    d = datetime.strptime(data.day, "%Y-%m-%d").date() if data.day else today_local()
+    if d > today_local():
+        raise HTTPException(status_code=400, detail="You cannot mark a future date.")
+    conn = get_db_connection()
+    cur = conn.cursor()
+    _own_group(cur, data.group_id, me)
+    cur.execute("SELECT 1 FROM aero_v22_att_members WHERE group_id = %s AND student_username = %s;", (data.group_id, data.student))
+    if not cur.fetchone():
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="This student is not in the group.")
+    cur.execute("""INSERT INTO aero_v22_attendance (group_id, student_username, day, status, marked_by, marked_at) VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
+                   ON CONFLICT (group_id, student_username, day) DO UPDATE SET status = EXCLUDED.status, marked_by = EXCLUDED.marked_by, marked_at = CURRENT_TIMESTAMP;""",
+                (data.group_id, data.student, d, data.status, me))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return {"status": "success"}
+
+@app.get("/api/admin/roll")
+def admin_roll(day: str = None):
+    d = datetime.strptime(day, "%Y-%m-%d").date() if day else today_local()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT g.id, g.name, g.teacher_username, (SELECT COUNT(*) FROM aero_v22_att_members m WHERE m.group_id = g.id) AS total FROM aero_v22_att_groups g ORDER BY g.name;")
+    groups = cur.fetchall()
+    cur.execute("""SELECT a.group_id, u.full_name, a.status, a.marked_at FROM aero_v22_attendance a JOIN aero_v22_users u ON u.username = a.student_username
+                   WHERE a.day = %s ORDER BY u.full_name;""", (d,))
+    recs = {}
+    for r in cur.fetchall():
+        recs.setdefault(r["group_id"], []).append({"full_name": r["full_name"], "status": r["status"], "time": r["marked_at"].strftime("%H:%M") if r["marked_at"] else ""})
+    cur.close()
+    conn.close()
+    for g in groups:
+        rr = recs.get(g["id"], [])
+        g.update({"records": rr, "present": sum(1 for x in rr if x["status"] == "present"), "absent": sum(1 for x in rr if x["status"] == "absent"), "late": sum(1 for x in rr if x["status"] == "late")})
+    return {"day": str(d), "groups": groups}
+
+@app.get("/api/admin/roll-month")
+def admin_roll_month(group_id: int, month: str):
+    import calendar
+    start = datetime.strptime(month + "-01", "%Y-%m-%d").date()
+    end = add_months(start, 1)
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT u.username, u.full_name FROM aero_v22_att_members m JOIN aero_v22_users u ON u.username = m.student_username WHERE m.group_id = %s ORDER BY u.full_name;", (group_id,))
+    studs = cur.fetchall()
+    cur.execute("SELECT student_username, day, status FROM aero_v22_attendance WHERE group_id = %s AND day >= %s AND day < %s;", (group_id, start, end))
+    marks = {}
+    for r in cur.fetchall():
+        marks.setdefault(r["student_username"], {})[r["day"].day] = r["status"]
+    cur.close()
+    conn.close()
+    return {"days_in_month": calendar.monthrange(start.year, start.month)[1], "students": [{"full_name": x["full_name"], "marks": marks.get(x["username"], {})} for x in studs]}
 
 @app.get("/manifest.json")
 def serve_manifest():
