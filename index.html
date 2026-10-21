@@ -469,6 +469,51 @@
         .eb-opt:has(input:checked){border-color:var(--accent);background:rgba(56,189,248,.12)}
         .eb-opt input{width:20px;height:20px;margin:0;flex:none;accent-color:#38bdf8}
         .eb-opt span{font-size:.92rem;line-height:1.4}
+
+        /* ===== v5 micro adjustments ===== */
+        *{-webkit-tap-highlight-color:transparent}
+        button,.btn-action,.mode-tile,.header-icon-btn,select,[onclick]{touch-action:manipulation}
+        html{scroll-behavior:smooth}
+        body:has(.feature-fullscreen-view){overflow:hidden}
+        .feature-fullscreen-view{overscroll-behavior:contain}
+        ::selection{background:rgba(56,189,248,.35);color:#fff}
+        .btn-action{min-height:44px}
+        .btn-action:active:not(:disabled){transform:scale(.98)}
+        .btn-action,.mode-tile,.header-icon-btn,.lesson-opt,.shop-card,.le-card{-webkit-user-select:none;user-select:none}
+        .mode-tile{min-height:104px}
+        #tile-insights,#tile-league,#tile-listen,#tile-admin,#tile-payments{display:flex!important;flex-direction:row!important;justify-content:flex-start!important;align-items:center!important;gap:16px;min-height:76px!important;padding:1rem 1.3rem!important;text-align:start}
+        #tile-insights>span,#tile-league>span,#tile-listen>span,#tile-admin>span{font-size:1.9rem!important;flex:none}
+        #tile-insights h4,#tile-league h4,#tile-listen h4,#tile-admin h4{margin:0;font-size:.95rem}
+        .mode-tile:focus-visible,.header-icon-btn:focus-visible,.le-card:focus-visible,.ci-hq:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+        .toast-popup{z-index:9500}
+        .duo-node.active{scroll-margin:40vh}
+        @media(max-width:600px){#copilot{bottom:calc(76px + env(safe-area-inset-bottom))}.top-header .header-icons,.header-icons{gap:6px}}
+
+        /* ===== v5 payments ===== */
+        .pay-card{display:flex;align-items:center;gap:12px;padding:12px 16px;margin-bottom:1.2rem;border-radius:18px;background:linear-gradient(135deg,rgba(96,165,250,.2),rgba(15,23,42,.92));border:1px solid rgba(96,165,250,.55);box-shadow:0 8px 24px rgba(0,0,0,.3);animation:tileIn .6s var(--ease) both}
+        .pc-ico{font-size:1.8rem}.pc-txt{flex:1;display:flex;flex-direction:column;gap:3px}.pc-txt b{font-size:.92rem}.pc-txt small{font-size:.74rem;color:var(--text-muted);line-height:1.4}
+        .pay-card button{background:none;border:0;color:var(--text-muted);font-size:1rem;cursor:pointer;padding:4px 8px}
+        #tile-payments{display:flex!important;flex-direction:row!important;justify-content:flex-start!important;align-items:center!important;gap:16px;min-height:76px!important;padding:1rem 1.3rem!important;text-align:start}
+        #tile-payments>span{font-size:1.9rem!important;flex:none}#tile-payments h4{margin:0;font-size:.95rem}
+
+        /* ===== v5 reports ===== */
+        #tile-reports{display:flex!important;flex-direction:row!important;justify-content:flex-start!important;align-items:center!important;gap:16px;min-height:76px!important;padding:1rem 1.3rem!important;text-align:start}
+        #tile-reports>span{font-size:1.9rem!important;flex:none}#tile-reports h4{margin:0;font-size:.95rem}
+        .at-table{border-collapse:collapse;font-size:.68rem;min-width:100%}
+        .at-table th,.at-table td{border:1px solid var(--border-glow);padding:3px 4px;text-align:center;white-space:nowrap}
+        .at-table td:first-child,.at-table th:first-child{text-align:start;position:sticky;left:0;background:var(--bg-deep);font-size:.72rem}
+        .at-table td.on{background:rgba(74,222,128,.22);color:#4ade80;font-weight:800}
+
+        /* ===== v5 attendance ===== */
+        #tile-roll{display:flex!important;flex-direction:row!important;justify-content:flex-start!important;align-items:center!important;gap:16px;min-height:76px!important;padding:1rem 1.3rem!important;text-align:start}
+        #tile-roll>span{font-size:1.9rem!important;flex:none}#tile-roll h4{margin:0;font-size:.95rem}
+        .at-main{text-align:center;padding:22px 16px}.at-name{font-size:clamp(1.5rem,6vw,2.1rem);font-weight:900;margin:12px 0;color:#fff;line-height:1.2}
+        .at-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+        .at-b{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 6px;border-radius:18px;border:2px solid;font-size:2rem;cursor:pointer;font-family:inherit;transition:transform .15s}
+        .at-b span{font-size:.78rem;font-weight:800}.at-b:active{transform:scale(.94)}
+        .at-b.p{background:rgba(74,222,128,.16);border-color:#4ade80;color:#4ade80}.at-b.a{background:rgba(248,113,113,.14);border-color:#f87171;color:#f87171}.at-b.l{background:rgba(251,191,36,.14);border-color:#fbbf24;color:#fbbf24}
+        .at-chips{display:flex;flex-wrap:wrap;gap:6px}.at-chip{padding:6px 10px;border-radius:999px;border:2px solid var(--border-glow);background:transparent;color:var(--text-main);font:inherit;font-size:.74rem;cursor:pointer}.at-chip.cur{background:rgba(56,189,248,.18)}
+        .at-table td.off{background:rgba(248,113,113,.22);color:#f87171;font-weight:800}.at-table td.lt{background:rgba(251,191,36,.22);color:#fbbf24;font-weight:800}
         /* Teacher Copilot */
         #copilot{position:fixed;right:20px;bottom:24px;width:min(360px,calc(100% - 32px));z-index:5500;padding:16px 18px 14px;border-radius:20px;background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(11,15,25,.96));border:1px solid var(--border-glow);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 34px var(--accent-glow);color:var(--text-main);transform:translateY(140%);opacity:0;transition:transform .55s cubic-bezier(.2,.9,.25,1.1),opacity .4s}
         #copilot.show{transform:none;opacity:1}
@@ -655,6 +700,8 @@
                 <button class="btn-action sc-go" id="sc-go" onclick="window.launchRoadmap('year1')"></button>
             </div>
 
+            <div class="pay-card" id="pay-card" style="display:none"><span class="pc-ico">💙</span><div class="pc-txt"><b id="pc-title"></b><small id="pc-sub"></small></div><button id="pc-x" aria-label="Dismiss">✕</button></div>
+
             <div class="goal-card" id="goal-card" style="display:none">
                 <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><circle cx="32" cy="32" r="26" class="gr-bg"/><circle cx="32" cy="32" r="26" class="gr-fg" id="goal-fg"/></svg>
                 <div class="goal-txt"><b id="goal-title">Daily goal</b><small id="goal-sub">0 / 50 XP</small></div>
@@ -697,6 +744,18 @@
                 <div class="mode-tile" id="tile-insights" style="display:none; grid-column:1 / -1;" onclick="window.openClassInsights()">
                     <span style="font-size: 1.5rem;">📊</span>
                     <h4>Class Insights (Teacher Dashboard)</h4>
+                </div>
+                <div class="mode-tile" id="tile-roll" style="display:none; grid-column:1 / -1;" onclick="window.openAttendance()">
+                    <span style="font-size: 1.5rem;">✅</span>
+                    <h4>Attendance (Roll Call)</h4>
+                </div>
+                <div class="mode-tile" id="tile-reports" style="display:none; grid-column:1 / -1;" onclick="window.openAdminReports()">
+                    <span style="font-size: 1.5rem;">📈</span>
+                    <h4>Reports & Tools (Director)</h4>
+                </div>
+                <div class="mode-tile" id="tile-payments" style="display:none; grid-column:1 / -1;" onclick="window.openPayments()">
+                    <span style="font-size: 1.5rem;">💳</span>
+                    <h4>Payments & Reminders (Director)</h4>
                 </div>
                 <div class="mode-tile" id="tile-admin" style="display:none; grid-column:1 / -1;" onclick="window.openAcademyOverview()">
                     <span style="font-size: 1.5rem;">🏫</span>
@@ -1259,10 +1318,10 @@
             const streakVal = (sessionUser.streak !== undefined && sessionUser.streak !== null) ? sessionUser.streak : 1;
             const streakBadge = document.getElementById('dash-streak-badge');
             
-            const todayStr = new Date().toISOString().split('T')[0];
+            const todayStr = todayCasa();
             const lastPrac = sessionUser.last_practice_date;
             
-            if(lastPrac && lastPrac < todayStr && streakVal > 1) {
+            if(lastPrac && String(lastPrac).slice(0, 10) < todayStr && streakVal >= 1) {
                 streakBadge.style.color = '#38bdf8';
                 streakBadge.innerHTML = `🧊 <span id="dash-streak">${streakVal}</span>`;
             } else {
@@ -1280,9 +1339,10 @@
             showTeacherCopilot();
             renderDailyGoal();
             renderStreakRescue();
+            loadPaymentReminder();
             loadAnnouncement();
             const isAdm = sessionUser.role === 'admin';
-            document.querySelectorAll('.mode-grid > .mode-tile').forEach(t => { t.style.display = t.id === 'tile-admin' ? (isAdm ? '' : 'none') : isAdm ? 'none' : (t.id === 'tile-insights' ? (sessionUser.role === 'teacher' ? '' : 'none') : ''); });
+            document.querySelectorAll('.mode-grid > .mode-tile').forEach(t => { t.style.display = (t.id === 'tile-admin' || t.id === 'tile-payments' || t.id === 'tile-reports') ? (isAdm ? '' : 'none') : isAdm ? 'none' : ((t.id === 'tile-insights' || t.id === 'tile-roll') ? (sessionUser.role === 'teacher' ? '' : 'none') : ''); });
         }
 
         function logoutUser() {
@@ -1436,7 +1496,14 @@
             const statusEl = document.getElementById('wheel-status-text');
             statusEl.innerText = 'Spinning... Good luck, Captain! 🎡';
 
-            const winningIndex = Math.floor(Math.random() * wheelPrizes.length);
+            let srv = null;
+            try {
+                const r = await fetch('/api/wheel/spin', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}' });
+                if(r.status === 429) { showToast('One spin every 24 hours. Come back later!', true); spinBtn.disabled = false; checkSpinEligibility(); return; }
+                if(!r.ok) throw new Error('spin');
+                srv = await r.json();
+            } catch(e) { showToast('Could not reach the server. Try again.', true); spinBtn.disabled = false; statusEl.innerText = 'Try again in a moment.'; return; }
+            const winningIndex = srv.index;
             const sliceDeg = 360 / wheelPrizes.length;
             const targetSliceCenter = winningIndex * sliceDeg + sliceDeg / 2;
             const totalRotations = 360 * 6; 
@@ -1467,13 +1534,7 @@
                     localStorage.setItem(lockKey, nowTs);
                     sessionUser.last_spin_timestamp = nowTs;
 
-                    if(prize.type === 'xp') {
-                        sessionUser.xp_points = (sessionUser.xp_points || 0) + prize.val;
-                    } else if(prize.type === 'hearts') {
-                        sessionUser.hearts = Math.min(5, (sessionUser.hearts || 5) + prize.val);
-                    } else if(prize.type === 'skin') {
-                        sessionUser.active_skin = prize.val;
-                    }
+                    srv.user.last_spin_timestamp = nowTs; sessionUser = srv.user;
                     localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                     updateDashboardUI();
                     refreshUserData(false);
@@ -2033,7 +2094,7 @@
                 }
                 if(sessionUser) {
                     sessionUser.xp_points = (sessionUser.xp_points || 0) + 50;
-                    sessionUser.last_practice_date = new Date().toISOString().split('T')[0];
+                    sessionUser.last_practice_date = todayCasa();
                     localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                     updateDashboardUI();
                     if(sessionUser.phone_number) {
@@ -2041,7 +2102,7 @@
                             body: JSON.stringify({ phone_number: sessionUser.phone_number, node_id: session.poolKey + '_' + session.nodeNum })})
                         .then(r => r.ok ? r.json() : null).then(d => {
                             if(!d) return;
-                            sessionUser.completed_nodes = d.completed_nodes; sessionUser.xp_points = d.xp; sessionUser.streak = d.streak; sessionUser.flight_hours = d.flight_hours; sessionUser.last_practice_date = new Date().toISOString().split('T')[0];
+                            sessionUser.completed_nodes = d.completed_nodes; sessionUser.xp_points = d.xp; sessionUser.streak = d.streak; sessionUser.flight_hours = d.flight_hours; sessionUser.last_practice_date = todayCasa();
                             localStorage.setItem('aero_crew_user_pro22', JSON.stringify(sessionUser));
                             updateDashboardUI();
                         }).catch(() => {});
@@ -2467,7 +2528,7 @@
                                 if(isTeacher) {
                                     actionBtnHtml = `<button class="btn-action" onclick="window.confirmDeleteExam(${e.id})" style="width:75px; padding:6px; font-size:0.75rem; background:var(--danger); color:white; margin-top:0;">Delete 🗑️</button>`;
                                 } else {
-                                    actionBtnHtml = `<a href="${e.pdf_url}" target="_blank" class="btn-action" style="width:110px; padding:8px; font-size:0.8rem; background:var(--gold); color:#020617; text-decoration:none; text-align:center; margin-top:0;">Open PDF 📑</a>`;
+                                    actionBtnHtml = `<a href="${safePdfUrl(e.pdf_url)}" target="_blank" rel="noopener noreferrer" class="btn-action" style="width:110px; padding:8px; font-size:0.8rem; background:var(--gold); color:#020617; text-decoration:none; text-align:center; margin-top:0;">Open PDF 📑</a>`;
                                 }
                                 return `
                                     <div style="background:var(--surface-card); padding:14px; border-radius:16px; border:1px solid var(--border-glow); display:flex; justify-content:space-between; align-items:center;">
@@ -2676,7 +2737,7 @@
             const res = await fetch('/api/exam/create-advanced', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ group_code: groupCode, teacher_username: sessionUser.username, title, exam_data: [], is_pdf: true, pdf_url: url })
+                body: JSON.stringify({ group_code: groupCode, teacher_username: sessionUser.username, title, exam_data: [], is_pdf: true, pdf_url: normalizeUrl(url) })
             });
             if(res.ok) {
                 showToast('PDF published! Students enter code ' + groupCode.toUpperCase() + ' to see it. 📑');
@@ -3559,6 +3620,7 @@
             sessionStorage.setItem('aero_copilot_seen', '1');
             renderCopilot();
             setTimeout(() => document.getElementById('copilot').classList.add('show'), 1200);
+            setTimeout(() => document.getElementById('copilot').classList.remove('show'), 45000);
         }
         window.nextCopilotTip = nextCopilotTip; window.closeCopilot = closeCopilot; window.showTeacherCopilot = showTeacherCopilot;
     
@@ -3648,7 +3710,7 @@
             const sel = document.getElementById('reg-role'), seg = document.createElement('div'); seg.className = 'role-seg';
             sel.parentNode.insertBefore(seg, sel);
             const paint = () => { seg.innerHTML = ''; Array.from(sel.options).forEach(o => { const b = document.createElement('button'); b.type = 'button'; b.textContent = o.textContent; b.className = o.value === sel.value ? 'on' : ''; b.onclick = () => { sel.value = o.value; sel.dispatchEvent(new Event('change')); paint(); }; seg.appendChild(b); }); };
-            window.syncAuthUI = () => { paint(); document.getElementById('teacher-hint').textContent = HINT[L()]; hint.textContent = PW[L()][0]; };
+            window.syncAuthUI = () => { document.documentElement.lang = (typeof activeLang !== 'undefined') ? activeLang : 'en'; paint(); document.getElementById('teacher-hint').textContent = HINT[L()]; hint.textContent = PW[L()][0]; };
             window.syncAuthUI();
             if(window.setLanguage) { const sl = window.setLanguage; window.setLanguage = function() { const r = sl.apply(this, arguments); setTimeout(window.syncAuthUI, 0); return r; }; }
             [['submitLogin', 'tr-login-btn'], ['submitRegister', 'tr-complete-reg-btn'], ['submitReset', 'tr-update-cred-btn']].forEach(([fn, id]) => {
@@ -3839,13 +3901,13 @@
         let lastAnnLoad = 0;
         async function loadAnnouncement() {
             const card = document.getElementById('announce-card'), bell = document.getElementById('bell-btn'), dot = document.getElementById('bell-dot');
-            const student = sessionUser && sessionUser.role === 'student' && sessionUser.group_code;
+            const student = sessionUser && sessionUser.role === 'student';
             if(bell) bell.style.display = student ? 'flex' : 'none';
             if(!card || !student) { if(card) card.style.display = 'none'; return; }
             if(Date.now() - lastAnnLoad < 60000) return;
             lastAnnLoad = Date.now();
             try {
-                const r = await fetch('/api/announce/latest?group_code=' + encodeURIComponent(sessionUser.group_code)); if(!r.ok) return;
+                const r = await fetch('/api/announce/latest?group_code=' + encodeURIComponent(sessionUser.group_code || '-')); if(!r.ok) return;
                 const a = (await r.json()).announcements[0], seenKey = 'aero_ann_seen_' + sessionUser.username;
                 const unseen = !!a && String(localStorage.getItem(seenKey)) !== String(a.id);
                 if(dot) dot.style.display = unseen ? 'block' : 'none';
@@ -3864,7 +3926,7 @@
             const top = `<div class="feature-topbar"><button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button><h3 style="font-size:1.1rem; color:var(--accent); font-weight:900;">🔔 Messages</h3><div style="width:85px;"></div></div>`;
             box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card" style="text-align:center">Loading…</div></div>`;
             let list = [];
-            try { const r = await fetch('/api/announce/latest?group_code=' + encodeURIComponent(sessionUser.group_code)); if(r.ok) list = (await r.json()).announcements; } catch(e) {}
+            try { const r = await fetch('/api/announce/latest?group_code=' + encodeURIComponent(sessionUser.group_code || '-')); if(r.ok) list = (await r.json()).announcements; } catch(e) {}
             if(list[0]) localStorage.setItem('aero_ann_seen_' + sessionUser.username, String(list[0].id));
             const dot = document.getElementById('bell-dot'); if(dot) dot.style.display = 'none';
             const ac = document.getElementById('announce-card'); if(ac) ac.style.display = 'none';
@@ -3878,9 +3940,9 @@
             const card = document.getElementById('streak-card');
             if(!card || !sessionUser) return;
             if(sessionUser.role !== 'student') { card.style.display = 'none'; return; }
-            const today = new Date().toISOString().split('T')[0], last = String(sessionUser.last_practice_date || '').slice(0, 10), streak = sessionUser.streak || 0;
+            const today = todayCasa(), last = String(sessionUser.last_practice_date || '').slice(0, 10), streak = sessionUser.streak || 0;
             if(last === today) { card.style.display = 'none'; return; }
-            const yest = new Date(Date.now() - 864e5).toISOString().split('T')[0], atRisk = streak > 0 && last === yest, late = new Date().getHours() >= 18;
+            const yest = todayCasa(Date.now() - 864e5), atRisk = streak > 0 && last === yest, late = new Date().getHours() >= 18;
             const next = [3, 7, 14, 30, 60, 100].find(m => m > streak) || streak + 1, left = next - streak;
             const L = (typeof activeLang !== 'undefined' && ['en', 'fr', 'ar'].includes(activeLang)) ? activeLang : 'en';
             const T = {
@@ -4187,6 +4249,237 @@
             box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card ci-tips"><h4>${escH(d.title)}</h4><p>${escH(d.student || student)} · ${d.score}/${d.total}</p></div>${rows}</div>`;
         }
         window.openExamReview = openExamReview;
+    
+        /* MICRO ADJUSTMENTS: keyboard access, mobile keyboards, scroll reset */
+        (function polish() {
+            const mk = () => document.querySelectorAll('.mode-tile,.header-icon-btn,.ci-hq[onclick],.le-card').forEach(el => { if(!el.hasAttribute('tabindex')) { el.setAttribute('tabindex', '0'); el.setAttribute('role', 'button'); } });
+            mk(); new MutationObserver(mk).observe(document.body, { childList: true, subtree: true });
+            document.addEventListener('keydown', e => { const t = e.target; if((e.key === 'Enter' || e.key === ' ') && t.getAttribute && t.getAttribute('role') === 'button' && !/^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(t.tagName)) { e.preventDefault(); t.click(); } });
+            const set = (id, a) => { const el = document.getElementById(id); if(el) Object.entries(a).forEach(([k, v]) => el.setAttribute(k, v)); };
+            ['login-phone', 'reg-phone', 'reset-phone'].forEach(id => set(id, { inputmode: 'tel', autocomplete: 'tel' }));
+            set('login-pass', { autocomplete: 'current-password' }); ['reg-pass', 'set-new-pass'].forEach(id => set(id, { autocomplete: 'new-password' }));
+            ['reg-pin', 'reset-pin', 'set-pin'].forEach(id => set(id, { inputmode: 'numeric', autocomplete: 'off' }));
+            const sb = document.getElementById('simulation-box');
+            if(sb) new MutationObserver(() => { if(sb.classList.contains('feature-fullscreen-view')) { sb.scrollTop = 0; window.scrollTo(0, 0); } }).observe(sb, { attributes: true, attributeFilter: ['class'] });
+        })();
+    
+        function todayCasa(ms) { return new Date(ms || Date.now()).toLocaleDateString('en-CA', { timeZone: 'Africa/Casablanca' }); }
+        function normalizeUrl(u) { u = (u || '').trim(); if(!u) return ''; if(!/^https?:\/\//i.test(u)) u = 'https://' + u; try { const x = new URL(u); return ((x.protocol === 'http:' || x.protocol === 'https:') && x.hostname.includes('.')) ? x.href : ''; } catch(e) { return ''; } }
+        function safePdfUrl(u) { return normalizeUrl(u) || '#'; }
+        window.todayCasa = todayCasa; window.normalizeUrl = normalizeUrl; window.safePdfUrl = safePdfUrl;
+    
+        /* PAYMENTS: director dashboard + friendly student reminder */
+        let payState = { list: [], q: '', f: 'all' };
+        const PAY_LABEL = { paid: ['Paid', '#4ade80'], due_soon: ['Due soon', '#fbbf24'], overdue: ['Overdue', '#f87171'], none: ['Not set', '#94a3b8'] };
+        async function openPayments() {
+            playSound('click');
+            const box = document.getElementById('simulation-box'); box.classList.add('feature-fullscreen-view');
+            const top = `<div class="feature-topbar"><button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button><h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">💳 Payments</h3><div style="width:85px;"></div></div>`;
+            box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card" style="text-align:center">Loading…</div></div>`;
+            try { const r = await fetch('/api/admin/payments'); if(!r.ok) throw 0; payState.list = (await r.json()).students; }
+            catch(e) { box.innerHTML = top + `<div class="ci-wrap"><div class="ci-card">Could not load payments.</div></div>`; return; }
+            const cnt = k => payState.list.filter(s => s.status === k).length;
+            box.innerHTML = top + `<div class="ci-wrap">
+                <div class="ci-kpis">${['paid', 'due_soon', 'overdue', 'none'].map(k => `<div class="ci-kpi" onclick="payState.f='${k}';window.renderPayList()" style="cursor:pointer"><b style="color:${PAY_LABEL[k][1]}">${cnt(k)}</b><small>${PAY_LABEL[k][0].toUpperCase()}</small></div>`).join('')}</div>
+                <div class="ci-card"><input id="pay-q" placeholder="Search a student…" oninput="payState.q=this.value;window.renderPayList()" style="margin-bottom:8px"><button class="btn-action" onclick="payState.f='all';payState.q='';document.getElementById('pay-q').value='';window.renderPayList()" style="margin:0;padding:8px;font-size:.8rem;background:transparent;border:1px solid var(--border-glow);color:var(--text-muted)">Show all students</button></div>
+                <div id="pay-list"></div></div>`;
+            renderPayList();
+        }
+        window.openPayments = openPayments; window.payState = payState;
+        function renderPayList() {
+            const q = payState.q.trim().toLowerCase(), el = document.getElementById('pay-list'); if(!el) return;
+            const list = payState.list.filter(s => (payState.f === 'all' || s.status === payState.f) && (!q || (s.full_name + ' ' + s.username).toLowerCase().includes(q)));
+            el.innerHTML = list.map(s => { const L = PAY_LABEL[s.status];
+                return `<div class="ci-card" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><div><b>${escH(s.full_name || s.username)}</b><small style="display:block;color:var(--text-muted)">@${escH(s.username)}${s.group_code ? ' · class ' + escH(s.group_code) : ''}${s.monthly_fee ? ' · ' + s.monthly_fee + ' MAD' : ''}</small></div><span style="padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:800;background:${L[1]}22;color:${L[1]}">${L[0]}${s.days_left != null ? ' · ' + (s.days_left < 0 ? Math.abs(s.days_left) + 'd late' : s.days_left + 'd left') : ''}</span></div>
+                <small style="display:block;margin:6px 0;color:var(--text-muted)">${s.paid_until ? 'Paid until ' + escH(s.paid_until) : 'No payment date yet'}</small>
+                <div class="ci-actions" style="gap:6px"><button class="btn-action" onclick="window.payAct('${escH(s.username)}','paid')" style="margin:0;padding:8px;font-size:.75rem;background:var(--success);color:#fff">✓ Paid +1 month</button><button class="btn-action" onclick="window.payAct('${escH(s.username)}','date')" style="margin:0;padding:8px;font-size:.75rem">📅 Set date</button><button class="btn-action" onclick="window.payAct('${escH(s.username)}','fee')" style="margin:0;padding:8px;font-size:.75rem">💰 Fee</button><button class="btn-action" onclick="window.payAct('${escH(s.username)}','msg')" style="margin:0;padding:8px;font-size:.75rem">✏ Message</button><button class="btn-action" onclick="window.payWhatsApp('${escH(s.username)}')" style="margin:0;padding:8px;font-size:.75rem;background:#25d366;color:#052e16">WhatsApp</button></div></div>`; }).join('') || '<div class="ci-card" style="text-align:center;color:var(--text-muted)">No student matches.</div>';
+        }
+        window.renderPayList = renderPayList;
+        async function payAct(user, act) {
+            const s = payState.list.find(x => x.username === user); let body = { student: user };
+            if(act === 'paid') { body.action = 'paid'; body.months = 1; }
+            else if(act === 'date') { const v = prompt('Paid until (YYYY-MM-DD):', s.paid_until || ''); if(!v) return; body.paid_until = v.trim(); }
+            else if(act === 'fee') { const v = prompt('Monthly fee in MAD:', s.monthly_fee || ''); if(v === null) return; body.monthly_fee = parseInt(v) || 0; }
+            else { const v = prompt('Short friendly message shown to the student (optional):', s.message || ''); if(v === null) return; body.message = v; }
+            const r = await fetch('/api/admin/payments/update', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+            const d = await r.json().catch(() => ({}));
+            if(!r.ok) { showToast(d.detail || 'Could not save.', true); return; }
+            showToast('Saved ✓'); playSound('success'); openPayments();
+        }
+        function payWhatsApp(user) {
+            const s = payState.list.find(x => x.username === user); let n = String(s.phone_number || '').replace(/\D/g, ''); if(n.startsWith('0')) n = '212' + n.slice(1);
+            const msg = `Bonjour ${s.full_name || ''}, petit rappel amical : votre mensualité à Aerostar Academy arrive à échéance${s.paid_until ? ' le ' + s.paid_until : ' bientôt'}. Merci pour votre confiance ! ✈️`;
+            window.open('https://wa.me/' + n + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+        }
+        window.payAct = payAct; window.payWhatsApp = payWhatsApp;
+        let lastPayLoad = 0;
+        async function loadPaymentReminder() {
+            const card = document.getElementById('pay-card');
+            if(!card || !sessionUser || sessionUser.role !== 'student') { if(card) card.style.display = 'none'; return; }
+            if(Date.now() - lastPayLoad < 300000) return; lastPayLoad = Date.now();
+            try {
+                const r = await fetch('/api/payments/mine'); if(!r.ok) return; const d = await r.json();
+                const key = 'aero_pay_seen_' + sessionUser.username;
+                if(!['due_soon', 'overdue'].includes(d.status) || localStorage.getItem(key) === todayCasa()) { card.style.display = 'none'; return; }
+                const L = (typeof activeLang !== 'undefined' && ['en', 'fr', 'ar'].includes(activeLang)) ? activeLang : 'en', n = Math.abs(d.days_left);
+                const T = {
+                    en: { soon: d.days_left === 0 ? 'Your monthly fee is due today' : `Your monthly fee is due in ${n} day${n > 1 ? 's' : ''}`, late: 'Your monthly payment date has passed', sub: `Friendly reminder (${d.paid_until}). Thank you for staying with us! ✈️` },
+                    fr: { soon: d.days_left === 0 ? 'Votre mensualité arrive à échéance aujourd\'hui' : `Votre mensualité arrive à échéance dans ${n} jour${n > 1 ? 's' : ''}`, late: 'La date de votre mensualité est dépassée', sub: `Petit rappel amical (${d.paid_until}). Merci de votre confiance ! ✈️` },
+                    ar: { soon: d.days_left === 0 ? 'يحين موعد دفع رسومك الشهرية اليوم' : `يحين موعد دفع رسومك الشهرية بعد ${n} يوم`, late: 'انقضى موعد دفع رسومك الشهرية', sub: `تذكير ودّي (${d.paid_until}). شكراً لثقتكم! ✈️` }
+                }[L];
+                document.getElementById('pc-title').textContent = d.status === 'overdue' ? T.late : T.soon;
+                document.getElementById('pc-sub').textContent = (d.message ? d.message + ' · ' : '') + T.sub + (d.fee ? ' · ' + d.fee + ' MAD' : '');
+                document.getElementById('pc-x').onclick = () => { localStorage.setItem(key, todayCasa()); card.style.display = 'none'; };
+                card.style.display = '';
+            } catch(e) {}
+        }
+        window.loadPaymentReminder = loadPaymentReminder;
+    
+        /* DIRECTOR REPORTS & TOOLS */
+        let RP = null;
+        const rpTop = `<div class="feature-topbar"><button class="btn-action" onclick="window.resetToMenu()" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Menu</button><h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">📈 Reports</h3><div style="width:85px;"></div></div>`;
+        const waLink = (phone, text) => { let n = String(phone || '').replace(/\D/g, ''); if(n.startsWith('0')) n = '212' + n.slice(1); return 'https://wa.me/' + n + '?text=' + encodeURIComponent(text); };
+        function downloadCsv(name, rows) {
+            const csv = rows.map(r => r.map(v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"').join(',')).join('\n');
+            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+        }
+        async function openAdminReports() {
+            playSound('click');
+            const box = document.getElementById('simulation-box'); box.classList.add('feature-fullscreen-view');
+            box.innerHTML = rpTop + `<div class="ci-wrap"><div class="ci-card" style="text-align:center">Loading…</div></div>`;
+            try { const r = await fetch('/api/admin/reports'); if(!r.ok) throw 0; RP = await r.json(); } catch(e) { box.innerHTML = rpTop + `<div class="ci-wrap"><div class="ci-card">Could not load the reports.</div></div>`; return; }
+            const m = RP.money, kpi = (n, l, c) => `<div class="ci-kpi"><b style="color:${c}">${n}</b><small>${l}</small></div>`, row = (a, b) => `<div class="ci-hq"><div style="flex:1"><b style="font-weight:600">${a}</b><small>${b}</small></div></div>`;
+            const inact = RP.inactive.map(s => `<div class="ci-hq"><div style="flex:1"><b style="font-weight:600">${escH(s.full_name)}</b><small>${s.days == null ? 'never practiced' : s.days + ' days without practice'} · ${escH(s.group_code || 'no class')}</small></div><a class="btn-action" href="tel:${escH(s.phone)}" style="margin:0;padding:7px 10px;font-size:.75rem;width:auto;text-decoration:none">📞</a><a class="btn-action" target="_blank" rel="noopener" href="${waLink(s.phone, 'Bonjour ' + s.full_name + ', nous avons remarqué que vous n\'avez pas pratiqué récemment. Besoin d\'aide ? Aerostar Academy ✈️')}" style="margin:0;padding:7px 10px;font-size:.75rem;width:auto;text-decoration:none;background:#25d366;color:#052e16">WA</a></div>`).join('') || '<small style="color:var(--text-muted)">Everyone practiced this week 🎉</small>';
+            const cls = RP.classes.map(c => { const p = Math.min(100, Math.round(c.students / c.capacity * 100)); return `<div class="ci-hq"><div style="flex:1"><b style="font-weight:600">${escH(c.name)}</b><small>${c.students} / ${c.capacity} students</small><div class="ci-prog" style="margin-top:5px"><i style="width:${p}%;background:${p >= 100 ? '#f87171' : p >= 85 ? '#fbbf24' : ''}"></i></div></div><button class="le-x" onclick="window.setCapacity('${escH(c.group_code)}', ${c.capacity})" aria-label="Edit capacity">✏</button></div>`; }).join('') || '<small style="color:var(--text-muted)">No classes yet.</small>';
+            const tch = RP.teachers.map(t => row(escH(t.full_name), `@${escH(t.username)} · ${t.students} students · ${t.exams} exams · ${t.announcements} announcements`)).join('') || '<small style="color:var(--text-muted)">No teachers yet.</small>';
+            const certs = RP.certificates.map(c => `<div class="ci-hq"><div style="flex:1"><b style="font-weight:600">${escH(c.full_name)}</b><small>${escH(c.path)} completed (100/100)</small></div><button class="btn-action" onclick="window.printCertificate('${escH(c.full_name)}', '${escH(c.path)}')" style="margin:0;padding:7px 12px;font-size:.75rem;width:auto">🎓 Print</button></div>`).join('') || '<small style="color:var(--text-muted)">No student has completed a full path yet.</small>';
+            const regs = RP.new_regs.map(s => row(escH(s.full_name), `joined ${escH(s.created)} · ${escH(s.group_code || 'no class')}`)).join('') || '<small style="color:var(--text-muted)">No new registrations this week.</small>';
+            const classOpts = RP.classes.map(c => `<option value="${escH(c.group_code)}">${escH(c.name)}</option>`).join('');
+            box.innerHTML = rpTop + `<div class="ci-wrap">
+                <div class="ci-kpis">${kpi(m.collected, 'COLLECTED (MAD)', '#4ade80')}${kpi(m.due, 'DUE THIS MONTH', '#fbbf24')}${kpi(m.overdue, 'OVERDUE (MAD)', '#f87171')}${kpi(RP.due_week.length, 'DUE THIS WEEK', 'var(--accent)')}</div>
+                <div class="ci-actions"><button class="btn-action" onclick="window.printReport()" style="margin:0">🖨 One-page report</button><button class="btn-action" onclick="window.exportStudentsCsv()" style="margin:0">⬇ CSV students & payments</button><button class="btn-action" onclick="window.openRemindQueue()" style="margin:0;background:#25d366;color:#052e16">📲 Remind due this week (${RP.due_week.length})</button></div>
+                <div class="ci-card"><h4>😴 Inactive 7+ days (${RP.inactive.length})</h4>${inact}</div>
+                <div class="ci-card"><h4>🆕 New registrations this week (${RP.new_regs.length})</h4>${regs}</div>
+                <div class="ci-card"><h4>🏫 Class capacity</h4>${cls}</div>
+                <div class="ci-card"><h4>👨‍🏫 Teacher activity</h4>${tch}</div>
+                <div class="ci-card"><h4>✅ Class attendance (teachers' roll call)</h4><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><input id="rl-day" type="date" value="${todayCasa()}" style="margin:0;flex:1;min-width:150px"><button class="btn-action" onclick="window.loadRoll()" style="margin:0;flex:1;min-width:120px">Show day</button></div><div id="rl-out"></div></div>
+                <div class="ci-card"><h4>🗓 App activity sheet (days a student practiced)</h4><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><select id="at-class" style="margin:0;flex:1;min-width:140px">${classOpts}</select><input id="at-month" type="month" value="${todayCasa().slice(0, 7)}" style="margin:0;flex:1;min-width:140px"></div><button class="btn-action" onclick="window.loadAttendance()" style="margin:0">Show attendance</button><div id="at-out" style="overflow-x:auto;margin-top:10px"></div></div>
+                <div class="ci-card"><h4>🎓 Certificates (${RP.certificates.length})</h4>${certs}</div>
+                <div class="ci-card"><h4>📢 Message everyone</h4><select id="bc-aud" style="margin-bottom:8px"><option value="students">All students</option><option value="teachers">All teachers</option><option value="all">Students and teachers</option></select><textarea id="bc-msg" rows="3" maxlength="280" placeholder="Your message (max 280 characters)" style="margin-bottom:8px"></textarea><button class="btn-action" onclick="window.sendBroadcast()" style="margin:0">Send</button></div></div>`;
+        }
+        window.openAdminReports = openAdminReports;
+        window.setCapacity = async (code, cur) => { const v = prompt('Maximum students in this class:', cur); if(v === null) return; const r = await fetch('/api/admin/class-capacity', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ group_code: code, capacity: parseInt(v) || 30 }) }); showToast(r.ok ? 'Capacity saved ✓' : 'Could not save', !r.ok); if(r.ok) openAdminReports(); };
+        window.sendBroadcast = async () => { const message = document.getElementById('bc-msg').value.trim(); if(!message) { showToast('Write a message first.', true); return; } const r = await fetch('/api/admin/broadcast', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ audience: document.getElementById('bc-aud').value, message }) }); showToast(r.ok ? 'Message sent 📢' : 'Could not send', !r.ok); if(r.ok) { document.getElementById('bc-msg').value = ''; playSound('success'); } };
+        window.loadAttendance = async () => {
+            const out = document.getElementById('at-out'), c = document.getElementById('at-class').value, mo = document.getElementById('at-month').value; if(!c || !mo) return;
+            const r = await fetch('/api/admin/attendance?group_code=' + encodeURIComponent(c) + '&month=' + mo); if(!r.ok) { out.textContent = 'Could not load.'; return; }
+            const d = await r.json(), days = Array.from({ length: d.days_in_month }, (_, i) => i + 1);
+            window.__att = { c, mo, d };
+            out.innerHTML = `<table class="at-table"><tr><th>Student</th>${days.map(x => `<th>${x}</th>`).join('')}<th>Σ</th></tr>${d.students.map(s => `<tr><td>${escH(s.full_name)}</td>${days.map(x => `<td class="${s.days.includes(x) ? 'on' : ''}">${s.days.includes(x) ? '✓' : ''}</td>`).join('')}<td><b>${s.days.length}</b></td></tr>`).join('') || '<tr><td>No students</td></tr>'}</table><button class="btn-action" onclick="window.exportAttendanceCsv()" style="margin:8px 0 0;padding:8px;font-size:.8rem">⬇ CSV</button><small style="display:block;color:var(--text-muted);margin-top:6px">Attendance counts a day when the student completed a node, exam or battle. Days before this update were not recorded.</small>`;
+        };
+        window.exportAttendanceCsv = () => { const a = window.__att, n = a.d.days_in_month; downloadCsv('attendance_' + a.c + '_' + a.mo + '.csv', [['Student', ...Array.from({ length: n }, (_, i) => i + 1), 'Total']].concat(a.d.students.map(s => [s.full_name, ...Array.from({ length: n }, (_, i) => s.days.includes(i + 1) ? 1 : 0), s.days.length]))); };
+        window.exportStudentsCsv = async () => { const r = await fetch('/api/admin/payments'); if(!r.ok) return; const l = (await r.json()).students; downloadCsv('students_payments_' + todayCasa() + '.csv', [['Name', 'Username', 'Class', 'Phone', 'Monthly fee (MAD)', 'Paid until', 'Status']].concat(l.map(s => [s.full_name, s.username, s.group_code, s.phone_number, s.monthly_fee, s.paid_until, s.status]))); };
+        window.openRemindQueue = () => {
+            const q = RP.due_week, box = document.getElementById('simulation-box'), sent = JSON.parse(sessionStorage.getItem('aero_wa_sent') || '[]');
+            box.innerHTML = rpTop + `<div class="ci-wrap"><div class="ci-card ci-tips"><h4>📲 Remind due this week</h4><p>Tap <b>Open next</b> to open each WhatsApp message, then press Send in WhatsApp. ${q.length} students.</p></div>
+                <button class="btn-action" onclick="window.waNext()" style="margin:0;background:#25d366;color:#052e16;padding:1rem">Open next ➜</button>
+                ${q.map(s => `<div class="ci-hq"><div style="flex:1"><b style="font-weight:600">${escH(s.full_name)}</b><small>${s.days_left < 0 ? Math.abs(s.days_left) + ' days late' : s.days_left + ' days left'} · ${escH(s.paid_until)}${s.fee ? ' · ' + s.fee + ' MAD' : ''}</small></div><span id="wa-s-${escH(s.username)}">${sent.includes(s.username) ? '✅' : ''}</span></div>`).join('') || '<div class="ci-card" style="text-align:center;color:var(--text-muted)">Nobody is due this week 🎉</div>'}</div>`;
+        };
+        window.waNext = () => {
+            const sent = JSON.parse(sessionStorage.getItem('aero_wa_sent') || '[]'), s = RP.due_week.find(x => !sent.includes(x.username));
+            if(!s) { showToast('All reminders opened ✓'); return; }
+            sent.push(s.username); sessionStorage.setItem('aero_wa_sent', JSON.stringify(sent));
+            const el = document.getElementById('wa-s-' + s.username); if(el) el.textContent = '✅';
+            window.open(waLink(s.phone, `Bonjour ${s.full_name}, petit rappel amical : votre mensualité à Aerostar Academy arrive à échéance le ${s.paid_until}. Merci pour votre confiance ! ✈️`), '_blank', 'noopener');
+        };
+        window.printCertificate = (name, path) => {
+            const w = window.open('', '_blank'); if(!w) { showToast('Allow pop-ups to print.', true); return; }
+            const esc = escH, date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+            w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Certificate</title><style>@page{size:A4 landscape;margin:0}body{margin:0;font-family:Georgia,serif;display:grid;place-items:center;height:100vh;background:#fff}.c{width:260mm;height:180mm;box-sizing:border-box;border:8px double #b45309;padding:18mm;text-align:center;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(135deg,#fffbeb,#fff)}h1{font-size:40pt;margin:0;color:#0b1d3a;letter-spacing:2px}.n{font-size:34pt;color:#b45309;border-bottom:2px solid #0b1d3a;display:inline-block;padding:0 20px;margin:6mm 0}p{font-size:15pt;margin:2mm 0;color:#334155}.s{display:flex;justify-content:space-around;font-size:11pt;color:#334155}.s div{border-top:1px solid #0b1d3a;padding-top:2mm;width:60mm}</style></head><body><div class="c"><div><p style="letter-spacing:6px">AEROSTAR ACADEMY</p><h1>Certificate of Completion</h1></div><div><p>This certifies that</p><div class="n">${esc(name)}</div><p>has successfully completed the <b>${esc(path)}</b><br>of the Cabin Crew Training Programme.</p></div><div class="s"><div>Director</div><div>${date}</div><div>Instructor</div></div></div><script>onload=()=>setTimeout(print,300)<\/script></body></html>`); w.document.close();
+        };
+        window.printReport = () => {
+            const m = RP.money, w = window.open('', '_blank'); if(!w) { showToast('Allow pop-ups to print.', true); return; }
+            const esc = escH, d = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+            w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Aerostar Academy report</title><style>@page{size:A4;margin:14mm}body{font-family:Arial,sans-serif;color:#0f172a;font-size:11pt}h1{margin:0;color:#0b1d3a}h2{font-size:12pt;border-bottom:2px solid #0ea5e9;padding-bottom:2mm;margin:6mm 0 3mm}.g{display:grid;grid-template-columns:repeat(4,1fr);gap:4mm}.k{border:1px solid #cbd5e1;border-radius:3mm;padding:3mm;text-align:center}.k b{display:block;font-size:16pt}table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid #e2e8f0;padding:1.5mm 2mm;text-align:left;font-size:10pt}</style></head><body><h1>Aerostar Academy · Management report</h1><p>${d} · Money month ${esc(m.month)}</p>
+            <h2>Overview</h2><div class="g"><div class="k"><b>${RP.totals.students}</b>Students</div><div class="k"><b>${RP.totals.teachers}</b>Teachers</div><div class="k"><b>${RP.totals.classes}</b>Classes</div><div class="k"><b>${RP.inactive.length}</b>Inactive 7+ days</div></div>
+            <h2>Money (MAD)</h2><div class="g"><div class="k"><b>${m.collected}</b>Collected</div><div class="k"><b>${m.due}</b>Due this month</div><div class="k"><b>${m.overdue}</b>Overdue</div><div class="k"><b>${RP.due_week.length}</b>Due this week</div></div>
+            <h2>Classes</h2><table><tr><th>Class</th><th>Students</th><th>Capacity</th></tr>${RP.classes.map(c => `<tr><td>${esc(c.name)}</td><td>${c.students}</td><td>${c.capacity}</td></tr>`).join('')}</table>
+            <h2>Teachers</h2><table><tr><th>Teacher</th><th>Students</th><th>Exams</th><th>Announcements</th></tr>${RP.teachers.map(t => `<tr><td>${esc(t.full_name)}</td><td>${t.students}</td><td>${t.exams}</td><td>${t.announcements}</td></tr>`).join('')}</table>
+            <h2>New this week</h2><p>${RP.new_regs.length} new registrations. Certificates ready: ${RP.certificates.length}.</p><script>onload=()=>setTimeout(print,300)<\/script></body></html>`); w.document.close();
+        };
+    
+        /* ATTENDANCE: teacher groups + roll call, delivered live to the director */
+        let AT = { groups: [], students: [] }, ATE = null, RC = null;
+        const atTop = (back) => `<div class="feature-topbar"><button class="btn-action" onclick="${back}" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button><h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">✅ Attendance</h3><div style="width:85px;"></div></div>`;
+        async function openAttendance() {
+            playSound('click');
+            const box = document.getElementById('simulation-box'); box.classList.add('feature-fullscreen-view');
+            box.innerHTML = atTop('window.resetToMenu()') + `<div class="ci-wrap"><div class="ci-card" style="text-align:center">Loading…</div></div>`;
+            try { const [g, s] = await Promise.all([fetch('/api/attendance/groups'), fetch('/api/attendance/students')]); if(!g.ok || !s.ok) throw 0; AT.groups = (await g.json()).groups; AT.students = (await s.json()).students; }
+            catch(e) { box.innerHTML = atTop('window.resetToMenu()') + `<div class="ci-wrap"><div class="ci-card">Could not load your groups.</div></div>`; return; }
+            box.innerHTML = atTop('window.resetToMenu()') + `<div class="ci-wrap"><button class="btn-action" onclick="window.atNewGroup()" style="margin:0">＋ Create a group</button>` +
+                (AT.groups.map(g => `<div class="ci-card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><b>${escH(g.name)}</b><small style="display:block;color:var(--text-muted)">${g.members.length} students</small></div><span><button class="le-x" onclick="window.atEditGroup(${g.id})" aria-label="Edit">✏</button><button class="le-x" onclick="window.atDeleteGroup(${g.id})" aria-label="Delete">🗑</button></span></div><button class="btn-action" onclick="window.atStartRoll(${g.id})" ${g.members.length ? '' : 'disabled'} style="margin:10px 0 0;background:var(--success);color:#fff">▶ Start roll call</button></div>`).join('') || `<div class="ci-card" style="text-align:center;color:var(--text-muted)">Create a group (for example "Group A"), add its students, then start a roll call in class.</div>`) + `</div>`;
+        }
+        window.openAttendance = openAttendance;
+        window.atNewGroup = () => { ATE = { id: null, name: '', sel: new Set(), q: '' }; atRenderEditor(); };
+        window.atEditGroup = id => { const g = AT.groups.find(x => x.id === id); ATE = { id, name: g.name, sel: new Set(g.members.map(m => m.username)), q: '' }; atRenderEditor(); };
+        window.atDeleteGroup = async id => { if(!confirm('Delete this group? Past attendance stays in the director\'s records.')) return; await fetch('/api/attendance/group/delete', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ group_id: id }) }); openAttendance(); };
+        function atRenderEditor() {
+            const box = document.getElementById('simulation-box');
+            box.innerHTML = atTop('window.openAttendance()') + `<div class="ci-wrap"><div class="ci-card"><h4>${ATE.id ? 'Edit group' : 'New group'}</h4><input placeholder="Group name (e.g. Group A)" maxlength="80" value="${escH(ATE.name)}" oninput="ATE.name=this.value" style="margin-bottom:8px">
+                <input placeholder="Search students…" oninput="ATE.q=this.value;window.atRenderList()" style="margin-bottom:8px"><small id="at-count" style="color:var(--accent);font-weight:800"></small><div id="at-list" style="max-height:46vh;overflow-y:auto;margin-top:8px"></div></div>
+                <button class="btn-action" onclick="window.atSaveGroup()" style="margin:0;background:var(--success);color:#fff;padding:1.1rem">💾 Save group</button></div>`;
+            atRenderList();
+        }
+        window.atRenderList = () => {
+            const q = ATE.q.trim().toLowerCase(), el = document.getElementById('at-list'); if(!el) return;
+            const list = AT.students.filter(s => !q || (s.full_name + ' ' + s.username).toLowerCase().includes(q));
+            el.innerHTML = list.map(s => `<label class="eb-opt" style="margin-bottom:6px"><input type="checkbox" ${ATE.sel.has(s.username) ? 'checked' : ''} onchange="window.atToggle('${escH(s.username)}', this.checked)"><span>${escH(s.full_name || s.username)} <small style="color:var(--text-muted)">@${escH(s.username)}${s.group_code ? ' · ' + escH(s.group_code) : ''}</small></span></label>`).join('') || '<small style="color:var(--text-muted)">No student found.</small>';
+            document.getElementById('at-count').textContent = ATE.sel.size + ' selected';
+        };
+        window.atToggle = (u, on) => { if(on) ATE.sel.add(u); else ATE.sel.delete(u); document.getElementById('at-count').textContent = ATE.sel.size + ' selected'; };
+        window.atSaveGroup = async () => {
+            if(!ATE.name.trim()) { showToast('Give the group a name.', true); return; }
+            const r = await fetch('/api/attendance/group/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name: ATE.name, members: Array.from(ATE.sel), group_id: ATE.id }) });
+            if(r.ok) { showToast('Group saved ✓'); playSound('success'); openAttendance(); } else { const e = await r.json().catch(() => ({})); showToast(e.detail || 'Could not save.', true); }
+        };
+        window.atStartRoll = async id => {
+            const r = await fetch('/api/attendance/roll?group_id=' + id); if(!r.ok) { showToast('Could not start.', true); return; }
+            const d = await r.json(); RC = { gid: id, name: d.group.name, day: d.day, list: d.students, i: Math.max(0, d.students.findIndex(s => !s.status)) }; atRenderRoll();
+        };
+        const AT_ST = { present: ['✅', 'Present', '#4ade80'], absent: ['❌', 'Absent', '#f87171'], late: ['⏰', 'Late', '#fbbf24'] };
+        function atRenderRoll() {
+            const box = document.getElementById('simulation-box'), n = RC.list.length, done = RC.list.filter(s => s.status).length, cnt = k => RC.list.filter(s => s.status === k).length;
+            const chips = RC.list.map((s, i) => `<button class="at-chip ${i === RC.i ? 'cur' : ''}" onclick="window.atGo(${i})" style="border-color:${s.status ? AT_ST[s.status][2] : 'var(--border-glow)'}">${s.status ? AT_ST[s.status][0] : '•'} ${escH((s.full_name || s.username).split(' ')[0])}</button>`).join('');
+            let main;
+            if(RC.i >= n) main = `<div class="ci-card ci-tips" style="text-align:center"><h4>Roll call finished ✔</h4><p>✅ ${cnt('present')} present · ❌ ${cnt('absent')} absent · ⏰ ${cnt('late')} late${done < n ? ' · ' + (n - done) + ' not marked' : ''}</p><small style="color:var(--text-muted)">Already sent to the administration.</small><button class="btn-action" onclick="window.openAttendance()" style="margin:12px 0 0">Done</button></div>`;
+            else { const s = RC.list[RC.i]; main = `<div class="ci-card at-main"><small style="color:var(--text-muted);letter-spacing:.1em">${RC.i + 1} / ${n} · ${escH(RC.day)}</small><div class="at-name">${escH(s.full_name || s.username)}</div>${s.status ? `<small style="color:${AT_ST[s.status][2]}">Marked ${AT_ST[s.status][1]}</small>` : ''}
+                <div class="at-btns"><button class="at-b p" onclick="window.atMark('present')">✅<span>Present</span></button><button class="at-b a" onclick="window.atMark('absent')">❌<span>Absent</span></button><button class="at-b l" onclick="window.atMark('late')">⏰<span>Late</span></button></div>
+                <div style="display:flex;gap:8px;margin-top:10px"><button class="btn-action" onclick="window.atGo(${RC.i - 1})" ${RC.i ? '' : 'disabled'} style="margin:0;background:transparent;border:1px solid var(--border-glow);color:var(--text-muted)">← Previous</button><button class="btn-action" onclick="window.atGo(${RC.i + 1})" style="margin:0;background:transparent;border:1px solid var(--border-glow);color:var(--text-muted)">Skip →</button></div></div>`; }
+            box.innerHTML = atTop('window.openAttendance()') + `<div class="ci-wrap"><div class="ci-card"><h4>${escH(RC.name)}</h4><div class="ci-prog"><i style="width:${Math.round(done / n * 100)}%"></i></div></div>${main}<div class="at-chips">${chips}</div></div>`;
+        }
+        window.atGo = i => { RC.i = Math.max(0, Math.min(RC.list.length, i)); atRenderRoll(); };
+        window.atMark = async status => {
+            const s = RC.list[RC.i]; playSound(status === 'present' ? 'success' : 'click');
+            const r = await fetch('/api/attendance/mark', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ group_id: RC.gid, student: s.username, status, day: RC.day }) });
+            if(!r.ok) { showToast('Could not save. Check your connection.', true); return; }
+            s.status = status; RC.i++; atRenderRoll();
+        };
+        /* director side */
+        window.loadRoll = async () => {
+            const out = document.getElementById('rl-out'), day = document.getElementById('rl-day').value; out.textContent = 'Loading…';
+            const r = await fetch('/api/admin/roll?day=' + day); if(!r.ok) { out.textContent = 'Could not load.'; return; } const d = await r.json();
+            out.innerHTML = d.groups.map(g => `<div class="ci-hq" style="flex-direction:column;align-items:stretch"><div style="display:flex;justify-content:space-between;gap:8px"><div><b style="font-weight:700">${escH(g.name)}</b><small style="display:block;color:var(--text-muted)">Teacher @${escH(g.teacher_username)} · ${g.total} students</small></div><div style="text-align:end;font-size:.78rem;font-weight:800"><span style="color:#4ade80">✅ ${g.present}</span> <span style="color:#f87171">❌ ${g.absent}</span> <span style="color:#fbbf24">⏰ ${g.late}</span><small style="display:block;color:var(--text-muted)">${g.total - g.records.length} not marked</small></div></div>
+                ${g.records.length ? `<div style="margin:6px 0;font-size:.78rem;line-height:1.6">${g.records.map(x => `<span style="color:${AT_ST[x.status][2]}">${AT_ST[x.status][0]} ${escH(x.full_name)} <small style="color:var(--text-muted)">${escH(x.time)}</small></span>`).join(' · ')}</div>` : ''}
+                <button class="btn-action" onclick="window.loadRollMonth(${g.id})" style="margin:4px 0 0;padding:6px;font-size:.75rem;background:transparent;border:1px dashed var(--border-glow);color:var(--text-muted)">Monthly sheet</button></div>`).join('') || '<small style="color:var(--text-muted)">No teacher group yet.</small>';
+        };
+        window.loadRollMonth = async gid => {
+            const mo = document.getElementById('rl-day').value.slice(0, 7), out = document.getElementById('rl-out');
+            const r = await fetch('/api/admin/roll-month?group_id=' + gid + '&month=' + mo); if(!r.ok) return; const d = await r.json(), days = Array.from({ length: d.days_in_month }, (_, i) => i + 1), L = { present: 'P', absent: 'A', late: 'L' };
+            window.__rm = { mo, d, days };
+            out.innerHTML = `<button class="btn-action" onclick="window.loadRoll()" style="margin:0 0 8px;padding:6px;font-size:.75rem">← Back to the day</button><div style="overflow-x:auto"><table class="at-table"><tr><th>${mo}</th>${days.map(x => `<th>${x}</th>`).join('')}<th>P</th><th>A</th></tr>${d.students.map(s => { const v = Object.values(s.marks); return `<tr><td>${escH(s.full_name)}</td>${days.map(x => `<td class="${s.marks[x] === 'present' ? 'on' : s.marks[x] === 'absent' ? 'off' : s.marks[x] === 'late' ? 'lt' : ''}">${s.marks[x] ? L[s.marks[x]] : ''}</td>`).join('')}<td><b>${v.filter(z => z === 'present').length}</b></td><td><b>${v.filter(z => z === 'absent').length}</b></td></tr>`; }).join('')}</table></div><button class="btn-action" onclick="window.exportRollCsv()" style="margin:8px 0 0;padding:8px;font-size:.8rem">⬇ CSV</button>`;
+        };
+        window.exportRollCsv = () => { const a = window.__rm, L = { present: 'P', absent: 'A', late: 'L' }; downloadCsv('roll_' + a.mo + '.csv', [['Student', ...a.days, 'Present', 'Absent']].concat(a.d.students.map(s => { const v = Object.values(s.marks); return [s.full_name, ...a.days.map(x => s.marks[x] ? L[s.marks[x]] : ''), v.filter(z => z === 'present').length, v.filter(z => z === 'absent').length]; }))); };
     </script>
 </body>
 </html>
