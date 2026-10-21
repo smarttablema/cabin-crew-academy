@@ -514,6 +514,9 @@
         .at-b.p{background:rgba(74,222,128,.16);border-color:#4ade80;color:#4ade80}.at-b.a{background:rgba(248,113,113,.14);border-color:#f87171;color:#f87171}.at-b.l{background:rgba(251,191,36,.14);border-color:#fbbf24;color:#fbbf24}
         .at-chips{display:flex;flex-wrap:wrap;gap:6px}.at-chip{padding:6px 10px;border-radius:999px;border:2px solid var(--border-glow);background:transparent;color:var(--text-main);font:inherit;font-size:.74rem;cursor:pointer}.at-chip.cur{background:rgba(56,189,248,.18)}
         .at-table td.off{background:rgba(248,113,113,.22);color:#f87171;font-weight:800}.at-table td.lt{background:rgba(251,191,36,.22);color:#fbbf24;font-weight:800}
+
+        /* ===== role views: higher specificity than the compact tile rules ===== */
+        #screen-dashboard .mode-tile.role-hide,#screen-dashboard .stat-item.role-hide,#dash-header-icons .header-icon-btn.role-hide{display:none!important}
         /* Teacher Copilot */
         #copilot{position:fixed;right:20px;bottom:24px;width:min(360px,calc(100% - 32px));z-index:5500;padding:16px 18px 14px;border-radius:20px;background:linear-gradient(145deg,rgba(15,23,42,.96),rgba(11,15,25,.96));border:1px solid var(--border-glow);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 34px var(--accent-glow);color:var(--text-main);transform:translateY(140%);opacity:0;transition:transform .55s cubic-bezier(.2,.9,.25,1.1),opacity .4s}
         #copilot.show{transform:none;opacity:1}
@@ -1341,8 +1344,7 @@
             renderStreakRescue();
             loadPaymentReminder();
             loadAnnouncement();
-            const isAdm = sessionUser.role === 'admin';
-            document.querySelectorAll('.mode-grid > .mode-tile').forEach(t => { t.style.display = (t.id === 'tile-admin' || t.id === 'tile-payments' || t.id === 'tile-reports') ? (isAdm ? '' : 'none') : isAdm ? 'none' : ((t.id === 'tile-insights' || t.id === 'tile-roll') ? (sessionUser.role === 'teacher' ? '' : 'none') : ''); });
+            applyRoleView();
         }
 
         function logoutUser() {
@@ -4409,38 +4411,45 @@
         };
     
         /* ATTENDANCE: teacher groups + roll call, delivered live to the director */
-        let AT = { groups: [], students: [] }, ATE = null, RC = null;
+        let AT = { groups: [] }, ATE = null, RC = null;
         const atTop = (back) => `<div class="feature-topbar"><button class="btn-action" onclick="${back}" style="width:85px; padding:8px 12px; font-size:0.8rem; margin-top:0;">← Back</button><h3 style="font-size:1.05rem; color:var(--accent); font-weight:900;">✅ Attendance</h3><div style="width:85px;"></div></div>`;
+        const atLabel = s => s.name + (s.nickname ? ' “' + s.nickname + '”' : '');
         async function openAttendance() {
             playSound('click');
             const box = document.getElementById('simulation-box'); box.classList.add('feature-fullscreen-view');
             box.innerHTML = atTop('window.resetToMenu()') + `<div class="ci-wrap"><div class="ci-card" style="text-align:center">Loading…</div></div>`;
-            try { const [g, s] = await Promise.all([fetch('/api/attendance/groups'), fetch('/api/attendance/students')]); if(!g.ok || !s.ok) throw 0; AT.groups = (await g.json()).groups; AT.students = (await s.json()).students; }
+            try { const g = await fetch('/api/attendance/groups'); if(!g.ok) throw 0; AT.groups = (await g.json()).groups; }
             catch(e) { box.innerHTML = atTop('window.resetToMenu()') + `<div class="ci-wrap"><div class="ci-card">Could not load your groups.</div></div>`; return; }
             box.innerHTML = atTop('window.resetToMenu()') + `<div class="ci-wrap"><button class="btn-action" onclick="window.atNewGroup()" style="margin:0">＋ Create a group</button>` +
-                (AT.groups.map(g => `<div class="ci-card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><b>${escH(g.name)}</b><small style="display:block;color:var(--text-muted)">${g.members.length} students</small></div><span><button class="le-x" onclick="window.atEditGroup(${g.id})" aria-label="Edit">✏</button><button class="le-x" onclick="window.atDeleteGroup(${g.id})" aria-label="Delete">🗑</button></span></div><button class="btn-action" onclick="window.atStartRoll(${g.id})" ${g.members.length ? '' : 'disabled'} style="margin:10px 0 0;background:var(--success);color:#fff">▶ Start roll call</button></div>`).join('') || `<div class="ci-card" style="text-align:center;color:var(--text-muted)">Create a group (for example "Group A"), add its students, then start a roll call in class.</div>`) + `</div>`;
+                (AT.groups.map(g => `<div class="ci-card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><b>${escH(g.name)}</b><small style="display:block;color:var(--text-muted)">${g.students.length} students</small></div><span><button class="le-x" onclick="window.atEditGroup(${g.id})" aria-label="Edit">✏</button><button class="le-x" onclick="window.atDeleteGroup(${g.id})" aria-label="Delete">🗑</button></span></div><button class="btn-action" onclick="window.atStartRoll(${g.id})" ${g.students.length ? '' : 'disabled'} style="margin:10px 0 0;background:var(--success);color:#fff">▶ Start roll call</button></div>`).join('') || `<div class="ci-card" style="text-align:center;color:var(--text-muted)">Create a group (for example "Group A"), type your students' names, then start a roll call in class.</div>`) + `</div>`;
         }
         window.openAttendance = openAttendance;
-        window.atNewGroup = () => { ATE = { id: null, name: '', sel: new Set(), q: '' }; atRenderEditor(); };
-        window.atEditGroup = id => { const g = AT.groups.find(x => x.id === id); ATE = { id, name: g.name, sel: new Set(g.members.map(m => m.username)), q: '' }; atRenderEditor(); };
-        window.atDeleteGroup = async id => { if(!confirm('Delete this group? Past attendance stays in the director\'s records.')) return; await fetch('/api/attendance/group/delete', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ group_id: id }) }); openAttendance(); };
+        window.atNewGroup = () => { ATE = { id: null, name: '', list: [] }; atRenderEditor(); };
+        window.atEditGroup = id => { const g = AT.groups.find(x => x.id === id); ATE = { id, name: g.name, list: g.students.map(s => ({ id: s.id, name: s.name, nickname: s.nickname })) }; atRenderEditor(); };
+        window.atDeleteGroup = async id => { if(!confirm('Delete this group? Past attendance disappears too.')) return; await fetch('/api/attendance/group/delete', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ group_id: id }) }); openAttendance(); };
         function atRenderEditor() {
             const box = document.getElementById('simulation-box');
-            box.innerHTML = atTop('window.openAttendance()') + `<div class="ci-wrap"><div class="ci-card"><h4>${ATE.id ? 'Edit group' : 'New group'}</h4><input placeholder="Group name (e.g. Group A)" maxlength="80" value="${escH(ATE.name)}" oninput="ATE.name=this.value" style="margin-bottom:8px">
-                <input placeholder="Search students…" oninput="ATE.q=this.value;window.atRenderList()" style="margin-bottom:8px"><small id="at-count" style="color:var(--accent);font-weight:800"></small><div id="at-list" style="max-height:46vh;overflow-y:auto;margin-top:8px"></div></div>
+            box.innerHTML = atTop('window.openAttendance()') + `<div class="ci-wrap"><div class="ci-card"><h4>${ATE.id ? 'Edit group' : 'New group'}</h4>
+                <input placeholder="Group name (e.g. Group A)" maxlength="80" value="${escH(ATE.name)}" oninput="ATE.name=this.value" style="margin-bottom:12px">
+                <h4 style="margin-bottom:6px">Add a student</h4>
+                <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="at-n" placeholder="Name (e.g. Karim Alaoui)" maxlength="80" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('at-k').focus()}" style="margin:0;flex:2;min-width:160px"><input id="at-k" placeholder="Nickname (optional)" maxlength="40" onkeydown="if(event.key==='Enter'){event.preventDefault();window.atAddOne()}" style="margin:0;flex:1;min-width:120px"></div>
+                <button class="btn-action" onclick="window.atAddOne()" style="margin:8px 0 0;background:var(--accent);color:#04121f">＋ Add</button>
+                <h4 style="margin:14px 0 6px">Or paste a whole list</h4><textarea id="at-paste" rows="4" placeholder="One student per line:&#10;Karim Alaoui&#10;Sara Benali - Sasa&#10;Omar" style="margin-bottom:8px"></textarea><button class="btn-action" onclick="window.atAddList()" style="margin:0;background:#8b5cf6;color:#fff">Add the list</button></div>
+                <div class="ci-card"><h4 id="at-count"></h4><div id="at-list"></div></div>
                 <button class="btn-action" onclick="window.atSaveGroup()" style="margin:0;background:var(--success);color:#fff;padding:1.1rem">💾 Save group</button></div>`;
             atRenderList();
         }
-        window.atRenderList = () => {
-            const q = ATE.q.trim().toLowerCase(), el = document.getElementById('at-list'); if(!el) return;
-            const list = AT.students.filter(s => !q || (s.full_name + ' ' + s.username).toLowerCase().includes(q));
-            el.innerHTML = list.map(s => `<label class="eb-opt" style="margin-bottom:6px"><input type="checkbox" ${ATE.sel.has(s.username) ? 'checked' : ''} onchange="window.atToggle('${escH(s.username)}', this.checked)"><span>${escH(s.full_name || s.username)} <small style="color:var(--text-muted)">@${escH(s.username)}${s.group_code ? ' · ' + escH(s.group_code) : ''}</small></span></label>`).join('') || '<small style="color:var(--text-muted)">No student found.</small>';
-            document.getElementById('at-count').textContent = ATE.sel.size + ' selected';
-        };
-        window.atToggle = (u, on) => { if(on) ATE.sel.add(u); else ATE.sel.delete(u); document.getElementById('at-count').textContent = ATE.sel.size + ' selected'; };
+        function atRenderList() {
+            const el = document.getElementById('at-list'); if(!el) return;
+            document.getElementById('at-count').textContent = ATE.list.length + ' student' + (ATE.list.length === 1 ? '' : 's');
+            el.innerHTML = ATE.list.map((s, i) => `<div class="ci-hq" style="padding:6px 0"><div style="flex:1"><b style="font-weight:600">${i + 1}. ${escH(s.name)}</b>${s.nickname ? `<small style="color:var(--gold)"> “${escH(s.nickname)}”</small>` : ''}</div><button class="le-x" onclick="window.atRemove(${i})" aria-label="Remove">✕</button></div>`).join('') || '<small style="color:var(--text-muted)">No student yet. Type a name above.</small>';
+        }
+        window.atAddOne = () => { const n = document.getElementById('at-n'), k = document.getElementById('at-k'), name = n.value.trim(); if(!name) { showToast('Type the student\'s name.', true); return; } ATE.list.push({ id: null, name, nickname: k.value.trim() }); n.value = ''; k.value = ''; n.focus(); atRenderList(); };
+        window.atAddList = () => { const ta = document.getElementById('at-paste'); let c = 0; ta.value.split('\n').forEach(line => { line = line.trim(); if(!line) return; const m = line.split(/\s+[-–,]\s+|\s*[,;]\s*/); const name = (m[0] || '').trim(); if(name) { ATE.list.push({ id: null, name, nickname: (m[1] || '').trim() }); c++; } }); ta.value = ''; atRenderList(); if(c) showToast(c + ' students added ✓'); };
+        window.atRemove = i => { ATE.list.splice(i, 1); atRenderList(); };
         window.atSaveGroup = async () => {
             if(!ATE.name.trim()) { showToast('Give the group a name.', true); return; }
-            const r = await fetch('/api/attendance/group/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name: ATE.name, members: Array.from(ATE.sel), group_id: ATE.id }) });
+            const r = await fetch('/api/attendance/group/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ name: ATE.name, students: ATE.list, group_id: ATE.id }) });
             if(r.ok) { showToast('Group saved ✓'); playSound('success'); openAttendance(); } else { const e = await r.json().catch(() => ({})); showToast(e.detail || 'Could not save.', true); }
         };
         window.atStartRoll = async id => {
@@ -4450,10 +4459,10 @@
         const AT_ST = { present: ['✅', 'Present', '#4ade80'], absent: ['❌', 'Absent', '#f87171'], late: ['⏰', 'Late', '#fbbf24'] };
         function atRenderRoll() {
             const box = document.getElementById('simulation-box'), n = RC.list.length, done = RC.list.filter(s => s.status).length, cnt = k => RC.list.filter(s => s.status === k).length;
-            const chips = RC.list.map((s, i) => `<button class="at-chip ${i === RC.i ? 'cur' : ''}" onclick="window.atGo(${i})" style="border-color:${s.status ? AT_ST[s.status][2] : 'var(--border-glow)'}">${s.status ? AT_ST[s.status][0] : '•'} ${escH((s.full_name || s.username).split(' ')[0])}</button>`).join('');
+            const chips = RC.list.map((s, i) => `<button class="at-chip ${i === RC.i ? 'cur' : ''}" onclick="window.atGo(${i})" style="border-color:${s.status ? AT_ST[s.status][2] : 'var(--border-glow)'}">${s.status ? AT_ST[s.status][0] : '•'} ${escH(s.name.split(' ')[0])}</button>`).join('');
             let main;
             if(RC.i >= n) main = `<div class="ci-card ci-tips" style="text-align:center"><h4>Roll call finished ✔</h4><p>✅ ${cnt('present')} present · ❌ ${cnt('absent')} absent · ⏰ ${cnt('late')} late${done < n ? ' · ' + (n - done) + ' not marked' : ''}</p><small style="color:var(--text-muted)">Already sent to the administration.</small><button class="btn-action" onclick="window.openAttendance()" style="margin:12px 0 0">Done</button></div>`;
-            else { const s = RC.list[RC.i]; main = `<div class="ci-card at-main"><small style="color:var(--text-muted);letter-spacing:.1em">${RC.i + 1} / ${n} · ${escH(RC.day)}</small><div class="at-name">${escH(s.full_name || s.username)}</div>${s.status ? `<small style="color:${AT_ST[s.status][2]}">Marked ${AT_ST[s.status][1]}</small>` : ''}
+            else { const s = RC.list[RC.i]; main = `<div class="ci-card at-main"><small style="color:var(--text-muted);letter-spacing:.1em">${RC.i + 1} / ${n} · ${escH(RC.day)}</small><div class="at-name">${escH(s.name)}</div>${s.nickname ? `<div style="color:var(--gold);font-weight:700;margin-top:-6px">“${escH(s.nickname)}”</div>` : ''}${s.status ? `<small style="color:${AT_ST[s.status][2]}">Marked ${AT_ST[s.status][1]}</small>` : ''}
                 <div class="at-btns"><button class="at-b p" onclick="window.atMark('present')">✅<span>Present</span></button><button class="at-b a" onclick="window.atMark('absent')">❌<span>Absent</span></button><button class="at-b l" onclick="window.atMark('late')">⏰<span>Late</span></button></div>
                 <div style="display:flex;gap:8px;margin-top:10px"><button class="btn-action" onclick="window.atGo(${RC.i - 1})" ${RC.i ? '' : 'disabled'} style="margin:0;background:transparent;border:1px solid var(--border-glow);color:var(--text-muted)">← Previous</button><button class="btn-action" onclick="window.atGo(${RC.i + 1})" style="margin:0;background:transparent;border:1px solid var(--border-glow);color:var(--text-muted)">Skip →</button></div></div>`; }
             box.innerHTML = atTop('window.openAttendance()') + `<div class="ci-wrap"><div class="ci-card"><h4>${escH(RC.name)}</h4><div class="ci-prog"><i style="width:${Math.round(done / n * 100)}%"></i></div></div>${main}<div class="at-chips">${chips}</div></div>`;
@@ -4461,7 +4470,7 @@
         window.atGo = i => { RC.i = Math.max(0, Math.min(RC.list.length, i)); atRenderRoll(); };
         window.atMark = async status => {
             const s = RC.list[RC.i]; playSound(status === 'present' ? 'success' : 'click');
-            const r = await fetch('/api/attendance/mark', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ group_id: RC.gid, student: s.username, status, day: RC.day }) });
+            const r = await fetch('/api/attendance/mark', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ group_id: RC.gid, roster_id: s.id, status, day: RC.day }) });
             if(!r.ok) { showToast('Could not save. Check your connection.', true); return; }
             s.status = status; RC.i++; atRenderRoll();
         };
@@ -4480,6 +4489,25 @@
             out.innerHTML = `<button class="btn-action" onclick="window.loadRoll()" style="margin:0 0 8px;padding:6px;font-size:.75rem">← Back to the day</button><div style="overflow-x:auto"><table class="at-table"><tr><th>${mo}</th>${days.map(x => `<th>${x}</th>`).join('')}<th>P</th><th>A</th></tr>${d.students.map(s => { const v = Object.values(s.marks); return `<tr><td>${escH(s.full_name)}</td>${days.map(x => `<td class="${s.marks[x] === 'present' ? 'on' : s.marks[x] === 'absent' ? 'off' : s.marks[x] === 'late' ? 'lt' : ''}">${s.marks[x] ? L[s.marks[x]] : ''}</td>`).join('')}<td><b>${v.filter(z => z === 'present').length}</b></td><td><b>${v.filter(z => z === 'absent').length}</b></td></tr>`; }).join('')}</table></div><button class="btn-action" onclick="window.exportRollCsv()" style="margin:8px 0 0;padding:8px;font-size:.8rem">⬇ CSV</button>`;
         };
         window.exportRollCsv = () => { const a = window.__rm, L = { present: 'P', absent: 'A', late: 'L' }; downloadCsv('roll_' + a.mo + '.csv', [['Student', ...a.days, 'Present', 'Absent']].concat(a.d.students.map(s => { const v = Object.values(s.marks); return [s.full_name, ...a.days.map(x => s.marks[x] ? L[s.marks[x]] : ''), v.filter(z => z === 'present').length, v.filter(z => z === 'absent').length]; }))); };
+    
+        /* ROLE VIEW: every account type sees only its own tools */
+        function applyRoleView() {
+            const role = (sessionUser && sessionUser.role) || 'student';
+            const MAP = { launchRoadmap: 's', launchAviationEnglishRoadmap: 's', launchVocabularyRoadmap: 's', openSpinningWheelModal: 's', open1v1Lobby: 's', openListeningLab: 's', openFlightLogbookModal: 's',
+                openStudyHub: 'st', openSocialHub: 'st', openClassLeague: 'st', openClassInsights: 't', openAttendance: 't', openAdminReports: 'a', openPayments: 'a', openAcademyOverview: 'a' };
+            const ALLOW = { student: ['s', 'st'], teacher: ['st', 't'], admin: ['a'] }[role] || ['s', 'st'];
+            document.querySelectorAll('#screen-dashboard .mode-tile').forEach(t => {
+                const m = (t.getAttribute('onclick') || '').match(/window\.(\w+)\(/), k = m ? (MAP[m[1]] || 's') : 's';
+                t.classList.toggle('role-hide', !ALLOW.includes(k)); t.style.removeProperty('display');
+            });
+            const student = role === 'student';
+            document.querySelectorAll('#screen-dashboard .stat-item').forEach(el => el.classList.toggle('role-hide', !student));
+            document.querySelectorAll('#dash-header-icons .header-icon-btn').forEach(el => { const c = el.getAttribute('onclick') || ''; if(/openAvatarStudio|openShop/.test(c)) el.classList.toggle('role-hide', !student); });
+            const sd = document.querySelector('#screen-dashboard .stats-dashboard');
+            if(sd) { if(student) sd.setAttribute('onclick', 'window.openHeartRecoveryLounge()'); else sd.removeAttribute('onclick'); sd.style.cursor = student ? '' : 'default'; }
+            ['announce-card', 'streak-card', 'goal-card', 'pay-card'].forEach(id => { const c = document.getElementById(id); if(c && !student) c.style.display = 'none'; });
+        }
+        window.applyRoleView = applyRoleView;
     </script>
 </body>
 </html>
