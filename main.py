@@ -77,7 +77,7 @@ def read_token(tok: str):
 PUBLIC_API = {"/api/login", "/api/register", "/api/user/password-change", "/api/health"}
 TEACHER_ONLY = {"/api/teacher/adjust-xp", "/api/teacher/dashboard", "/api/teacher/export-csv", "/api/exam/create",
                 "/api/exam/create-advanced", "/api/exam/upload-pdf", "/api/exam/delete",
-                "/api/lesson/create", "/api/lesson/delete", "/api/attendance/groups", "/api/attendance/students", "/api/attendance/group/save", "/api/attendance/group/delete", "/api/attendance/roll", "/api/attendance/mark", "/api/demo/seed", "/api/demo/clear", "/api/announce/create", "/api/announce/delete", "/api/teacher/set-code", "/api/exam/reset-submission", "/api/exam/review"}
+                "/api/lesson/create", "/api/lesson/delete", "/api/attendance/groups", "/api/attendance/group/save", "/api/attendance/group/delete", "/api/attendance/roll", "/api/attendance/mark", "/api/demo/seed", "/api/demo/clear", "/api/announce/create", "/api/announce/delete", "/api/teacher/set-code", "/api/exam/reset-submission", "/api/exam/review"}
 ACTOR_FIELDS = ("username", "student_username", "teacher_username", "sender_username")
 
 def identity_problem(scope, body: bytes, user):
@@ -207,6 +207,8 @@ def startup_extras():
         "CREATE TABLE IF NOT EXISTS aero_v22_att_groups (id SERIAL PRIMARY KEY, teacher_username VARCHAR(50), name VARCHAR(80), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);",
         "CREATE TABLE IF NOT EXISTS aero_v22_att_members (group_id INT, student_username VARCHAR(50), PRIMARY KEY (group_id, student_username));",
         "CREATE TABLE IF NOT EXISTS aero_v22_attendance (group_id INT, student_username VARCHAR(50), day DATE, status VARCHAR(10), marked_by VARCHAR(50), marked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (group_id, student_username, day));",
+        "CREATE TABLE IF NOT EXISTS aero_v22_att_roster (id SERIAL PRIMARY KEY, group_id INT, name VARCHAR(80), nickname VARCHAR(40));",
+        "CREATE TABLE IF NOT EXISTS aero_v22_att_marks (roster_id INT, day DATE, status VARCHAR(10), marked_by VARCHAR(50), marked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (roster_id, day));",
         "CREATE TABLE IF NOT EXISTS aero_v22_activity (username VARCHAR(50), day DATE, PRIMARY KEY (username, day));",
         "CREATE TABLE IF NOT EXISTS aero_v22_payment_log (id SERIAL PRIMARY KEY, username VARCHAR(50), amount INT, months INT, paid_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);",
         """CREATE TABLE IF NOT EXISTS aero_v22_mistakes (
@@ -225,7 +227,7 @@ def startup_extras():
             STARTUP_ERRORS.append(str(e)[:200])
             print("STARTUP WARNING:", e)
 
-EXPECTED_TABLES = ["users", "battles", "exams", "exam_submissions", "shop_skins", "mistakes", "class_lessons", "owned_skins", "announcements", "weekly_xp", "payments", "activity", "payment_log", "att_groups", "att_members", "attendance"]
+EXPECTED_TABLES = ["users", "battles", "exams", "exam_submissions", "shop_skins", "mistakes", "class_lessons", "owned_skins", "announcements", "weekly_xp", "payments", "activity", "payment_log", "att_groups", "att_roster", "att_marks"]
 
 @app.get("/api/health")
 def health():
@@ -2066,7 +2068,7 @@ def admin_reports():
 
 class AttGroupModel(BaseModel):
     name: str
-    members: list = []
+    students: list = []
     group_id: int = None
 
 class AttDeleteModel(BaseModel):
@@ -2074,7 +2076,7 @@ class AttDeleteModel(BaseModel):
 
 class AttMarkModel(BaseModel):
     group_id: int
-    student: str
+    roster_id: int
     status: str
     day: str = None
 
@@ -2085,15 +2087,8 @@ def _own_group(cur, group_id, me):
         raise HTTPException(status_code=404, detail="Group not found.")
     return g
 
-@app.get("/api/attendance/students")
-def att_students():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT username, full_name, group_code FROM aero_v22_users WHERE role = 'student' ORDER BY full_name LIMIT 1000;")
-    rows = cur.fetchall()
-    cur.close()
-    conn.close()
-    return {"students": rows}
+def _label(name, nick):
+    return name + (' \u201c' + nick + '\u201d' if nick else "")
 
 @app.get("/api/attendance/groups")
 def att_groups(request: Request):
@@ -2102,16 +2097,15 @@ def att_groups(request: Request):
     cur = conn.cursor()
     cur.execute("SELECT id, name FROM aero_v22_att_groups WHERE teacher_username = %s ORDER BY id;", (me,))
     groups = cur.fetchall()
-    members = {}
+    roster = {}
     if groups:
-        cur.execute("""SELECT m.group_id, u.username, u.full_name FROM aero_v22_att_members m JOIN aero_v22_users u ON u.username = m.student_username
-                       WHERE m.group_id = ANY(%s) ORDER BY u.full_name;""", ([g["id"] for g in groups],))
+        cur.execute("SELECT id, group_id, name, nickname FROM aero_v22_att_roster WHERE group_id = ANY(%s) ORDER BY name;", ([g["id"] for g in groups],))
         for r in cur.fetchall():
-            members.setdefault(r["group_id"], []).append({"username": r["username"], "full_name": r["full_name"]})
+            roster.setdefault(r["group_id"], []).append({"id": r["id"], "name": r["name"], "nickname": r["nickname"] or ""})
     cur.close()
     conn.close()
     for g in groups:
-        g["members"] = members.get(g["id"], [])
+        g["students"] = roster.get(g["id"], [])
     return {"groups": groups}
 
 @app.post("/api/attendance/group/save")
@@ -2120,7 +2114,13 @@ def att_group_save(data: AttGroupModel, request: Request):
     name = data.name.strip()[:80]
     if not name:
         raise HTTPException(status_code=400, detail="Give the group a name.")
-    wanted = list({str(m).strip() for m in data.members if str(m).strip()})[:200]
+    rows = []
+    for st in data.students[:300]:
+        if not isinstance(st, dict):
+            continue
+        nm = str(st.get("name", "")).strip()[:80]
+        if nm:
+            rows.append((st.get("id") if isinstance(st.get("id"), int) else None, nm, str(st.get("nickname") or "").strip()[:40]))
     conn = get_db_connection()
     cur = conn.cursor()
     if data.group_id:
@@ -2130,11 +2130,17 @@ def att_group_save(data: AttGroupModel, request: Request):
     else:
         cur.execute("INSERT INTO aero_v22_att_groups (teacher_username, name) VALUES (%s, %s) RETURNING id;", (me, name))
         gid = cur.fetchone()["id"]
-    cur.execute("DELETE FROM aero_v22_att_members WHERE group_id = %s;", (gid,))
-    if wanted:
-        cur.execute("SELECT username FROM aero_v22_users WHERE role = 'student' AND username = ANY(%s);", (wanted,))
-        for r in cur.fetchall():
-            cur.execute("INSERT INTO aero_v22_att_members (group_id, student_username) VALUES (%s, %s) ON CONFLICT DO NOTHING;", (gid, r["username"]))
+    cur.execute("SELECT id FROM aero_v22_att_roster WHERE group_id = %s;", (gid,))
+    existing = {r["id"] for r in cur.fetchall()}
+    keep = {r[0] for r in rows if r[0] in existing}
+    for rid in existing - keep:
+        cur.execute("DELETE FROM aero_v22_att_marks WHERE roster_id = %s;", (rid,))
+        cur.execute("DELETE FROM aero_v22_att_roster WHERE id = %s;", (rid,))
+    for rid, nm, nick in rows:
+        if rid in existing:
+            cur.execute("UPDATE aero_v22_att_roster SET name = %s, nickname = %s WHERE id = %s AND group_id = %s;", (nm, nick, rid, gid))
+        else:
+            cur.execute("INSERT INTO aero_v22_att_roster (group_id, name, nickname) VALUES (%s, %s, %s);", (gid, nm, nick))
     conn.commit()
     cur.close()
     conn.close()
@@ -2145,7 +2151,8 @@ def att_group_delete(data: AttDeleteModel, request: Request):
     conn = get_db_connection()
     cur = conn.cursor()
     _own_group(cur, data.group_id, request.state.auth["username"])
-    cur.execute("DELETE FROM aero_v22_att_members WHERE group_id = %s;", (data.group_id,))
+    cur.execute("DELETE FROM aero_v22_att_marks WHERE roster_id IN (SELECT id FROM aero_v22_att_roster WHERE group_id = %s);", (data.group_id,))
+    cur.execute("DELETE FROM aero_v22_att_roster WHERE group_id = %s;", (data.group_id,))
     cur.execute("DELETE FROM aero_v22_att_groups WHERE id = %s;", (data.group_id,))
     conn.commit()
     cur.close()
@@ -2159,9 +2166,9 @@ def att_roll(group_id: int, request: Request, day: str = None):
     conn = get_db_connection()
     cur = conn.cursor()
     g = _own_group(cur, group_id, me)
-    cur.execute("""SELECT u.username, u.full_name, a.status FROM aero_v22_att_members m JOIN aero_v22_users u ON u.username = m.student_username
-                   LEFT JOIN aero_v22_attendance a ON a.group_id = m.group_id AND a.student_username = m.student_username AND a.day = %s
-                   WHERE m.group_id = %s ORDER BY u.full_name;""", (d, group_id))
+    cur.execute("""SELECT r.id, r.name, r.nickname, m.status FROM aero_v22_att_roster r
+                   LEFT JOIN aero_v22_att_marks m ON m.roster_id = r.id AND m.day = %s
+                   WHERE r.group_id = %s ORDER BY r.name;""", (d, group_id))
     rows = cur.fetchall()
     cur.close()
     conn.close()
@@ -2178,14 +2185,14 @@ def att_mark(data: AttMarkModel, request: Request):
     conn = get_db_connection()
     cur = conn.cursor()
     _own_group(cur, data.group_id, me)
-    cur.execute("SELECT 1 FROM aero_v22_att_members WHERE group_id = %s AND student_username = %s;", (data.group_id, data.student))
+    cur.execute("SELECT 1 FROM aero_v22_att_roster WHERE id = %s AND group_id = %s;", (data.roster_id, data.group_id))
     if not cur.fetchone():
         cur.close()
         conn.close()
         raise HTTPException(status_code=404, detail="This student is not in the group.")
-    cur.execute("""INSERT INTO aero_v22_attendance (group_id, student_username, day, status, marked_by, marked_at) VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
-                   ON CONFLICT (group_id, student_username, day) DO UPDATE SET status = EXCLUDED.status, marked_by = EXCLUDED.marked_by, marked_at = CURRENT_TIMESTAMP;""",
-                (data.group_id, data.student, d, data.status, me))
+    cur.execute("""INSERT INTO aero_v22_att_marks (roster_id, day, status, marked_by, marked_at) VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP)
+                   ON CONFLICT (roster_id, day) DO UPDATE SET status = EXCLUDED.status, marked_by = EXCLUDED.marked_by, marked_at = CURRENT_TIMESTAMP;""",
+                (data.roster_id, d, data.status, me))
     conn.commit()
     cur.close()
     conn.close()
@@ -2196,13 +2203,13 @@ def admin_roll(day: str = None):
     d = datetime.strptime(day, "%Y-%m-%d").date() if day else today_local()
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT g.id, g.name, g.teacher_username, (SELECT COUNT(*) FROM aero_v22_att_members m WHERE m.group_id = g.id) AS total FROM aero_v22_att_groups g ORDER BY g.name;")
+    cur.execute("SELECT g.id, g.name, g.teacher_username, (SELECT COUNT(*) FROM aero_v22_att_roster r WHERE r.group_id = g.id) AS total FROM aero_v22_att_groups g ORDER BY g.name;")
     groups = cur.fetchall()
-    cur.execute("""SELECT a.group_id, u.full_name, a.status, a.marked_at FROM aero_v22_attendance a JOIN aero_v22_users u ON u.username = a.student_username
-                   WHERE a.day = %s ORDER BY u.full_name;""", (d,))
+    cur.execute("""SELECT r.group_id, r.name, r.nickname, m.status, m.marked_at FROM aero_v22_att_marks m JOIN aero_v22_att_roster r ON r.id = m.roster_id
+                   WHERE m.day = %s ORDER BY r.name;""", (d,))
     recs = {}
     for r in cur.fetchall():
-        recs.setdefault(r["group_id"], []).append({"full_name": r["full_name"], "status": r["status"], "time": r["marked_at"].strftime("%H:%M") if r["marked_at"] else ""})
+        recs.setdefault(r["group_id"], []).append({"full_name": _label(r["name"], r["nickname"]), "status": r["status"], "time": r["marked_at"].strftime("%H:%M") if r["marked_at"] else ""})
     cur.close()
     conn.close()
     for g in groups:
@@ -2217,15 +2224,16 @@ def admin_roll_month(group_id: int, month: str):
     end = add_months(start, 1)
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT u.username, u.full_name FROM aero_v22_att_members m JOIN aero_v22_users u ON u.username = m.student_username WHERE m.group_id = %s ORDER BY u.full_name;", (group_id,))
+    cur.execute("SELECT id, name, nickname FROM aero_v22_att_roster WHERE group_id = %s ORDER BY name;", (group_id,))
     studs = cur.fetchall()
-    cur.execute("SELECT student_username, day, status FROM aero_v22_attendance WHERE group_id = %s AND day >= %s AND day < %s;", (group_id, start, end))
+    cur.execute("""SELECT m.roster_id, m.day, m.status FROM aero_v22_att_marks m JOIN aero_v22_att_roster r ON r.id = m.roster_id
+                   WHERE r.group_id = %s AND m.day >= %s AND m.day < %s;""", (group_id, start, end))
     marks = {}
     for r in cur.fetchall():
-        marks.setdefault(r["student_username"], {})[r["day"].day] = r["status"]
+        marks.setdefault(r["roster_id"], {})[r["day"].day] = r["status"]
     cur.close()
     conn.close()
-    return {"days_in_month": calendar.monthrange(start.year, start.month)[1], "students": [{"full_name": x["full_name"], "marks": marks.get(x["username"], {})} for x in studs]}
+    return {"days_in_month": calendar.monthrange(start.year, start.month)[1], "students": [{"full_name": _label(x["name"], x["nickname"]), "marks": marks.get(x["id"], {})} for x in studs]}
 
 @app.get("/manifest.json")
 def serve_manifest():
