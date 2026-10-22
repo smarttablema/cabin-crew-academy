@@ -77,7 +77,7 @@ def read_token(tok: str):
 PUBLIC_API = {"/api/login", "/api/register", "/api/user/password-change", "/api/health"}
 TEACHER_ONLY = {"/api/teacher/adjust-xp", "/api/teacher/dashboard", "/api/teacher/export-csv", "/api/exam/create",
                 "/api/exam/create-advanced", "/api/exam/upload-pdf", "/api/exam/delete",
-                "/api/lesson/create", "/api/lesson/delete", "/api/attendance/groups", "/api/attendance/group/save", "/api/attendance/group/delete", "/api/attendance/roll", "/api/attendance/mark", "/api/demo/seed", "/api/demo/clear", "/api/announce/create", "/api/announce/delete", "/api/teacher/set-code", "/api/exam/reset-submission", "/api/exam/review"}
+                "/api/lesson/create", "/api/lesson/delete", "/api/attendance/groups", "/api/attendance/stats", "/api/attendance/group/save", "/api/attendance/group/delete", "/api/attendance/roll", "/api/attendance/mark", "/api/demo/seed", "/api/demo/clear", "/api/announce/create", "/api/announce/delete", "/api/teacher/set-code", "/api/exam/reset-submission", "/api/exam/review"}
 ACTOR_FIELDS = ("username", "student_username", "teacher_username", "sender_username")
 
 def identity_problem(scope, body: bytes, user):
@@ -2090,6 +2090,41 @@ def _own_group(cur, group_id, me):
 def _label(name, nick):
     return name + (' \u201c' + nick + '\u201d' if nick else "")
 
+def _att_stats(cur, roster_ids):
+    """Attendance rate over 30 days and the current run of consecutive absences, per student."""
+    out = {rid: {"present": 0, "absent": 0, "late": 0, "streak": 0, "rate": None} for rid in roster_ids}
+    if not roster_ids:
+        return out
+    cur.execute("SELECT roster_id, day, status FROM aero_v22_att_marks WHERE roster_id = ANY(%s) AND day >= %s ORDER BY roster_id, day DESC;",
+                (list(roster_ids), today_local() - timedelta(days=60)))
+    cut = today_local() - timedelta(days=30)
+    broken = set()
+    for r in cur.fetchall():
+        o = out[r["roster_id"]]
+        if r["day"] >= cut and r["status"] in o:
+            o[r["status"]] += 1
+        if r["roster_id"] not in broken:
+            if r["status"] == "absent":
+                o["streak"] += 1
+            else:
+                broken.add(r["roster_id"])
+    for o in out.values():
+        n = o["present"] + o["absent"] + o["late"]
+        o["rate"] = round((o["present"] + o["late"]) / n * 100) if n else None
+    return out
+
+@app.get("/api/attendance/stats")
+def att_stats(group_id: int, request: Request):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    _own_group(cur, group_id, request.state.auth["username"])
+    cur.execute("SELECT id, name, nickname FROM aero_v22_att_roster WHERE group_id = %s ORDER BY name;", (group_id,))
+    rows = cur.fetchall()
+    st = _att_stats(cur, [r["id"] for r in rows])
+    cur.close()
+    conn.close()
+    return {"students": [dict(r, **st[r["id"]]) for r in rows]}
+
 @app.get("/api/attendance/groups")
 def att_groups(request: Request):
     me = request.state.auth["username"]
@@ -2210,12 +2245,22 @@ def admin_roll(day: str = None):
     recs = {}
     for r in cur.fetchall():
         recs.setdefault(r["group_id"], []).append({"full_name": _label(r["name"], r["nickname"]), "status": r["status"], "time": r["marked_at"].strftime("%H:%M") if r["marked_at"] else ""})
+    cur.execute("SELECT r.id, r.name, r.nickname, g.name AS gname, g.teacher_username FROM aero_v22_att_roster r JOIN aero_v22_att_groups g ON g.id = r.group_id;")
+    allr = cur.fetchall()
+    st = _att_stats(cur, [r["id"] for r in allr])
+    alerts = []
+    for r in allr:
+        o = st[r["id"]]
+        n = o["present"] + o["absent"] + o["late"]
+        if o["streak"] >= 3 or (o["rate"] is not None and o["rate"] < 70 and n >= 3):
+            alerts.append({"full_name": _label(r["name"], r["nickname"]), "group": r["gname"], "teacher": r["teacher_username"], "streak": o["streak"], "rate": o["rate"]})
+    alerts.sort(key=lambda x: (-x["streak"], x["rate"] if x["rate"] is not None else 100))
     cur.close()
     conn.close()
     for g in groups:
         rr = recs.get(g["id"], [])
         g.update({"records": rr, "present": sum(1 for x in rr if x["status"] == "present"), "absent": sum(1 for x in rr if x["status"] == "absent"), "late": sum(1 for x in rr if x["status"] == "late")})
-    return {"day": str(d), "groups": groups}
+    return {"day": str(d), "groups": groups, "alerts": alerts}
 
 @app.get("/api/admin/roll-month")
 def admin_roll_month(group_id: int, month: str):
